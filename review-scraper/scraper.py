@@ -18,7 +18,7 @@ __class_name__ = {
     'booking': Booking,
     'maeva': Maeva,
     'camping': Campings,
-    'hotels': Hotels,
+    'hotels_com': Hotels,
     'google': Google,
     'opentable': Opentable,
     'trustpilot': Trustpilot,
