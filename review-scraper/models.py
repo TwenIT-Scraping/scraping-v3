@@ -90,14 +90,15 @@ class Establishment(EReputationBase):
         self.website_urls()
 
     def website_urls(self) -> list:
-        websites = self.get_elements("websites")
+        instance = ERApi(entity=f"establishment/{self.id}/website")
+        data = instance.execute()
+
         urls = {}
         url_fields = ['google', 'tripadvisor', 'opentable', 'trustpilot', 'expedia', 'camping', 'booking']
 
-        for website in websites:
-            for field in url_fields:
-                if website[field]:
-                    urls[field] = website[field]
+        for field in url_fields:
+            if len(data) and data[0][field]:
+                urls[field] = data[0][field]
         
         self.websites = urls
 
