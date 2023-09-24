@@ -62,9 +62,9 @@ class Scraping(object):
             time.sleep(5)
             self.scrap(self.url)
             self.extract()
-            # time.sleep(2)
-            # self.save()
-            # self.driver.quit()
+            time.sleep(2)
+            self.save()
+            self.driver.quit()
         except Exception as e:
             print(e)
             self.driver.quit()

@@ -21,7 +21,6 @@ class EReputationBase:
 
     def save(self) -> bool:
         data = self.__dict__
-        print(data)
         if self.id != -1:
             req = ERApi(method="put", entity=self.entity, id=self.id)
             data.pop('id')
