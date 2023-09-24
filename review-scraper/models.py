@@ -94,7 +94,7 @@ class Establishment(EReputationBase):
         data = instance.execute()
 
         urls = {}
-        url_fields = ['google', 'tripadvisor', 'opentable', 'trustpilot', 'expedia', 'camping', 'booking']
+        url_fields = ['google', 'tripadvisor', 'opentable', 'trustpilot', 'expedia', 'camping', 'booking', 'hotels_com', 'maeva']
 
         for field in url_fields:
             if len(data) and data[0][field]:
