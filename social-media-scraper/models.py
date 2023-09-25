@@ -29,9 +29,9 @@ class EReputationBase:
             res = req.execute()
 
         else:
+            req = ERApi(method="post", entity=self.entity)
             data.pop('id')
             entity = data.pop('entity')
-            req = ERApi(method="post", entity='social_pages')
             req.set_body(data)
             res = req.execute()
         

@@ -12,11 +12,14 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
 from langdetect import detect
 import re
+import json
+from models import create
 
 
 class Facebook(Scraping):
-    def __init__(self, url: str, establishment: str, site_url: str):
+    def __init__(self, url: str, establishment: str, site_url: str, post_file: str):
         super().__init__(in_background=False, url=url, establishment=establishment, site_url=site_url)
+        self.post_file = post_file
 
     def login(self):
         self.scrap(self.site_url)
@@ -27,15 +30,36 @@ class Facebook(Scraping):
         time.sleep(5)
         login_form.find_element(By.XPATH, "//button[@data-testid='royal_login_button']").click()
 
+    def get_posts_count(self):
+        with open(self.post_file, 'r', encoding='utf-8') as file:
+            items = json.load(file)
+            return len(items.values())
 
-    # def load_reviews(self) -> None:
-    #     self.driver.find_element(By.ID, 'avis-tout-cta').click()
-    #     results = int(''.join([x for x in self.driver.find_element(By.ID, 'avis-comp-content').find_element(By.CLASS_NAME, 'ml-1').text if x.isdigit()]))
-    #     for i in range(results//3):
-    #         self.driver.find_element(By.ID, 'avis-cards-content-container').click()
-    #         for k in range(3):
-    #             self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
-    #         time.sleep(2)
+    def load_posts(self, page_id):
+        items = []
+
+        with open(self.post_file, 'r', encoding='utf-8') as file:
+            items = json.load(file)
+
+        posts = []
+
+        print("load posts")
+
+        for item in items.values():
+            try:
+                posts.append({
+                    "title": item["content"],
+                    "comments": item["comments"],
+                    "likes": item["reactions"]["likes"]+item["reactions"]["loves"]+item["reactions"]["wow"],
+                    "share": item["shares"],
+                    "publishedAt": datetime.strptime(item["posted_on"],"%Y-%m-%dT%H:%M:%S").strftime("%Y-%m-%d"),
+                    "socialPage": f"/api/social_pages/{page_id}"
+                })
+            except Exception as e:
+                print(e)
+                pass
+
+        return posts
 
     def extract(self) -> None:
         def format_number(number):
@@ -48,10 +72,6 @@ class Facebook(Scraping):
             else:
                 return nb[0]
 
-        # self.load_reviews()
-
-        # reviews = []
-
         try:
             for i in range(5):
                 self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -60,75 +80,38 @@ class Facebook(Scraping):
             soup  = BeautifulSoup(self.driver.page_source, 'lxml')
             likes = soup.find_all('a', href=lambda href: href and "friends_likes" in href)[0].text.strip()
             followers = soup.find_all('a', href=lambda href: href and "followers" in href)[0].text.strip()
-            nb_followers = format_number(followers)
-            nb_likes = format_number(likes)
+            nb_followers = int(format_number(followers))
+            nb_likes = int(format_number(likes))
             
-            print(nb_likes, nb_followers)
+            nb_posts = self.get_posts_count()
 
-            posts = []
-
-            for i in range(1, 30):
-                try:
-                    post_item = soup.find('div', {'aria-posinset': str(i)})
-                except Exception as e:
-                    print("Erreur 1")
-                    continue
-
-                try:
-                    title = post_item.find('h2').text.strip() if post_item.find('h2') else ""
-                except:
-                    print("Erreur 2")
-                    pass
-
-                likes = 0
-                shares = 0
-                datas = post_item.find('div', {'data-visualcompletion': 'ignore-dynamic'}).find_all('div', {'role': 'button'}) \
-                        if post_item.find('div', {'data-visualcompletion': 'ignore-dynamic'}) else []
-                
-                for item in datas:
-                    tmp = item.text.strip()
-                    if "Toutes les réactions" in tmp:
-                        likes = int(tmp.split()[-1])
-
-                datas = post_item.find('div', {'data-visualcompletion': 'ignore-dynamic'}).find_all('span', {'class': ['x193iq5w', 'xeuugli', 'x13faqbe', 'x1vvkbs', 'x1xmvt09', 'x1lliihq', 'x1s928wv', 'xhkezso', 'x1gmr53x', 'x1cpjm7i', 'x1fgarty', 'x1943h6x', 'xudqn12', 'x3x7a5m', 'x6prxxf', 'xvq8zen', 'xo1l8bm', 'xi81zsa']}) \
-                        if post_item.find('div', {'data-visualcompletion': 'ignore-dynamic'}) else []
-
-                print("=================")
-
-                values = []
-                for item in datas:
-                    tmp = item.text.strip()
-                    if tmp.isnumeric():
-                        values.append(int(tmp))
-
-                        icon = item.parent.parent
-
-                        print(icon)
-                
-
-                print(title, ': ', likes, ' / ', shares)
-
-
-            # review_cards = soup.find('div', {'id':'avis-cards-content-container'}).find_all('div', {'typeof':'comment'})
+            data = {
+                "source": "facebook",
+                "followers": nb_followers,
+                "likes": nb_likes,
+                "posts": nb_posts,
+                "establishment": f"/api/establishments/{self.establishment}",
+            }
             
-            # for review in review_cards:
-            #     date = review.find('span', {'property':'dateCreated'})['content']
-            #     data = {}
-            #     data['author'] = review.find('div', class_='date-publication').find('strong').text.strip()
-            #     data['date_review'] = '/'.join(date.split('-')[::-1])
-            #     data['comment'] = review.find('p', class_='avis-comment').text.strip() if review.find('p', class_='avis-comment') else ''
-            #     data['rating'] = review.find('span', class_='score-text').text if review.find('span', class_='score-text') else 0
-            #     data['language'] = detect(data['comment'])
-            #     data['source'] = urlparse(self.url).netloc.split('.')[1]
-            #     data['establishment'] = f'/api/establishments/{self.establishment}'
-            #     reviews.append(data)
+            self.data = data
 
         except Exception as e:
             print('extraction file')
             print(e)
 
-        # self.data = reviews
+    def save(self):
+        print("** Upload page")
+        page = create(entity='social_pages', data=self.data)
+        res = page.save()
+        print(res)
+        
+        posts = self.load_posts(res['id'])
+
+        for p in posts:
+            post = create(entity='social_posts', data=p)
+            print(post.save())
 
 
-instance = Facebook(url="https://www.facebook.com/chateaucandie/?locale=fr_FR", establishment=2, site_url="https://www.facebook.com")
+instance = Facebook(url="https://www.facebook.com/TheChelseaPinesInn", post_file="datas/thechelseapinesinn.json", establishment=33, site_url="https://www.facebook.com")
 instance.execute()
+instance.save()

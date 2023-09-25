@@ -39,8 +39,6 @@ class Youtube(Scraping):
         try:
             self.scrap(self.url)
             self.extract()
-            # self.save()
-            # self.driver.quit()
         except Exception as e:
             print(e)
             self.driver.quit()
@@ -151,51 +149,57 @@ class Youtube(Scraping):
 
     def save(self):
         print("** Upload page")
-        page = create(entity='social_posts', data=self.data)
+        page = create(entity='social_pages', data=self.data)
         res = page.save()
         print("**** Upload posts")
         for p in self.items:
             p["socialPage"] = f"/api/social_pages/{res['id']}"
-            print(p)
             post = create(entity='social_posts', data=p)
             print(post.save())
 
+# sites = [
+#     {
+#         "url": "https://www.youtube.com/@chateaudecandie3219",
+#         "estab": 6
+#     },
+#     {
+#         "url": "https://www.youtube.com/@hotellabelleetoile1071",
+#         "estab": 9
+#     },
+#     {
+#         "url": "https://www.youtube.com/@HyattUnionSquareNYC",
+#         "estab": 34
+#     },
+#     {
+#         "url": "https://www.youtube.com/@washingtonsquarehotel4124",
+#         "estab": 30
+#     },
+#     {
+#         "url": "https://www.youtube.com/@belambrahotelsresortsinfra1781",
+#         "estab": 28
+#     },
+#     {
+#         "url": "https://www.youtube.com/@hotelchaletmounierrestaura2220",
+#         "estab": 26
+#     },
+#     {
+#         "url": "https://www.youtube.com/@cotebrunehotelspa918",
+#         "estab": 25
+#     },
+#     {
+#         "url": "https://www.youtube.com/@hotelcampanileparisbercyvi730",
+#         "estab": 23
+#     },
+#     {
+#         "url": "https://www.youtube.com/@lacotelarete8047",
+#         "estab": 19
+#     }
+# ]
+
 sites = [
     {
-        "url": "https://www.youtube.com/@chateaudecandie3219",
-        "estab": 6
-    },
-    {
-        "url": "https://www.youtube.com/@hotellabelleetoile1071",
-        "estab": 9
-    },
-    {
-        "url": "https://www.youtube.com/@HyattUnionSquareNYC",
-        "estab": 34
-    },
-    {
-        "url": "https://www.youtube.com/@washingtonsquarehotel4124",
-        "estab": 30
-    },
-    {
-        "url": "https://www.youtube.com/@belambrahotelsresortsinfra1781",
-        "estab": 28
-    },
-    {
-        "url": "https://www.youtube.com/@hotelchaletmounierrestaura2220",
-        "estab": 26
-    },
-    {
-        "url": "https://www.youtube.com/@cotebrunehotelspa918",
-        "estab": 25
-    },
-    {
-        "url": "https://www.youtube.com/@hotelcampanileparisbercyvi730",
-        "estab": 23
-    },
-    {
-        "url": "https://www.youtube.com/@lacotelarete8047",
-        "estab": 19
+        "url": "https://www.youtube.com/@chelseapinesinn4750",
+        "estab": 33
     }
 ]
 
