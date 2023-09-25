@@ -12,72 +12,64 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
 from langdetect import detect
 import re
+import instaloader
+from models import create
 
 
 class Instagram(Scraping):
-    def __init__(self, url: str, establishment: str, site_url: str):
-        super().__init__(in_background=False, url=url, establishment=establishment, site_url=site_url)
+    def __init__(self, url: str, establishment: str):
+        super().__init__(in_background=False, url=url, establishment=establishment)
+        
+        split_url = self.url.split('/')
+        self.userprofile = split_url[-1] if split_url[-1] != '' else split_url[-2]
 
-    def login(self):
-        self.scrap(self.site_url)
-        time.sleep(10)
-        login_form = self.driver.find_element(By.ID, "loginForm")
-        email_input = login_form.find_element(By.NAME, "username").send_keys("0340851090")
-        password_input = login_form.find_element(By.NAME, "password").send_keys("ztDCxfoAdGSHgp")
-        time.sleep(2)
-        login_form.find_element(By.XPATH, "//button[@type='submit']").click()
-        time.sleep(5)
+        bot = instaloader.Instaloader()
+        self.profile = instaloader.Profile.from_username(bot.context, self.userprofile)
 
+        self.posts = []
 
-        # if self.driver.find_element(By.XPATH, "//div[@role='dialog']"):
-        #     
-
-
-    # def load_reviews(self) -> None:
-    #     self.driver.find_element(By.ID, 'avis-tout-cta').click()
-    #     results = int(''.join([x for x in self.driver.find_element(By.ID, 'avis-comp-content').find_element(By.CLASS_NAME, 'ml-1').text if x.isdigit()]))
-    #     for i in range(results//3):
-    #         self.driver.find_element(By.ID, 'avis-cards-content-container').click()
-    #         for k in range(3):
-    #             self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
-    #         time.sleep(2)
+    def load_posts(self, page_id):
+        for p in self.posts:
+            p["socialPage"] = f"/api/social_pages/{page_id}"
 
     def extract(self) -> None:
         try:
-            time.sleep(10)
-            soup  = BeautifulSoup(self.driver.page_source, 'lxml')
-            nb_followers = soup.find_all('a', href=lambda href: href and "/followers/" in href)[0].find('span', {'title': True})['title'].replace(' ', '')
-            print(nb_followers)
-                    # self.load_reviews()
-
-        # reviews = []
-
-        # try:
-        #     soup  = BeautifulSoup(self.driver.page_source, 'lxml')
-        #     followers = soup.find_all('a', href=lambda href: href and "/followers/" in href)[0].text.strip()
-        #     print(followers)
-        #     tab = followers.split(' ')
-        #     print(tab)
-        #     nb = tab[0].replace(',', ' ') + ('000' if len(tab) > 1 and tab[1] == 'K' else '')
-        #     print(nb)
-        #     # review_cards = soup.find('div', {'id':'avis-cards-content-container'}).find_all('div', {'typeof':'comment'})
+            for post in self.profile.get_posts():
+                self.posts.append({
+                    "title": "",
+                    "comments": post.comments,
+                    "likes": post.likes,
+                    "share": 0,
+                    "publishedAt": post.date.strftime("%Y-%m-%d"),
+                    "socialPage": f"/api/social_pages/33"
+                })
             
-        #     # for review in review_cards:
-        #     #     date = review.find('span', {'property':'dateCreated'})['content']
-        #     #     data = {}
-        #     #     data['author'] = review.find('div', class_='date-publication').find('strong').text.strip()
-        #     #     data['date_review'] = '/'.join(date.split('-')[::-1])
-        #     #     data['comment'] = review.find('p', class_='avis-comment').text.strip() if review.find('p', class_='avis-comment') else ''
-        #     #     data['rating'] = review.find('span', class_='score-text').text if review.find('span', class_='score-text') else 0
-        #     #     data['language'] = detect(data['comment'])
-        #     #     data['source'] = urlparse(self.url).netloc.split('.')[1]
-        #     #     data['establishment'] = f'/api/establishments/{self.establishment}'
-        #     #     reviews.append(data)
-
+            self.data = {
+                "source": "instagram",
+                "followers": self.profile.followers,
+                "likes": 0,
+                "posts": len(self.posts),
+                "establishment": f"/api/establishments/{self.establishment}",
+            }
+            
         except Exception as e:
-            print('extraction file')
             print(e)
 
+    def save(self):
+        print("** Upload page")
+        page = create(entity='social_pages', data=self.data)
+        # page.print()
+        res = page.save()
+        print(res)
+        
+        self.load_posts(res['id'])
+        # self.load_posts(144)
 
-instance = Instagram(url="https://www.instagram.com/chateaudecandie/", establishment=2, site_url="https://www.instagram.com/")
+        for p in self.posts:
+            post = create(entity='social_posts', data=p)
+            # post.print()
+            print(post.save())
+
+
+instance = Instagram(url="https://www.instagram.com/thechelseapinesinn/", establishment=33)
 instance.execute()
