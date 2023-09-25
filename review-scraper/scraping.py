@@ -36,6 +36,7 @@ class Scraping(object):
         self.firefox_options.add_argument('--ignore-certificate-errors')
         in_background and self.firefox_options.add_argument('--headless')
         self.firefox_options.add_argument('--incognito')
+        self.firefox_options.set_preference('intl.accept_languages', 'en-US, en')
 
         self.driver = webdriver.Firefox(service=FirefoxService(
                     GeckoDriverManager().install()), options=self.firefox_options)

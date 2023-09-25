@@ -27,7 +27,16 @@ class Hotels(Scraping):
 
     def load_reviews(self) -> None:
         self.close_popup()
-        button_review = self.driver.find_element(By.CSS_SELECTOR, '#Reviews > div > div > div:nth-child(2) > div > button')
+
+        for i in range(15):
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(1)
+
+        try:
+            button_review = self.driver.find_element(By.XPATH, "//button[contains(text(), 'See all reviews')]")
+        except:
+            button_review = self.driver.find_element(By.XPATH, "//button[contains(text(), 'Afficher tous les avis')]")
+
         try:
             button_review.click()
             try:
@@ -50,10 +59,12 @@ class Hotels(Scraping):
     def extract(self) -> None:
         def fomat_date(date:str) -> str:
             date = date.split(' ')
-            month = month_number(date[1], 'fr', 'short')
+            month = month_number(date[1], 'en', 'short')
             return f'{date[0]}/{month}/{date[2]}'
 
         reviews = []
+
+        time.sleep(5)
 
         self.load_reviews()
 
