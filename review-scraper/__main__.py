@@ -69,21 +69,21 @@ if __name__ == '__main__':
             miss = check_arguments(args, ['-s'])
             if not len(miss):
                 sc.init()
-                sc.start(args.sites.split(','))
+                sc.start(args.sites.split('|'))
             else:
                 raise Exception(f"Argument(s) manquant(s): {', '.join(miss)}")
         if args.type == 'by-establishment':
             miss = check_arguments(args, ['-e'])
             if not len(miss):
-                sc.init(args.establishments.split(','))
+                sc.init(args.establishments.split('|'))
                 sc.start(ALL_WEBSITES)
             else:
                 raise Exception(f"Argument(s) manquant(s): {', '.join(miss)}")
         if args.type == 'specified':
             miss = check_arguments(args, ['-s', '-e'])
             if not len(miss):
-                sc.init(args.establishments.split(','))
-                sc.start(args.sites.split(','))
+                sc.init(args.establishments.split('|'))
+                sc.start(args.sites.split('|'))
             else:
                 raise Exception(f"Argument(s) manquant(s): {', '.join(miss)}")
         if args.type == 'auto':

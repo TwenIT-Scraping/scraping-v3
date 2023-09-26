@@ -122,6 +122,7 @@ class Review(EReputationBase):
         req = ERApi(method="postmulti", entity=f"reviews/multi")
         req.set_body({'data_content': data_content})
         res = req.execute()
+        print(res.status_code)
         # print(res.text)
 
 # etab = Establishment(rid=2)

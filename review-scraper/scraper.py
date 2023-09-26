@@ -55,6 +55,7 @@ class ListScraper:
             print("****** Establishment: ", item.name, " ******")
 
             for site in item.websites.keys():
+                print(site)
                 if site in websites:
                     if site in __class_name__.keys():
                         print("===>\t", site)

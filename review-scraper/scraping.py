@@ -124,18 +124,34 @@ class Scraping(object):
         sys.exit("Arret")
 
     def format(self) -> None:
+        column_order = ['author', 'source', 'language', 'rating', 'establishment', 'date_review', 'comment']
+
+        def check_value(item):
+            for key in column_order:
+                if not item[key] or item[key] == '':
+                    return False
+            return True
+
         result = ""
         review_score = ReviewScore()
 
         for item in self.data:
-            score_data = review_score.compute_score(item['comment'], item['language'])
-            result += '$'.join([item['author'], item['source'], item['language'], item['rating'], item['establishment'], item['date_review'], item['comment'], score_data['feeling'], score_data['score'], score_data['confidence']]) + "#"
+            if check_value(item):
+                score_data = review_score.compute_score(item['comment'], item['language'])
+                if score_data['feeling'] and score_data['score'] and score_data['confidence']:
+                    line = '$'.join([item['author'], item['source'], item['language'], item['rating'], item['establishment'], item['date_review'], item['comment'].replace('$', 'USD'), score_data['feeling'], score_data['score'], score_data['confidence']]) + "#"
+                    if len(line.split('$')) == 10:
+                        result += line
 
         self.formated_data = result
 
     def save(self) -> None:
         
         self.format()
+
+        with open('datta.txt', 'w', encoding='utf-8') as file:
+            file.write(self.formated_data)
+
         Review.save_multi(self.formated_data)
         print(len(self.data), "reviews uploaded!")
 

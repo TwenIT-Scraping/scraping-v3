@@ -27,6 +27,8 @@ class Tripadvisor(Scraping):
     def extract(self):
         reviews = []
 
+        time.sleep(10)
+
         try:
             while True:
                 page = self.driver.page_source
@@ -36,10 +38,20 @@ class Tripadvisor(Scraping):
                 reviews_card = soupe.find_all('div', {'data-test-target':"HR_CC_CARD"})
 
                 for item in reviews_card:
+                    try:
+                        title = item.find('div', {'data-test-target':'review-title'}).text.strip() if item.find('div', {'data-test-target':'review-title'}) else ''
+                    except:
+                        print("Erreur titre")
 
-                    title = item.find('div', {'data-test-target':'review-title'}).text.strip() if item.find('div', {'data-test-target':'review-title'}) else ''
-                    detail = item.find('span', {'class':'QewHA'}).find('span').text.strip().replace('\n', '') if item.find('span', {'class':'QewHA'}) else ''
-                    comment = f"{title}{': ' if title and detail else ''}{detail}"
+                    try:
+                        detail = item.find('span', {'class':'QewHA'}).find('span').text.strip().replace('\n', '') if item.find('span', {'class':'QewHA'}) else ''
+                    except:
+                        print("Erreur detail")
+                    
+                    try:
+                        comment = f"{title}{': ' if title and detail else ''}{detail}"
+                    except:
+                        print("Erreur comment")
                     
                     try:
                         lang = detect(comment)
@@ -51,24 +63,21 @@ class Tripadvisor(Scraping):
                     day = datetime.today().day
 
                     try:
-                        date_raw = re.search(r"\(.*\)", item.find('div', {'class': 'cRVSd'}).text.strip()).group()
-                        if date_raw == '(Hier)' or '(Yesterday)':
-                            last_day = datetime.today() + timedelta(days=-1)
-                            year = str(last_day.month)
-                            month = str(last_day.year)
-                            day = str(last_day.day)
-                        else:
-                            date_rawt = date_raw[1:-1].split()
-                            if date_rawt[0].isnumeric():
-                                day = date_rawt[0]
-                                month_number(date_rawt[1], 'fr', 'short')
-                            else:
-                                year = date_rawt[1]
-                                month = month_number(date_rawt[0], 'fr', 'short')
-                    except:
                         date_raw = item.find('div', {'class': 'cRVSd'}).text.strip()
-                        year = date_raw.split()[-1]
-                        month = month_number(date_raw.split()[-2], 'en', 'short')
+                        print(date_raw)
+                        date_rawt = date_raw.split()[-2:]
+
+                        if int(date_rawt[1]) > 2000:
+                            year = date_rawt[1]
+                            day = (datetime.today() + timedelta(days=-1)).day
+                        else:
+                            day = date_rawt[1]
+                            year = datetime.today().year
+                        
+                        month = month_number(date_rawt[0], 'en', 'short')
+                    except Exception as e:
+                        print("Erreur date")
+                        print(e)
 
                     review_data = {
                         'comment': comment,
@@ -102,6 +111,6 @@ class Tripadvisor(Scraping):
 
 
 
-# trp = Tripadvisor(url="https://www.tripadvisor.fr/Hotel_Review-g1056032-d1055274-Reviews-Madame_Vacances_Les_Chalets_de_Berger-La_Feclaz_Savoie_Auvergne_Rhone_Alpes.html")
+# trp = Tripadvisor(url="https://www.tripadvisor.com/Hotel_Review-g60763-d122020-Reviews-Chelsea_Pines_Inn-New_York_City_New_York.html", establishment=33)
 # trp.execute()
 # print(trp.data)

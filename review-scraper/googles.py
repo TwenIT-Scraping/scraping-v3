@@ -28,9 +28,9 @@ class Google(Scraping):
     def load_reviews(self):
         results = int(''.join([x for x in self.driver.find_element(By.CSS_SELECTOR, '#reviews > c-wiz > c-wiz > div > div > div > div > div.ChBWlb.TjtFVc > div.pDLIp > div > div.zhMoVd.nNUNpc > div.UkIqCb > div > span').text if x.isdigit()]))
         for i in range(results//6):
-            for k in range(5):
+            for k in range(20):
                 self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
-            time.sleep(3)
+            time.sleep(5)
             self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_UP)
 
     def extract(self):

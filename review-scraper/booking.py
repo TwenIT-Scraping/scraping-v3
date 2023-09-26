@@ -38,6 +38,7 @@ class Booking(Scraping):
         #     print(e)
 
         while True:
+            time.sleep(10)
 
             page = self.driver.page_source
 

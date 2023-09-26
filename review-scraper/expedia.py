@@ -41,7 +41,7 @@ class Expedia(Scraping):
         time.sleep(5)
 
         while True:
-            time.sleep(random.randint(1,10))
+            time.sleep(random.randint(5,10))
 
             try:
                 next_btn = self.driver.find_element(By.XPATH, "//button[contains(text(), 'More reviews')]")

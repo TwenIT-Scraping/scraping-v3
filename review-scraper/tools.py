@@ -63,6 +63,7 @@ shortmonths_en = {
     'Jul':'07',
     'Aug':'08',
     'Sept':'09',
+    'Sep':'09',
     'Oct':'10',
     'Nov':'11',
     'Dec':'12'
