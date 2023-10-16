@@ -40,65 +40,70 @@ class Tripadvisor(Scraping):
                     reviews_card = soupe.find_all(
                         'div', {'data-test-target': "HR_CC_CARD"})
 
-                    print("Cards trouvés: ", len(reviews_card))
+                    if len(reviews_card):
 
-                    for item in reviews_card:
-                        try:
-                            title = item.find('div', {'data-test-target': 'review-title'}).text.strip(
-                            ) if item.find('div', {'data-test-target': 'review-title'}) else ''
-                        except:
-                            print("Erreur titre")
+                        print("Cards trouvés: ", len(reviews_card))
 
-                        try:
-                            detail = item.find('span', {'class': 'QewHA'}).find('span').text.strip(
-                            ).replace('\n', '') if item.find('span', {'class': 'QewHA'}) else ''
-                        except:
-                            print("Erreur detail")
+                        for item in reviews_card:
+                            try:
+                                title = item.find('div', {'data-test-target': 'review-title'}).text.strip(
+                                ) if item.find('div', {'data-test-target': 'review-title'}) else ''
+                            except:
+                                print("Erreur titre")
 
-                        try:
-                            comment = f"{title}{': ' if title and detail else ''}{detail}"
-                        except:
-                            print("Erreur comment")
+                            try:
+                                detail = item.find('span', {'class': 'QewHA'}).find('span').text.strip(
+                                ).replace('\n', '') if item.find('span', {'class': 'QewHA'}) else ''
+                            except:
+                                print("Erreur detail")
 
-                        try:
-                            lang = detect(comment)
-                        except:
-                            lang = 'en'
+                            try:
+                                comment = f"{title}{': ' if title and detail else ''}{detail}"
+                            except:
+                                print("Erreur comment")
 
-                        year = datetime.today().year
-                        month = datetime.today().month
-                        day = datetime.today().day
+                            try:
+                                lang = detect(comment)
+                            except:
+                                lang = 'en'
 
-                        try:
-                            date_raw = item.find(
-                                'div', {'class': 'cRVSd'}).text.strip()
-                            print(date_raw)
-                            date_rawt = date_raw.split()[-2:]
+                            year = datetime.today().year
+                            month = datetime.today().month
+                            day = datetime.today().day
 
-                            if int(date_rawt[1]) > 2000:
-                                year = date_rawt[1]
-                                day = (datetime.today() +
-                                       timedelta(days=-1)).day
-                            else:
-                                day = date_rawt[1]
-                                year = datetime.today().year
+                            try:
+                                date_raw = item.find(
+                                    'div', {'class': 'cRVSd'}).text.strip()
+                                print(date_raw)
+                                date_rawt = date_raw.split()[-2:]
 
-                            month = month_number(date_rawt[0], 'en', 'short')
-                        except Exception as e:
-                            print("Erreur date")
-                            print(e)
+                                if int(date_rawt[1]) > 2000:
+                                    year = date_rawt[1]
+                                    day = (datetime.today() +
+                                           timedelta(days=-1)).day
+                                else:
+                                    day = date_rawt[1]
+                                    year = datetime.today().year
 
-                        review_data = {
-                            'comment': comment,
-                            'rating': str(int(item.find('span', class_='ui_bubble_rating')['class'][1].split('_')[1]) / 10) + "/5" if item.find('span', class_='ui_bubble_rating') else "0/5",
-                            'language': lang,
-                            'source': urlparse(self.url).netloc.split('.')[1],
-                            'author': item.find('a', class_='ui_header_link').text.strip() if item.find('a', class_='ui_header_link') else "",
-                            'establishment': f'/api/establishments/{self.establishment}',
-                            'date_review': f"{day}/{month}/{year}"
-                        }
+                                month = month_number(
+                                    date_rawt[0], 'en', 'short')
+                            except Exception as e:
+                                print("Erreur date")
+                                print(e)
 
-                        reviews.append(review_data)
+                            review_data = {
+                                'comment': comment,
+                                'rating': str(int(item.find('span', class_='ui_bubble_rating')['class'][1].split('_')[1]) / 10) + "/5" if item.find('span', class_='ui_bubble_rating') else "0/5",
+                                'language': lang,
+                                'source': urlparse(self.url).netloc.split('.')[1],
+                                'author': item.find('a', class_='ui_header_link').text.strip() if item.find('a', class_='ui_header_link') else "",
+                                'establishment': f'/api/establishments/{self.establishment}',
+                                'date_review': f"{day}/{month}/{year}"
+                            }
+
+                            reviews.append(review_data)
+                    else:
+                        raise Exception()
 
                 except:
                     reviews_card = soupe.find_all(
