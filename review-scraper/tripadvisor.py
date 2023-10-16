@@ -164,7 +164,8 @@ class Tripadvisor(Scraping):
                     if next_btn and not disable_btn:
                         self.driver.execute_script(
                             "arguments[0].click();", next_btn)
-                        time.sleep(5)
+                        time.sleep(2)
+                        print("=========> NEXT PAGE<==========")
                     else:
                         break
 

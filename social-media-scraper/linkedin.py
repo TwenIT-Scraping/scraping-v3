@@ -29,58 +29,46 @@ class Linkedin(Scraping):
         self.extract()
 
     def login(self):
-        actions.login(self.driver, 'joharyandrianjafimanohisolo@gmail.com', 'jOx3rBNT5Ax9')        
+        time.sleep(5)
+        actions.login(self.driver, 'joharyandrianjafimanohisolo@gmail.com', 'jOx3rBNT5Ax9')
+        time.sleep(5)       
 
     def extract(self) -> None:
         try:
+            time.sleep(10)
             soup  = BeautifulSoup(self.driver.page_source, 'lxml')
             infos = soup.find_all('div', {'class': 'org-top-card-summary-info-list__info-item'})
             followers = int(''.join([item.text.strip() for item in infos if 'abonnés' in item.text.strip()][0].split()[:-1]))
             print(followers)
 
             self.scrap(f"{self.url}/posts/?feedView=all")
-            time.sleep(random.randint(5, 10))
+            time.sleep(random.randint(15, 30))
 
-            posts = soup.find_all('div', {'class': 'ember-view'})
-            print(len(posts))
-            # for post in posts:
-            #     try:
-            #         self.posts.append({
-            #             'title': post.find('div', {'class': 'update-components-update-v2__commentary'}).text.strip(),
-            #             'comments': post.find('li', {'class': 'social-details-social-counts__comments'}).text.strip(),
-            #             'share': post.find('li', {'class': 'social-details-social-counts__item--with-social-proof'}).text.strip(),
-            #             'likes': post.find('span', {'class': 'social-details-social-counts__reactions-count'}).text.strip(),
-            #             'publishedAt': post.find('a', {'class': 'app-aware-link'})['aria-label']
-            #         })
-            #     except Exception as e:
-            #         print(e)
+            # post_container = soup.find('div', class_='scaffold-finite-scroll__content')
+            # post_ = post_container.find_all('div', class_='occludable-update')
+            # posts = []
 
-            print(self.posts)
+            # for post in post_:
+            #     comments = post.find('li', {'class': "social-details-social-counts__item social-details-social-counts__comments social-details-social-counts__item--with-social-proof"}).text.strip().split(' ')[0] if \
+            #         post.find('li', {'class': "social-details-social-counts__item social-details-social-counts__comments social-details-social-counts__item--with-social-proof"}) else 0
+            #     shares =  post.find('li', {'class':"social-details-social-counts__item social-details-social-counts__item--with-social-proof"}).text.strip().split(' ')[:-15] if \
+            #         post.find('li', {'class':"social-details-social-counts__item social-details-social-counts__item--with-social-proof"}) else 0
+            #     title = post.find('span', {'class':"break-words"}).text.strip() if post.find('span', {'class':"break-words"}) else ""  
+            #     likes = int(post.find('span', {'class': "social-details-social-counts__reactions-count"}).text.strip()) if \
+            #         post.find('span', {'class': "social-details-social-counts__reactions-count"}) else 0
+            #     posts.append({
+            #         "title": title,
+            #         "likes": likes,
+            #         "comments": comments,
+            #         "shares": shares
+            #     })
 
-            # tab = followers.split(' ')
-            # print(tab)
-            # nb = tab[0].replace(',', ' ') + ('000' if len(tab) > 1 and tab[1] == 'K' else '')
-            # print(nb)
-            # review_cards = soup.find('div', {'id':'avis-cards-content-container'}).find_all('div', {'typeof':'comment'})
-            
-            # for review in review_cards:
-            #     date = review.find('span', {'property':'dateCreated'})['content']
-            #     data = {}
-            #     data['author'] = review.find('div', class_='date-publication').find('strong').text.strip()
-            #     data['date_review'] = '/'.join(date.split('-')[::-1])
-            #     data['comment'] = review.find('p', class_='avis-comment').text.strip() if review.find('p', class_='avis-comment') else ''
-            #     data['rating'] = review.find('span', class_='score-text').text if review.find('span', class_='score-text') else 0
-            #     data['language'] = detect(data['comment'])
-            #     data['source'] = urlparse(self.url).netloc.split('.')[1]
-            #     data['establishment'] = f'/api/establishments/{self.establishment}'
-            #     reviews.append(data)
+            # print(posts)
 
         except Exception as e:
             print('extraction file')
             print(e)
 
-        # self.data = reviews
 
-
-instance = Linkedin(url="https://www.linkedin.com/company/dream-hotel-group/", establishment=2)
+instance = Linkedin(url="https://www.linkedin.com/company/dream-hotel-group/", establishment=1)
 instance.execute()

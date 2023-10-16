@@ -24,7 +24,7 @@ class ERApi:
         self.media_dir = os.environ.get("MEDIA_DIR")
 
     def set_id(self, id):
-        self.id =  id
+        self.id = id
 
     def set_body(self, body):
         self.body = body
@@ -42,7 +42,7 @@ class ERApi:
     def add_params(self, param):
         for key in param.keys():
             self.params[key] = param[key]
-    
+
     def execute(self):
         response = {}
         if self.method == 'delete':
@@ -54,8 +54,9 @@ class ERApi:
                 )
                 return response
             else:
-                messagebox.askyesno("Information", "Identifiant non spécifié!!!")
-            
+                messagebox.askyesno(
+                    "Information", "Identifiant non spécifié!!!")
+
         elif self.method == 'patch' or self.method == 'put':
             if self.id != -1:
                 self.add_header({"Content-Type": "application/json"})
@@ -67,7 +68,8 @@ class ERApi:
                 )
                 return response
             else:
-                messagebox.askyesno("Information", "Identifiant non spécifié!!!")
+                messagebox.askyesno(
+                    "Information", "Identifiant non spécifié!!!")
 
         elif self.method == 'getone':
             if self.id != -1:
@@ -77,15 +79,17 @@ class ERApi:
                     headers=self.headers
                 )
             else:
-                messagebox.askyesno("Information", "Identifiant non spécifié!!!")
+                messagebox.askyesno(
+                    "Information", "Identifiant non spécifié!!!")
 
         elif self.method == 'postmulti':
 
             url = f'{self.api_url}reviews/multi'
-            files=[]
+            files = []
             headers = self.headers
 
-            response = requests.request("POST", url, headers=headers, data=self.body, files=files)
+            response = requests.request(
+                "POST", url, headers=headers, data=self.body, files=files)
 
             return response
 
@@ -97,7 +101,7 @@ class ERApi:
                 headers=self.headers,
                 data=json.dumps(self.body)
             )
-        
+
         # if response.status_code >= 400:
         #     response.raise_for_status()
 
@@ -147,7 +151,7 @@ class ERApi:
             page += 1
             if len(results) == 0:
                 break
-        
+
         return all_data
 
     @staticmethod
@@ -168,7 +172,7 @@ class ERApi:
     def save_media(filename, source):
         with open(filename, 'wb') as f:
             source.raw.decode_content = True
-            shutil.copyfileobj(source.raw, f) 
+            shutil.copyfileobj(source.raw, f)
             print('Image Downloaded Successfully')
             return filename
 
@@ -183,7 +187,7 @@ class ERApi:
 
             if 'images' in item.keys():
                 images = item.pop('images')
-            
+
             print("Ici")
 
             post_instance.set_body(item)
@@ -199,5 +203,5 @@ class ERApi:
                         post_child.execute()
                     except:
                         pass
-            
+
         return True

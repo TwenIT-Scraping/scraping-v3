@@ -21,7 +21,8 @@ class Hotels(Scraping):
 
     def close_popup(self) -> None:
         try:
-            self.driver.find_element(By.CLASS_NAME, 'osano-cm-button--type_accept').click()
+            self.driver.find_element(
+                By.CLASS_NAME, 'osano-cm-button--type_accept').click()
         except:
             pass
 
@@ -29,13 +30,16 @@ class Hotels(Scraping):
         self.close_popup()
 
         for i in range(15):
-            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            self.driver.execute_script(
+                "window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(1)
 
         try:
-            button_review = self.driver.find_element(By.XPATH, "//button[contains(text(), 'See all reviews')]")
+            button_review = self.driver.find_element(
+                By.XPATH, "//button[contains(text(), 'See all reviews')]")
         except:
-            button_review = self.driver.find_element(By.XPATH, "//button[contains(text(), 'Afficher tous les avis')]")
+            button_review = self.driver.find_element(
+                By.XPATH, "//button[contains(text(), 'Afficher tous les avis')]")
 
         try:
             button_review.click()
@@ -47,17 +51,18 @@ class Hotels(Scraping):
             button_view_more = self.driver.find_element(By.CSS_SELECTOR, '#app-layer-reviews-property-reviews-1 > section > div.uitk-sheet-content.uitk-sheet-content-padded.uitk-sheet-content-extra-large > div > div.uitk-layout-grid.uitk-layout-grid-align-content-start.uitk-layout-grid-has-auto-columns.uitk-layout-grid-has-columns.uitk-layout-grid-has-space.uitk-layout-grid-display-grid.uitk-layout-grid-item.uitk-layout-grid-item-has-column-start.uitk-layout-grid-item-has-column-start-by-medium.uitk-layout-grid-item-has-column-start-by-large.uitk-layout-grid-item-has-column-start-by-extra_large > div.uitk-layout-grid-item > section > div.uitk-spacing.uitk-type-center.uitk-spacing-margin-block-three > button')
             while button_view_more.is_displayed():
                 try:
-                    self.driver.find_element(By.CSS_SELECTOR, '#app-layer-recommendations-overlay > section > div.uitk-layout-flex.uitk-layout-flex-align-items-center.uitk-toolbar > button').click()
+                    self.driver.find_element(
+                        By.CSS_SELECTOR, '#app-layer-recommendations-overlay > section > div.uitk-layout-flex.uitk-layout-flex-align-items-center.uitk-toolbar > button').click()
                 except:
                     pass
                 button_view_more.click()
                 WebDriverWait(self.driver, 5)
                 time.sleep(1)
-        except: 
+        except:
             pass
 
     def extract(self) -> None:
-        def fomat_date(date:str) -> str:
+        def fomat_date(date: str) -> str:
             date = date.split(' ')
             month = month_number(date[1], 'en', 'short')
             return f'{date[0]}/{month}/{date[2]}'
@@ -69,17 +74,22 @@ class Hotels(Scraping):
         self.load_reviews()
 
         soup = BeautifulSoup(self.driver.page_source, 'lxml')
-        review_cards = soup.find('div', {'data-stid':'property-reviews-list'}).find_all('article', {'itemprop':'review'})
+        review_cards = soup.find('div', {
+                                 'data-stid': 'property-reviews-list'}).find_all('article', {'itemprop': 'review'})
 
         for review in review_cards:
             data = {}
-            data['date_review'] = fomat_date(review.find('span', {'itemprop':'datePublished'}).text.strip())
+            data['date_review'] = fomat_date(review.find(
+                'span', {'itemprop': 'datePublished'}).text.strip())
             data['author'] = review.find('img').parent.text.split(',')[0]
-            data['rating'] = review.find('span', {'itemprop':'ratingValue'}).text.split(' ')[0] if review.find('span', {'itemprop':'ratingValue'}) else '0'
-            data['comment'] = review.find('span', {'itemprop':'description'}).text if review.find('span', {'itemprop':'description'}) else ''
+            data['rating'] = review.find('span', {'itemprop': 'ratingValue'}).text.split(
+                ' ')[0] if review.find('span', {'itemprop': 'ratingValue'}) else '0'
+            data['comment'] = review.find('span', {'itemprop': 'description'}).text if review.find(
+                'span', {'itemprop': 'description'}) else ''
 
             try:
-                data['language'] = detect(data['comment']) if data['comment'] else 'fr'
+                data['language'] = detect(
+                    data['comment']) if data['comment'] else 'fr'
 
             except:
                 data['language'] = 'fr'
@@ -87,11 +97,11 @@ class Hotels(Scraping):
 
             data['establishment'] = f'/api/establishments/{self.establishment}'
             data['source'] = urlparse(self.url).netloc.split('.')[1]
-            
+
             reviews.append(data)
-        
+
         self.data = reviews
 
 
-# trp = Hotels(url="https://fr.hotels.com/ho1100722624/okko-hotels-paris-gare-de-l-est-paris-france")
+# trp = Hotels(url="https://uk.hotels.com/ho341928/chelsea-pines-inn-new-york-united-states-of-america/", establishment=33)
 # trp.execute()
