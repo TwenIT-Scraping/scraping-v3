@@ -224,7 +224,7 @@ class MeteoAPIScraper(MeteoAPI):
         self.data_source = data_source
         self.url_file = url_file
         self.output_file = output_file
-        self.api_keys = os.environ.get("API_TOKEN").split(',')
+        self.api_keys = os.environ.get("METEO_API_KEYS").split(',')
         self.urls = []
         self.dates = []
         self.meteo_key = 0
@@ -255,6 +255,7 @@ class MeteoAPIScraper(MeteoAPI):
     def format_url(self, data: dict, date: str) -> str:
         # api_key = self.api_keys[randint(1, (len(self.api_keys) - 1))]
         api_key = self.api_keys[self.meteo_key]
+        print(api_key)
         # date = (datetime.now() - timedelta(days=35)).strftime('%Y-%m-%d')
         return {'locality_id': data['id'], 'url': f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{data['lat']}%2C{data['long']}/{date}/{date}/?unitGroup=us&key={api_key}&contentType=json"}
 
