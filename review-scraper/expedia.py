@@ -29,42 +29,45 @@ class Expedia(Scraping):
         print("\n Loading ... \n")
 
         try:
-            all_btn = self.driver.find_element(By.XPATH, "//button[contains(text(), 'See all reviews')]")
+            all_btn = self.driver.find_element(
+                By.XPATH, "//button[contains(text(), 'See all reviews')]")
 
             if all_btn:
                 self.driver.execute_script("arguments[0].click();", all_btn)
                 time.sleep(5)
-            
+
         except Exception as e:
             print(e)
 
         time.sleep(5)
 
         while True:
-            time.sleep(random.randint(5,10))
+            time.sleep(random.randint(5, 10))
 
             try:
-                next_btn = self.driver.find_element(By.XPATH, "//button[contains(text(), 'More reviews')]")
+                next_btn = self.driver.find_element(
+                    By.XPATH, "//button[contains(text(), 'More reviews') or contains(text(), 'Plus d\'avis voyageurs')]")
 
                 if next_btn:
-                    self.driver.execute_script("arguments[0].click();", next_btn)
-                    time.sleep(random.randint(1,5))
+                    self.driver.execute_script(
+                        "arguments[0].click();", next_btn)
+                    time.sleep(random.randint(1, 5))
                 else:
                     break
-                
+
             except Exception as e:
                 break
 
     def extract(self):
 
         enter_key = str(input("Entrer un caractère svp:"))
-        
+
         if enter_key:
 
             self.load_reviews()
 
             reviews = []
-            
+
             print("\n Extraction ... \n")
 
             page = self.driver.page_source
@@ -73,27 +76,32 @@ class Expedia(Scraping):
 
             review_cards = soupe.find_all('article', {'itemprop': 'review'})
             for card in review_cards:
-                title = card.find('span', {'itemprop': 'name'}).text.strip() if card.find('span', {'itemprop': 'name'}) else ""
-                detail = card.find('span', {'itemprop': 'description'}).text.strip() if card.find('span', {'itemprop': 'description'}) else ""
+                title = card.find('span', {'itemprop': 'name'}).text.strip(
+                ) if card.find('span', {'itemprop': 'name'}) else ""
+                detail = card.find('span', {'itemprop': 'description'}).text.strip(
+                ) if card.find('span', {'itemprop': 'description'}) else ""
                 comment = f"{title}{': ' if title and detail else ''}{detail}"
 
                 try:
                     lang = detect(comment)
-                except: 
+                except:
                     lang = 'en'
-                
-                date_raw = card.find('span', {'itemprop': 'datePublished'}).text.strip() if card.find('span', {'itemprop': 'datePublished'}) else ""
+
+                date_raw = card.find('span', {'itemprop': 'datePublished'}).text.strip(
+                ) if card.find('span', {'itemprop': 'datePublished'}) else ""
                 try:
-                    date_review = datetime.strftime(datetime.strptime(date_raw, '%b %d, %Y'), '%d/%m/%Y') if date_raw else "01/01/2022"
+                    date_review = datetime.strftime(datetime.strptime(
+                        date_raw, '%b %d, %Y'), '%d/%m/%Y') if date_raw else "01/01/2022"
                 except:
                     date_rawt = date_raw.split()
-                    date_review = "%s/%s/%s" % (date_rawt[0], month_number(date_rawt[1], 'fr', 'short'), date_rawt[2])
+                    date_review = "%s/%s/%s" % (date_rawt[0], month_number(
+                        date_rawt[1], 'fr', 'short'), date_rawt[2])
 
                 try:
                     reviews.append({
                         'comment': comment,
-                        'rating': card.find('span', {'itemprop': 'ratingValue'}).text.strip().split('/')[0] + "/10" \
-                                    if card.find('span', {'itemprop': 'ratingValue'}) else "0/10",
+                        'rating': card.find('span', {'itemprop': 'ratingValue'}).text.strip().split('/')[0] + "/10"
+                        if card.find('span', {'itemprop': 'ratingValue'}) else "0/10",
                         'date_review': date_review,
                         'language': lang,
                         'source': urlparse(self.url).netloc.split('.')[1],
