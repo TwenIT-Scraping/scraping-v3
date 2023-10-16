@@ -1,0 +1,1 @@
+python E:/asa/Munit/projects/scraping-v3/meteo-scraper -t today
