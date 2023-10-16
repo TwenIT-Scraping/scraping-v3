@@ -21,12 +21,15 @@ def main_arguments() -> object:
                         help="""Options: daily, today, interval""")
     parser.add_argument('--dates', '-d', dest='dates', default=[],
                         help="Date ou intervalle de dates. Ex: 2023-10-13 ou 2023-10-01,2023-10-13")
+    parser.add_argument('--api-key', '-k', dest='key', default=0,
+                        help="Numero de clé api pour la météo.")
     return parser.parse_args()
 
 
 ARGS_INFO = {
     '-t': {'long': '--type', 'dest': 'type', 'help': "Options: daily, today, interval"},
     '-d': {'long': '--dates', 'dest': 'dates', "help": "Date ou intervalle de dates. Ex: 2023-10-13 ou 2023-10-01,2023-10-13"},
+    '-k': {'long': '--api-key', 'dest': 'key', 'help': "Numero de clé api pour la météo."}
 }
 
 
@@ -221,20 +224,13 @@ class MeteoAPIScraper(MeteoAPI):
         self.data_source = data_source
         self.url_file = url_file
         self.output_file = output_file
-        self.api_keys = [
-            'DDKQHZ267DTBARXJFKWHXQWK7',
-            # 'Y7GBVQZYGNP4FF5XDTRJZQFMP',
-            # 'U5JLCC8QFK9AHE7LGNXGPD6DW',
-            # 'RQC9LKXHJYG8M5HREYUR42SG3',
-            # 'NBC2GMBRC8EHSYXZ3MDREBAB4',
-            # 'ZHTU4WGWT4D7W7JAAU98URSWB',
-            # 'VXJQCDJQ8TTSDZNX68PPQUA84',
-            # '37CES7D8Z4JBTRUW8GQ3QE6QJ'
-            # '3BL4VL2SHDGL7P5ESYKB6BWGK'
-
-        ]
+        self.api_keys = os.environ.get("API_TOKEN").split(',')
         self.urls = []
         self.dates = []
+        self.meteo_key = 0
+
+    def set_key_index(self, key):
+        self.meteo_key = key
 
     def set_dates(self, dates):
         if len(dates) == 2:
@@ -382,6 +378,8 @@ if __name__ == '__main__':
                 m.set_dates(args.dates.split(','))
             else:
                 m.set_dates([datetime.now().strftime('%Y-%m-%d')])
+
+            m.set_key_index(int(args.key))
             m.start()
             m.upload()
             success = True
