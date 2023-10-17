@@ -69,11 +69,11 @@ if __name__ == '__main__':
     if os.path.exists(history_filename):
         with open(history_filename, 'a', encoding='utf-8') as file:
             file.write("Démarrage scrap reviews: " +
-                       now.strftime("%d/%m/%Y %H:%M:%S"))
+                       now.strftime("%d/%m/%Y %H:%M:%S") + '\n')
     else:
         with open(history_filename, 'w', encoding='utf-8') as file:
             file.write("Démarrage scrap reviews: " +
-                       now.strftime("%d/%m/%Y %H:%M:%S"))
+                       now.strftime("%d/%m/%Y %H:%M:%S") + '\n')
 
     # try:
 
