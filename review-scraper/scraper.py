@@ -31,17 +31,19 @@ class ListScraper:
     def __init__(self,):
         self.establishments = []
         self.ids = []
-    
+
     def init(self, establishments=[]):
         instance = ERApi(entity="establishment/name")
         etabs = instance.execute()
         if len(establishments):
-            self.ids = list(map(lambda y: y['id'], list(filter(lambda x: x['name'] in establishments, etabs))))
+            self.ids = list(map(lambda y: y['id'], list(
+                filter(lambda x: x['name'] in establishments, etabs))))
         else:
             self.ids = list(map(lambda x: x['id'], etabs))
 
         for item in self.ids:
-            print("Récupération information des établissements: ", self.ids.index(item)+1,'/', len(self.ids))
+            print("Récupération information des établissements: ",
+                  self.ids.index(item)+1, '/', len(self.ids))
             etab = Establishment(rid=item)
             etab.refresh()
             self.establishments.append(etab)
@@ -49,9 +51,11 @@ class ListScraper:
     def start(self, websites=[]):
         refresh_connection()
 
+        counter = 0
+
         for item in self.establishments:
-            time.sleep(random.randint(1,5))
-            
+            time.sleep(random.randint(1, 5))
+
             print("****** Establishment: ", item.name, " ******")
 
             for site in item.websites.keys():
@@ -59,6 +63,12 @@ class ListScraper:
                 if site in websites:
                     if site in __class_name__.keys():
                         print("===>\t", site)
-                        instance = __class_name__[site](url=item.websites[site], establishment=item.id)
+                        instance = __class_name__[site](
+                            url=item.websites[site], establishment=item.id)
                         instance.execute()
                         print("\n\n")
+                        counter += 1
+
+                        if counter == 4:
+                            counter == 0
+                            refresh_connection()
