@@ -361,6 +361,16 @@ class MeteoAPIScraper(MeteoAPI):
 
 if __name__ == '__main__':
 
+    now = datetime.now()
+    if os.path.exists('/var/www/scraping-v3/meteo-scraper/meteo-scraping-log.txt'):
+        with open('/var/www/scraping-v3/meteo-scraper/meteo-scraping-log.txt', 'a', encoding='utf-8') as file:
+            file.write("Démarrage scrap meteo: " +
+                       now.strftime("%d/%m/%Y %H:%M:%S") + '\n')
+    else:
+        with open('/var/www/scraping-v3/meteo-scraper/meteo-scraping-log.txt', 'w', encoding='utf-8') as file:
+            file.write("Démarrage scrap meteo: " +
+                       now.strftime("%d/%m/%Y %H:%M:%S") + '\n')
+
     args = main_arguments()
 
     miss = check_arguments(args)
