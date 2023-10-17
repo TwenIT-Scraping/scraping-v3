@@ -371,34 +371,34 @@ if __name__ == '__main__':
             file.write("Démarrage scrap meteo: " +
                        now.strftime("%d/%m/%Y %H:%M:%S") + '\n')
 
-    args = main_arguments()
+    # args = main_arguments()
 
-    miss = check_arguments(args)
+    # miss = check_arguments(args)
 
-    if not len(miss):
+    # if not len(miss):
 
-        success = False
+    #     success = False
 
-        try:
-            d = MeteoLocalityScraper('locality_log', 'locality')
-            d.initialize()
-            time.sleep(2)
-            m = MeteoAPIScraper('meteo_log', 'locality',
-                                'meteo_url', 'meteo_data')
-            if args.dates:
-                m.set_dates(args.dates.split(','))
-            else:
-                m.set_dates([datetime.now().strftime('%Y-%m-%d')])
+    #     try:
+    #         d = MeteoLocalityScraper('locality_log', 'locality')
+    #         d.initialize()
+    #         time.sleep(2)
+    #         m = MeteoAPIScraper('meteo_log', 'locality',
+    #                             'meteo_url', 'meteo_data')
+    #         if args.dates:
+    #             m.set_dates(args.dates.split(','))
+    #         else:
+    #             m.set_dates([datetime.now().strftime('%Y-%m-%d')])
 
-            m.set_key_index(int(args.key))
-            m.start()
-            m.upload()
-            success = True
-        except:
-            success = False
+    #         m.set_key_index(int(args.key))
+    #         m.start()
+    #         m.upload()
+    #         success = True
+    #     except:
+    #         success = False
 
-    if success:
-        clean()
+    # if success:
+    #     clean()
 
-    else:
-        raise Exception(f"Argument(s) manquant(s): {', '.join(miss)}")
+    # else:
+    #     raise Exception(f"Argument(s) manquant(s): {', '.join(miss)}")
