@@ -404,7 +404,7 @@ if __name__ == '__main__':
 
             now = datetime.now()
 
-            with open('/var/www/scraping-v3/meteo-scraper/meteo-scraping-log.txt', 'w', encoding='utf-8') as file:
+            with open('/var/www/scraping-v3/meteo-scraper/meteo-scraping-log.txt', 'a', encoding='utf-8') as file:
                 file.write("  ===>  Fin scrap meteo: " +
                            now.strftime("%d/%m/%Y %H:%M:%S") + '\n')
 
@@ -413,6 +413,6 @@ if __name__ == '__main__':
 
     except Exception as e:
         now = datetime.now()
-        with open('/var/www/scraping-v3/meteo-scraper/meteo-scraping-log.txt', 'w', encoding='utf-8') as file:
+        with open('/var/www/scraping-v3/meteo-scraper/meteo-scraping-log.txt', 'a', encoding='utf-8') as file:
             file.write("  ===>  Fin scrap meteo WITH ERRORS: " +
                        now.strftime("%d/%m/%Y %H:%M:%S") + ':' + e + '\n')
