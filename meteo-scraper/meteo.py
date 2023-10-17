@@ -57,7 +57,7 @@ def clean():
 class MeteoAPI(object):
 
     def __init__(self, logfile: str) -> None:
-        dotenv.load_dotenv()
+
         self.logfile = logfile
         self.nexties_api_key = os.environ.get("API_TOKEN")
         self.nexties_api_url = os.environ.get("API_URL")
@@ -361,13 +361,17 @@ class MeteoAPIScraper(MeteoAPI):
 
 if __name__ == '__main__':
 
+    dotenv.load_dotenv()
+    
+    history_filename = f'{os.environ.get("HISTORY_FOLDER")}/meteo-scraping-log.txt'
+
     now = datetime.now()
-    if os.path.exists('/var/www/scraping-v3/meteo-scraper/meteo-scraping-log.txt'):
-        with open('/var/www/scraping-v3/meteo-scraper/meteo-scraping-log.txt', 'a', encoding='utf-8') as file:
+    if os.path.exists(history_filename):
+        with open(history_filename, 'a', encoding='utf-8') as file:
             file.write("Démarrage scrap meteo: " +
                        now.strftime("%d/%m/%Y %H:%M:%S"))
     else:
-        with open('/var/www/scraping-v3/meteo-scraper/meteo-scraping-log.txt', 'w', encoding='utf-8') as file:
+        with open(history_filename, 'w', encoding='utf-8') as file:
             file.write("Démarrage scrap meteo: " +
                        now.strftime("%d/%m/%Y %H:%M:%S"))
 
@@ -404,7 +408,7 @@ if __name__ == '__main__':
 
             now = datetime.now()
 
-            with open('/var/www/scraping-v3/meteo-scraper/meteo-scraping-log.txt', 'a', encoding='utf-8') as file:
+            with open(history_filename, 'a', encoding='utf-8') as file:
                 file.write("  ===>  Fin scrap meteo: " +
                            now.strftime("%d/%m/%Y %H:%M:%S") + '\n')
 
@@ -413,6 +417,6 @@ if __name__ == '__main__':
 
     except Exception as e:
         now = datetime.now()
-        with open('/var/www/scraping-v3/meteo-scraper/meteo-scraping-log.txt', 'a', encoding='utf-8') as file:
+        with open(history_filename, 'a', encoding='utf-8') as file:
             file.write("  ===>  Fin scrap meteo WITH ERRORS: " +
                        now.strftime("%d/%m/%Y %H:%M:%S") + ':' + e + '\n')

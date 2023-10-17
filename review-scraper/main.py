@@ -2,6 +2,7 @@ from scraper import ListScraper
 import argparse
 from datetime import datetime
 import os
+import dotenv
 
 ALL_WEBSITES = [
     'booking',
@@ -63,7 +64,9 @@ def check_arguments(args, required):
 
 if __name__ == '__main__':
 
-    history_filename = '/var/www/scraping-v3/review-scraper/review-scraping-log.txt'
+    dotenv.load_dotenv()
+
+    history_filename = f'{os.environ.get("HISTORY_FOLDER")}/review-scraping-log.txt'
 
     now = datetime.now()
     if os.path.exists(history_filename):
