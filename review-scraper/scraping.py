@@ -36,10 +36,11 @@ class Scraping(object):
         self.firefox_options.add_argument('--ignore-certificate-errors')
         in_background and self.firefox_options.add_argument('--headless')
         self.firefox_options.add_argument('--incognito')
-        self.firefox_options.set_preference('intl.accept_languages', 'en-US, en')
+        self.firefox_options.set_preference(
+            'intl.accept_languages', 'en-US, en')
 
         self.driver = webdriver.Firefox(service=FirefoxService(
-                    GeckoDriverManager().install()), options=self.firefox_options)
+            GeckoDriverManager().install()), options=self.firefox_options)
 
         # self.driver = webdriver.Chrome(service=ChromeService(
         #     ChromeDriverManager().install()), options=self.chrome_options)
@@ -124,7 +125,8 @@ class Scraping(object):
         sys.exit("Arret")
 
     def format(self) -> None:
-        column_order = ['author', 'source', 'language', 'rating', 'establishment', 'date_review', 'comment']
+        column_order = ['author', 'source', 'language',
+                        'rating', 'establishment', 'date_review', 'comment']
 
         def check_value(item):
             for key in column_order:
@@ -137,24 +139,25 @@ class Scraping(object):
 
         for item in self.data:
             if check_value(item):
-                score_data = review_score.compute_score(item['comment'], item['language'])
+                score_data = review_score.compute_score(
+                    item['comment'], item['language'])
                 if score_data['feeling'] and score_data['score'] and score_data['confidence']:
-                    line = '$'.join([item['author'], item['source'], item['language'], item['rating'], item['establishment'], item['date_review'], item['comment'].replace('$', 'USD'), score_data['feeling'], score_data['score'], score_data['confidence']]) + "#"
+                    line = '$'.join([item['author'], item['source'], item['language'], item['rating'], item['establishment'], item['date_review'],
+                                    item['comment'].replace('$', 'USD'), score_data['feeling'], score_data['score'], score_data['confidence']]) + "#"
                     if len(line.split('$')) == 10:
                         result += line
 
         self.formated_data = result
 
     def save(self) -> None:
-        
+
         self.format()
 
-        with open('datta.txt', 'w', encoding='utf-8') as file:
-            file.write(self.formated_data)
+        # with open('datta.txt', 'w', encoding='utf-8') as file:
+        #     file.write(self.formated_data)
 
         Review.save_multi(self.formated_data)
         print(len(self.data), "reviews uploaded!")
-
 
     @abstractmethod
     def extract(self) -> None:
