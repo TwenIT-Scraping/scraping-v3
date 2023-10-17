@@ -1,6 +1,6 @@
 from scraper import ListScraper
 import argparse
-import datetime
+from datetime import datetime
 import os
 
 ALL_WEBSITES = [
