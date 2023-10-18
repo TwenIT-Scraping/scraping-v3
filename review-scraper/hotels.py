@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
 from langdetect import detect
 from tools import month_number
+from random import randint
 
 
 class Hotels(Scraping):
@@ -36,10 +37,11 @@ class Hotels(Scraping):
 
         try:
             button_review = self.driver.find_element(
-                By.XPATH, "//button[contains(text(), 'See all reviews')]")
+                By.XPATH, "//button[contains(text(), 'See all reviews') or contains(text(), 'Afficher tous les avis')]")
         except:
-            button_review = self.driver.find_element(
-                By.XPATH, "//button[contains(text(), 'Afficher tous les avis')]")
+            time.sleep(time.sleep(randint(1, 3)))
+            self.driver.refresh()
+            self.load_reviews()
 
         try:
             button_review.click()
@@ -103,5 +105,5 @@ class Hotels(Scraping):
         self.data = reviews
 
 
-# trp = Hotels(url="https://uk.hotels.com/ho341928/chelsea-pines-inn-new-york-united-states-of-america/", establishment=33)
+# trp = Hotels(url="https://uk.hotels.com/ho512192/the-standard-high-line-new-york-united-states-of-america/", establishment=33)
 # trp.execute()
