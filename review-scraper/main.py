@@ -142,4 +142,4 @@ if __name__ == '__main__':
         now = datetime.now()
         with open(history_filename, 'a', encoding='utf-8') as file:
             file.write("  ===>  Fin scrap meteo WITH ERRORS: " +
-                       now.strftime("%d/%m/%Y %H:%M:%S") + ':' + e + '\n')
+                       now.strftime("%d/%m/%Y %H:%M:%S") + ':' + str(e) + '\n')

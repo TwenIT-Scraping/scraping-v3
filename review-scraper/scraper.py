@@ -36,15 +36,17 @@ class ListScraper:
         instance = ERApi(entity="establishment/name")
         etabs = instance.execute()
         if len(establishments):
-            self.ids = list(map(lambda y: y['id'], list(
+            self.ids = list(map(lambda y: y, list(
                 filter(lambda x: x['name'] in establishments, etabs))))
         else:
-            self.ids = list(map(lambda x: x['id'], etabs))
+            self.ids = list(
+                map(lambda x: x, etabs))
 
         for item in self.ids:
             print("Récupération information des établissements: ",
                   self.ids.index(item)+1, '/', len(self.ids))
-            etab = Establishment(rid=item)
+            etab = Establishment(rid=item['id'], name=item['name'])
+            etab.set_tag(item['tag'])
             etab.refresh()
             self.establishments.append(etab)
 
@@ -59,7 +61,6 @@ class ListScraper:
             print("****** Establishment: ", item.name, " ******")
 
             for site in item.websites.keys():
-                print(site)
                 if site in websites:
                     if site in __class_name__.keys():
                         print("===>\t", site)

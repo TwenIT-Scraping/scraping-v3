@@ -130,7 +130,7 @@ class ERApi:
 
     @staticmethod
     def delete_multi(entity, ids):
-        delete_instance = G2A("delete", entity)
+        delete_instance = ERApi("delete", entity)
         for item in ids:
             delete_instance.set_id(item)
             try:
@@ -156,8 +156,8 @@ class ERApi:
 
     @staticmethod
     def delete_all(entity):
-        all_ids = [item['id'] for item in G2A.get_all(entity)]
-        delete_req = G2A(method="delete", entity=entity)
+        all_ids = [item['id'] for item in ERApi.get_all(entity)]
+        delete_req = ERApi(method="delete", entity=entity)
         for item in all_ids:
             delete_req.set_id(item)
             delete_req.execute()
@@ -178,7 +178,7 @@ class ERApi:
 
     @staticmethod
     def post_multi(entity, p_list, website):
-        post_instance = G2A("post", entity)
+        post_instance = ERApi("post", entity)
         post_instance.add_header({"Content-Type": "application/json"})
         for item in p_list:
             reviews = []
@@ -194,7 +194,7 @@ class ERApi:
             r = post_instance.execute()
 
             if len(reviews) > 0:
-                post_child = G2A("post", 'reviews')
+                post_child = ERApi("post", 'reviews')
                 post_child.add_header({"Content-Type": "application/json"})
                 for v in reviews:
                     v[f'{entity[:-1]}'] = f"/api/{entity}/{r['id']}"
