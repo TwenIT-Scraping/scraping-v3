@@ -89,7 +89,7 @@ class Google(Scraping):
 
         try:
             accept_btn = self.driver.find_element(
-                By.XPATH, "//span[contains(text(), 'Tout accepter')]")
+                By.XPATH, "//span[contains(text(), 'Tout accepter') or contains(text(), 'Accept all')]")
             self.driver.execute_script("arguments[0].click();", accept_btn)
             time.sleep(random.randint(2, 5))
         except:
@@ -143,6 +143,6 @@ class Google(Scraping):
         self.data = reviews
 
 
-trp = Google(url="https://www.google.com/travel/hotels/entity/ChYIqtL21OvSv65QGgovbS8wdnB3cTRzEAE/reviews?utm_campaign=sharing&utm_medium=link&utm_source=htls&ts=CAESABogCgIaABIaEhQKBwjnDxAKGAISBwjnDxAKGAMYATICEAAqCQoFOgNNR0EaAA", establishment=3)
-trp.execute()
-print(trp.data)
+# trp = Google(url="https://www.google.com/travel/hotels/entity/ChYIqtL21OvSv65QGgovbS8wdnB3cTRzEAE/reviews?utm_campaign=sharing&utm_medium=link&utm_source=htls&ts=CAESABogCgIaABIaEhQKBwjnDxAKGAISBwjnDxAKGAMYATICEAAqCQoFOgNNR0EaAA", establishment=3)
+# trp.execute()
+# print(trp.data)
