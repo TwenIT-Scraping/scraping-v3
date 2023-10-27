@@ -35,7 +35,8 @@ class Campings(Scraping):
 
             soupe = BeautifulSoup(page, 'lxml')
 
-            review_cards = soupe.find('div', {'class': 'reviews__list'}).find_all('div', {'data-toggle': True})
+            review_cards = soupe.find('div', {'class': 'reviews__list'}).find_all(
+                'div', {'data-toggle': True})
 
             for card in review_cards:
                 t = {
@@ -47,25 +48,29 @@ class Campings(Scraping):
                     'author': card.find('div', {'class': 'review__author'}).text.strip() if card.find('div', {'class': 'review__author'}) else "",
                     'establishment': '/api/establishments/3'
                 }
-                
+
                 t['author'] and reviews.append(t)
 
             try:
-                next_btn = self.driver.find_element(By.CLASS_NAME, 'dca-pagination__next')
-                hidden_btn = 'dca-pagination--hidden' in next_btn.get_attribute('class').split()
+                next_btn = self.driver.find_element(
+                    By.CLASS_NAME, 'dca-pagination__next')
+                hidden_btn = 'dca-pagination--hidden' in next_btn.get_attribute(
+                    'class').split()
 
                 if next_btn and not hidden_btn:
-                    self.driver.execute_script("arguments[0].click();", next_btn)
+                    self.driver.execute_script(
+                        "arguments[0].click();", next_btn)
                     time.sleep(4)
                 else:
                     break
-                
+
             except Exception as e:
                 break
 
         self.data = reviews
 
 
-# trp = Campings(url="https://www.campings.com/fr/camping/le-pearl-camping-paradis-76750#reviews")
+# trp = Campings(
+#     url="https://www.campings.com/fr/camping/le-pearl-camping-paradis-76750#reviews", establishment=4)
 # trp.execute()
 # print(trp.data)

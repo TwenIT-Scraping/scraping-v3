@@ -64,6 +64,56 @@ class Hotels(Scraping):
             pass
 
     def extract(self) -> None:
+        pass
+
+
+class Hotels_FR(Hotels):
+
+    def __init__(self, url: str, establishment: str):
+        super().__init__(url=url, establishment=establishment)
+
+    def extract(self) -> None:
+        def format_date(date: str) -> str:
+            date = date.split(' ')
+            month = month_number(date[1], 'fr', 'short')
+            return f'{date[0]}/{month}/{date[2]}'
+
+        reviews = []
+
+        time.sleep(5)
+
+        self.load_reviews()
+
+        soup = BeautifulSoup(self.driver.page_source, 'lxml')
+        review_cards = soup.find('div', {
+                                 'data-stid': 'property-reviews-list'}).find_all('article', {'itemprop': 'review'})
+
+        for review in review_cards:
+            data = {}
+            data['date_review'] = format_date(review.find(
+                'span', {'itemprop': 'datePublished'}).text.strip())
+            data['author'] = review.find('img').parent.text.split(',')[0]
+            data['rating'] = review.find('span', {'itemprop': 'ratingValue'}).text.split(
+                ' ')[0] if review.find('span', {'itemprop': 'ratingValue'}) else '0'
+            data['comment'] = review.find('span', {'itemprop': 'description'}).text if review.find(
+                'span', {'itemprop': 'description'}) else ''
+
+            data['language'] = 'fr'
+
+            data['establishment'] = f'/api/establishments/{self.establishment}'
+            data['source'] = urlparse(self.url).netloc.split('.')[1]
+
+            reviews.append(data)
+
+        self.data = reviews
+
+
+class Hotels_EN(Hotels):
+
+    def __init__(self, url: str, establishment: str):
+        super().__init__(url=url, establishment=establishment)
+
+    def extract(self) -> None:
         def fomat_date(date: str) -> str:
             date = date.split(' ')
             month = month_number(date[1], 'en', 'short')
@@ -89,13 +139,7 @@ class Hotels(Scraping):
             data['comment'] = review.find('span', {'itemprop': 'description'}).text if review.find(
                 'span', {'itemprop': 'description'}) else ''
 
-            try:
-                data['language'] = detect(
-                    data['comment']) if data['comment'] else 'fr'
-
-            except:
-                data['language'] = 'fr'
-                data['comment'] = ''
+            data['language'] = 'en'
 
             data['establishment'] = f'/api/establishments/{self.establishment}'
             data['source'] = urlparse(self.url).netloc.split('.')[1]

@@ -25,33 +25,20 @@ class Expedia(Scraping):
         super().__init__(in_background=False, url=url, establishment=establishment)
 
     def load_reviews(self):
-        time.sleep(5)
+        # time.sleep(5)
         print("\n Loading ... \n")
 
-        try:
-            all_btn = self.driver.find_element(
-                By.XPATH, "//button[contains(text(), 'See all reviews')]")
-
-            if all_btn:
-                self.driver.execute_script("arguments[0].click();", all_btn)
-                time.sleep(5)
-
-        except Exception as e:
-            print(e)
-
-        time.sleep(5)
-
         while True:
-            time.sleep(random.randint(5, 10))
+            time.sleep(random.randint(1, 3))
 
             try:
-                next_btn = self.driver.find_element(
-                    By.XPATH, "//button[contains(text(), 'More reviews') or contains(text(), 'Plus d\'avis voyageurs')]")
+                next_btn = self.driver.find_elements(
+                    By.CSS_SELECTOR, '.uitk-button.uitk-button-medium.uitk-button-has-text.uitk-button-secondary')
 
-                if next_btn:
+                if len(next_btn) == 2:
                     self.driver.execute_script(
-                        "arguments[0].click();", next_btn)
-                    time.sleep(random.randint(1, 5))
+                        "arguments[0].click();", next_btn[1])
+                    time.sleep(random.randint(1, 3))
                 else:
                     break
 

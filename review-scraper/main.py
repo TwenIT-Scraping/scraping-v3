@@ -1,4 +1,4 @@
-from scraper import ListScraper
+from scraper import ListScraper, ListScraperV2
 import argparse
 from datetime import datetime
 import os
@@ -85,51 +85,100 @@ if __name__ == '__main__':
         miss = check_arguments(args, ['-t'])
 
         if not len(miss):
-            sc = ListScraper()
+            # sc = ListScraper()
+
+            # if args.type == 'all':
+            #     sc.init()
+            #     sc.start(ALL_WEBSITES)
+            # if args.type == 'by-website':
+            #     miss = check_arguments(args, ['-s'])
+            #     if not len(miss):
+            #         with open(history_filename, 'a', encoding='utf-8') as file:
+            #             file.write(f" ({args.sites}) ")
+            #         sc.init()
+            #         sc.start(args.sites.split('|'))
+            #     else:
+            #         raise Exception(
+            #             f"Argument(s) manquant(s): {', '.join(miss)}")
+            # if args.type == 'by-establishment':
+            #     miss = check_arguments(args, ['-e'])
+            #     if not len(miss):
+            #         with open(history_filename, 'a', encoding='utf-8') as file:
+            #             file.write(f" ({args.establishments}) ")
+            #         sc.init(args.establishments.split('|'))
+            #         sc.start(ALL_WEBSITES)
+            #     else:
+            #         raise Exception(
+            #             f"Argument(s) manquant(s): {', '.join(miss)}")
+            # if args.type == 'specified':
+            #     miss = check_arguments(args, ['-s', '-e'])
+            #     if not len(miss):
+            #         with open(history_filename, 'a', encoding='utf-8') as file:
+            #             file.write(f" ({args.establishments}: {args.sites}) ")
+            #         sc.init(args.establishments.split('|'))
+            #         sc.start(args.sites.split('|'))
+            #     else:
+            #         raise Exception(
+            #             f"Argument(s) manquant(s): {', '.join(miss)}")
+            # if args.type == 'auto':
+            #     with open(history_filename, 'a', encoding='utf-8') as file:
+            #         file.write(" (auto) ")
+            #     sc.init()
+            #     sc.start(AUTO_WEBSITES)
+            # if args.type == 'manual':
+            #     with open(history_filename, 'a', encoding='utf-8') as file:
+            #         file.write(" (auto) ")
+            #     sc.init()
+            #     sc.start(MANUAL_WEBSITES)
+
+            # now = datetime.now()
+            # with open(history_filename, 'a', encoding='utf-8') as file:
+            #     file.write("  ===>  Fin scrap reviews: " +
+            #                now.strftime("%d/%m/%Y %H:%M:%S") + '\n')
+
+            sc = ListScraperV2()
 
             if args.type == 'all':
                 sc.init()
-                sc.start(ALL_WEBSITES)
+                sc.start()
+
             if args.type == 'by-website':
                 miss = check_arguments(args, ['-s'])
                 if not len(miss):
                     with open(history_filename, 'a', encoding='utf-8') as file:
                         file.write(f" ({args.sites}) ")
-                    sc.init()
-                    sc.start(args.sites.split('|'))
+
+                    for s in args.sites.split('|'):
+                        sc.init(source=s)
+                        sc.start()
                 else:
                     raise Exception(
                         f"Argument(s) manquant(s): {', '.join(miss)}")
+
             if args.type == 'by-establishment':
                 miss = check_arguments(args, ['-e'])
                 if not len(miss):
                     with open(history_filename, 'a', encoding='utf-8') as file:
                         file.write(f" ({args.establishments}) ")
-                    sc.init(args.establishments.split('|'))
-                    sc.start(ALL_WEBSITES)
+
+                    for e in args.establishments.split('|'):
+                        sc.init(ename=e)
+                        sc.start()
                 else:
                     raise Exception(
                         f"Argument(s) manquant(s): {', '.join(miss)}")
+
             if args.type == 'specified':
                 miss = check_arguments(args, ['-s', '-e'])
                 if not len(miss):
                     with open(history_filename, 'a', encoding='utf-8') as file:
                         file.write(f" ({args.establishments}: {args.sites}) ")
-                    sc.init(args.establishments.split('|'))
-                    sc.start(args.sites.split('|'))
+
+                    sc.init(source=args.sites, ename=args.establishments)
+                    sc.start()
                 else:
                     raise Exception(
                         f"Argument(s) manquant(s): {', '.join(miss)}")
-            if args.type == 'auto':
-                with open(history_filename, 'a', encoding='utf-8') as file:
-                    file.write(" (auto) ")
-                sc.init()
-                sc.start(AUTO_WEBSITES)
-            if args.type == 'manual':
-                with open(history_filename, 'a', encoding='utf-8') as file:
-                    file.write(" (auto) ")
-                sc.init()
-                sc.start(MANUAL_WEBSITES)
 
             now = datetime.now()
             with open(history_filename, 'a', encoding='utf-8') as file:
