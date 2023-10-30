@@ -9,13 +9,13 @@ import random
 import time
 
 __class_name__ = {
-    # 'Facebook': FacebookProfileScraper,
+    'Facebook': FacebookProfileScraper,
     # 'Youtube': FacebookProfileScraper,
-    # 'Instagram': InstagramProfileScraper,
+    'Instagram': InstagramProfileScraper,
     'Linkedin': LinkedInProfileScraper,
     # 'facebook EN': FacebookProfileScraper,
-    # 'Tiktok': TikTokProfileScraper,
-    # 'Twitter': TwitterProfileScraperFR,
+    'Twitter': TwitterProfileScraperFR,
+    'Tiktok': TikTokProfileScraper,
 }
 
 
