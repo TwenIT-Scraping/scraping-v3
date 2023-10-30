@@ -36,3 +36,6 @@ class Scraping(object):
 
         if len(self.posts):
             print(self.posts[0])
+
+        self.posts = []
+        self.page_data = {}

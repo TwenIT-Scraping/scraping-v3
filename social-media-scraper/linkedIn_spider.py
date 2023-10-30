@@ -25,6 +25,15 @@ def format_linkedIn_date(date: str) -> str:
         print('an')
         date = (datetime.now(
         ) - relativedelta(years=int(''.join(filter(str.isdigit, date))))).strftime("%d/%m/%Y")
+    elif 'w' in date:
+        date = (datetime.now(
+        ) - relativedelta(weeks=int(''.join(filter(str.isdigit, date.split(' ')[0]))))).strftime("%d/%m/%Y")
+    elif 'mo' in date:
+        date = (datetime.now(
+        ) - relativedelta(months=int(''.join(filter(str.isdigit, date.split(' ')[0]))))).strftime("%d/%m/%Y")
+    elif 'yr' in date:
+        date = (datetime.now(
+        ) - relativedelta(years=int(''.join(filter(str.isdigit, date.split(' ')[0]))))).strftime("%d/%m/%Y")
     return date
 
 
