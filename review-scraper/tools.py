@@ -139,7 +139,7 @@ class ReviewScore:
 
                 print("Initially: rating = ", rating, " feeling = ", feeling)
 
-                if rating < 0.5:
+                if rating < 0.4:
                     if feeling == "negative":
                         score_value = (score_value + rating) / 2
                         confidence = -1 * score_value
@@ -151,10 +151,13 @@ class ReviewScore:
                         else:
                             confidence = 0
                             score_value = 0
+                            feeling = "neutre"
+                            rating = 0.5
                     if feeling == "positive":
                         feeling == "neutre"
                         confidence = 0
                         score_value = 0
+                        rating = 0.5
                 elif rating >= 0.4 and rating <= 0.6:
                     if feeling == "negative" or feeling == "neutre":
                         feeling = "neutre"
@@ -162,14 +165,19 @@ class ReviewScore:
                         score_value = 0
                     if feeling == "positive":
                         confidence = score_value = (score_value/4 + rating) / 2
+                        feeling = "neutre"
                 else:
                     if feeling == "negative":
-                        confidence = score_value = (score_value/4 + rating) / 2
+                        confidence = score_value = rating = (
+                            score_value/4 + rating) / 2
+                        feeling = "neutre"
+
                     if feeling == "neutre":
                         confidence = score_value = (score_value/2 + rating) / 2
+                        feeling = "positive"
                     else:
                         confidence = score_value = (score_value + rating) / 2
-                    feeling = "positive"
+                        feeling = "positive"
 
                 print("Finally: rating = ", rating, " feeling = ", feeling)
 
