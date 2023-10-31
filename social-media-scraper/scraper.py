@@ -9,11 +9,11 @@ import random
 import time
 
 __class_name__ = {
-    'Facebook': FacebookProfileScraper,
+    # 'Facebook': FacebookProfileScraper,
     # 'Youtube': FacebookProfileScraper,
     'Instagram': InstagramProfileScraper,
     'Linkedin': LinkedInProfileScraper,
-    # 'facebook EN': FacebookProfileScraper,
+    'facebook EN': FacebookProfileScraper,
     'Twitter': TwitterProfileScraperFR,
     'Tiktok': TikTokProfileScraper,
 }
@@ -39,7 +39,7 @@ class ListScraper:
 
         for item_key in by_source.keys():
             time.sleep(random.randint(1, 3))
-            if item_key in __class_name__.keys():
+            if item_key in __class_name__.keys() and len(by_source[item_key]):
                 print(f"****** {item_key} ******")
                 try:
                     instance = __class_name__[item_key](

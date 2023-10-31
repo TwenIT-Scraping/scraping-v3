@@ -25,6 +25,9 @@ class FacebookProfileScraper(Scraping):
         self.context = self.browser.new_context(no_viewport=True)
         self.page = self.context.new_page()
 
+    def stop(self):
+        self.context.close()
+
     def create_logfile(self, logfile_name: str) -> None:
         pass
 
@@ -99,10 +102,13 @@ class FacebookProfileScraper(Scraping):
                 break
 
     def format_date(self, date):
+        print(date)
         dt = date.split()
         day = None
         month = datetime.now().month
         year = datetime.now().year
+
+        print(dt)
 
         if dt[0][len(dt[0])-1] == 'h' and dt[0][:-1].isnumeric():
             time = datetime.now() + timedelta(hours=-(int(dt[0][:-1])))
@@ -138,45 +144,62 @@ class FacebookProfileScraper(Scraping):
                                     'class': "x9f619 x1n2onr6 x1ja2u2z xeuugli xs83m0k x1xmf6yo x1emribx x1e56ztr x1i64zmx xjl7jj x19h7ccj xu9j1y6 x7ep2pv"})
         post_data = post_container.find_all('div', {'x1n2onr6 x1ja2u2z'})
         for post in post_data:
-            likes = post.find('span', {'class': "xt0b8zv x2bj2ny xrbpyxo xl423tq"}).text.strip() \
-                if post.find('span', {'class': "xt0b8zv x2bj2ny xrbpyxo xl423tq"}) else '0'
-            likes = likes.lower().replace('k', '000').replace('m', '000000')
-            description = post.find('div', {'class': "xdj266r x11i5rnm xat24cr x1mh8g0r x1vvkbs x126k92a"}).text.strip() \
-                if post.find('div', {'class': "xdj266r x11i5rnm xat24cr x1mh8g0r x1vvkbs x126k92a"}) else ''
-            cs = post.find('div', {
-                           'class': "x9f619 x1n2onr6 x1ja2u2z x78zum5 x2lah0s x1qughib x1qjc9v5 xozqiw3 x1q0g3np xykv574 xbmpl8g x4cne27 xifccgj"})
-            comments = 0
-            shares = 0
-            if cs and cs.text:
-                c = cs.find_all('span', {'dir': 'auto'})
-                match(len(c)):
-                    case 2:
-                        shares = c[1].text.lower().replace('shares', '').replace(
-                            'share', '').strip().replace('k', '000').replace('m', '000000')
-                        shares = int(''.join(filter(str.isdigit, shares)))
-                        comments = c[0].text.lower().replace('comment', '').replace(
-                            'comments', '').strip().replace('k', '000').replace('m', '000000')
-                        comments = int(''.join(filter(str.isdigit, comments)))
-                    case 1:
-                        if 'share' in c[0].text or 'shares' in c[0].text:
-                            shares = c[0].text.lower().replace('shares', '').replace(
+            try:
+                likes = post.find('span', {'class': "xt0b8zv x2bj2ny xrbpyxo xl423tq"}).text.strip() \
+                    if post.find('span', {'class': "xt0b8zv x2bj2ny xrbpyxo xl423tq"}) else '0'
+                likes = likes.lower().replace('k', '000').replace('m', '000000')
+                description = post.find('div', {'class': "xdj266r x11i5rnm xat24cr x1mh8g0r x1vvkbs x126k92a"}).text.strip() \
+                    if post.find('div', {'class': "xdj266r x11i5rnm xat24cr x1mh8g0r x1vvkbs x126k92a"}) else ''
+                cs = post.find('div', {
+                    'class': "x9f619 x1n2onr6 x1ja2u2z x78zum5 x2lah0s x1qughib x1qjc9v5 xozqiw3 x1q0g3np xykv574 xbmpl8g x4cne27 xifccgj"})
+                comments = 0
+                shares = 0
+                if cs and cs.text:
+                    c = cs.find_all('span', {'dir': 'auto'})
+                    print(len(c))
+                    match(len(c)):
+                        case 2:
+                            shares = c[1].text.lower().replace('shares', '').replace(
                                 'share', '').strip().replace('k', '000').replace('m', '000000')
                             shares = int(''.join(filter(str.isdigit, shares)))
-                        if 'comment' in c[0].text or 'comments' in c[0].text:
                             comments = c[0].text.lower().replace('comment', '').replace(
                                 'comments', '').strip().replace('k', '000').replace('m', '000000')
                             comments = int(
                                 ''.join(filter(str.isdigit, comments)))
+                        case 1:
+                            if 'share' in c[0].text or 'shares' in c[0].text:
+                                shares = c[0].text.lower().replace('shares', '').replace(
+                                    'share', '').strip().replace('k', '000').replace('m', '000000')
+                                shares = int(
+                                    ''.join(filter(str.isdigit, shares)))
+                            if 'comment' in c[0].text or 'comments' in c[0].text:
+                                comments = c[0].text.lower().replace('comment', '').replace(
+                                    'comments', '').strip().replace('k', '000').replace('m', '000000')
+                                comments = int(
+                                    ''.join(filter(str.isdigit, comments)))
+                        case _:
+                            shares = 0
+                            comments = 0
 
-            date = post.find('a', {'class': 'x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm'}).text.strip()
+                date = post.find('a', {
+                                 'class': 'x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm'}).text.strip()
 
-            self.posts.append({
-                'reaction': int(''.join(filter(str.isdigit, likes))),
-                'description': description,
-                'comments': comments,
-                'shares': shares,
-                'date': self.format_date(date)
-            })
+                # print(date)
+
+                spans_date = post.find(
+                    'span', {'id': ':Rlataul9l9aqqd9emhpapd5aqH1:'}).text.strip()
+                print(spans_date)
+
+                self.posts.append({
+                    'reaction': int(''.join(filter(str.isdigit, likes))),
+                    'description': description,
+                    'comments': comments,
+                    'shares': shares,
+                    # 'date': self.format_date(date)
+                })
+            except Exception as e:
+                print(e)
+                pass
 
         self.page_data = {
             'name': page_name,
@@ -208,3 +231,5 @@ class FacebookProfileScraper(Scraping):
             self.load_page_content()
             self.extract_data()
             self.save()
+
+        self.stop()

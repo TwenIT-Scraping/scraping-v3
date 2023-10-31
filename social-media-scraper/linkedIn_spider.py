@@ -52,6 +52,9 @@ class LinkedInProfileScraper(Scraping):
         self.context = self.browser.new_context(no_viewport=True)
         self.page = self.context.new_page()
 
+    def stop(self):
+        self.context.close()
+
     def scoll_down_page(self) -> None:
         print('==> load all posts')
         for i in range(5):
@@ -146,6 +149,8 @@ class LinkedInProfileScraper(Scraping):
             # self.load_page_content()
             self.extract_data()
             self.save()
+
+        self.stop()
 
 # if __name__ == '__main__':
 #     l = LinkedInProfileScraper()

@@ -24,6 +24,9 @@ class InstagramProfileScraper(Scraping):
         self.context = self.browser.new_context(no_viewport=True)
         self.page = self.context.new_page()
 
+    def stop(self):
+        self.context.close()
+
     def create_logfile(self, logfile_name: str) -> None:
         pass
 
@@ -145,6 +148,7 @@ class InstagramProfileScraper(Scraping):
             self.extract_data()
             self.save()
 
+        self.stop()
 
 # if __name__ == '__main__':
 #     print("==> program is lauching ('_')")

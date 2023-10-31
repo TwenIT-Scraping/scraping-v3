@@ -24,6 +24,9 @@ class TikTokProfileScraper(Scraping):
         self.context = self.browser.new_context(no_viewport=True)
         self.page = self.context.new_page()
 
+    def stop(self):
+        self.context.close()
+
     def resolve_loginform(self) -> None:
         pass
 
@@ -128,3 +131,5 @@ class TikTokProfileScraper(Scraping):
             self.goto_tiktok_page()
             self.extract_data()
             self.save()
+
+        self.stop()

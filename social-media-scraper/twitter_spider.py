@@ -37,6 +37,9 @@ class TwitterProfileScraper(Scraping):
         self.context = self.browser.new_context(no_viewport=True)
         self.page = self.context.new_page()
 
+    def stop(self):
+        self.context.close()
+
     def create_logfile(self, logfile_name: str) -> None:
         pass
 
@@ -192,6 +195,7 @@ class TwitterProfileScraper(Scraping):
         self.goto_login()
         self.resolve_loginform()
         print(self.items)
+
         for item in self.items:
             print("Itérer ...")
             self.set_item(item)
@@ -199,6 +203,8 @@ class TwitterProfileScraper(Scraping):
             # self.load_page_content()
             self.extract_data()
             self.save()
+
+        self.stop()
 
 
 class TwitterProfileScraperFR(TwitterProfileScraper):

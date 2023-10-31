@@ -39,3 +39,6 @@ class Scraping(object):
 
         self.posts = []
         self.page_data = {}
+
+    def stop(self):
+        pass
