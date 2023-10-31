@@ -155,7 +155,7 @@ class ReviewScore:
                         feeling == "neutre"
                         confidence = 0
                         score_value = 0
-                elif rating > 0.4 and rating < 0.6:
+                elif rating >= 0.4 and rating <= 0.6:
                     if feeling == "negative" or feeling == "neutre":
                         feeling = "neutre"
                         confidence = 0
