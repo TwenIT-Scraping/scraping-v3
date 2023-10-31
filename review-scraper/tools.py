@@ -152,12 +152,10 @@ class ReviewScore:
                             confidence = 0
                             score_value = 0
                             feeling = "neutre"
-                            rating = 0.5
                     else:
                         feeling == "neutre"
                         confidence = 0
                         score_value = 0
-                        rating = 0.5
                 elif rating >= 0.4 and rating <= 0.6:
                     if feeling == "negative" or feeling == "neutre":
                         feeling = "neutre"
@@ -168,7 +166,7 @@ class ReviewScore:
                         feeling = "neutre"
                 else:
                     if feeling == "negative":
-                        confidence = score_value = rating = (
+                        confidence = score_value = (
                             score_value/4 + rating) / 2
                         feeling = "neutre"
 
