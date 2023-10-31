@@ -140,7 +140,7 @@ class Scraping(object):
         for item in self.data:
             if check_value(item):
                 score_data = review_score.compute_score(
-                    item['comment'], item['language'], item['rating'])
+                    item['comment'], item['language'], item['rating'], item['source'])
                 if score_data['feeling'] and score_data['score'] and score_data['confidence']:
                     line = '$'.join([item['author'], item['source'], item['language'], item['rating'], item['establishment'], item['date_review'],
                                     item['comment'].replace('$', 'USD'), score_data['feeling'], score_data['score'], score_data['confidence']]) + "#"
@@ -156,7 +156,7 @@ class Scraping(object):
         # with open('datta.txt', 'w', encoding='utf-8') as file:
         #     file.write(self.formated_data)
 
-        Review.save_multi(self.formated_data)
+        # Review.save_multi(self.formated_data)
         print(len(self.data), "reviews uploaded!")
 
     @abstractmethod
