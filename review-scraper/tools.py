@@ -39,35 +39,36 @@ months_en = {
 }
 
 shortmonths_fr = {
-    'janv.':'01',
-    'févr.':'02',
-    'mars':'03',
-    'avr.':'04',
+    'janv.': '01',
+    'févr.': '02',
+    'mars': '03',
+    'avr.': '04',
     'mai': '05',
-    'juin':'06',
-    'juil.':'07',
-    'août':'08',
-    'sept.':'09',
-    'oct.':'10',
-    'nov.':'11',
-    'déc.':'12'
+    'juin': '06',
+    'juil.': '07',
+    'août': '08',
+    'sept.': '09',
+    'oct.': '10',
+    'nov.': '11',
+    'déc.': '12'
 }
 
 shortmonths_en = {
-    'Jan':'01',
-    'Feb':'02',
-    'Mar':'03',
-    'Apr':'04',
+    'Jan': '01',
+    'Feb': '02',
+    'Mar': '03',
+    'Apr': '04',
     'May': '05',
-    'Jun':'06',
-    'Jul':'07',
-    'Aug':'08',
-    'Sept':'09',
-    'Sep':'09',
-    'Oct':'10',
-    'Nov':'11',
-    'Dec':'12'
+    'Jun': '06',
+    'Jul': '07',
+    'Aug': '08',
+    'Sept': '09',
+    'Sep': '09',
+    'Oct': '10',
+    'Nov': '11',
+    'Dec': '12'
 }
+
 
 def month_number(name, lang, t=""):
     return globals()[f"{t}months_{lang}"][name]
@@ -78,9 +79,11 @@ class ReviewScore:
     def __init__(self):
         if os.environ.get('ENV_TYPE') == 'remote':
             self.model_name = "nlptown/bert-base-multilingual-uncased-sentiment"
-            self.model = AutoModelForSequenceClassification.from_pretrained(self.model_name)
+            self.model = AutoModelForSequenceClassification.from_pretrained(
+                self.model_name)
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-            self.classifier = pipeline('sentiment-analysis', model=self.model, tokenizer=self.tokenizer)
+            self.classifier = pipeline(
+                'sentiment-analysis', model=self.model, tokenizer=self.tokenizer)
         else:
             self.model_name = ""
             self.model = None
@@ -101,18 +104,21 @@ class ReviewScore:
         else:
             return False
 
-    def compute_score(self, text, lang):
+    def compute_score(self, text, lang, rating):
+
+        print(rating)
 
         if os.environ.get('ENV_TYPE') == 'local':
             return {'feeling': 'positive', 'score': '0.6786', 'confidence': '0.6786'}
         else:
-            score_data = self.get_score(text, lang )
+            score_data = self.get_score(text, lang)
 
             if score_data:
                 score_value = score_data[0]['score']
                 score_label = score_data[0]['label']
                 score_stars = int(score_label.split()[0])
-                feeling = "negative" if score_stars < 3 else ("positive" if score_stars > 3 else "neutre")
+                feeling = "negative" if score_stars < 3 else (
+                    "positive" if score_stars > 3 else "neutre")
 
                 if feeling == "negative":
                     confidence = -1 * score_value
@@ -122,24 +128,27 @@ class ReviewScore:
                     confidence = score_value
 
                 return {'score': str(score_value), 'confidence': str(confidence), 'feeling': feeling}
-            
+
             else:
                 return {'score': "0", 'confidence': "0", 'feeling': "neutre"}
 
     def update_scores(self):
         for review_id in range(1, 5187):
             try:
-                get_instance = ERApi(method='getone', entity='reviews', id=review_id)
+                get_instance = ERApi(
+                    method='getone', entity='reviews', id=review_id)
                 review_data = get_instance.execute()
 
-                patch_instance = ERApi(method='put', entity='reviews', id=review_id)
+                patch_instance = ERApi(
+                    method='put', entity='reviews', id=review_id)
                 body = {}
 
                 if review_data['comment']:
-                    body = self.compute_score(review_data['comment'], review_data['language'])
+                    body = self.compute_score(
+                        review_data['comment'], review_data['language'], review_data['rating'])
                 else:
                     body = {'score': 0, 'confidence': 0, 'feeling': "neutre"}
-                
+
                 patch_instance.set_body(body)
 
                 try:
@@ -147,7 +156,7 @@ class ReviewScore:
                     print(res)
                 except Exception as e:
                     print(e)
-                    
+
             except Exception as e:
                 print(e)
                 pass
