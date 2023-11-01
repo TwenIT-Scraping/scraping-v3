@@ -156,7 +156,7 @@ class Scraping(object):
         # with open('datta.txt', 'w', encoding='utf-8') as file:
         #     file.write(self.formated_data)
 
-        # Review.save_multi(self.formated_data)
+        Review.save_multi(self.formated_data)
         print(len(self.data), "reviews uploaded!")
 
     @abstractmethod
