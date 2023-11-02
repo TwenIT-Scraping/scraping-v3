@@ -89,7 +89,7 @@ class ERApi:
             headers = self.headers
 
             response = requests.request(
-                "POST", url, headers=headers, data=self.body, files=files)
+                "POST", url, headers=headers, data=self.body, files=files, verify=False)
 
             return response
 
