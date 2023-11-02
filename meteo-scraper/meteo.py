@@ -12,6 +12,7 @@ import keyboard
 import orjson
 import dotenv
 import argparse
+import ssl
 
 
 def main_arguments() -> object:
@@ -64,11 +65,12 @@ class MeteoAPI(object):
         self.headers = {'Authorization': self.nexties_api_key,
                         'Content-Type': 'application/json'}
         self.history = {}
-        self.http = urllib3.PoolManager()
+        self.http = None
 
     def get_request(self, url: str, header: bool = False) -> dict:
         try:
             response = None
+            self.http = urllib3.PoolManager()
 
             if header:
                 response = self.http.request(
@@ -102,6 +104,7 @@ class MeteoAPI(object):
 
     def post_request(self, url: str, body: str) -> dict:
         self.attempt_post = 1
+        self.http = urllib3.PoolManager(cert_reqs=ssl.CERT_NONE)
         try:
             response = self.http.request(
                 method='POST',
@@ -277,11 +280,20 @@ class MeteoAPIScraper(MeteoAPI):
 
                 self.set_log('total_index', (len(data_source) + 1))
 
+                counter = 0
+
                 for x in range(len(data_source)):
                     for date in self.dates:
+                        counter += 1
                         url = self.format_url(
                             data_source.loc[x].to_dict(), date)
                         data.append(url)
+
+                        if counter == 45:
+                            counter = 0
+                            next_index = self.meteo_key + 1 if self.meteo_key + \
+                                1 < len(self.api_keys) else 0
+                            self.set_key_index(next_index)
 
                 with open(f'{self.url_file}.json', 'w') as openfile:
                     openfile.write(json.dumps(data, indent=4))
@@ -362,7 +374,7 @@ class MeteoAPIScraper(MeteoAPI):
 if __name__ == '__main__':
 
     dotenv.load_dotenv()
-    
+
     history_filename = f'{os.environ.get("HISTORY_FOLDER")}/meteo-scraping-log.txt'
 
     now = datetime.now()
