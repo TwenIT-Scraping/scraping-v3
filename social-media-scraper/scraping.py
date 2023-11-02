@@ -20,7 +20,7 @@ class Scraping(object):
         self.current_credential = self.credentials[index]
 
     def set_credentials(self, source: str) -> None:
-        with open('logins.json', 'r') as f:
+        with open('./logins.json', 'r') as f:
             data = json.load(f)
             self.credentials = data[source]
 
