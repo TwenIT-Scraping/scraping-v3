@@ -1,4 +1,5 @@
 import json
+from os import path
 
 
 class Scraping(object):
@@ -20,7 +21,8 @@ class Scraping(object):
         self.current_credential = self.credentials[index]
 
     def set_credentials(self, source: str) -> None:
-        with open('./logins.json', 'r') as f:
+        logins_path = path.join(path.dirname(__file__), 'logins.json')
+        with open(logins_path, 'r') as f:
             data = json.load(f)
             self.credentials = data[source]
 
