@@ -88,7 +88,7 @@ class ERApi:
             headers = self.headers
 
             response = requests.request(
-                "POST", url, headers=headers, data=self.body, files=files)
+                "POST", url, headers=headers, data=self.body, files=files, verify=False)
 
             return response
 
@@ -98,7 +98,8 @@ class ERApi:
                 f'{self.api_url}{self.entity}',
                 params=self.params,
                 headers=self.headers,
-                data=json.dumps(self.body)
+                data=json.dumps(self.body),
+                verify=False
             )
 
         return response and response.json()
