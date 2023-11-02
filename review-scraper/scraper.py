@@ -98,9 +98,11 @@ class ListScraperV2:
         self.settings.prepare()
 
     def start(self):
-        refresh_connection()
+        # refresh_connection()
 
-        counter = 0
+        # counter = 0
+
+        # print(self.settings.items)
 
         for item in self.settings.items:
             time.sleep(random.randint(1, 3))
@@ -116,9 +118,9 @@ class ListScraperV2:
                 instance.execute()
                 counter += 1
 
-                if counter == 4:
-                    counter == 0
-                    refresh_connection()
+                # if counter == 4:
+                #     counter == 0
+                #     refresh_connection()
 
             else:
                 print(
