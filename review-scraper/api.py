@@ -99,11 +99,12 @@ class ERApi:
                 f'{self.api_url}{self.entity}',
                 params=self.params,
                 headers=self.headers,
-                data=json.dumps(self.body)
+                data=json.dumps(self.body),
+                verify=False
             )
 
-        # if response.status_code >= 400:
-        #     response.raise_for_status()
+        if response.status_code >= 400:
+            response.raise_for_status()
 
         return response and response.json()
 

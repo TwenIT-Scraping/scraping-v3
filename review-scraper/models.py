@@ -140,23 +140,29 @@ class Settings:
         self.items = []
 
     def prepare(self):
-        page = 0
-        req = ERApi(method="get", entity="setting/list")
 
-        self.eid and req.add_params({'eid': self.eid})
-        self.category and req.add_params({'categ': self.category})
-        self.ename and req.add_params({'ename': self.ename})
-        self.source and req.add_params({'src': self.source})
+        try:
+            page = 0
+            req = ERApi(method="get", entity="setting/list")
 
-        while True:
-            page += 1
-            req.add_params({'page': page})
-            res = req.execute()
+            self.eid and req.add_params({'eid': self.eid})
+            self.category and req.add_params({'categ': self.category})
+            self.ename and req.add_params({'ename': self.ename})
+            self.source and req.add_params({'src': self.source})
 
-            if len(res) > 0:
-                self.items = self.items + res
-            else:
-                break
+            while True:
+                page += 1
+                req.add_params({'page': page})
+                res = req.execute()
+
+                if len(res) > 0:
+                    self.items = self.items + res
+                else:
+                    break
+        except Exception as e:
+            print(e)
+            raise Exception(
+                "Des erreurs sont rencontrées durant l'initialisation !!!")
 
 # etab = Establishment(rid=2)
 # etab.refresh()
