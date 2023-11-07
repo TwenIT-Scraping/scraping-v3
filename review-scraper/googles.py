@@ -126,9 +126,9 @@ class Google(Scraping):
                 ) if card.find('span', {'class': 'iUtr1'}) else ""
 
                 date_review = formate_date(
-                    date_raw, lang) if date_raw else "01/01/2022"
+                    date_raw, lang) if date_raw else "01/01/1999"
 
-                if author or comment or rating != "0":
+                if (author or comment or rating != "0") and date_review != '01/01/1999':
 
                     reviews.append({
                         'rating': rating,

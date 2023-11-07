@@ -69,7 +69,7 @@ class Opentable_UK(Opentable):
                 except:
                     lang = 'en'
 
-                review_date = '01/01/2022'
+                review_date = '01/01/1999'
 
                 try:
                     date_raw = item.find(
@@ -82,9 +82,9 @@ class Opentable_UK(Opentable):
                         review_date = datetime.strftime(
                             datetime.now() + timedelta(days=-int(date_raw.split()[1])), '%d/%m/%Y')
                 except:
-                    review_date = '01/01/2022'
+                    review_date = '01/01/1999'
 
-                self.reviews_data.append({
+                review_date != '01/01/1999' and self.reviews_data.append({
                     'comment': comment,
                     'language': lang,
                     'rating': rating,

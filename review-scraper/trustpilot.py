@@ -32,25 +32,30 @@ class Trustpilot(Scraping):
 
             soupe = BeautifulSoup(page, 'lxml')
 
-            review_cards = soupe.find_all('article', {'data-service-review-card-paper': "true"})
-            
+            review_cards = soupe.find_all(
+                'article', {'data-service-review-card-paper': "true"})
+
             for card in review_cards:
-                title = card.find('a', {'data-review-title-typography': 'true'}).text.strip() if card.find('a', {'data-review-title-typography': 'true'}) else ""
-                detail = card.find('p', {'data-service-review-text-typography': 'true'}).text.strip() if card.find('p', {'data-service-review-text-typography': 'true'}) else ""
+                title = card.find('a', {'data-review-title-typography': 'true'}).text.strip(
+                ) if card.find('a', {'data-review-title-typography': 'true'}) else ""
+                detail = card.find('p', {'data-service-review-text-typography': 'true'}).text.strip(
+                ) if card.find('p', {'data-service-review-text-typography': 'true'}) else ""
                 comment = f"{title}{': ' if title and detail else ''}{detail}"
 
                 try:
                     lang = detect(comment)
-                except: 
+                except:
                     lang = 'en'
 
-                raw_date = card.find('time')['datetime'] if card.find('time') else ""
+                raw_date = card.find(
+                    'time')['datetime'] if card.find('time') else ""
                 if raw_date:
-                    date_review = '/'.join([raw_date[8:10], raw_date[5:7], raw_date[0:4]])
+                    date_review = '/'.join([raw_date[8:10],
+                                           raw_date[5:7], raw_date[0:4]])
                 else:
-                    date_review = "01/01/2020"
+                    date_review = "01/01/1999"
 
-                reviews.append({
+                date_review != "01/01/1999" and reviews.append({
                     'comment': comment,
                     'rating': card.find('div', {'data-service-review-rating': True})['data-service-review-rating'] if card.find('div', {'data-service-review-rating': True}) else "0",
                     'date_review': date_review,
@@ -61,15 +66,18 @@ class Trustpilot(Scraping):
                 })
 
             try:
-                next_btn = self.driver.find_element(By.NAME, 'pagination-button-next')
-                disabled_btn = True if next_btn.get_attribute('aria-disabled') else False
+                next_btn = self.driver.find_element(
+                    By.NAME, 'pagination-button-next')
+                disabled_btn = True if next_btn.get_attribute(
+                    'aria-disabled') else False
 
                 if next_btn and not disabled_btn:
-                    self.driver.execute_script("arguments[0].click();", next_btn)
+                    self.driver.execute_script(
+                        "arguments[0].click();", next_btn)
                     time.sleep(4)
                 else:
                     break
-                
+
             except Exception as e:
                 break
                 # print(e)

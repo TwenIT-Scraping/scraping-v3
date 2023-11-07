@@ -78,14 +78,14 @@ class Expedia(Scraping):
                 ) if card.find('span', {'itemprop': 'datePublished'}) else ""
                 try:
                     date_review = datetime.strftime(datetime.strptime(
-                        date_raw, '%b %d, %Y'), '%d/%m/%Y') if date_raw else "01/01/2022"
+                        date_raw, '%b %d, %Y'), '%d/%m/%Y') if date_raw else "01/01/1999"
                 except:
                     date_rawt = date_raw.split()
                     date_review = "%s/%s/%s" % (date_rawt[0], month_number(
                         date_rawt[1], 'fr', 'short'), date_rawt[2])
 
                 try:
-                    reviews.append({
+                    t = {
                         'comment': comment,
                         'rating': card.find('span', {'itemprop': 'ratingValue'}).text.strip().split('/')[0] + "/10"
                         if card.find('span', {'itemprop': 'ratingValue'}) else "0/10",
@@ -94,7 +94,8 @@ class Expedia(Scraping):
                         'source': urlparse(self.url).netloc.split('.')[1],
                         'author': card.find('h4').text.strip(),
                         'establishment': f'/api/establishments/{self.establishment}'
-                    })
+                    }
+                    t['date_review'] != '01/01/1999' and reviews.append(t)
                 except Exception as e:
                     print(e)
 

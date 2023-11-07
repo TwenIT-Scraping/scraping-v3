@@ -42,14 +42,15 @@ class Campings(Scraping):
                 t = {
                     'comment': card.find('div', {'class': 'review__comment'}).text.strip() if card.find('div', {'class': 'review__comment'}) else "",
                     'rating': card.find('span', {'class': 'review__rating'}).text.strip().split('/')[0] if card.find('span', {'class': 'review__rating'}) else "0",
-                    'date_review': card.find('div', {'class': 'review__publish-date'}).find('span').text.strip() if card.find('div', {'class': 'review__publish-date'}) else "01/01/2020",
+                    'date_review': card.find('div', {'class': 'review__publish-date'}).find('span').text.strip() if card.find('div', {'class': 'review__publish-date'}) else "01/01/1999",
                     'language': 'fr',
                     'source': urlparse(self.url).netloc.split('.')[1],
                     'author': card.find('div', {'class': 'review__author'}).text.strip() if card.find('div', {'class': 'review__author'}) else "",
                     'establishment': '/api/establishments/3'
                 }
 
-                t['author'] and reviews.append(t)
+                t['author'] and t['date_review'] != '01/01/1999' and reviews.append(
+                    t)
 
             try:
                 next_btn = self.driver.find_element(
