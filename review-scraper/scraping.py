@@ -39,11 +39,9 @@ class Scraping(object):
         self.firefox_options.set_preference(
             'intl.accept_languages', 'en-US, en')
 
-        self.driver = webdriver.Firefox(service=FirefoxService(
-            GeckoDriverManager().install()), options=self.firefox_options)
+        # self.driver = webdriver.Firefox(options=self.firefox_options)
 
-        # self.driver = webdriver.Chrome(service=ChromeService(
-        #     ChromeDriverManager().install()), options=self.chrome_options)
+        self.driver = webdriver.Chrome(options=self.chrome_options)
 
         self.driver.maximize_window()
         self.current_driver = 'firefox'
