@@ -20,7 +20,7 @@ from langdetect import detect
 
 class Trustpilot(Scraping):
     def __init__(self, url: str, establishment: str):
-        super().__init__(in_background=False, url=url, establishment=establishment)
+        super().__init__(in_background=True, url=url, establishment=establishment)
 
     def extract(self):
 
