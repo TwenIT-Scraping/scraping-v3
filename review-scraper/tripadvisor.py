@@ -80,6 +80,9 @@ class Tripadvisor_UK(Tripadvisor):
                             try:
                                 date_raw = item.find(
                                     'div', {'class': 'cRVSd'}).text.strip()
+
+                                print(date_raw)
+
                                 date_rawt = date_raw.split()[-2:]
 
                                 if int(date_rawt[1]) > 2000:
@@ -159,6 +162,9 @@ class Tripadvisor_UK(Tripadvisor):
 
                         reviews.append(review_data)
 
+                if not self.check_date(reviews[-1]['date_review']):
+                    break
+
                 try:
                     next_btn = self.driver.find_element(
                         By.CSS_SELECTOR, "a.nav.next")
@@ -188,8 +194,6 @@ class Tripadvisor_FR(Tripadvisor):
         reviews = []
 
         time.sleep(10)
-
-        print(self.driver.current_url)
 
         try:
             while True:
@@ -235,6 +239,8 @@ class Tripadvisor_FR(Tripadvisor):
                                 date_raw = item.find(
                                     'div', {'class': 'cRVSd'}).text.strip()
 
+                                print(date_raw)
+
                                 date_raw_withp = date_raw.split()[-2:]
 
                                 if date_raw_withp[1][0] == '(':
@@ -267,6 +273,7 @@ class Tripadvisor_FR(Tripadvisor):
                             }
 
                             reviews.append(review_data)
+
                     else:
                         raise Exception()
 
@@ -318,6 +325,9 @@ class Tripadvisor_FR(Tripadvisor):
                         }
 
                         reviews.append(review_data)
+
+                if not self.check_date(reviews[-1]['date_review']):
+                    break
 
                 try:
                     next_btn = self.driver.find_element(
