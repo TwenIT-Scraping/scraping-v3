@@ -50,8 +50,6 @@ class Tripadvisor_UK(Tripadvisor):
 
                     if len(reviews_card):
 
-                        print("Cards trouvés: ", len(reviews_card))
-
                         for item in reviews_card:
                             try:
                                 title = item.find('div', {'data-test-target': 'review-title'}).text.strip(
@@ -116,8 +114,6 @@ class Tripadvisor_UK(Tripadvisor):
                     reviews_card = soupe.find_all(
                         'div', {'class': "review-container"})
 
-                    print("Cards trouvés: ", len(reviews_card))
-
                     for item in reviews_card:
                         title = item.find('a', {'class': 'title'}).text.strip()
                         detail = item.find(
@@ -172,14 +168,11 @@ class Tripadvisor_UK(Tripadvisor):
                         self.driver.execute_script(
                             "arguments[0].click();", next_btn)
                         time.sleep(2)
-                        print("=========> NEXT PAGE<==========")
                     else:
                         break
 
                 except Exception as e:
                     break
-
-            print(print("Cards enregistrés: ", len(reviews_card)))
 
             self.data = reviews
 
@@ -210,8 +203,6 @@ class Tripadvisor_FR(Tripadvisor):
                         'div', {'data-test-target': "HR_CC_CARD"})
 
                     if len(reviews_card):
-
-                        print("Cards trouvés: ", len(reviews_card))
 
                         for item in reviews_card:
                             try:
@@ -283,8 +274,6 @@ class Tripadvisor_FR(Tripadvisor):
                     reviews_card = soupe.find_all(
                         'div', {'class': "review-container"})
 
-                    print("Cards trouvés: ", len(reviews_card))
-
                     for item in reviews_card:
                         title = item.find('a', {'class': 'title'}).text.strip()
                         detail = item.find(
@@ -339,14 +328,11 @@ class Tripadvisor_FR(Tripadvisor):
                         self.driver.execute_script(
                             "arguments[0].click();", next_btn)
                         time.sleep(2)
-                        print("=========> NEXT PAGE<==========")
                     else:
                         break
 
                 except Exception as e:
                     break
-
-            print(print("Cards enregistrés: ", len(reviews_card)))
 
             self.data = reviews
 
