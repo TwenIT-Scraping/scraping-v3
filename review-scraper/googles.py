@@ -97,6 +97,17 @@ class Google(Scraping):
 
         time.sleep(5)
 
+        try:
+            self.driver.find_element(
+                By.XPATH, "//div[@role='listbox' and @aria-label='Menu déroulant pour filtrer les avis']").click()
+            # self.driver.execute_script("arguments[0].click();", accept_btn)
+            time.sleep(random.uniform(.5, 2.5))
+            self.driver.find_element(
+                By.XPATH, "//div[@role='option' and @data-value='2' and @aria-label='Plus récents']").click()
+            time.sleep(random.uniform(.2, 2))
+        except:
+            pass
+
         self.load_reviews()
 
         reviews = []
