@@ -94,6 +94,9 @@ class Campings(Scraping):
                 t['author'] and t['date_review'] != '01/01/1999' and reviews.append(
                     t)
 
+            if not self.check_date(reviews[-1]['date_review']):
+                break
+
             try:
                 next_btn = self.driver.find_element(
                     By.CLASS_NAME, 'dca-pagination__next')

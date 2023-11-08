@@ -32,8 +32,18 @@ class Expedia(Scraping):
         # time.sleep(5)
         print("\n Loading ... \n")
 
+        def get_last_review_date():
+            page = self.driver.page_source
+            soupe = BeautifulSoup(page, 'lxml')
+            last_review_cards = soupe.find(
+                'div', {'id': 'app-layer-reviews-property-reviews-2330890'}).find_all('article', {'itemprop': 'review'})[-1]
+            return self.find_review_date(last_review_cards)
+
         while True:
             time.sleep(random.randint(1, 3))
+
+            if not self.check_date(get_last_review_date()):
+                break
 
             try:
                 next_btn = self.driver.find_elements(
@@ -48,6 +58,19 @@ class Expedia(Scraping):
 
             except Exception as e:
                 break
+
+    def find_review_date(self, card):
+        date_raw = card.find('span', {'itemprop': 'datePublished'}).text.strip(
+        ) if card.find('span', {'itemprop': 'datePublished'}) else ""
+        try:
+            date_review = datetime.strftime(datetime.strptime(
+                date_raw, '%b %d, %Y'), '%d/%m/%Y') if date_raw else "01/01/1999"
+        except:
+            date_rawt = date_raw.split()
+            date_review = "%s/%s/%s" % (date_rawt[0], month_number(
+                date_rawt[1], 'fr', 'short'), date_rawt[2])
+
+        return date_review
 
     def extract(self):
 
@@ -65,7 +88,8 @@ class Expedia(Scraping):
 
             soupe = BeautifulSoup(page, 'lxml')
 
-            review_cards = soupe.find_all('article', {'itemprop': 'review'})
+            review_cards = soupe.find('div', {
+                                      'id': 'app-layer-reviews-property-reviews-2330890'}).find_all('article', {'itemprop': 'review'})
             for card in review_cards:
                 title = card.find('span', {'itemprop': 'name'}).text.strip(
                 ) if card.find('span', {'itemprop': 'name'}) else ""
@@ -78,15 +102,7 @@ class Expedia(Scraping):
                 except:
                     lang = 'en'
 
-                date_raw = card.find('span', {'itemprop': 'datePublished'}).text.strip(
-                ) if card.find('span', {'itemprop': 'datePublished'}) else ""
-                try:
-                    date_review = datetime.strftime(datetime.strptime(
-                        date_raw, '%b %d, %Y'), '%d/%m/%Y') if date_raw else "01/01/1999"
-                except:
-                    date_rawt = date_raw.split()
-                    date_review = "%s/%s/%s" % (date_rawt[0], month_number(
-                        date_rawt[1], 'fr', 'short'), date_rawt[2])
+                date_review = self.find_review_date(card)
 
                 try:
                     t = {
