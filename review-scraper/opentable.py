@@ -96,6 +96,9 @@ class Opentable_UK(Opentable):
                     'date_review': review_date
                 })
 
+            if not self.check_date(self.reviews_data[-1]['date_review']):
+                break
+
             try:
                 next_btn_div = self.driver.find_element(
                     By.XPATH, "//div[@data-test='pagination-next']")
