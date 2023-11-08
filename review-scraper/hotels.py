@@ -49,7 +49,21 @@ class Hotels_FR(Hotels):
     def __init__(self, url: str, establishment: str):
         super().__init__(url=url, establishment=establishment)
 
+    def format_date(self, date: str) -> str:
+        date = date.split(' ')
+        month = month_number(date[1], 'fr', 'short')
+        return f'{date[0]}/{month}/{date[2]}'
+
     def load_reviews(self) -> None:
+        def get_last_review_date():
+            page = self.driver.page_source
+            soupe = BeautifulSoup(page, 'lxml')
+            review_cards = soupe.find('div', {
+                'data-stid': 'property-reviews-list'}).find_all('article', {'itemprop': 'review'})[-1]
+
+            return self.format_date(review_cards.find(
+                'span', {'itemprop': 'datePublished'}).text.strip())
+
         super().load_reviews()
 
         print("Load reviews ...")
@@ -72,6 +86,9 @@ class Hotels_FR(Hotels):
                 By.XPATH, '//button[contains(text(), "Plus d’avis voyageurs")]')
 
             while more_btn.is_displayed():
+                if not self.check_date(get_last_review_date()):
+                    break
+
                 more_btn.click()
                 WebDriverWait(self.driver, 5)
                 time.sleep(1)
@@ -79,10 +96,6 @@ class Hotels_FR(Hotels):
             pass
 
     def extract(self) -> None:
-        def format_date(date: str) -> str:
-            date = date.split(' ')
-            month = month_number(date[1], 'fr', 'short')
-            return f'{date[0]}/{month}/{date[2]}'
 
         reviews = []
 
@@ -98,7 +111,7 @@ class Hotels_FR(Hotels):
 
         for review in review_cards:
             data = {}
-            data['date_review'] = format_date(review.find(
+            data['date_review'] = self.format_date(review.find(
                 'span', {'itemprop': 'datePublished'}).text.strip())
             data['author'] = review.find('img').parent.text.split(',')[0]
             data['rating'] = review.find('span', {'itemprop': 'ratingValue'}).text.split(
