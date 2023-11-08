@@ -92,10 +92,14 @@ class ListScraper:
 class ListScraperV2:
     def __init__(self):
         self.settings = None
+        self.last_date = None
 
     def init(self, eid=None, ename=None, categ=None, source=None):
         self.settings = Settings(categ, eid, source, ename)
         self.settings.prepare()
+
+    def set_last_date(self, date):
+        self.last_date = date
 
     def start(self):
         # refresh_connection()
@@ -115,6 +119,10 @@ class ListScraperV2:
                 try:
                     instance = __class_name_v2__[item['source']](
                         url=item['url'], establishment=item['establishment_id'])
+
+                    if self.last_date:
+                        instance.set_last_date(self.last_date)
+
                     instance.execute()
                 except Exception as e:
                     print(e)

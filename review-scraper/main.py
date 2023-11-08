@@ -41,13 +41,16 @@ def main_arguments() -> object:
                         help="Liste des établissements à scaper uniquement pour les options 'by-establishment' et 'specified'.")
     parser.add_argument('--sites', '-s', dest='sites', default=[],
                         help="Liste des sites à scaper uniquement pour les options 'by-website' et 'specified'.")
+    parser.add_argument('--end-date', '-d', dest='end_date', default=None,
+                        help="Optionnel: Date limite des commentaires à scraper.")
     return parser.parse_args()
 
 
 ARGS_INFO = {
     '-t': {'long': '--type', 'dest': 'type', 'help': "Définir les sites à scraper. Options: all, by-website, by-establishment, specified, auto, manual"},
     '-e': {'long': '--establishments', 'dest': 'establishments', "help": "Liste des établissements à scaper uniquement pour les options 'by-establishment' et 'specified'."},
-    '-s': {'long': '--sites', 'dest': 'sites', "help": "Liste des sites à scaper uniquement pour les options 'by-website' et 'specified'."}
+    '-s': {'long': '--sites', 'dest': 'sites', "help": "Liste des sites à scaper uniquement pour les options 'by-website' et 'specified'."},
+    '-d': {'long': '--end-date', 'dest': 'end_date', 'help': "Optionnel: Date limite des commentaires à scraper."}
 }
 
 
@@ -85,58 +88,11 @@ if __name__ == '__main__':
         miss = check_arguments(args, ['-t'])
 
         if not len(miss):
-            # sc = ListScraper()
-
-            # if args.type == 'all':
-            #     sc.init()
-            #     sc.start(ALL_WEBSITES)
-            # if args.type == 'by-website':
-            #     miss = check_arguments(args, ['-s'])
-            #     if not len(miss):
-            #         with open(history_filename, 'a', encoding='utf-8') as file:
-            #             file.write(f" ({args.sites}) ")
-            #         sc.init()
-            #         sc.start(args.sites.split('|'))
-            #     else:
-            #         raise Exception(
-            #             f"Argument(s) manquant(s): {', '.join(miss)}")
-            # if args.type == 'by-establishment':
-            #     miss = check_arguments(args, ['-e'])
-            #     if not len(miss):
-            #         with open(history_filename, 'a', encoding='utf-8') as file:
-            #             file.write(f" ({args.establishments}) ")
-            #         sc.init(args.establishments.split('|'))
-            #         sc.start(ALL_WEBSITES)
-            #     else:
-            #         raise Exception(
-            #             f"Argument(s) manquant(s): {', '.join(miss)}")
-            # if args.type == 'specified':
-            #     miss = check_arguments(args, ['-s', '-e'])
-            #     if not len(miss):
-            #         with open(history_filename, 'a', encoding='utf-8') as file:
-            #             file.write(f" ({args.establishments}: {args.sites}) ")
-            #         sc.init(args.establishments.split('|'))
-            #         sc.start(args.sites.split('|'))
-            #     else:
-            #         raise Exception(
-            #             f"Argument(s) manquant(s): {', '.join(miss)}")
-            # if args.type == 'auto':
-            #     with open(history_filename, 'a', encoding='utf-8') as file:
-            #         file.write(" (auto) ")
-            #     sc.init()
-            #     sc.start(AUTO_WEBSITES)
-            # if args.type == 'manual':
-            #     with open(history_filename, 'a', encoding='utf-8') as file:
-            #         file.write(" (auto) ")
-            #     sc.init()
-            #     sc.start(MANUAL_WEBSITES)
-
-            # now = datetime.now()
-            # with open(history_filename, 'a', encoding='utf-8') as file:
-            #     file.write("  ===>  Fin scrap reviews: " +
-            #                now.strftime("%d/%m/%Y %H:%M:%S") + '\n')
 
             sc = ListScraperV2()
+
+            if args.end_date:
+                sc.set_last_date(args.end_date)
 
             if args.type == 'all':
                 sc.init()

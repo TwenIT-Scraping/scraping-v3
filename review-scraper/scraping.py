@@ -58,11 +58,30 @@ class Scraping(object):
 
         self.establishment = establishment
 
+        self.last_date = None
+
+    def set_last_date(self, date):
+        self.last_date = datetime.strptime(date, '%d/%m/%Y')
+
     def set_establishment(self, establishment):
         self.establishment = establishment
 
     def set_url(self, url: str) -> None:
         self.url = url
+
+    def check_date(self, date) -> bool:
+        print("Vérification: ", date,
+              datetime.strftime(self.last_date, "%d/%m/%Y"))
+        current_date = datetime.strptime(date, '%d/%m/%Y')
+
+        print(current_date >= self.last_date)
+
+        if self.last_date and current_date >= self.last_date:
+            return True
+        else:
+            print("Dernière date atteinte: ", date,
+                  datetime.strftime(self.last_date, "%d/%m/%Y"))
+            return False
 
     def execute(self) -> None:
         try:
@@ -120,7 +139,7 @@ class Scraping(object):
         # with open('datta.txt', 'w', encoding='utf-8') as file:
         #     file.write(self.formated_data)
 
-        # print(self.data)
+        print(self.data)
 
         Review.save_multi(self.formated_data)
         print(len(self.data), "reviews uploaded!")

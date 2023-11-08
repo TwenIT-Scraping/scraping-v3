@@ -83,7 +83,8 @@ class Booking(Scraping):
                     print(e)
                     continue
 
-            # break
+            if not self.check_date(reviews[-1]['date_review']):
+                break
 
             try:
 
