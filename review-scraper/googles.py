@@ -25,65 +25,81 @@ class Google(Scraping):
     def __init__(self, url: str, establishment: str):
         super().__init__(in_background=False, url=url, establishment=establishment)
 
+    def formate_date(self, raw_date, lang="fr"):
+        split_date = raw_date.split()
+        print(raw_date)
+        today = datetime.now()
+
+        if lang == "fr":
+
+            if split_date[4] == 'jour':
+                return datetime.strftime(today + timedelta(days=-1), '%d/%m/%Y')
+            elif split_date[4] == 'jours':
+                return datetime.strftime(today + timedelta(days=-(int(split_date[3]))), '%d/%m/%Y')
+            if split_date[4] == 'semaine':
+                return datetime.strftime(today + timedelta(days=-7), '%d/%m/%Y')
+            elif split_date[4] == 'semaines':
+                return datetime.strftime(today + timedelta(days=-7*int(split_date[3])), '%d/%m/%Y')
+            elif split_date[4] == 'mois':
+                if split_date[3] == 'un':
+                    return datetime.strftime(today + timedelta(days=-31), '%d/%m/%Y')
+                else:
+                    return datetime.strftime(today + timedelta(days=-31*int(split_date[3])), '%d/%m/%Y')
+            elif split_date[4] == 'an':
+                return datetime.strftime(today + timedelta(days=-365), '%d/%m/%Y')
+            elif split_date[4] == 'ans':
+                return datetime.strftime(today + timedelta(days=-(int(split_date[3])*365)), '%d/%m/%Y')
+            else:
+                return datetime.strftime(today, '%d/%m/%Y')
+
+        if lang == "en":
+            if split_date[1] == 'days':
+                return datetime.strftime(today + timedelta(days=-(int(split_date[0]))), '%d/%m/%Y')
+            if split_date[1] == 'week':
+                return datetime.strftime(today + timedelta(days=-7), '%d/%m/%Y')
+            elif split_date[1] == 'weeks':
+                return datetime.strftime(today + timedelta(days=-7*int(split_date[0])), '%d/%m/%Y')
+            elif split_date[1] == 'months' or split_date[1] == 'month':
+                if split_date[0] == 'a':
+                    return datetime.strftime(today + timedelta(days=-31), '%d/%m/%Y')
+                else:
+                    return datetime.strftime(today + timedelta(days=-31*int(split_date[0])), '%d/%m/%Y')
+            elif split_date[1] == 'year':
+                return datetime.strftime(today + timedelta(days=-365), '%d/%m/%Y')
+            elif split_date[1] == 'years':
+                return datetime.strftime(today + timedelta(days=-(int(split_date[0])*365)), '%d/%m/%Y')
+            else:
+                return datetime.strftime(today, '%d/%m/%Y')
+
     def load_reviews(self):
+        def get_last_review_date():
+            page = self.driver.page_source
+            soupe = BeautifulSoup(page, 'lxml')
+            last_review_cards = soupe.find_all('div', {'jsname': "Pa5DKe"})[-1]
+            date_raw = last_review_cards.find('span', {'class': 'iUtr1'}).text.strip(
+            ) if last_review_cards.find('span', {'class': 'iUtr1'}) else ""
+            comment = last_review_cards.find('div', {'class': 'K7oBsc'}).text.strip().replace(
+                " En savoir plus", "") if last_review_cards.find('div', {'class': 'K7oBsc'}) else ""
+            try:
+                lang = detect(comment)
+            except:
+                lang = 'en'
+
+            return self.formate_date(
+                date_raw, lang) if date_raw else "01/01/1999"
+
         results = int(''.join([x for x in self.driver.find_element(
             By.CSS_SELECTOR, '#reviews > c-wiz > c-wiz > div > div > div > div > div.ChBWlb.TjtFVc > div.pDLIp > div > div.zhMoVd.nNUNpc > div.UkIqCb > div > span').text if x.isdigit()]))
+
         for i in range(results//6):
-            # for k in range(20):
-            #     self.driver.find_element(
-            #         By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
+            if not self.check_date(get_last_review_date()):
+                break
+
             time.sleep(1)
             self.driver.find_element(
                 By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
-            # self.driver.execute_script(
-            #     "window.scrollTo(0, document.body.scrollHeight);")
 
     def extract(self):
-        def formate_date(raw_date, lang="fr"):
-            split_date = raw_date.split()
-            print(raw_date)
-            today = datetime.now()
-
-            if lang == "fr":
-
-                if split_date[4] == 'jour':
-                    return datetime.strftime(today + timedelta(days=-1), '%d/%m/%Y')
-                elif split_date[4] == 'jours':
-                    return datetime.strftime(today + timedelta(days=-(int(split_date[3]))), '%d/%m/%Y')
-                if split_date[4] == 'semaine':
-                    return datetime.strftime(today + timedelta(days=-7), '%d/%m/%Y')
-                elif split_date[4] == 'semaines':
-                    return datetime.strftime(today + timedelta(days=-7*int(split_date[3])), '%d/%m/%Y')
-                elif split_date[4] == 'mois':
-                    if split_date[3] == 'un':
-                        return datetime.strftime(today + timedelta(days=-31), '%d/%m/%Y')
-                    else:
-                        return datetime.strftime(today + timedelta(days=-31*int(split_date[3])), '%d/%m/%Y')
-                elif split_date[4] == 'an':
-                    return datetime.strftime(today + timedelta(days=-365), '%d/%m/%Y')
-                elif split_date[4] == 'ans':
-                    return datetime.strftime(today + timedelta(days=-(int(split_date[3])*365)), '%d/%m/%Y')
-                else:
-                    return datetime.strftime(today, '%d/%m/%Y')
-
-            if lang == "en":
-                if split_date[1] == 'days':
-                    return datetime.strftime(today + timedelta(days=-(int(split_date[0]))), '%d/%m/%Y')
-                if split_date[1] == 'week':
-                    return datetime.strftime(today + timedelta(days=-7), '%d/%m/%Y')
-                elif split_date[1] == 'weeks':
-                    return datetime.strftime(today + timedelta(days=-7*int(split_date[0])), '%d/%m/%Y')
-                elif split_date[1] == 'months' or split_date[1] == 'month':
-                    if split_date[0] == 'a':
-                        return datetime.strftime(today + timedelta(days=-31), '%d/%m/%Y')
-                    else:
-                        return datetime.strftime(today + timedelta(days=-31*int(split_date[0])), '%d/%m/%Y')
-                elif split_date[1] == 'year':
-                    return datetime.strftime(today + timedelta(days=-365), '%d/%m/%Y')
-                elif split_date[1] == 'years':
-                    return datetime.strftime(today + timedelta(days=-(int(split_date[0])*365)), '%d/%m/%Y')
-                else:
-                    return datetime.strftime(today, '%d/%m/%Y')
 
         time.sleep(3)
 
@@ -100,7 +116,6 @@ class Google(Scraping):
         try:
             self.driver.find_element(
                 By.XPATH, "//div[@role='listbox' and @aria-label='Menu déroulant pour filtrer les avis']").click()
-            # self.driver.execute_script("arguments[0].click();", accept_btn)
             time.sleep(random.uniform(.5, 2.5))
             self.driver.find_element(
                 By.XPATH, "//div[@role='option' and @data-value='2' and @aria-label='Plus récents']").click()
@@ -136,7 +151,7 @@ class Google(Scraping):
                 date_raw = card.find('span', {'class': 'iUtr1'}).text.strip(
                 ) if card.find('span', {'class': 'iUtr1'}) else ""
 
-                date_review = formate_date(
+                date_review = self.formate_date(
                     date_raw, lang) if date_raw else "01/01/1999"
 
                 if (author or comment or rating != "0") and date_review != '01/01/1999':
