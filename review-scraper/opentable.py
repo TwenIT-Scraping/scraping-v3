@@ -17,6 +17,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
 from langdetect import detect
 from random import randint
+from dateutil import parser
 
 
 class Opentable(Scraping):
@@ -76,12 +77,13 @@ class Opentable_UK(Opentable):
                         'p', {'class': 'Xfrgl6cRPxn4vwFrFgk1'}).text.strip()
                     if date_raw[:8] == 'Dined on':
                         date = date_raw[9:]
+
                         review_date = datetime.strftime(
-                            datetime.strptime(date, '%B %d, %Y'), '%d/%m/%Y')
+                            parser.parse(date), '%d/%m/%Y')
                     elif date_raw[-8:] == 'days ago':
                         review_date = datetime.strftime(
                             datetime.now() + timedelta(days=-int(date_raw.split()[1])), '%d/%m/%Y')
-                except:
+                except Exception as e:
                     review_date = '01/01/1999'
 
                 review_date != '01/01/1999' and self.reviews_data.append({
