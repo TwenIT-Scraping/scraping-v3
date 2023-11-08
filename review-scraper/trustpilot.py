@@ -26,6 +26,20 @@ class Trustpilot(Scraping):
 
         reviews = []
 
+        time.sleep(2)
+        sort_btn = self.driver.find_element(
+            By.XPATH, "//button[@name='sort' and @data-sort-button='true']")
+
+        try:
+            element = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable(
+                (By.XPATH, "//input[@value='recency']")))
+
+            element.click()
+        except Exception as e:
+            print(e)
+
+        time.sleep(5)
+
         while True:
 
             page = self.driver.page_source
