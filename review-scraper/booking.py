@@ -17,6 +17,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
 from langdetect import detect
 from tools import month_number
+from selenium.webdriver.support.select import Select
 
 
 class Booking(Scraping):
@@ -27,15 +28,12 @@ class Booking(Scraping):
 
         reviews = []
 
-        # try:
-        #     review_btn = self.driver.find_element(By.XPATH, "//a[@data-target='hp-reviews-sliding']")
+        review_order = Select(self.driver.find_element(
+            By.XPATH, "//select[@id='sorting']"))
+        review_order.select_by_value('completed_desc')
 
-        #     if review_btn:
-        #         self.driver.execute_script("arguments[0].click();", review_btn)
-        #         time.sleep(5)
-
-        # except Exception as e:
-        #     print(e)
+        self.driver.find_element(
+            By.XPATH, "//div[@class='review_list_nav_wrapper clearfix']/form/input[@type='submit']").click()
 
         while True:
             time.sleep(10)
@@ -47,13 +45,18 @@ class Booking(Scraping):
             review_cards = soupe.find_all('li', {'itemprop': 'review'})
 
             for card in review_cards:
-                title = card.find('div', {'class': 'review_item_header_content'}).text.strip() if card.find('div', {'class': 'review_item_header_content'}) else ""
-                negative = card.find('p', {'class': 'review_neg'}).text.strip() if card.find('p', {'class': 'review_neg'}) else ""
-                positive = card.find('p', {'class': 'review_pos'}).text.strip() if card.find('p', {'class': 'review_pos'}) else ""
-                detail = f'{positive} | {negative}' if positive and negative else (positive if positive else negative)
+                title = card.find('div', {'class': 'review_item_header_content'}).text.strip(
+                ) if card.find('div', {'class': 'review_item_header_content'}) else ""
+                negative = card.find('p', {'class': 'review_neg'}).text.strip(
+                ) if card.find('p', {'class': 'review_neg'}) else ""
+                positive = card.find('p', {'class': 'review_pos'}).text.strip(
+                ) if card.find('p', {'class': 'review_pos'}) else ""
+                detail = f'{positive} | {negative}' if positive and negative else (
+                    positive if positive else negative)
                 comment = f"{title}{': ' if title and detail else ''}{detail}"
 
-                raw_date = card.find('p', {'class': 'review_item_date'}).text.strip() if card.find('p', {'class': 'review_item_date'}) else ""
+                raw_date = card.find('p', {'class': 'review_item_date'}).text.strip(
+                ) if card.find('p', {'class': 'review_item_date'}) else ""
                 dates = raw_date.split()
                 try:
                     date_review = f"{dates[-3]}/{month_number(dates[-2], 'fr')}/{dates[-1]}"
@@ -62,14 +65,14 @@ class Booking(Scraping):
 
                 try:
                     lang = detect(comment)
-                except: 
+                except:
                     lang = 'en'
 
                 try:
                     reviews.append({
                         'comment': comment,
-                        'rating': card.find('span', {'class': 'review-score-badge'}).text.strip() \
-                                    if card.find('span', {'class': 'review-score-badge'}) else "0",
+                        'rating': card.find('span', {'class': 'review-score-badge'}).text.strip()
+                        if card.find('span', {'class': 'review-score-badge'}) else "0",
                         'date_review': date_review,
                         'language': lang,
                         'source': urlparse(self.url).netloc.split('.')[1],
@@ -79,17 +82,19 @@ class Booking(Scraping):
                 except Exception as e:
                     print(e)
                     continue
-            
+
             # break
 
             try:
 
-                next_btn = self.driver.find_element(By.ID, 'review_next_page_link')
+                next_btn = self.driver.find_element(
+                    By.ID, 'review_next_page_link')
 
                 if next_btn:
-                    self.driver.execute_script("arguments[0].click();", next_btn)
+                    self.driver.execute_script(
+                        "arguments[0].click();", next_btn)
                     time.sleep(4)
-                
+
             except Exception as e:
                 break
 
