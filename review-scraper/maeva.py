@@ -18,12 +18,24 @@ class Maeva(Scraping):
         super().__init__(in_background=False, url=url, establishment=establishment)
 
     def load_reviews(self) -> None:
+
         self.driver.find_element(By.ID, 'avis-tout-cta').click()
-        results = int(''.join([x for x in self.driver.find_element(By.ID, 'avis-comp-content').find_element(By.CLASS_NAME, 'ml-1').text if x.isdigit()]))
+
+        sort_btn = self.driver.find_element(
+            By.XPATH, "//div[@class='avis-filter' and contains(text(), 'Les plus récents')]")
+
+        self.driver.execute_script("arguments[0].click();", sort_btn)
+
+        time.sleep(1)
+
+        results = int(''.join([x for x in self.driver.find_element(
+            By.ID, 'avis-comp-content').find_element(By.CLASS_NAME, 'ml-1').text if x.isdigit()]))
         for i in range(results//3):
-            self.driver.find_element(By.ID, 'avis-cards-content-container').click()
+            self.driver.find_element(
+                By.ID, 'avis-cards-content-container').click()
             for k in range(3):
-                self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
+                self.driver.find_element(
+                    By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
             time.sleep(2)
 
     def extract(self) -> None:
@@ -33,16 +45,21 @@ class Maeva(Scraping):
         reviews = []
 
         try:
-            soup  = BeautifulSoup(self.driver.page_source, 'lxml')
-            review_cards = soup.find('div', {'id':'avis-cards-content-container'}).find_all('div', {'typeof':'comment'})
-            
+            soup = BeautifulSoup(self.driver.page_source, 'lxml')
+            review_cards = soup.find(
+                'div', {'id': 'avis-cards-content-container'}).find_all('div', {'typeof': 'comment'})
+
             for review in review_cards:
-                date = review.find('span', {'property':'dateCreated'})['content']
+                date = review.find('span', {'property': 'dateCreated'})[
+                    'content']
                 data = {}
-                data['author'] = review.find('div', class_='date-publication').find('strong').text.strip()
+                data['author'] = review.find(
+                    'div', class_='date-publication').find('strong').text.strip()
                 data['date_review'] = '/'.join(date.split('-')[::-1])
-                data['comment'] = review.find('p', class_='avis-comment').text.strip() if review.find('p', class_='avis-comment') else ''
-                data['rating'] = review.find('span', class_='score-text').text if review.find('span', class_='score-text') else 0
+                data['comment'] = review.find(
+                    'p', class_='avis-comment').text.strip() if review.find('p', class_='avis-comment') else ''
+                data['rating'] = review.find(
+                    'span', class_='score-text').text if review.find('span', class_='score-text') else 0
                 data['language'] = detect(data['comment'])
                 data['source'] = urlparse(self.url).netloc.split('.')[1]
                 data['establishment'] = f'/api/establishments/{self.establishment}'
