@@ -18,6 +18,14 @@ class Maeva(Scraping):
         super().__init__(in_background=False, url=url, establishment=establishment)
 
     def load_reviews(self) -> None:
+        def get_last_review_date():
+            page = self.driver.page_source
+            soupe = BeautifulSoup(page, 'lxml')
+            last_review_cards = soupe.find(
+                'div', {'id': 'avis-cards-content-container'}).find_all('div', {'typeof': 'comment'})[-1]
+            date = last_review_cards.find('span', {'property': 'dateCreated'})[
+                'content']
+            return '/'.join(date.split('-')[::-1])
 
         self.driver.find_element(By.ID, 'avis-tout-cta').click()
 
@@ -31,6 +39,8 @@ class Maeva(Scraping):
         results = int(''.join([x for x in self.driver.find_element(
             By.ID, 'avis-comp-content').find_element(By.CLASS_NAME, 'ml-1').text if x.isdigit()]))
         for i in range(results//3):
+            if not self.check_date(get_last_review_date()):
+                break
             self.driver.find_element(
                 By.ID, 'avis-cards-content-container').click()
             for k in range(3):
