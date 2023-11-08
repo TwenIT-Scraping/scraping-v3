@@ -79,6 +79,9 @@ class Trustpilot(Scraping):
                     'establishment': f'/api/establishments/{self.establishment}'
                 })
 
+            if not self.check_date(reviews[-1]['date_review']):
+                break
+
             try:
                 next_btn = self.driver.find_element(
                     By.NAME, 'pagination-button-next')
