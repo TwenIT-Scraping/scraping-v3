@@ -1,3 +1,4 @@
+import random
 from scraping import Scraping
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -13,11 +14,15 @@ from urllib.parse import urlparse, parse_qs
 from langdetect import detect
 from tools import month_number
 from random import randint
+from selenium.webdriver.support.select import Select
 
 
 class Hotels(Scraping):
 
     def __init__(self, url: str, establishment: str):
+        print(url)
+        url = url + '?pwaDialog=reviews-property-reviews-1'
+        print(url)
         super().__init__(in_background=False, url=url, establishment=establishment)
 
     def close_popup(self) -> None:
@@ -30,38 +35,10 @@ class Hotels(Scraping):
     def load_reviews(self) -> None:
         self.close_popup()
 
-        for i in range(15):
+        for i in range(5):
             self.driver.execute_script(
                 "window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(1)
-
-        try:
-            button_review = self.driver.find_element(
-                By.XPATH, "//button[contains(text(), 'See all reviews') or contains(text(), 'Afficher tous les avis')]")
-        except:
-            time.sleep(time.sleep(randint(1, 3)))
-            self.driver.refresh()
-            self.load_reviews()
-
-        try:
-            button_review.click()
-            try:
-                button_review.click()
-            except:
-                pass
-            time.sleep(2)
-            button_view_more = self.driver.find_element(By.CSS_SELECTOR, '#app-layer-reviews-property-reviews-1 > section > div.uitk-sheet-content.uitk-sheet-content-padded.uitk-sheet-content-extra-large > div > div.uitk-layout-grid.uitk-layout-grid-align-content-start.uitk-layout-grid-has-auto-columns.uitk-layout-grid-has-columns.uitk-layout-grid-has-space.uitk-layout-grid-display-grid.uitk-layout-grid-item.uitk-layout-grid-item-has-column-start.uitk-layout-grid-item-has-column-start-by-medium.uitk-layout-grid-item-has-column-start-by-large.uitk-layout-grid-item-has-column-start-by-extra_large > div.uitk-layout-grid-item > section > div.uitk-spacing.uitk-type-center.uitk-spacing-margin-block-three > button')
-            while button_view_more.is_displayed():
-                try:
-                    self.driver.find_element(
-                        By.CSS_SELECTOR, '#app-layer-recommendations-overlay > section > div.uitk-layout-flex.uitk-layout-flex-align-items-center.uitk-toolbar > button').click()
-                except:
-                    pass
-                button_view_more.click()
-                WebDriverWait(self.driver, 5)
-                time.sleep(1)
-        except:
-            pass
 
     def extract(self) -> None:
         pass
@@ -72,6 +49,35 @@ class Hotels_FR(Hotels):
     def __init__(self, url: str, establishment: str):
         super().__init__(url=url, establishment=establishment)
 
+    def load_reviews(self) -> None:
+        super().load_reviews()
+
+        print("Load reviews ...")
+
+        try:
+            self.driver.find_element(
+                By.XPATH, "//button[contains(text(), 'Afficher tous les avis')]").click()
+        except Exception as e:
+            print(e)
+
+        time.sleep(3)
+
+        try:
+            self.driver.find_element(
+                By.XPATH, "//select[@id='sortBy']/option[@value='NEWEST_TO_OLDEST']").click()
+
+            time.sleep(2)
+
+            more_btn = self.driver.find_element(
+                By.XPATH, '//button[contains(text(), "Plus d’avis voyageurs")]')
+
+            while more_btn.is_displayed():
+                more_btn.click()
+                WebDriverWait(self.driver, 5)
+                time.sleep(1)
+        except:
+            pass
+
     def extract(self) -> None:
         def format_date(date: str) -> str:
             date = date.split(' ')
@@ -80,9 +86,11 @@ class Hotels_FR(Hotels):
 
         reviews = []
 
-        time.sleep(5)
+        time.sleep(1)
 
         self.load_reviews()
+
+        time.sleep(random.uniform(.5, 4.0))
 
         soup = BeautifulSoup(self.driver.page_source, 'lxml')
         review_cards = soup.find('div', {
@@ -113,6 +121,32 @@ class Hotels_EN(Hotels):
     def __init__(self, url: str, establishment: str):
         super().__init__(url=url, establishment=establishment)
 
+    def load_reviews(self) -> None:
+        super().load_reviews()
+
+        print("Load reviews ...")
+
+        try:
+            self.driver.find_element(
+                By.XPATH, "//button[contains(text(), 'Afficher tous les avis')]").click()
+        except Exception as e:
+            print(e)
+
+        try:
+            time.sleep(2)
+            button_view_more = self.driver.find_element(By.CSS_SELECTOR, '#app-layer-reviews-property-reviews-1 > section > div.uitk-sheet-content.uitk-sheet-content-padded.uitk-sheet-content-extra-large > div > div.uitk-layout-grid.uitk-layout-grid-align-content-start.uitk-layout-grid-has-auto-columns.uitk-layout-grid-has-columns.uitk-layout-grid-has-space.uitk-layout-grid-display-grid.uitk-layout-grid-item.uitk-layout-grid-item-has-column-start.uitk-layout-grid-item-has-column-start-by-medium.uitk-layout-grid-item-has-column-start-by-large.uitk-layout-grid-item-has-column-start-by-extra_large > div.uitk-layout-grid-item > section > div.uitk-spacing.uitk-type-center.uitk-spacing-margin-block-three > button')
+            while button_view_more.is_displayed():
+                try:
+                    self.driver.find_element(
+                        By.CSS_SELECTOR, '#app-layer-recommendations-overlay > section > div.uitk-layout-flex.uitk-layout-flex-align-items-center.uitk-toolbar > button').click()
+                except:
+                    pass
+                button_view_more.click()
+                WebDriverWait(self.driver, 5)
+                time.sleep(1)
+        except:
+            pass
+
     def extract(self) -> None:
         def fomat_date(date: str) -> str:
             date = date.split(' ')
@@ -125,26 +159,26 @@ class Hotels_EN(Hotels):
 
         self.load_reviews()
 
-        soup = BeautifulSoup(self.driver.page_source, 'lxml')
-        review_cards = soup.find('div', {
-                                 'data-stid': 'property-reviews-list'}).find_all('article', {'itemprop': 'review'})
+        # soup = BeautifulSoup(self.driver.page_source, 'lxml')
+        # review_cards = soup.find('div', {
+        #                          'data-stid': 'property-reviews-list'}).find_all('article', {'itemprop': 'review'})
 
-        for review in review_cards:
-            data = {}
-            data['date_review'] = fomat_date(review.find(
-                'span', {'itemprop': 'datePublished'}).text.strip())
-            data['author'] = review.find('img').parent.text.split(',')[0]
-            data['rating'] = review.find('span', {'itemprop': 'ratingValue'}).text.split(
-                ' ')[0] if review.find('span', {'itemprop': 'ratingValue'}) else '0'
-            data['comment'] = review.find('span', {'itemprop': 'description'}).text if review.find(
-                'span', {'itemprop': 'description'}) else ''
+        # for review in review_cards:
+        #     data = {}
+        #     data['date_review'] = fomat_date(review.find(
+        #         'span', {'itemprop': 'datePublished'}).text.strip())
+        #     data['author'] = review.find('img').parent.text.split(',')[0]
+        #     data['rating'] = review.find('span', {'itemprop': 'ratingValue'}).text.split(
+        #         ' ')[0] if review.find('span', {'itemprop': 'ratingValue'}) else '0'
+        #     data['comment'] = review.find('span', {'itemprop': 'description'}).text if review.find(
+        #         'span', {'itemprop': 'description'}) else ''
 
-            data['language'] = 'en'
+        #     data['language'] = 'en'
 
-            data['establishment'] = f'/api/establishments/{self.establishment}'
-            data['source'] = urlparse(self.url).netloc.split('.')[1]
+        #     data['establishment'] = f'/api/establishments/{self.establishment}'
+        #     data['source'] = urlparse(self.url).netloc.split('.')[1]
 
-            reviews.append(data)
+        #     reviews.append(data)
 
         self.data = reviews
 
