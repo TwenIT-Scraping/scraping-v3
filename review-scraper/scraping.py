@@ -16,6 +16,8 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
 from models import Review
 from tools import ReviewScore
+import dotenv
+import os
 
 
 class Scraping(object):
@@ -39,61 +41,25 @@ class Scraping(object):
         self.firefox_options.set_preference(
             'intl.accept_languages', 'en-US, en')
 
-        # self.driver = webdriver.Firefox(options=self.firefox_options)
+        dotenv.load_dotenv()
 
-        self.driver = webdriver.Chrome(options=self.chrome_options)
+        if os.environ.get('SYSTEM') == 'linux':
+            self.driver = webdriver.Chrome(options=self.chrome_options) if os.environ.get(
+                'DRIVER') == 'chrome' else webdriver.Firefox(options=self.firefox_options)
+        else:
+            self.driver = webdriver.Chrome(service=ChromeService(
+                ChromeDriverManager().install()), options=self.chrome_options) if os.environ.get('DRIVER') == 'chrome' else webdriver.Firefox(service=FirefoxService(
+                    GeckoDriverManager().install()), options=self.firefox_options)
 
         self.driver.maximize_window()
-        self.current_driver = 'firefox'
-
-        self.min_cycle = 30
-        self.max_cycle = 30
-        self.driver_cycle = 30
-        self.counter = 0
 
         self.data = {}
         self.url = url
 
         self.establishment = establishment
 
-    def permute_driver(self) -> None:
-        self.driver.quit()
-        if self.current_driver == 'firefox':
-            try:
-                self.driver = webdriver.Chrome(options=self.chrome_options)
-            except:
-                self.driver = webdriver.Chrome(service=ChromeService(
-                    ChromeDriverManager().install()), options=self.chrome_options)
-            self.current_driver = 'chrome'
-        else:
-            try:
-                self.driver = webdriver.Firefox(options=self.firefox_options)
-            except:
-                self.driver = webdriver.Firefox(service=FirefoxService(
-                    GeckoDriverManager().install()), options=self.firefox_options)
-            self.current_driver = 'firefox'
-        self.counter = 0
-        self.set_driver_cycle(randint(self.min_cycle, self.max_cycle))
-
-    def set_driver_interval(self, min: int, max: int) -> None:
-        self.min_cycle = min
-        self.max_cycle = max
-        self.set_driver_cycle(randint(self.min_cycle, self.max_cycle))
-
     def set_establishment(self, establishment):
         self.establishment = establishment
-
-    def increment_counter(self) -> None:
-        self.counter = self.counter + 1
-        self.check_counter()
-
-    def check_counter(self) -> None:
-        if self.counter == self.driver_cycle:
-            print("Changement de driver!!!")
-            self.permute_driver()
-
-    def set_driver_cycle(self, cycle: int) -> None:
-        self.driver_cycle = cycle
 
     def set_url(self, url: str) -> None:
         self.url = url
@@ -154,7 +120,9 @@ class Scraping(object):
         # with open('datta.txt', 'w', encoding='utf-8') as file:
         #     file.write(self.formated_data)
 
-        Review.save_multi(self.formated_data)
+        print(self.data)
+
+        # Review.save_multi(self.formated_data)
         print(len(self.data), "reviews uploaded!")
 
     @abstractmethod

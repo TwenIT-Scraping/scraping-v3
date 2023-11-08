@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import ElementNotVisibleException, ElementNotSelectableException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.remote.command import Command
+from selenium.webdriver.support.select import Select
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -26,6 +27,47 @@ class Campings(Scraping):
         review_toggle_btn = self.driver.find_element(By.ID, "toggle-reviews")
         self.driver.execute_script("arguments[0].click();", review_toggle_btn)
         time.sleep(.5)
+
+        # review_sort_btn = Select(
+        #     self.driver.find_element(By.ID, "reviews_sort_sort"))
+        # review_sort_btn.select_by_visible_text("date")
+        # time.sleep(2)
+
+        # self.driver.find_element(
+        #     By.XPATH, "//select[@id='reviews_sort_sort']/option[text()='date']").click()
+        # time.sleep(2)
+
+        choise = self.driver.find_element(
+            By.CSS_SELECTOR, '.reviews__filter div.choices')
+        self.driver.execute_script(
+            "arguments[0].setAttribute('class', 'choices is-focused is-open')", choise)
+        self.driver.execute_script(
+            "arguments[0].setAttribute('aria-expanded', 'true')", choise)
+
+        choises_list = self.driver.find_element(
+            By.CSS_SELECTOR, '.reviews__filter div.choices__list.choices__list--dropdown')
+        self.driver.execute_script(
+            "arguments[0].setAttribute('class', 'choices__list choices__list--dropdown is-active')", choises_list)
+        self.driver.execute_script(
+            "arguments[0].setAttribute('aria-expanded', 'true')", choises_list)
+
+        time.sleep(.2)
+
+        self.driver.find_element(
+            By.XPATH, "//div[@data-value='-publishedAt']").click()
+
+        time.sleep(.2)
+
+        self.driver.execute_script(
+            "arguments[0].setAttribute('class', 'choices')", choise)
+        self.driver.execute_script(
+            "arguments[0].setAttribute('aria-expanded', 'false')", choise)
+        self.driver.execute_script(
+            "arguments[0].setAttribute('class', 'choices__list choices__list--dropdown')", choises_list)
+        self.driver.execute_script(
+            "arguments[0].setAttribute('aria-expanded', 'false')", choises_list)
+
+        time.sleep(2)
 
         reviews = []
 
