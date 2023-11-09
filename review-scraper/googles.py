@@ -22,8 +22,9 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 
 class Google(Scraping):
-    def __init__(self, url: str, establishment: str):
-        super().__init__(in_background=False, url=url, establishment=establishment)
+    def __init__(self, url: str, establishment: str, settings: str):
+        super().__init__(in_background=False, url=url,
+                         establishment=establishment, settings=settings)
 
     def formate_date(self, raw_date, lang="fr"):
         split_date = raw_date.split()
@@ -163,7 +164,8 @@ class Google(Scraping):
                         'comment': comment,
                         'language': lang,
                         'source': urlparse(self.url).netloc.split('.')[1],
-                        'establishment': f'/api/establishments/{self.establishment}'
+                        'establishment': f'/api/establishments/{self.establishment}',
+                        'settings': f'/api/settings/{self.settings}'
                     })
 
         self.data = reviews
