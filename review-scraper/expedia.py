@@ -21,12 +21,13 @@ from tools import month_number
 
 
 class Expedia(Scraping):
-    def __init__(self, url: str, establishment: str):
+    def __init__(self, url: str, establishment: str, settings: str):
         url_split = url.split('.')
         url_split[-1] = 'Avis-Voyageurs'
         url = '.'.join(url_split)
 
-        super().__init__(in_background=False, url=url, establishment=establishment)
+        super().__init__(in_background=False, url=url,
+                         establishment=establishment, settings=settings)
 
     def load_reviews(self):
         # time.sleep(5)
@@ -113,7 +114,8 @@ class Expedia(Scraping):
                         'language': lang,
                         'source': urlparse(self.url).netloc.split('.')[1],
                         'author': card.find('h4').text.strip(),
-                        'establishment': f'/api/establishments/{self.establishment}'
+                        'establishment': f'/api/establishments/{self.establishment}',
+                        'settings': f'/api/settings/{self.settings}'
                     }
                     t['date_review'] != '01/01/1999' and reviews.append(t)
                 except Exception as e:
