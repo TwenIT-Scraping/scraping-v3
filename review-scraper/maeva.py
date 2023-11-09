@@ -14,8 +14,9 @@ from langdetect import detect
 
 
 class Maeva(Scraping):
-    def __init__(self, url: str, establishment: str):
-        super().__init__(in_background=False, url=url, establishment=establishment)
+    def __init__(self, url: str, establishment: str, settings: str):
+        super().__init__(in_background=False, url=url,
+                         establishment=establishment, settings=settings)
 
     def load_reviews(self) -> None:
         def get_last_review_date():
@@ -73,6 +74,7 @@ class Maeva(Scraping):
                 data['language'] = detect(data['comment'])
                 data['source'] = urlparse(self.url).netloc.split('.')[1]
                 data['establishment'] = f'/api/establishments/{self.establishment}'
+                data['settings'] = f'/api/settings/{self.settings}'
                 reviews.append(data)
 
         except Exception as e:
