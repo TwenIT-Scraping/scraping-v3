@@ -21,8 +21,9 @@ from selenium.webdriver.support.select import Select
 
 
 class Booking(Scraping):
-    def __init__(self, url: str, establishment: str):
-        super().__init__(in_background=False, url=url, establishment=establishment)
+    def __init__(self, url: str, establishment: str, settings: str):
+        super().__init__(in_background=False, url=url,
+                         establishment=establishment, settings=settings)
 
     def extract(self):
 
@@ -77,7 +78,8 @@ class Booking(Scraping):
                         'language': lang,
                         'source': urlparse(self.url).netloc.split('.')[1],
                         'author': card.find('p', {'class': 'reviewer_name'}).text.strip() if card.find('p', {'class': 'reviewer_name'}) else "",
-                        'establishment': f'/api/establishments/{self.establishment}'
+                        'establishment': f'/api/establishments/{self.establishment}',
+                        'settings': f'/api/settings/{self.settings}'
                     })
                 except Exception as e:
                     print(e)

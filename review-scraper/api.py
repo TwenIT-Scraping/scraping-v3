@@ -85,13 +85,16 @@ class ERApi:
         elif self.method == 'postmulti':
 
             url = f'{self.api_url}reviews/multi'
-            files = []
+            self.add_header({"Content-Type": "application/json"})
             headers = self.headers
 
             response = requests.request(
-                "POST", url, headers=headers, data=self.body, files=files, verify=False)
+                "POST", url, headers=headers, data=json.dumps(self.body), verify=False)
 
-            return response
+            if response:
+                print(response.json())
+
+                return response
 
         else:
             self.add_header({"Content-Type": "application/json"})

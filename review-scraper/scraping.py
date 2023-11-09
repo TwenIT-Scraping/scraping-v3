@@ -22,7 +22,7 @@ import os
 
 class Scraping(object):
 
-    def __init__(self, in_background: bool, url: str, establishment: str = '3') -> None:
+    def __init__(self, in_background: bool, url: str, establishment: str, settings: str) -> None:
 
         # driver options
         self.chrome_options = webdriver.ChromeOptions()
@@ -57,6 +57,7 @@ class Scraping(object):
         self.url = url
 
         self.establishment = establishment
+        self.settings = settings
 
         self.last_date = None
 
@@ -70,18 +71,12 @@ class Scraping(object):
         self.url = url
 
     def check_date(self, date) -> bool:
-        print("Vérification: ", date,
-              datetime.strftime(self.last_date, "%d/%m/%Y"))
         current_date = datetime.strptime(date, '%d/%m/%Y')
 
-        print(current_date >= self.last_date)
-
-        if self.last_date and current_date >= self.last_date:
-            return True
+        if self.last_date:
+            return current_date >= self.last_date
         else:
-            print("Dernière date atteinte: ", date,
-                  datetime.strftime(self.last_date, "%d/%m/%Y"))
-            return False
+            return True
 
     def execute(self) -> None:
         try:
@@ -108,8 +103,9 @@ class Scraping(object):
         sys.exit("Arret")
 
     def format(self) -> None:
+
         column_order = ['author', 'source', 'language',
-                        'rating', 'establishment', 'date_review', 'comment']
+                        'rating', 'establishment', 'date_review', 'comment', 'settings']
 
         def check_value(item):
             for key in column_order:
@@ -126,8 +122,8 @@ class Scraping(object):
                     item['comment'], item['language'], item['rating'], item['source'])
                 if score_data['feeling'] and score_data['score'] and score_data['confidence']:
                     line = '$'.join([item['author'], item['source'], item['language'], item['rating'], item['establishment'], item['date_review'],
-                                    item['comment'].replace('$', 'USD'), score_data['feeling'], score_data['score'], score_data['confidence']]) + "#"
-                    if len(line.split('$')) == 10:
+                                    item['comment'].replace('$', 'USD'), score_data['feeling'], score_data['score'], score_data['confidence'], item['settings']]) + "#"
+                    if len(line.split('$')) == 11:
                         result += line
 
         self.formated_data = result
@@ -139,7 +135,8 @@ class Scraping(object):
         # with open('datta.txt', 'w', encoding='utf-8') as file:
         #     file.write(self.formated_data)
 
-        print(self.data)
+        # print(self.data)
+        # print(self.formated_data)
 
         Review.save_multi(self.formated_data)
         print(len(self.data), "reviews uploaded!")

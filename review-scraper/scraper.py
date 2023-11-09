@@ -12,6 +12,7 @@ from api import ERApi
 import random
 from changeip import refresh_connection
 import time
+from datetime import datetime
 
 
 __class_name__ = {
@@ -106,8 +107,6 @@ class ListScraperV2:
 
         # counter = 0
 
-        # print(self.settings.items)
-
         for item in self.settings.items:
             time.sleep(random.randint(1, 3))
 
@@ -118,10 +117,17 @@ class ListScraperV2:
                 print("=> A scraper !!!")
                 try:
                     instance = __class_name_v2__[item['source']](
-                        url=item['url'], establishment=item['establishment_id'])
+                        url=item['url'], establishment=item['establishment_id'], settings=item['id'])
 
-                    if self.last_date:
-                        instance.set_last_date(self.last_date)
+                    if item['last_review_date']:
+                        if self.last_date:
+                            if datetime.strptime(self.last_date, "%d/%m/%Y") < datetime.strptime(item['last_review_date'], "%d/%m/%Y"):
+                                instance.set_last_date(
+                                    item['last_review_date'])
+                            else:
+                                instance.set_last_date(self.last_date)
+                        else:
+                            instance.set_last_date(item['last_review_date'])
 
                     instance.execute()
                 except Exception as e:
