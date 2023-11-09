@@ -19,8 +19,9 @@ from langdetect import detect
 
 
 class Trustpilot(Scraping):
-    def __init__(self, url: str, establishment: str):
-        super().__init__(in_background=True, url=url, establishment=establishment)
+    def __init__(self, url: str, establishment: str, settings: str):
+        super().__init__(in_background=True, url=url,
+                         establishment=establishment, settings=settings)
 
     def extract(self):
 
@@ -76,7 +77,8 @@ class Trustpilot(Scraping):
                     'language': lang,
                     'source': urlparse(self.url).netloc.split('.')[1],
                     'author': card.find('span', {'data-consumer-name-typography': 'true'}).text.strip() if card.find('span', {'data-consumer-name-typography': 'true'}) else "",
-                    'establishment': f'/api/establishments/{self.establishment}'
+                    'establishment': f'/api/establishments/{self.establishment}',
+                    'settings': f'/api/settings/{self.settings}'
                 })
 
             if not self.check_date(reviews[-1]['date_review']):

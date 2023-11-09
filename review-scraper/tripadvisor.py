@@ -21,16 +21,17 @@ from tools import month_number
 
 
 class Tripadvisor(Scraping):
-    def __init__(self, url: str, establishment: str):
-        super().__init__(in_background=False, url=url, establishment=establishment)
+    def __init__(self, url: str, establishment: str, settings: str):
+        super().__init__(in_background=False, url=url,
+                         establishment=establishment, settings=settings)
 
     def extract(self):
         pass
 
 
 class Tripadvisor_UK(Tripadvisor):
-    def __init__(self, url: str, establishment: str):
-        super().__init__(url=url, establishment=establishment)
+    def __init__(self, url: str, establishment: str, settings: str):
+        super().__init__(url=url, establishment=establishment, settings=settings)
 
     def extract(self):
         reviews = []
@@ -106,6 +107,7 @@ class Tripadvisor_UK(Tripadvisor):
                                 'source': urlparse(self.url).netloc.split('.')[1],
                                 'author': item.find('a', class_='ui_header_link').text.strip() if item.find('a', class_='ui_header_link') else "",
                                 'establishment': f'/api/establishments/{self.establishment}',
+                                'settings': f'/api/settings/{self.settings}',
                                 'date_review': f"{day}/{month}/{year}"
                             }
 
@@ -157,6 +159,7 @@ class Tripadvisor_UK(Tripadvisor):
                             'source': urlparse(self.url).netloc.split('.')[1],
                             'author': item.find('div', {'onclick': "widgetEvCall('handlers.usernameClick', event, this);"}).text.strip() if item.find('div', {'onclick': "widgetEvCall('handlers.usernameClick', event, this);"}) else "",
                             'establishment': f'/api/establishments/{self.establishment}',
+                            'settings': f'/api/settings/{self.settings}',
                             'date_review': f"{date_rawt[0]}/{month}/{date_rawt[2]}"
                         }
 
@@ -187,8 +190,8 @@ class Tripadvisor_UK(Tripadvisor):
 
 
 class Tripadvisor_FR(Tripadvisor):
-    def __init__(self, url: str, establishment: str):
-        super().__init__(url=url, establishment=establishment)
+    def __init__(self, url: str, establishment: str, settings: str):
+        super().__init__(url=url, establishment=establishment, settings=settings)
 
     def extract(self):
         reviews = []
@@ -269,6 +272,7 @@ class Tripadvisor_FR(Tripadvisor):
                                 'source': urlparse(self.url).netloc.split('.')[1],
                                 'author': item.find('a', class_='ui_header_link').text.strip() if item.find('a', class_='ui_header_link') else "",
                                 'establishment': f'/api/establishments/{self.establishment}',
+                                'settings': f'/api/settings/{self.settings}',
                                 'date_review': f"{day}/{month}/{year}"
                             }
 
@@ -321,6 +325,7 @@ class Tripadvisor_FR(Tripadvisor):
                             'source': urlparse(self.url).netloc.split('.')[1],
                             'author': item.find('div', {'onclick': "widgetEvCall('handlers.usernameClick', event, this);"}).text.strip() if item.find('div', {'onclick': "widgetEvCall('handlers.usernameClick', event, this);"}) else "",
                             'establishment': f'/api/establishments/{self.establishment}',
+                            'settings': f'/api/settings/{self.settings}',
                             'date_review': f"{date_rawt[0]}/{month}/{date_rawt[2]}"
                         }
 
