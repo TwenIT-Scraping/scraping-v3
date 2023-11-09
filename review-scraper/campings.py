@@ -19,8 +19,9 @@ from urllib.parse import urlparse, parse_qs
 
 
 class Campings(Scraping):
-    def __init__(self, url: str, establishment: str):
-        super().__init__(in_background=False, url=url, establishment=establishment)
+    def __init__(self, url: str, establishment: str, settings: str):
+        super().__init__(in_background=False, url=url,
+                         establishment=establishment, settings=settings)
 
     def extract(self):
 
@@ -88,7 +89,8 @@ class Campings(Scraping):
                     'language': 'fr',
                     'source': urlparse(self.url).netloc.split('.')[1],
                     'author': card.find('div', {'class': 'review__author'}).text.strip() if card.find('div', {'class': 'review__author'}) else "",
-                    'establishment': '/api/establishments/3'
+                    'establishment': f'/api/establishments/{self.establishment}',
+                    'settings': f'/api/settings/{self.settings}'
                 }
 
                 t['author'] and t['date_review'] != '01/01/1999' and reviews.append(
