@@ -19,11 +19,10 @@ from selenium.webdriver.support.select import Select
 
 class Hotels(Scraping):
 
-    def __init__(self, url: str, establishment: str):
-        print(url)
+    def __init__(self, url: str, establishment: str, settings: str):
         url = url + '?pwaDialog=reviews-property-reviews-1'
-        print(url)
-        super().__init__(in_background=False, url=url, establishment=establishment)
+        super().__init__(in_background=False, url=url,
+                         establishment=establishment, settings=settings)
 
     def close_popup(self) -> None:
         try:
@@ -46,8 +45,8 @@ class Hotels(Scraping):
 
 class Hotels_FR(Hotels):
 
-    def __init__(self, url: str, establishment: str):
-        super().__init__(url=url, establishment=establishment)
+    def __init__(self, url: str, establishment: str, settings: str):
+        super().__init__(url=url, establishment=establishment, settings=settings)
 
     def format_date(self, date: str) -> str:
         date = date.split(' ')
@@ -122,6 +121,7 @@ class Hotels_FR(Hotels):
             data['language'] = 'fr'
 
             data['establishment'] = f'/api/establishments/{self.establishment}'
+            data['settings'] = f'/api/establishments/{self.settings}'
             data['source'] = urlparse(self.url).netloc.split('.')[1]
 
             reviews.append(data)
@@ -131,8 +131,8 @@ class Hotels_FR(Hotels):
 
 class Hotels_EN(Hotels):
 
-    def __init__(self, url: str, establishment: str):
-        super().__init__(url=url, establishment=establishment)
+    def __init__(self, url: str, establishment: str, settings: str):
+        super().__init__(url=url, establishment=establishment, settings=settings)
 
     def load_reviews(self) -> None:
         super().load_reviews()
