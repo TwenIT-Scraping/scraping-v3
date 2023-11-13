@@ -394,9 +394,9 @@ if __name__ == '__main__':
 
         miss = check_arguments(args)
 
-        if not len(miss):
+        success = False
 
-            success = False
+        if not len(miss):
 
             try:
                 d = MeteoLocalityScraper('locality_log', 'locality')
