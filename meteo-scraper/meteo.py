@@ -51,7 +51,7 @@ def clean():
     files = ['locality_log.json', 'locality.csv', 'meteo_data.txt',
              'meteo_log.json', 'meteo_url.json']
     for file in files:
-        if os.path.exists(file):
+        if os.path.exists(f'{os.environ.get("HISTORY_FOLDER")}/file'):
             os.remove(file)
 
 
