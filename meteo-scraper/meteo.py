@@ -70,7 +70,7 @@ class MeteoAPI(object):
     def get_request(self, url: str, header: bool = False) -> dict:
         try:
             response = None
-            self.http = urllib3.PoolManager()
+            self.http = urllib3.PoolManager(cert_reqs='CERT_NONE')
 
             if header:
                 response = self.http.request(
@@ -86,20 +86,21 @@ class MeteoAPI(object):
                     timeout=120
                 )
 
-            if response.status != 200:
-                print('==> failed to reach api nexties!!')
-                print(response.status)
-                print('==> press enter to retry')
-                keyboard.wait('enter')
-                print('==> retrying ...')
+            # if response.status != 200:
+            #     print('==> failed to reach api nexties!!')
+            #     print(response.status)
+            #     print(response.json())
+            #     print('==> press enter to retry')
+            #     keyboard.wait('enter')
+            #     print('==> retrying ...')
 
-                self.get_request(url, header)
+                # self.get_request(url, header)
 
             return orjson.loads(response.data)
 
-        except Exception as e:
+        except urllib3.exceptions.HTTPError as e:
             print('==> Connexion failed!!')
-            print(e)
+            print(e.reason)
             sys.exit()
 
     def post_request(self, url: str, body: str) -> dict:
@@ -112,14 +113,14 @@ class MeteoAPI(object):
                 body=json.dumps(body),
                 headers=self.headers
             )
-            if response.status != 200:
-                print("Post code: ", response.status)
-            else:
-                print("Upload successfully !!!")
+            # if response.status != 200:
+            #     print("Post code: ", response.status)
+            # else:
+            #     print("Upload successfully !!!")
 
-        except Exception as e:
+        except urllib3.exceptions.HTTPError as e:
             print("Erreur post")
-            print(e)
+            print(e.reason)
 
     def set_log(self, log_key: str, value: object) -> None:
         logs = {}
