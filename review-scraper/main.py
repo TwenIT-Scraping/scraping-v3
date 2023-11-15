@@ -94,6 +94,9 @@ if __name__ == '__main__':
             if args.end_date:
                 sc.set_last_date(args.end_date)
 
+            if args.type == 'list':
+                print(sc.get_providers())
+
             if args.type == 'all':
                 sc.init()
                 sc.start()

@@ -95,6 +95,10 @@ class ListScraperV2:
         self.settings = None
         self.last_date = None
 
+    def get_providers(self):
+        res = ERApi(entity='providers').execute()
+        return list(map(lambda x: x['name'], res))
+
     def init(self, eid=None, ename=None, categ=None, source=None):
         self.settings = Settings(categ, eid, source, ename)
         self.settings.prepare()
