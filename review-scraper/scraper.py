@@ -97,7 +97,7 @@ class ListScraperV2:
 
     def get_providers(self):
         res = ERApi(entity='providers').execute()
-        return list(map(lambda x: x['name'], res))
+        return list(map(lambda x: {'name': x['name'], 'urls': len(x['settings'])}, res))
 
     def init(self, eid=None, ename=None, categ=None, source=None):
         self.settings = Settings(categ, eid, source, ename)
@@ -122,6 +122,8 @@ class ListScraperV2:
                 try:
                     instance = __class_name_v2__[item['source']](
                         url=item['url'], establishment=item['establishment_id'], settings=item['id'])
+
+                    print(item['url'])
 
                     if item['last_review_date']:
                         if self.last_date:
