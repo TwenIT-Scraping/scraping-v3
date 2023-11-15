@@ -200,7 +200,7 @@ class Tripadvisor_FR(Tripadvisor):
         print("Entrée")
 
         try:
-            print("Try 1")
+            print("Type 1")
             while True:
                 print("Boucle ...")
                 page = self.driver.page_source
@@ -208,7 +208,6 @@ class Tripadvisor_FR(Tripadvisor):
                 soupe = BeautifulSoup(page, 'lxml')
 
                 try:
-                    print("Try 2")
 
                     reviews_card = soupe.find_all(
                         'div', {'data-test-target': "HR_CC_CARD"})
@@ -218,22 +217,16 @@ class Tripadvisor_FR(Tripadvisor):
                         print("reviews_card trouvés!!!")
 
                         for item in reviews_card:
-                            try:
-                                title = item.find('div', {'data-test-target': 'review-title'}).text.strip(
-                                ) if item.find('div', {'data-test-target': 'review-title'}) else ''
-                            except:
-                                print("Erreur titre")
 
-                            try:
-                                detail = item.find('span', {'class': 'QewHA'}).find('span').text.strip(
-                                ).replace('\n', '') if item.find('span', {'class': 'QewHA'}) else ''
-                            except:
-                                print("Erreur detail")
+                            to_save = True
 
-                            try:
-                                comment = f"{title}{': ' if title and detail else ''}{detail}"
-                            except:
-                                print("Erreur comment")
+                            title = item.find('div', {'data-test-target': 'review-title'}).text.strip(
+                            ) if item.find('div', {'data-test-target': 'review-title'}) else ''
+
+                            detail = item.find('span', {'class': 'QewHA'}).find('span').text.strip(
+                            ).replace('\n', '') if item.find('span', {'class': 'QewHA'}) else ''
+
+                            comment = f"{title}{': ' if title and detail else ''}{detail}"
 
                             try:
                                 lang = detect(comment)
@@ -244,15 +237,11 @@ class Tripadvisor_FR(Tripadvisor):
                             month = datetime.today().month
                             day = datetime.today().day
 
-                            try:
-                                date_raw = item.find(
-                                    'div', {'class': 'cRVSd'}).text.strip()
+                            date_raw = item.find(
+                                'div', {'class': 'cRVSd'}).text.strip() if item.find(
+                                'div', {'class': 'cRVSd'}) else ''
 
-                                print(date_raw)
-
-                                if date_raw == '':
-                                    pass
-
+                            if date_raw:
                                 date_raw_withp = date_raw.split()[-2:]
 
                                 if date_raw_withp[1][0] == '(':
@@ -270,43 +259,43 @@ class Tripadvisor_FR(Tripadvisor):
                                             date_raw_withp[0][1:], 'fr', 'short')
                                         year = date_raw_withp[1][:-1]
 
-                            except Exception as e:
-                                print("Erreur date")
-                                print(e)
+                            author = item.find('a', class_='ui_header_link').text.strip(
+                            ) if item.find('a', class_='ui_header_link') else "",
+
+                            to_save = date_raw != '' and author != ''
 
                             review_data = {
                                 'comment': comment,
                                 'rating': str(int(item.find('span', class_='ui_bubble_rating')['class'][1].split('_')[1]) / 10) + "/5" if item.find('span', class_='ui_bubble_rating') else "0/5",
                                 'language': lang,
                                 'source': urlparse(self.url).netloc.split('.')[1],
-                                'author': item.find('a', class_='ui_header_link').text.strip() if item.find('a', class_='ui_header_link') else "",
+                                'author': author,
                                 'establishment': f'/api/establishments/{self.establishment}',
                                 'settings': f'/api/settings/{self.settings}',
                                 'date_review': f"{day}/{month}/{year}"
                             }
 
-                            reviews.append(review_data)
+                            to_save and reviews.append(review_data)
 
                     else:
                         print("Review card non trouvé, tenter autrement ...")
                         raise Exception()
 
                 except:
-                    print("Except 2")
+                    print("Type 2")
                     reviews_card = soupe.find_all(
                         'div', {'class': "review-container"})
 
-                    print("Review card trouvé? ", len(reviews_card))
-
                     for item in reviews_card:
-                        title = item.find('a', {'class': 'title'}).text.strip()
-                        detail = item.find(
-                            'div', {'data-prwidget-name': 'reviews_text_summary_hsx'}).text.strip()
+                        to_save = True
 
-                        try:
-                            comment = f"{title}{': ' if title and detail else ''}{detail}"
-                        except:
-                            print("Erreur comment")
+                        title = item.find('a', {'class': 'title'}).text.strip(
+                        ) if item.find('a', {'class': 'title'}) else ''
+                        detail = item.find(
+                            'div', {'data-prwidget-name': 'reviews_text_summary_hsx'}).text.strip() if item.find(
+                            'div', {'data-prwidget-name': 'reviews_text_summary_hsx'}) else ''
+
+                        comment = f"{title}{': ' if title and detail else ''}{detail}"
 
                         try:
                             lang = detect(comment)
@@ -315,37 +304,34 @@ class Tripadvisor_FR(Tripadvisor):
 
                         rating_bubble = item.find(
                             'span', {'class': 'ui_bubble_rating'})['class'][1]
-                        print(rating_bubble)
+
                         rating = str(
                             int(int(rating_bubble.split('_')[1])/10)) + '/5'
 
-                        try:
-                            date_raw = item.find(
-                                'span', {'class': 'ratingDate'})['title']
-                            print(date_raw)
+                        date_raw = item.find(
+                            'span', {'class': 'ratingDate'})['title']
 
-                            if date_raw == '':
-                                pass
-
+                        if date_raw != '':
                             date_rawt = date_raw.split()
-
                             month = month_number(date_rawt[1], 'fr', '')
-                        except Exception as e:
-                            print("Erreur date")
-                            print(e)
+
+                        author = item.find('div', {'onclick': "widgetEvCall('handlers.usernameClick', event, this);"}).text.strip(
+                        ) if item.find('div', {'onclick': "widgetEvCall('handlers.usernameClick', event, this);"}) else ""
+
+                        to_save = date_raw != '' and author != ''
 
                         review_data = {
                             'comment': comment,
                             'rating': rating,
                             'language': lang,
                             'source': urlparse(self.url).netloc.split('.')[1],
-                            'author': item.find('div', {'onclick': "widgetEvCall('handlers.usernameClick', event, this);"}).text.strip() if item.find('div', {'onclick': "widgetEvCall('handlers.usernameClick', event, this);"}) else "",
+                            'author': author,
                             'establishment': f'/api/establishments/{self.establishment}',
                             'settings': f'/api/settings/{self.settings}',
                             'date_review': f"{date_rawt[0]}/{month}/{date_rawt[2]}"
                         }
 
-                        reviews.append(review_data)
+                        to_save and reviews.append(review_data)
 
                 if not self.check_date(reviews[-1]['date_review']):
                     break
@@ -368,7 +354,7 @@ class Tripadvisor_FR(Tripadvisor):
             self.data = reviews
 
         except:
-            print("Try 3")
+            print("Type 3")
 
             while True:
                 print("Boucle ...")
