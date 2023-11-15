@@ -197,19 +197,25 @@ class Tripadvisor_FR(Tripadvisor):
         reviews = []
 
         time.sleep(10)
+        print("Entrée")
 
         try:
+            print("Try 1")
             while True:
+                print("Boucle ...")
                 page = self.driver.page_source
 
                 soupe = BeautifulSoup(page, 'lxml')
 
                 try:
+                    print("Try 2")
 
                     reviews_card = soupe.find_all(
                         'div', {'data-test-target': "HR_CC_CARD"})
 
                     if len(reviews_card):
+
+                        print("reviews_card trouvés!!!")
 
                         for item in reviews_card:
                             try:
@@ -243,6 +249,9 @@ class Tripadvisor_FR(Tripadvisor):
                                     'div', {'class': 'cRVSd'}).text.strip()
 
                                 print(date_raw)
+
+                                if date_raw == '':
+                                    pass
 
                                 date_raw_withp = date_raw.split()[-2:]
 
@@ -279,11 +288,15 @@ class Tripadvisor_FR(Tripadvisor):
                             reviews.append(review_data)
 
                     else:
+                        print("Review card non trouvé, tenter autrement ...")
                         raise Exception()
 
                 except:
+                    print("Except 2")
                     reviews_card = soupe.find_all(
                         'div', {'class': "review-container"})
+
+                    print("Review card trouvé? ", len(reviews_card))
 
                     for item in reviews_card:
                         title = item.find('a', {'class': 'title'}).text.strip()
@@ -310,6 +323,9 @@ class Tripadvisor_FR(Tripadvisor):
                             date_raw = item.find(
                                 'span', {'class': 'ratingDate'})['title']
                             print(date_raw)
+
+                            if date_raw == '':
+                                pass
 
                             date_rawt = date_raw.split()
 
@@ -351,9 +367,117 @@ class Tripadvisor_FR(Tripadvisor):
 
             self.data = reviews
 
-        except Exception as e:
-            print("erreur:", e)
+        except:
+            print("Try 3")
 
-# trp = Tripadvisor(url="https://www.tripadvisor.com/Hotel_Review-g60763-d122020-Reviews-Chelsea_Pines_Inn-New_York_City_New_York.html", establishment=33)
+            while True:
+                print("Boucle ...")
+                time.sleep(5)
+                page = self.driver.page_source
+
+                soupe = BeautifulSoup(page, 'lxml')
+
+                reviews_card = soupe.find_all(
+                    'div', {'data-automation': "reviewCard"})
+
+                if len(reviews_card):
+
+                    print("reviews_card trouvés!!!")
+                    print(len(reviews_card))
+
+                    for item in reviews_card:
+
+                        to_save = True
+
+                        rating_bubble = item.find(
+                            'svg', {'class': 'UctUV d H0'})['aria-label']
+                        rating = str(
+                            int(rating_bubble.split(',')[0])) + '/5'
+
+                        author = item.find(
+                            'a', {'class': 'BMQDV _F Gv wSSLS SwZTJ FGwzt ukgoS'}).text.strip() if item.find(
+                            'a', {'class': 'BMQDV _F Gv wSSLS SwZTJ FGwzt ukgoS'}) else ''
+
+                        title = item.find(
+                            'div', {'class': 'biGQs _P fiohW qWPrE ncFvv fOtGX'}).text.strip() if item.find(
+                            'div', {'class': 'biGQs _P fiohW qWPrE ncFvv fOtGX'}) else ''
+
+                        comment = item.find(
+                            'div', {'class': '_T FKffI'}).text.strip() if item.find(
+                            'div', {'class': '_T FKffI'}) else ''
+
+                        comment = f"{title}{': ' if title and comment else ''}{comment}"
+
+                        try:
+                            lang = detect(comment)
+                        except:
+                            lang = 'fr'
+
+                        year = datetime.today().year
+                        month = datetime.today().month
+                        day = datetime.today().day
+
+                        date_raw = item.find(
+                            'div', {'class': 'RpeCd'}).text.strip() if item.find(
+                            'div', {'class': 'RpeCd'}) else ''
+
+                        if date_raw:
+
+                            date_raw_withp = date_raw.split(' • ')[0].split()
+
+                            if date_raw_withp[1][0] == '(':
+                                if date_raw_withp[1] == "(Aujourd'hui)":
+                                    day = datetime.today().day
+                                elif date_raw_withp[1] == "(Hier)":
+                                    day = datetime.today().day - 1
+                            else:
+                                if date_raw_withp[0].isnumeric():
+                                    day = int(date_raw_withp[0])
+                                    month = month_number(
+                                        date_raw_withp[1], 'fr', 'short')
+                                else:
+                                    month = month_number(
+                                        date_raw_withp[0], 'fr', 'short')
+                                    year = date_raw_withp[1]
+
+                        if author == '' or comment == '' or date_raw == '':
+                            to_save = False
+
+                        to_save and reviews.append({
+                            'comment': comment,
+                            'rating': rating,
+                            'language': lang,
+                            'source': urlparse(self.url).netloc.split('.')[1],
+                            'author': author,
+                            'establishment': f'/api/establishments/{self.establishment}',
+                            'settings': f'/api/settings/{self.settings}',
+                            'date_review': f"{day}/{month}/{year}"
+                        })
+
+                else:
+                    print("Review card non trouvé, Arret !!!")
+
+                if len(reviews) and not self.check_date(reviews[-1]['date_review']):
+                    break
+
+                try:
+                    next_btn = self.driver.find_element(
+                        By.XPATH, "//a[@data-smoke-attr='pagination-next-arrow']")
+
+                    if next_btn:
+                        self.driver.execute_script(
+                            "arguments[0].click();", next_btn)
+                        time.sleep(2)
+                    else:
+                        break
+
+                except Exception as e:
+                    break
+
+            self.data = reviews
+
+
+# trp = Tripadvisor_FR(
+#     url="https://www.tripadvisor.fr/Attraction_Review-g3520917-d518281-Reviews-Courchevel-Saint_Bon_Tarentaise_Courchevel_Savoie_Auvergne_Rhone_Alpes.html", establishment=33, settings=1)
 # trp.execute()
 # print(trp.data)
