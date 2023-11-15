@@ -89,6 +89,13 @@ class Google(Scraping):
             return self.formate_date(
                 date_raw, lang) if date_raw else "01/01/1999"
 
+        try:
+            self.driver.find_element(
+                By.XPATH, "//div[@aria-label='Avis' and @aria-controls='reviews' and @role='tab']").click()
+            time.sleep(2)
+        except:
+            pass
+
         results = int(''.join([x for x in self.driver.find_element(
             By.CSS_SELECTOR, '#reviews > c-wiz > c-wiz > div > div > div > div > div.ChBWlb.TjtFVc > div.pDLIp > div > div.zhMoVd.nNUNpc > div.UkIqCb > div > span').text if x.isdigit()]))
 
@@ -105,70 +112,76 @@ class Google(Scraping):
         time.sleep(3)
 
         try:
-            accept_btn = self.driver.find_element(
-                By.XPATH, "//span[contains(text(), 'Tout accepter') or contains(text(), 'Accept all')]")
-            self.driver.execute_script("arguments[0].click();", accept_btn)
-            time.sleep(random.randint(2, 5))
+
+            try:
+                accept_btn = self.driver.find_element(
+                    By.XPATH, "//span[contains(text(), 'Tout accepter') or contains(text(), 'Accept all')]")
+                self.driver.execute_script("arguments[0].click();", accept_btn)
+                time.sleep(random.randint(2, 5))
+            except:
+                pass
+
+            time.sleep(5)
+
+            try:
+                self.driver.find_element(
+                    By.XPATH, "//div[@role='listbox' and @aria-label='Menu déroulant pour filtrer les avis']").click()
+                time.sleep(random.uniform(.5, 2.5))
+                self.driver.find_element(
+                    By.XPATH, "//div[@role='option' and @data-value='2' and @aria-label='Plus récents']").click()
+                time.sleep(random.uniform(.2, 2))
+            except:
+                pass
+
+            self.load_reviews()
+
+            reviews = []
+
+            page = self.driver.page_source
+
+            soupe = BeautifulSoup(page, 'lxml')
+
+            review_container = soupe.find_all('div', {'jsname': "Pa5DKe"})
+
+            for container in review_container:
+                cards = container.find_all('div', {'data-hveid': True})
+                for card in cards:
+                    author = card.find('span', {'class': 'k5TI0'}).find('a').text.strip() if card.find(
+                        'span', {'class': 'k5TI0'}) and card.find('span', {'class': 'k5TI0'}).find('a') else ""
+                    comment = card.find('div', {'class': 'K7oBsc'}).text.strip().replace(
+                        " En savoir plus", "") if card.find('div', {'class': 'K7oBsc'}) else ""
+                    rating = card.find('div', {'class': 'GDWaad'}).text.strip().split(
+                        '/')[0] if card.find('div', {'class': 'GDWaad'}) else "0"
+
+                    try:
+                        lang = detect(comment)
+                    except:
+                        lang = 'en'
+
+                    date_raw = card.find('span', {'class': 'iUtr1'}).text.strip(
+                    ) if card.find('span', {'class': 'iUtr1'}) else ""
+
+                    date_review = self.formate_date(
+                        date_raw, lang) if date_raw else "01/01/1999"
+
+                    print(date_review)
+
+                    if (author or comment or rating != "0") and date_review != '01/01/1999':
+
+                        reviews.append({
+                            'rating': rating,
+                            'author': author,
+                            'date_review': date_review,
+                            'comment': comment,
+                            'language': lang,
+                            'source': urlparse(self.url).netloc.split('.')[1],
+                            'establishment': f'/api/establishments/{self.establishment}',
+                            'settings': f'/api/settings/{self.settings}'
+                        })
+
+            self.data = reviews
         except:
             pass
-
-        time.sleep(5)
-
-        try:
-            self.driver.find_element(
-                By.XPATH, "//div[@role='listbox' and @aria-label='Menu déroulant pour filtrer les avis']").click()
-            time.sleep(random.uniform(.5, 2.5))
-            self.driver.find_element(
-                By.XPATH, "//div[@role='option' and @data-value='2' and @aria-label='Plus récents']").click()
-            time.sleep(random.uniform(.2, 2))
-        except:
-            pass
-
-        self.load_reviews()
-
-        reviews = []
-
-        page = self.driver.page_source
-
-        soupe = BeautifulSoup(page, 'lxml')
-
-        review_container = soupe.find_all('div', {'jsname': "Pa5DKe"})
-
-        for container in review_container:
-            cards = container.find_all('div', {'data-hveid': True})
-            for card in cards:
-                author = card.find('span', {'class': 'k5TI0'}).find('a').text.strip() if card.find(
-                    'span', {'class': 'k5TI0'}) and card.find('span', {'class': 'k5TI0'}).find('a') else ""
-                comment = card.find('div', {'class': 'K7oBsc'}).text.strip().replace(
-                    " En savoir plus", "") if card.find('div', {'class': 'K7oBsc'}) else ""
-                rating = card.find('div', {'class': 'GDWaad'}).text.strip().split(
-                    '/')[0] if card.find('div', {'class': 'GDWaad'}) else "0"
-
-                try:
-                    lang = detect(comment)
-                except:
-                    lang = 'en'
-
-                date_raw = card.find('span', {'class': 'iUtr1'}).text.strip(
-                ) if card.find('span', {'class': 'iUtr1'}) else ""
-
-                date_review = self.formate_date(
-                    date_raw, lang) if date_raw else "01/01/1999"
-
-                if (author or comment or rating != "0") and date_review != '01/01/1999':
-
-                    reviews.append({
-                        'rating': rating,
-                        'author': author,
-                        'date_review': date_review,
-                        'comment': comment,
-                        'language': lang,
-                        'source': urlparse(self.url).netloc.split('.')[1],
-                        'establishment': f'/api/establishments/{self.establishment}',
-                        'settings': f'/api/settings/{self.settings}'
-                    })
-
-        self.data = reviews
 
 
 # trp = Google(url="https://www.google.com/travel/hotels/entity/ChYIqtL21OvSv65QGgovbS8wdnB3cTRzEAE/reviews?utm_campaign=sharing&utm_medium=link&utm_source=htls&ts=CAESABogCgIaABIaEhQKBwjnDxAKGAISBwjnDxAKGAMYATICEAAqCQoFOgNNR0EaAA", establishment=3)

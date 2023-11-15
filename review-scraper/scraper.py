@@ -34,6 +34,7 @@ __class_name_v2__ = {
     'Hotels.com FR': Hotels_FR,
     'Google': Google,
     'Google hotel': Google,
+    'Google Travel': Google,
     'Opentable UK': Opentable_UK,
     'Trustpilot': Trustpilot,
     'Tripadvisor FR': Tripadvisor_FR,
