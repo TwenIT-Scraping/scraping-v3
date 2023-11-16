@@ -24,9 +24,9 @@ from changeip import refresh_connection
 
 class Yelp(Scraping):
     def __init__(self, url: str, establishment: str, settings: str):
+        refresh_connection()
         super().__init__(in_background=False, url=url,
                          establishment=establishment, settings=settings)
-        refresh_connection()
 
     def extract(self):
         def get_review_count() -> int:
