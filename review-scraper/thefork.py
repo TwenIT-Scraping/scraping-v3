@@ -19,12 +19,14 @@ from langdetect import detect
 from tools import month_number
 from selenium.webdriver.support.select import Select
 from iteration_utilities import unique_everseen
+from changeip import refresh_connection
 
 
 class Thefork(Scraping):
     def __init__(self, url: str, establishment: str, settings: str):
         super().__init__(in_background=False, url=url,
                          establishment=establishment, settings=settings)
+        refresh_connection()
 
     def extract(self):
         def get_review_count() -> int:
@@ -73,10 +75,10 @@ class Thefork(Scraping):
             except:
                 pass
 
-            soupe = self.driver.find_element(
+            page = self.driver.find_element(
                 By.XPATH, "//div[@data-testid='review-list-wrapper']").get_attribute('innerHTML')
 
-            print(soupe)
+            soupe = BeautifulSoup(page, 'lxml')
 
             review_cards = soupe.find_all(
                 'div', {'data-testid': 'restaurant-page-review-item'})
