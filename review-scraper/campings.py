@@ -91,7 +91,7 @@ class Campings(Scraping):
                     'source': urlparse(self.url).netloc.split('.')[1],
                     'author': card.find('div', {'class': 'review__author'}).text.strip() if card.find('div', {'class': 'review__author'}) else "",
                     'establishment': f'/api/establishments/{self.establishment}',
-                    'novisitdate': "1",
+                    'novisitday': "1",
                     'settings': f'/api/settings/{self.settings}'
                 }
 

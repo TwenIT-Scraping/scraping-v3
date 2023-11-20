@@ -22,7 +22,8 @@ from selenium.webdriver.support.select import Select
 
 class Booking(Scraping):
     def __init__(self, url: str, establishment: str, settings: str):
-        super().__init__(in_background=False, url=url,
+        defurl = url if url.endswith('.fr.html') else f"{url}.fr.html"
+        super().__init__(in_background=False, url=defurl,
                          establishment=establishment, settings=settings)
 
     def extract(self):
@@ -33,8 +34,9 @@ class Booking(Scraping):
             By.XPATH, "//select[@id='sorting']"))
         review_order.select_by_value('completed_desc')
 
-        self.driver.find_element(
-            By.XPATH, "//div[@class='review_list_nav_wrapper clearfix']/form/input[@type='submit']").click()
+        view_list_btn = self.driver.find_element(
+            By.XPATH, "//div[@class='review_list_nav_wrapper clearfix']/form/input[@type='submit']")
+        self.driver.execute_script("arguments[0].click();", view_list_btn)
 
         while True:
             time.sleep(10)

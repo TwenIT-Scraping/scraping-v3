@@ -117,7 +117,7 @@ class Expedia(Scraping):
                         'establishment': f'/api/establishments/{self.establishment}',
                         'settings': f'/api/settings/{self.settings}',
                         'date_visit': date_review,
-                        'novisitdate': "0"
+                        'novisitday': "0"
                     }
                     t['date_review'] != '01/01/1999' and reviews.append(t)
                 except Exception as e:
