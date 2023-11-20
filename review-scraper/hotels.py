@@ -98,6 +98,8 @@ class Hotels_FR(Hotels):
 
         reviews = []
 
+        input("Veullez entrer une touche ...")
+
         time.sleep(1)
 
         self.load_reviews()
