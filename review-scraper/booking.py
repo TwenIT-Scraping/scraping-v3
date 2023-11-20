@@ -84,12 +84,13 @@ class Booking(Scraping):
                         'rating': card.find('span', {'class': 'review-score-badge'}).text.strip()
                         if card.find('span', {'class': 'review-score-badge'}) else "0",
                         'date_review': date_review,
-                        'date_visit': date_visit,
                         'language': lang,
                         'source': urlparse(self.url).netloc.split('.')[1],
                         'author': card.find('p', {'class': 'reviewer_name'}).text.strip() if card.find('p', {'class': 'reviewer_name'}) else "",
                         'establishment': f'/api/establishments/{self.establishment}',
-                        'settings': f'/api/settings/{self.settings}'
+                        'settings': f'/api/settings/{self.settings}',
+                        'date_visit': date_review,
+                        'novisitday': "0"
                     })
                 except Exception as e:
                     print(e)
