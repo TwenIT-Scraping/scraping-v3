@@ -95,7 +95,9 @@ class Opentable_UK(Opentable):
                     'author': item.find_all('section')[0].find_all('p')[0].text.strip(),
                     'establishment': f'/api/establishments/{self.establishment}',
                     'settings': f'/api/settings/{self.settings}',
-                    'date_review': review_date
+                    'date_review': review_date,
+                    'date_visit': review_date,
+                    'novisitday': "1"
                 })
 
             if not self.check_date(self.reviews_data[-1]['date_review']):

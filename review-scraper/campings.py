@@ -86,10 +86,12 @@ class Campings(Scraping):
                     'comment': card.find('div', {'class': 'review__comment'}).text.strip() if card.find('div', {'class': 'review__comment'}) else "",
                     'rating': card.find('span', {'class': 'review__rating'}).text.strip().split('/')[0] if card.find('span', {'class': 'review__rating'}) else "0",
                     'date_review': card.find('div', {'class': 'review__publish-date'}).find('span').text.strip() if card.find('div', {'class': 'review__publish-date'}) else "01/01/1999",
+                    'date_visit': card.find('div', {'class': 'review__publish-date'}).find('span').text.strip() if card.find('div', {'class': 'review__publish-date'}) else "01/01/1999",
                     'language': 'fr',
                     'source': urlparse(self.url).netloc.split('.')[1],
                     'author': card.find('div', {'class': 'review__author'}).text.strip() if card.find('div', {'class': 'review__author'}) else "",
                     'establishment': f'/api/establishments/{self.establishment}',
+                    'novisitdate': "1",
                     'settings': f'/api/settings/{self.settings}'
                 }
 

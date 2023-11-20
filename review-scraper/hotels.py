@@ -123,6 +123,8 @@ class Hotels_FR(Hotels):
             data['establishment'] = f'/api/establishments/{self.establishment}'
             data['settings'] = f'/api/establishments/{self.settings}'
             data['source'] = urlparse(self.url).netloc.split('.')[1]
+            data['date_visit'] = data['date_review']
+            data['novisitday'] = "0"
 
             reviews.append(data)
 

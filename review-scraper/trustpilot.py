@@ -78,7 +78,9 @@ class Trustpilot(Scraping):
                     'source': urlparse(self.url).netloc.split('.')[1],
                     'author': card.find('span', {'data-consumer-name-typography': 'true'}).text.strip() if card.find('span', {'data-consumer-name-typography': 'true'}) else "",
                     'establishment': f'/api/establishments/{self.establishment}',
-                    'settings': f'/api/settings/{self.settings}'
+                    'settings': f'/api/settings/{self.settings}',
+                    'date_visit': date_review,
+                    'novisitday': "1"
                 })
 
             if not self.check_date(reviews[-1]['date_review']):

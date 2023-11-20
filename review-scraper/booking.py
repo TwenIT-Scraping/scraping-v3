@@ -63,6 +63,13 @@ class Booking(Scraping):
                     date_review = f"{dates[-3]}/{month_number(dates[-2], 'fr')}/{dates[-1]}"
                 except Exception as e:
                     date_review = f"{dates[-3]}/{month_number(dates[-2], 'en')}/{dates[-1]}"
+                if card.find('p', {'class': 'review_staydate '}):
+                    date_visit_raw = card.find(
+                        'p', {'class': 'review_staydate '}).text.strip().split()[-2:]
+                    date_visit = f"{(datetime().day-1)}/{month_number(date_visit_raw[0], 'en')}/{date_visit_raw[1]}"
+                    print(date_visit)
+                else:
+                    date_visit = date_review
 
                 try:
                     lang = detect(comment)
@@ -75,6 +82,7 @@ class Booking(Scraping):
                         'rating': card.find('span', {'class': 'review-score-badge'}).text.strip()
                         if card.find('span', {'class': 'review-score-badge'}) else "0",
                         'date_review': date_review,
+                        'date_visit': date_visit,
                         'language': lang,
                         'source': urlparse(self.url).netloc.split('.')[1],
                         'author': card.find('p', {'class': 'reviewer_name'}).text.strip() if card.find('p', {'class': 'reviewer_name'}) else "",

@@ -437,7 +437,9 @@ class Tripadvisor_FR(Tripadvisor):
                             'author': author,
                             'establishment': f'/api/establishments/{self.establishment}',
                             'settings': f'/api/settings/{self.settings}',
-                            'date_review': f"{day}/{month}/{year}"
+                            'date_review': f"{day}/{month}/{year}",
+                            'date_visit': f"{day}/{month}/{year}",
+                            'novisitday': "1"
                         })
 
                 else:

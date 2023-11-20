@@ -176,7 +176,9 @@ class Google(Scraping):
                             'language': lang,
                             'source': urlparse(self.url).netloc.split('.')[1],
                             'establishment': f'/api/establishments/{self.establishment}',
-                            'settings': f'/api/settings/{self.settings}'
+                            'settings': f'/api/settings/{self.settings}',
+                            'date_visit': date_review,
+                            'novisitday': "1"
                         })
 
             self.data = reviews

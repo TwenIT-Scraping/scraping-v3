@@ -46,7 +46,7 @@ class Maeva(Scraping):
             btn = self.driver.find_element(
                 By.ID, 'avis-cards-content-container')
             self.driver.execute_async_script("arguments[0].click()", btn)
-            
+
             for k in range(3):
                 self.driver.find_element(
                     By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
@@ -78,6 +78,8 @@ class Maeva(Scraping):
                 data['source'] = urlparse(self.url).netloc.split('.')[1]
                 data['establishment'] = f'/api/establishments/{self.establishment}'
                 data['settings'] = f'/api/settings/{self.settings}'
+                data['date_visit'] = data['date_review']
+                data['novisitday'] = "0"
                 reviews.append(data)
 
         except Exception as e:
