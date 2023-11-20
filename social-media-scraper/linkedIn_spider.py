@@ -128,7 +128,7 @@ class LinkedInProfileScraper(Scraping):
             'likes': 0,
             'source': "linkedin",
             'establishment': f"/api/establishment/{self.establishment}",
-            'name': name,
+            'name': f"linkedin_{name}",
             'posts': len(self.posts)
         }
         # self.data_container.append(data)
