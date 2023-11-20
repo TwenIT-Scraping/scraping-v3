@@ -30,9 +30,9 @@ class Booking(Scraping):
 
         reviews = []
 
-        review_order = Select(self.driver.find_element(
-            By.XPATH, "//select[@id='sorting']"))
-        review_order.select_by_value('completed_desc')
+        # review_order = Select(self.driver.find_element(
+        #     By.XPATH, "//select[@id='sorting']"))
+        # review_order.select_by_value('completed_desc')
 
         view_list_btn = self.driver.find_element(
             By.XPATH, "//div[@class='review_list_nav_wrapper clearfix']/form/input[@type='submit']")
@@ -95,8 +95,8 @@ class Booking(Scraping):
                     print(e)
                     continue
 
-            if not self.check_date(reviews[-1]['date_review']):
-                break
+            # if not self.check_date(reviews[-1]['date_review']):
+            #     break
 
             try:
 
