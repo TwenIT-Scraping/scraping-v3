@@ -105,11 +105,12 @@ class Scraping(object):
     def format(self) -> None:
 
         column_order = ['author', 'source', 'language',
-                        'rating', 'establishment', 'date_review', 'comment', 'settings']
+                        'rating', 'establishment', 'date_review', 'settings']
 
         def check_value(item):
             for key in column_order:
                 if not item[key] or item[key] == '':
+                    print(key)
                     return False
             return True
 
@@ -122,8 +123,9 @@ class Scraping(object):
                     item['comment'], item['language'], item['rating'], item['source'])
                 if score_data['feeling'] and score_data['score'] and score_data['confidence']:
                     line = '$'.join([item['author'], item['source'], item['language'], item['rating'], item['establishment'], item['date_review'],
-                                    item['comment'].replace('$', 'USD'), score_data['feeling'], score_data['score'], score_data['confidence'], item['settings']]) + "#"
-                    if len(line.split('$')) == 11:
+                                    item['comment'].replace('$', 'USD'), score_data['feeling'], score_data['score'], score_data['confidence'], item['settings'], item['date_visit'], item['novisitdate']]) + "#"
+
+                    if len(line.split('$')) == 13:
                         result += line
 
         self.formated_data = result

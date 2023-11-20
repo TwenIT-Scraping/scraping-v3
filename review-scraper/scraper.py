@@ -111,6 +111,8 @@ class ListScraperV2:
         # refresh_connection()
 
         # counter = 0
+        print("Liste des urls à sraper:")
+        print(list(map(lambda x: x['url'], self.settings.items)))
 
         for item in self.settings.items:
             time.sleep(random.randint(1, 3))
@@ -139,6 +141,7 @@ class ListScraperV2:
                     instance.execute()
                 except Exception as e:
                     print(e)
+                    pass
 
                 # if counter == 4:
                 #     counter == 0

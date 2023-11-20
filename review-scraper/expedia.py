@@ -115,7 +115,9 @@ class Expedia(Scraping):
                         'source': urlparse(self.url).netloc.split('.')[1],
                         'author': card.find('h4').text.strip(),
                         'establishment': f'/api/establishments/{self.establishment}',
-                        'settings': f'/api/settings/{self.settings}'
+                        'settings': f'/api/settings/{self.settings}',
+                        'date_visit': date_review,
+                        'novisitdate': "0"
                     }
                     t['date_review'] != '01/01/1999' and reviews.append(t)
                 except Exception as e:
