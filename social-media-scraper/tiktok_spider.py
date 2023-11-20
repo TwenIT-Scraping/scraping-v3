@@ -1,3 +1,4 @@
+import re
 from playwright.sync_api import sync_playwright
 from nested_lookup import nested_lookup
 from random import randint
@@ -52,7 +53,7 @@ class TikTokProfileScraper(Scraping):
 
     def goto_tiktok_page(self) -> None:
         print(f'==>  {self.url}')
-        self.page.goto(self.url, timeout=100000)
+        self.page.goto(self.url, timeout=1000000)
         self.page.wait_for_timeout(25000)
         time.sleep(3)
 
@@ -63,40 +64,47 @@ class TikTokProfileScraper(Scraping):
             return BeautifulSoup(element, 'lxml')
 
         def extract_post() -> dict | None:
-            next_post = self.page.locator(
-                "div.tiktok-1xlna7p-DivProfileWrapper.ekjxngi4").inner_html()
-            element = soupify(next_post)
+            self.page.wait_for_selector(
+                "div.tiktok-1xlna7p-DivProfileWrapper.ekjxngi4")
+            try:
+                next_post = self.page.locator(
+                    "div.tiktok-1xlna7p-DivProfileWrapper.ekjxngi4").inner_html()
+                element = soupify(next_post)
 
-            date_list = element.find(
-                'span', {'data-e2e': "browser-nickname"}).find_all('span')[-1].text.split('-')
+                date_list = element.find(
+                    'span', {'data-e2e': "browser-nickname"}).find_all('span')[-1].text.split('-')
 
-            if len(date_list) == 3:
-                publishedAt = f"{date_list[2]}/{date_list[1]}/{date_list[0]}"
-            elif len(date_list) == 2:
-                publishedAt = f"{date_list[1]}/{date_list[0]}/{datetime.now().year}"
-            else:
-                day = int(''.join(filter(str.isdigit, date_list[0])))
-                publishedAt = (datetime.now(
-                ) - relativedelta(days=day)).strftime("%d/%m/%Y")
+                if len(date_list) == 3:
+                    publishedAt = f"{'0' + date_list[0] if len(date_list[0]) == 1 else date_list[0]}-{'0' + date_list[1] if len(date_list[1]) == 1 else date_list[1]}-{date_list[2]}"
+                elif len(date_list) == 2:
+                    publishedAt = f"{datetime.now().year}-{'0' + date_list[0] if len(date_list[0]) == 1 else date_list[0]}-{'0' + date_list[1] if len(date_list[1]) == 1 else date_list[1]}"
+                else:
+                    day = int(''.join(filter(str.isdigit, date_list[0])))
+                    publishedAt = (datetime.now(
+                    ) - relativedelta(days=day)).strftime("%Y-%m-%d")
 
-            data = {
-                'title': element.find('div', {'data-e2e': "browse-video-desc"}).text.strip(),
-                'publishedAt': publishedAt,
-                'likes': element.find('strong', {'data-e2e': "browse-like-count"}).text.strip(),
-                'comments': element.find('strong', {'data-e2e': "browse-comment-count"}).text.strip(),
-                'shares': element.find('strong', {'data-e2e': "undefined-count"}).text.strip()
-            }
+                data = {
+                    'title': element.find('div', {'data-e2e': "browse-video-desc"}).text.strip(),
+                    'publishedAt': publishedAt,
+                    'likes': element.find('strong', {'data-e2e': "browse-like-count"}).text.strip(),
+                    'comments': element.find('strong', {'data-e2e': "browse-comment-count"}).text.strip(),
+                    'share': element.find('strong', {'data-e2e': "undefined-count"}).text.strip()
+                }
+            except Exception as e:
+                print(e)
+
             return data
 
         header_element = self.page.locator(
             "div.tiktok-1hfe8ic-DivShareLayoutContentV2.enm41491").inner_html()
-        self.page_data['name'] = soupify(header_element).find(
-            'h1', {'data-e2e': 'user-title'}).text.strip()
+        name = re.sub(r'[^\w]', ' ', soupify(header_element).find(
+            'h1', {'data-e2e': 'user-title'}).text.strip())
+        self.page_data['name'] = f"tiktok_{name}"
         self.page_data['followers'] = soupify(header_element).find(
             'strong', {'data-e2e': 'followers-count'}).text.strip()
         self.page_data['likes'] = soupify(header_element).find(
             'strong', {'data-e2e': 'likes-count'}).text.strip()
-        self.page_data['establishement'] = f'/api/establishment/{self.establishment}'
+        self.page_data['establishment'] = self.establishment
         self.page_data['source'] = 'tiktok'
 
         try:
@@ -107,7 +115,7 @@ class TikTokProfileScraper(Scraping):
             x = 0
             while self.page.locator("css=[data-e2e='arrow-right']").is_visible() and x < 20:
                 self.page.click("css=[data-e2e='arrow-right']")
-                self.page.wait_for_timeout(2000)
+                self.page.wait_for_timeout(10000)
                 self.posts.append(extract_post())
                 x += 1
         except:
@@ -125,11 +133,16 @@ class TikTokProfileScraper(Scraping):
         # self.goto_login()
         # self.fill_loginform()
         # input("Press a key to continue ...")
+        print(len(self.items))
         for item in self.items:
-            print("Itérer ...")
-            self.set_item(item)
-            self.goto_tiktok_page()
-            self.extract_data()
-            self.save()
+            try:
+                print("Itérer ...")
+                self.set_item(item)
+                self.goto_tiktok_page()
+                self.extract_data()
+                self.save()
+            except Exception as e:
+                print("Exception rencontrée !!!")
+                print(e)
 
         self.stop()
