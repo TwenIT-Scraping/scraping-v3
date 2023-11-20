@@ -28,7 +28,8 @@ class Maeva(Scraping):
                 'content']
             return '/'.join(date.split('-')[::-1])
 
-        self.driver.find_element(By.ID, 'avis-tout-cta').click()
+        allbtn = self.driver.find_element(By.ID, 'avis-tout-cta')
+        self.driver.execute_script("arguments[0].click();", allbtn)
 
         sort_btn = self.driver.find_element(
             By.XPATH, "//div[@class='avis-filter' and contains(text(), 'Les plus récents')]")
@@ -42,8 +43,10 @@ class Maeva(Scraping):
         for i in range(results//3):
             if not self.check_date(get_last_review_date()):
                 break
-            self.driver.find_element(
-                By.ID, 'avis-cards-content-container').click()
+            btn = self.driver.find_element(
+                By.ID, 'avis-cards-content-container')
+            self.driver.execute_async_script("arguments[0].click()", btn)
+            
             for k in range(3):
                 self.driver.find_element(
                     By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)

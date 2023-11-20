@@ -113,6 +113,9 @@ class MeteoAPI(object):
                 body=json.dumps(body),
                 headers=self.headers
             )
+            print(response.status)
+            print(response.url)
+            print(response.json())
             # if response.status != 200:
             #     print("Post code: ", response.status)
             # else:
