@@ -51,6 +51,8 @@ if __name__ == '__main__':
             file.write("Démarrage scrap reviews: " +
                        now.strftime("%d/%m/%Y %H:%M:%S") + '\n')
 
+    print("lancement")
+
     try:
 
         args = main_arguments()
@@ -72,6 +74,7 @@ if __name__ == '__main__':
                         file.write(f" ({args.sites}) ")
 
                     for s in args.sites.split('|'):
+                        print("Site: ", s)
                         sc.init(source=s)
                         sc.start()
                 else:

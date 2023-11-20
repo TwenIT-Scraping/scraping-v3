@@ -129,25 +129,47 @@ class FacebookProfileScraper(Scraping):
 
         return f"{year}/{month}/{day}"
 
+    def format_string_number(self, value):
+        first_value = 0
+        second_value = 0
+        value = value.lower()
+        try:
+            if 'm' in value:
+                first_value = int(value.split(',')[0]) * 1000000
+                second_value = int(
+                    ''.join(filter(str.isdigit, value.split(',')[1]))) * 100000
+            if 'k' in value:
+                first_value = int(value.split(',')[0]) * 1000
+                second_value = int(
+                    ''.join(filter(str.isdigit, value.split(',')[1]))) * 100
+            else:
+                first_value = int(''.join(filter(str.isdigit, value)))
+        except Exception as e:
+            print(e)
+            pass
+
+        return str(first_value + second_value)
+
     def extract_data(self) -> None:
         soupe = BeautifulSoup(self.page.content(), 'lxml')
         page_name = soupe.find('div', {'class': "x1e56ztr x1xmf6yo"}).text \
             if soupe.find('div', {'class': "x1e56ztr x1xmf6yo"}) else ''
-        page_likes = soupe.find_all('a', {'class': "x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xi81zsa x1s688f"})[0].text.split(' ')[0].replace('K', '000').replace('M', '000000') \
+        page_likes = soupe.find_all('a', {'class': "x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xi81zsa x1s688f"})[0].text.strip() \
             if soupe.find_all('a', {'class': "x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xi81zsa x1s688f"}) else 0
-        page_likes = page_likes.lower().replace('k', '000').replace('m', '000000')
-        page_followers = soupe.find_all('a', {'class': "x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xi81zsa x1s688f"})[1].text.split(' ')[0].replace('K', '000').replace('M', '000000') \
+        page_likes = self.format_string_number(page_likes)
+
+        page_followers = soupe.find_all('a', {'class': "x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xi81zsa x1s688f"})[1].text.strip() \
             if soupe.find_all('a', {'class': "x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xi81zsa x1s688f"}) else 0
-        page_followers = page_followers.lower().replace(
-            'k', '000').replace('m', '000000')
+        page_followers = self.format_string_number(page_followers)
         post_container = soupe.find('div', {
                                     'class': "x9f619 x1n2onr6 x1ja2u2z xeuugli xs83m0k x1xmf6yo x1emribx x1e56ztr x1i64zmx xjl7jj x19h7ccj xu9j1y6 x7ep2pv"})
         post_data = post_container.find_all('div', {'x1n2onr6 x1ja2u2z'})
+        print(len(post_data))
         for post in post_data:
             try:
                 likes = post.find('span', {'class': "xt0b8zv x2bj2ny xrbpyxo xl423tq"}).text.strip() \
                     if post.find('span', {'class': "xt0b8zv x2bj2ny xrbpyxo xl423tq"}) else '0'
-                likes = likes.lower().replace('k', '000').replace('m', '000000')
+                likes = self.format_string_number(likes)
                 description = post.find('div', {'class': "xdj266r x11i5rnm xat24cr x1mh8g0r x1vvkbs x126k92a"}).text.strip() \
                     if post.find('div', {'class': "xdj266r x11i5rnm xat24cr x1mh8g0r x1vvkbs x126k92a"}) else ''
                 cs = post.find('div', {
@@ -156,53 +178,54 @@ class FacebookProfileScraper(Scraping):
                 shares = 0
                 if cs and cs.text:
                     c = cs.find_all('span', {'dir': 'auto'})
-                    print(len(c))
                     match(len(c)):
                         case 2:
-                            shares = c[1].text.lower().replace('shares', '').replace(
-                                'share', '').strip().replace('k', '000').replace('m', '000000')
+                            shares = self.format_string_number(c[1].text.lower().replace('shares', '').replace(
+                                'share', '').strip())
                             shares = int(''.join(filter(str.isdigit, shares)))
-                            comments = c[0].text.lower().replace('comment', '').replace(
-                                'comments', '').strip().replace('k', '000').replace('m', '000000')
+                            comments = self.format_string_number(c[0].text.lower().replace('comment', '').replace(
+                                'comments', '').strip())
                             comments = int(
                                 ''.join(filter(str.isdigit, comments)))
                         case 1:
                             if 'share' in c[0].text or 'shares' in c[0].text:
-                                shares = c[0].text.lower().replace('shares', '').replace(
-                                    'share', '').strip().replace('k', '000').replace('m', '000000')
+                                shares = self.format_string_number(c[0].text.lower().replace('shares', '').replace(
+                                    'share', '').strip())
                                 shares = int(
                                     ''.join(filter(str.isdigit, shares)))
                             if 'comment' in c[0].text or 'comments' in c[0].text:
-                                comments = c[0].text.lower().replace('comment', '').replace(
-                                    'comments', '').strip().replace('k', '000').replace('m', '000000')
+                                comments = self.format_string_number(c[0].text.lower().replace('comment', '').replace(
+                                    'comments', '').strip())
                                 comments = int(
                                     ''.join(filter(str.isdigit, comments)))
                         case _:
                             shares = 0
                             comments = 0
 
-                date = post.find('a', {
-                                 'class': 'x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm'}).text.strip()
+                # spans_date = post.find(
+                #     'span', {'id': ':Rlataul9l9aqqd9emhpapd5aqH1:'}).text.strip()
+                # print(spans_date)
 
-                # print(date)
+                # print(
+                #     post.find('object', {'type': 'nested/pressable'}).find('a').text.strip())
 
-                spans_date = post.find(
-                    'span', {'id': ':Rlataul9l9aqqd9emhpapd5aqH1:'}).text.strip()
-                print(spans_date)
-
-                self.posts.append({
+                item = {
+                    'title': "",
                     'reaction': int(''.join(filter(str.isdigit, likes))),
                     'description': description,
                     'comments': comments,
-                    'shares': shares,
+                    'share': shares,
                     # 'date': self.format_date(date)
-                })
+                    'uploadAt': '2023-08-11'
+                }
+                # print(item)
+                self.posts.append(item)
             except Exception as e:
                 print(e)
                 pass
 
         self.page_data = {
-            'name': page_name,
+            'name': f"fb_{page_name}",
             'likes': int(''.join(filter(str.isdigit, page_likes))),
             'followers': int(''.join(filter(str.isdigit, page_followers))),
             'source': 'facebook',
@@ -225,11 +248,13 @@ class FacebookProfileScraper(Scraping):
         self.goto_login()
         self.fill_loginform()
         for item in self.items:
-            print("Itérer ...")
-            self.set_item(item)
-            self.goto_fb_page()
-            self.load_page_content()
-            self.extract_data()
-            self.save()
-
+            try:
+                print("Itérer ...")
+                self.set_item(item)
+                self.goto_fb_page()
+                self.load_page_content()
+                self.extract_data()
+                self.save()
+            except:
+                pass
         self.stop()

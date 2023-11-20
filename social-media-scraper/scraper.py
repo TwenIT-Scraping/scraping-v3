@@ -15,7 +15,9 @@ __class_name__ = {
     'Linkedin': LinkedInProfileScraper,
     'facebook EN': FacebookProfileScraper,
     'Twitter': TwitterProfileScraperFR,
+    'Twitter (X)': TwitterProfileScraperFR,
     'Tiktok': TikTokProfileScraper,
+    'Facebook': FacebookProfileScraper
 }
 
 
@@ -25,13 +27,19 @@ class ListScraper:
 
     def init(self, eid=None, ename=None, categ='Social', source=None):
         self.settings = Settings(categ, eid, source, ename)
+        print("Preparing settings list")
         self.settings.prepare()
+        print(self.settings.items)
 
     def start(self):
         # refresh_connection()
 
         counter = 0
         by_source = {}
+
+        # print(self.settings.items)
+
+        print(self.settings.items)
 
         for source in __class_name__.keys():
             by_source[source] = [
@@ -47,24 +55,3 @@ class ListScraper:
                     instance.execute()
                 except Exception as e:
                     print(e)
-
-        #     print(
-        #         f"****** {item['establishment_name']} / {item['source']} ******")
-
-        #     if item['source'] in __class_name__.keys():
-        #         print("=> A scraper !!!")
-
-        #         print(item)
-
-        #         instance = __class_name__[item['source']](
-        #             url=item['url'], establishment=item['establishment_id'])
-        #         instance.execute()
-        #         counter += 1
-
-        #         if counter == 4:
-        #             counter == 0
-        #             # refresh_connection()
-
-        #     else:
-        #         print(
-        #             f"!!!!!!!!! {item['source']} n'as dans la liste !!!!!!!!!!")
