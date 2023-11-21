@@ -110,7 +110,7 @@ class Scraping(object):
         def check_value(item):
             for key in column_order:
                 if not item[key] or item[key] == '':
-                    print(key)
+                    print("erreur: ", key)
                     return False
             return True
 
@@ -134,17 +134,12 @@ class Scraping(object):
 
         self.format()
 
-        # with open('datta.txt', 'w', encoding='utf-8') as file:
-        #     file.write(self.formated_data)
-
-        # print(self.data)
-        # print(self.formated_data)
-
         if self.formated_data:
-            Review.save_multi(self.formated_data)
+            print(self.formated_data)
             print(len(self.data), "reviews uploaded!")
         else:
             print("No review uploaded!")
+
     @abstractmethod
     def extract(self) -> None:
         pass

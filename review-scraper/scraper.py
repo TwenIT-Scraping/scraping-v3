@@ -98,7 +98,7 @@ class ListScraperV2:
 
     def get_providers(self):
         res = ERApi(entity='providers').execute()
-        return list(map(lambda x: {'name': x['name'], 'urls': len(x['settings'])}, res))
+        return list(map(lambda x: {'name': x['name'], 'count': len(x['settings'])}, res))
 
     def init(self, eid=None, ename=None, categ=None, source=None):
         self.settings = Settings(categ, eid, source, ename)

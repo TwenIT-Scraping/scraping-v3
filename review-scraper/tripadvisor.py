@@ -160,7 +160,9 @@ class Tripadvisor_UK(Tripadvisor):
                             'author': item.find('div', {'onclick': "widgetEvCall('handlers.usernameClick', event, this);"}).text.strip() if item.find('div', {'onclick': "widgetEvCall('handlers.usernameClick', event, this);"}) else "",
                             'establishment': f'/api/establishments/{self.establishment}',
                             'settings': f'/api/settings/{self.settings}',
-                            'date_review': f"{date_rawt[0]}/{month}/{date_rawt[2]}"
+                            'date_review': f"{date_rawt[0]}/{month}/{date_rawt[2]}",
+                            'date_visit': f"{date_rawt[0]}/{month}/{date_rawt[2]}",
+                            'novisitday': "1"
                         }
 
                         reviews.append(review_data)
@@ -272,7 +274,9 @@ class Tripadvisor_FR(Tripadvisor):
                                 'author': author,
                                 'establishment': f'/api/establishments/{self.establishment}',
                                 'settings': f'/api/settings/{self.settings}',
-                                'date_review': f"{day}/{month}/{year}"
+                                'date_review': f"{day}/{month}/{year}",
+                                'date_visit': f"{day}/{month}/{year}",
+                                'novisitday': "1"
                             }
 
                             to_save and reviews.append(review_data)
@@ -328,7 +332,9 @@ class Tripadvisor_FR(Tripadvisor):
                             'author': author,
                             'establishment': f'/api/establishments/{self.establishment}',
                             'settings': f'/api/settings/{self.settings}',
-                            'date_review': f"{date_rawt[0]}/{month}/{date_rawt[2]}"
+                            'date_review': f"{date_rawt[0]}/{month}/{date_rawt[2]}",
+                            'date_visit': f"{date_rawt[0]}/{month}/{date_rawt[2]}",
+                            'novisitday': "1"
                         }
 
                         to_save and reviews.append(review_data)
