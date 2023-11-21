@@ -1,3 +1,6 @@
+from datetime import datetime
+import json
+import os
 from twitter_spider import TwitterProfileScraper, TwitterProfileScraperFR
 from models import Settings
 from facebook_scraper import FacebookProfileScraper
@@ -5,8 +8,10 @@ from instagram_scraper import InstagramProfileScraper
 from tiktok_spider import TikTokProfileScraper
 from linkedIn_spider import LinkedInProfileScraper
 import random
-# from changeip import refresh_connection
+from changeip import refresh_connection
 import time
+import pathlib
+from api import ERApi
 
 __class_name__ = {
     # 'Facebook': FacebookProfileScraper,
@@ -32,12 +37,10 @@ class ListScraper:
         print(self.settings.items)
 
     def start(self):
-        # refresh_connection()
+        refresh_connection()
 
         counter = 0
         by_source = {}
-
-        # print(self.settings.items)
 
         print(self.settings.items)
 
@@ -55,3 +58,90 @@ class ListScraper:
                     instance.execute()
                 except Exception as e:
                     print(e)
+
+    def transform_all_data(self):
+
+        files = [pathlib.Path(f).stem for f in os.listdir(os.environ.get(
+            'SOCIAL_FOLDER')) if pathlib.Path(f).suffix == '.json']
+        for file in files:
+            self.transform_data(file)
+
+    def transform_data(self, filename):
+
+        results = ""
+        print("=> ", filename)
+
+        with open(f"{os.environ.get('SOCIAL_FOLDER')}/{filename}.json", 'r') as finput:
+            data = json.load(finput)
+
+        for item in data['posts']:
+            if "publishedAt" in item.keys():
+                item['uploadAt'] = item['publishedAt']
+                del item['publishedAt']
+                try:
+                    item['uploadAt'] = datetime.strptime(
+                        item['uploadAt'], '%d/%m/%Y').strftime('%Y-%m-%d')
+                except:
+                    try:
+                        item['uploadAt'] = datetime.strptime(
+                            item['uploadAt'], '%d-%m-%Y').strftime('%Y-%m-%d')
+                    except:
+                        continue
+
+            if "description" in item.keys():
+                item['title'] = item['description']
+
+            if "reaction" in item.keys():
+                item['likes'] = item['reaction']
+
+            if "shares" in item.keys():
+                item['share'] = item['shares']
+
+            line = '|&|'.join([item['title'], item['uploadAt'],
+                               str(item['likes']), str(item['share']), str(item['comments'])]) + "|*|"
+            if len(line.split('|&|')) == 5:
+                results += line
+
+        with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{filename}.txt", 'w', encoding='utf-8') as foutput:
+            foutput.write(results)
+
+        with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{filename}.json", 'w') as foutput:
+            json.dump(data, foutput, indent=4, sort_keys=True)
+
+        print("Done !")
+
+    def upload_all_results(self):
+        files = [pathlib.Path(f).stem for f in os.listdir(
+            f"{os.environ.get('SOCIAL_FOLDER')}/uploads") if pathlib.Path(f).suffix == '.json']
+
+        print("Uploading ...")
+
+        for file in files:
+            print("=> ", file)
+            data = {}
+            posts = ""
+            post_count = 0
+
+            with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.json", 'r') as dinput:
+                data = json.load(dinput)
+                post_count = len(data['posts'])
+                del data['posts']
+                del data['url']
+
+            with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.txt", 'r', encoding='utf-8') as pinput:
+                for line in pinput.readlines():
+                    posts += " " + line.strip()
+
+            data['posts'] = post_count
+
+            post = ERApi(method='postmulti')
+            post.add_params(data)
+
+            post.set_body({'post_items': posts})
+
+            result = post.execute()
+            print(result)
+
+
+scraper = ListScraper()
+scraper.upload_all_results()

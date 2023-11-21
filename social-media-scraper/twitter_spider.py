@@ -161,7 +161,7 @@ class TwitterProfileScraper(Scraping):
             'followers': nested_lookup(key='followers_count', document=self.xhr_calls['profile'])[0],
             'likes': nested_lookup(key='favourites_count', document=self.xhr_calls['profile'])[0],
             'source': "twitter",
-            'establishment': "/apit/establishement/",
+            'establishment': self.establishment,
             'name': f"twitter_{name}",
         }
 

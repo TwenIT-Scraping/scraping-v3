@@ -14,7 +14,6 @@ class TikTokProfileScraper(Scraping):
 
     def __init__(self, items: list = []) -> None:
         super().__init__(items)
-        # self.set_credentials('tiktok')
 
         self.hotel_page_urls = []
         self.data = {}
@@ -123,16 +122,7 @@ class TikTokProfileScraper(Scraping):
 
         self.page_data['posts'] = len(self.posts)
 
-    # def save(self) -> None:
-    #     print('==> Saving data')
-    #     with open('./demo_tiktok.json', 'a') as openfile:
-    #         openfile.write(json.dumps(self.data))
-    #     self.data = {}
-
     def execute(self) -> None:
-        # self.goto_login()
-        # self.fill_loginform()
-        # input("Press a key to continue ...")
         print(len(self.items))
         for item in self.items:
             try:

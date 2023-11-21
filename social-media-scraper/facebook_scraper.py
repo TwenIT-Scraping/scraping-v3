@@ -87,8 +87,6 @@ class FacebookProfileScraper(Scraping):
         return len(current_post)
 
     def load_page_content(self) -> None:
-        # self.scoll_down_page()
-        # self.extract_data()
         current_post = self.get_post_count()
         new_post = 0
         while new_post != current_post:
@@ -97,7 +95,6 @@ class FacebookProfileScraper(Scraping):
             new_post = self.get_post_count()
             print('current_post', current_post)
             print('new_post', new_post)
-            # self.extract_data()
             if current_post >= 40:
                 break
 
@@ -164,7 +161,7 @@ class FacebookProfileScraper(Scraping):
         post_container = soupe.find('div', {
                                     'class': "x9f619 x1n2onr6 x1ja2u2z xeuugli xs83m0k x1xmf6yo x1emribx x1e56ztr x1i64zmx xjl7jj x19h7ccj xu9j1y6 x7ep2pv"})
         post_data = post_container.find_all('div', {'x1n2onr6 x1ja2u2z'})
-        print(len(post_data))
+
         for post in post_data:
             try:
                 likes = post.find('span', {'class': "xt0b8zv x2bj2ny xrbpyxo xl423tq"}).text.strip() \
@@ -202,23 +199,14 @@ class FacebookProfileScraper(Scraping):
                             shares = 0
                             comments = 0
 
-                # spans_date = post.find(
-                #     'span', {'id': ':Rlataul9l9aqqd9emhpapd5aqH1:'}).text.strip()
-                # print(spans_date)
-
-                # print(
-                #     post.find('object', {'type': 'nested/pressable'}).find('a').text.strip())
-
                 item = {
                     'title': "",
                     'reaction': int(''.join(filter(str.isdigit, likes))),
                     'description': description,
                     'comments': comments,
                     'share': shares,
-                    # 'date': self.format_date(date)
                     'uploadAt': '2023-08-11'
                 }
-                # print(item)
                 self.posts.append(item)
             except Exception as e:
                 print(e)
@@ -229,16 +217,9 @@ class FacebookProfileScraper(Scraping):
             'likes': int(''.join(filter(str.isdigit, page_likes))),
             'followers': int(''.join(filter(str.isdigit, page_followers))),
             'source': 'facebook',
-            'establishment': f"/api/establishment/{self.establishment}",
+            'establishment': self.establishment,
             'posts': len(self.posts)
         }
-
-    # def save(self, data: dict) -> None:
-    #     print('==> saving data ...')
-    #     dict_data = json.dumps(data, indent=4)
-    #     with open('demo.json', 'a') as openfile:
-    #         openfile.write(dict_data)
-    #     data.clear()
 
     def switch_acount(self) -> None:
         pass

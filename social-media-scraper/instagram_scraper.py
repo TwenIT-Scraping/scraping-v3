@@ -1,10 +1,7 @@
-import sys
 from playwright.sync_api import sync_playwright
 from nested_lookup import nested_lookup
-from random import randint
 from datetime import datetime
 import time
-import json
 from scraping import Scraping
 import re
 
@@ -87,8 +84,6 @@ class InstagramProfileScraper(Scraping):
             return ''
 
     def extract_data(self) -> None:
-        # with open("instadata.json", "w") as f:
-        #     f.write(json.dumps(self.xhr_calls))
 
         all_posts = nested_lookup(
             key='edge_felix_video_timeline', document=self.xhr_calls)[0]['edges']
@@ -137,14 +132,9 @@ class InstagramProfileScraper(Scraping):
             "name": f"instagram_{e_name}",
             "likes": 0,
             "source": "instagram",
-            "establishement": f"/api/establishement/{self.establishment}",
+            'establishment': self.establishment,
             "posts": len(self.posts)
         }
-
-    # def save(self) -> None:
-    #     with open('./demo_insta.json', 'a') as openfile:
-    #         openfile.write(json.dumps(self.data))
-    #     self.data.clear()
 
     def switch_acount(self) -> None:
         pass
@@ -157,20 +147,7 @@ class InstagramProfileScraper(Scraping):
             print("Itérer ...")
             self.set_item(item)
             self.goto_insta_page()
-            # self.load_page_content()
             self.extract_data()
             self.save()
 
         self.stop()
-
-# if __name__ == '__main__':
-#     print("==> program is lauching ('_')")
-#     t = InstagramProfileScraper()
-#     t.goto_login()
-#     t.fill_loginform()
-#     t.load_hotel_pages()
-#     for url in t.hotel_page_urls:
-#         t.goto_insta_page(url)
-#         t.extract_data()
-#         t.save()
-#     print("==> program finished ('_')")

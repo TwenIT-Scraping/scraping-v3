@@ -1,11 +1,8 @@
 from playwright.sync_api import sync_playwright
-from nested_lookup import nested_lookup
-from random import randint
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from bs4 import BeautifulSoup
 import time
-import json
 from scraping import Scraping
 
 
@@ -94,10 +91,9 @@ class LinkedInProfileScraper(Scraping):
         followers = int(''.join(filter(str.isdigit, soupe.find('div', {'class': "org-top-card-summary-info-list"}).find_all(
             'div', {'class': "org-top-card-summary-info-list__info-item"})[-1].text.strip())))
 
-        establishement = "/api/establishement/"
         name = soupe.find(
             'section', {'class': 'org-top-card artdeco-card'}).find('h1').text.strip()
-        posts = []
+
         try:
             post_container = soupe.find(
                 'div', class_='scaffold-finite-scroll__content').find_all('div', class_='occludable-update')
@@ -127,37 +123,19 @@ class LinkedInProfileScraper(Scraping):
             'followers': followers,
             'likes': 0,
             'source': "linkedin",
-            'establishment': f"/api/establishment/{self.establishment}",
+            'establishment': self.establishment,
             'name': f"linkedin_{name}",
             'posts': len(self.posts)
         }
-        # self.data_container.append(data)
-
-    # def save(self) -> None:
-    #     print('==> saving data')
-    #     with open('./linkedin/linkedin_data.json', '+a') as openfile:
-    #         openfile.write(json.dumps(self.data_container, indent=4))
 
     def execute(self) -> None:
-        # self.set_current_credential(1)
         self.goto_login()
         self.fill_loginform()
         for item in self.items:
             print("Itérer ...")
             self.set_item(item)
             self.goto_page()
-            # self.load_page_content()
             self.extract_data()
             self.save()
 
         self.stop()
-
-# if __name__ == '__main__':
-#     l = LinkedInProfileScraper()
-#     l.goto_login()
-#     l.fill_loginform()
-#     l.load_linkedin_pages()
-#     for url in l.hotel_page_urls:
-#         l.goto_page(url)
-#         l.extract_data()
-#         l.save()
