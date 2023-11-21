@@ -110,6 +110,33 @@ class ListScraper:
 
         print("Done !")
 
+    def upload_data(self, file):
+        data = {}
+        posts = ""
+        post_count = 0
+
+        print("=> ", file)
+
+        with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.json", 'r') as dinput:
+            data = json.load(dinput)
+            post_count = len(data['posts'])
+            del data['posts']
+            del data['url']
+
+        with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.txt", 'r', encoding='utf-8') as pinput:
+            for line in pinput.readlines():
+                posts += " " + line.strip()
+
+        data['posts'] = post_count
+
+        post = ERApi(method='postmulti')
+        post.add_params(data)
+
+        post.set_body({'post_items': posts})
+
+        result = post.execute()
+        print(result)
+
     def upload_all_results(self):
         files = [pathlib.Path(f).stem for f in os.listdir(
             f"{os.environ.get('SOCIAL_FOLDER')}/uploads") if pathlib.Path(f).suffix == '.json']
@@ -117,31 +144,8 @@ class ListScraper:
         print("Uploading ...")
 
         for file in files:
-            print("=> ", file)
-            data = {}
-            posts = ""
-            post_count = 0
-
-            with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.json", 'r') as dinput:
-                data = json.load(dinput)
-                post_count = len(data['posts'])
-                del data['posts']
-                del data['url']
-
-            with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.txt", 'r', encoding='utf-8') as pinput:
-                for line in pinput.readlines():
-                    posts += " " + line.strip()
-
-            data['posts'] = post_count
-
-            post = ERApi(method='postmulti')
-            post.add_params(data)
-
-            post.set_body({'post_items': posts})
-
-            result = post.execute()
-            print(result)
+            self.upload_data(file)
 
 
-scraper = ListScraper()
-scraper.upload_all_results()
+# scraper = ListScraper()
+# scraper.upload_all_results()

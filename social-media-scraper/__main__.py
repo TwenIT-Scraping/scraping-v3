@@ -14,13 +14,16 @@ def main_arguments() -> object:
                         help="Liste des établissements à scaper uniquement pour les options 'by-establishment' et 'specified'.")
     parser.add_argument('--sites', '-s', dest='sites', default=[],
                         help="Liste des sites à scaper uniquement pour les options 'by-website' et 'specified'.")
+    parser.add_argument('--name', '-n', dest='name', default="",
+                        help="Nom du fichier à traiter.")
     return parser.parse_args()
 
 
 ARGS_INFO = {
     '-t': {'long': '--type', 'dest': 'type', 'help': "Définir les sites à scraper. Options: all, by-website, by-establishment, specified, auto, manual"},
     '-e': {'long': '--establishments', 'dest': 'establishments', "help": "Liste des établissements à scaper uniquement pour les options 'by-establishment' et 'specified'."},
-    '-s': {'long': '--sites', 'dest': 'sites', "help": "Liste des sites à scaper uniquement pour les options 'by-website' et 'specified'."}
+    '-s': {'long': '--sites', 'dest': 'sites', "help": "Liste des sites à scaper uniquement pour les options 'by-website' et 'specified'."},
+    '-n': {'long': '--name', 'dest': 'name', "help": "Nom du fichier à traiter."}
 }
 
 
@@ -62,6 +65,18 @@ if __name__ == '__main__':
         if not len(miss):
 
             sc = ListScraper()
+
+            if args.type == 'prepare-all':
+                sc.transform_all_data()
+
+            if args.type == 'prepare-once':
+                sc.transform_data(args.name)
+
+            if args.type == 'upload-all':
+                sc.upload_all_results()
+
+            if args.type == 'upload-once':
+                sc.upload_data(args.name)
 
             if args.type == 'all':
                 sc.init()
