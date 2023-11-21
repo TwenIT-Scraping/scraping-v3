@@ -1,3 +1,4 @@
+import re
 from playwright.sync_api import sync_playwright
 from nested_lookup import nested_lookup
 from random import randint
@@ -147,12 +148,21 @@ class TwitterProfileScraper(Scraping):
     def extract_data(self) -> dict:
         global MONTHS
         print("==> extracting data ...")
-        self.data_container = {
+
+        with open("dada.json", "w") as f:
+            f.write(json.dumps(self.xhr_calls, indent=4))
+
+        print()
+
+        name = re.sub(r'[^\w]', ' ', nested_lookup(
+            key='name', document=self.xhr_calls['profile'])[0])
+
+        self.page_data = {
             'followers': nested_lookup(key='followers_count', document=self.xhr_calls['profile'])[0],
             'likes': nested_lookup(key='favourites_count', document=self.xhr_calls['profile'])[0],
             'source': "twitter",
             'establishment': "/apit/establishement/",
-            'name': nested_lookup(key='name', document=self.xhr_calls['profile'])[0],
+            'name': f"twitter_{name}",
         }
 
         tweets = []
@@ -176,10 +186,10 @@ class TwitterProfileScraper(Scraping):
                     'likes': self.get_json_content(result['legacy'], 'favorite_count'),
                     'comments': self.get_json_content(result['legacy'], 'reply_count'),
                     'publishedAt': date_pub,
-                    'shares': self.get_json_content(result['legacy'], 'retweet_count')
+                    'share': self.get_json_content(result['legacy'], 'retweet_count')
                 })
 
-        self.data_container['posts'] = tweets
+        self.posts = tweets
 
     # def save(self) -> None:
     #     print('==> saving data ...')
