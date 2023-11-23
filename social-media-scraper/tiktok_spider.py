@@ -8,6 +8,7 @@ import json
 from bs4 import BeautifulSoup
 from scraping import Scraping
 from dateutil.relativedelta import relativedelta
+from progress.bar import ChargingBar, FillingCirclesBar
 
 
 class TikTokProfileScraper(Scraping):
@@ -121,10 +122,19 @@ class TikTokProfileScraper(Scraping):
     def execute(self) -> None:
         for item in self.items:
             try:
+                p_item = FillingCirclesBar(item['establishment_name'], max=4)
                 self.set_item(item)
+                p_item.next()
+                print(" | Open page")
                 self.goto_tiktok_page()
+                p_item.next()
+                print(" | Extracting")
                 self.extract_data()
+                p_item.next()
+                print(" | Saving")
                 self.save()
+                p_item.next()
+                print(" | Saved !")
             except Exception as e:
                 print(e)
 
