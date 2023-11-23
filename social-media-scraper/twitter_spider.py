@@ -5,6 +5,7 @@ from random import randint
 import time
 import json
 from scraping import Scraping
+from progress.bar import ChargingBar, FillingCirclesBar
 
 MONTHS = {
     'jan': '01',
@@ -184,15 +185,31 @@ class TwitterProfileScraper(Scraping):
         pass
 
     def execute(self) -> None:
+        progress = ChargingBar('Preparing ', max=3)
         self.goto_login()
+        progress.next()
+        print(" | Fill login page")
         self.resolve_loginform()
+        progress.next()
+        print(" | Logged in!")
 
         for item in self.items:
-            self.set_item(item)
-            self.goto_tweet_page()
-            # self.load_page_content()
-            self.extract_data()
-            self.save()
+            try:
+                p_item = FillingCirclesBar(item['establishment_name'], max=4)
+                self.set_item(item)
+                p_item.next()
+                print(" | Open page")
+                self.goto_tweet_page()
+                p_item.next()
+                print(" | Extracting")
+                self.extract_data()
+                p_item.next()
+                print(" | Saving")
+                self.save()
+                p_item.next()
+                print(" | Saved")
+            except:
+                pass
 
         self.stop()
 
