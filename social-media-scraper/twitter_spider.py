@@ -141,9 +141,6 @@ class TwitterProfileScraper(Scraping):
     def extract_data(self) -> dict:
         global MONTHS
 
-        with open("dada.json", "w") as f:
-            f.write(json.dumps(self.xhr_calls, indent=4))
-
         name = re.sub(r'[^\w]', ' ', nested_lookup(
             key='name', document=self.xhr_calls['profile'])[0])
 
