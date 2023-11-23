@@ -4,6 +4,7 @@ from dateutil.relativedelta import relativedelta
 from bs4 import BeautifulSoup
 import time
 from scraping import Scraping
+from progress.bar import ChargingBar, FillingCirclesBar
 
 
 def format_linkedIn_date(date: str) -> str:
@@ -121,12 +122,29 @@ class LinkedInProfileScraper(Scraping):
         }
 
     def execute(self) -> None:
+        progress = ChargingBar('Preparing ', max=2)
         self.goto_login()
+        progress.next()
+        print(" | Open login page")
         self.fill_loginform()
+        progress.next()
+        print(" | Logged in!")
         for item in self.items:
-            self.set_item(item)
-            self.goto_page()
-            self.extract_data()
-            self.save()
+            p_item = FillingCirclesBar(item['establishment_name'], max=4)
+            try:
+                self.set_item(item)
+                p_item.next()
+                print(" | Open page")
+                self.goto_page()
+                p_item.next()
+                print(" | Extracting")
+                self.extract_data()
+                p_item.next()
+                print(" | Saving")
+                self.save()
+                p_item.next()
+                print(" | Saved !")
+            except:
+                pass
 
         self.stop()
