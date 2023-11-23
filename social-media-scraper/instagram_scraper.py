@@ -4,6 +4,7 @@ from datetime import datetime
 import time
 from scraping import Scraping
 import re
+from progress.bar import ChargingBar, FillingCirclesBar
 
 
 class InstagramProfileScraper(Scraping):
@@ -128,13 +129,29 @@ class InstagramProfileScraper(Scraping):
         pass
 
     def execute(self) -> None:
+        progress = ChargingBar('Preparing ', max=3)
         self.set_current_credential(1)
+        progress.next()
+        print(" | Open login page")
         self.goto_login()
+        progress.next()
+        print(" | Fill login page")
         self.fill_loginform()
+        progress.next()
+        print(" | Logged in!")
         for item in self.items:
+            p_item = FillingCirclesBar(item['establishment_name'], max=4)
             self.set_item(item)
+            p_item.next()
+            print(" | Open page")
             self.goto_insta_page()
+            p_item.next()
+            print(" | Extracting")
             self.extract_data()
+            p_item.next()
+            print(" | Saving")
             self.save()
+            p_item.next()
+            print(" | Saved")
 
         self.stop()
