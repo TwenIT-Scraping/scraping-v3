@@ -12,7 +12,7 @@ from changeip import refresh_connection
 import time
 import pathlib
 from api import ERApi
-from progress.bar import Bar
+from progress.spinner import Spinner
 
 __class_name__ = {
     # 'Facebook': FacebookProfileScraper,
@@ -47,18 +47,15 @@ class ListScraper:
             by_source[source] = [
                 item for item in self.settings.items if item['source'] == source]
 
-        with Bar('Processing', max=len(by_source.keys())) as bar:
-            for item_key in by_source.keys():
-                time.sleep(random.randint(1, 3))
-                if item_key in __class_name__.keys() and len(by_source[item_key]):
-                    try:
-                        instance = __class_name__[item_key](
-                            items=by_source[item_key])
-                        instance.execute()
-                    except Exception as e:
-                        print(e)
-
-                bar.next()
+        for item_key in by_source.keys():
+            time.sleep(random.randint(1, 3))
+            if item_key in __class_name__.keys() and len(by_source[item_key]):
+                try:
+                    instance = __class_name__[item_key](
+                        items=by_source[item_key])
+                    instance.execute()
+                except Exception as e:
+                    print(e)
 
     def transform_all_data(self):
 

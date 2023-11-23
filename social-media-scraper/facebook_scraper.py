@@ -7,6 +7,7 @@ import os
 from datetime import datetime, timedelta
 from dateutil import parser
 from scraping import Scraping
+from progress.bar import ChargingBar, FillingCirclesBar
 
 
 class FacebookProfileScraper(Scraping):
@@ -211,16 +212,36 @@ class FacebookProfileScraper(Scraping):
         pass
 
     def execute(self) -> None:
+        progress = ChargingBar('Preparing ', max=3)
         self.set_current_credential(1)
+        progress.next()
+        print(" | Open login page")
         self.goto_login()
+        progress.next()
+        print(" | Fill login page")
         self.fill_loginform()
+        progress.next()
+        print(" | Logged in!")
+        progress = ChargingBar('Processing ', max=len(self.items))
         for item in self.items:
+            p_item = FillingCirclesBar(item['establishment_name'], max=5)
             try:
                 self.set_item(item)
+                p_item.next()
+                print(" | Open page")
                 self.goto_fb_page()
+                p_item.next()
+                print(" | Load content page")
                 self.load_page_content()
+                p_item.next()
+                print(" | Extracting")
                 self.extract_data()
+                p_item.next()
+                print(" | Saving")
                 self.save()
+                p_item.next()
+                print(" | Saved")
             except:
                 pass
+            progress.next()
         self.stop()
