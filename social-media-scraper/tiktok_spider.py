@@ -34,12 +34,10 @@ class TikTokProfileScraper(Scraping):
         pass
 
     def goto_login(self) -> None:
-        print('==> Go to login page')
         self.page.goto(
             "https://www.tiktok.com/login/phone-or-email/email", timeout=40000)
 
     def fill_loginform(self) -> None:
-        print('==> Filling login form')
         self.page.locator("//input[@type='text']").click()
         self.page.fill("//input[@type='text']",
                        self.current_credential['email'])
@@ -51,13 +49,11 @@ class TikTokProfileScraper(Scraping):
         self.page.locator("//button[@type='submit']").click()
 
     def goto_tiktok_page(self) -> None:
-        print(f'==>  {self.url}')
         self.page.goto(self.url, timeout=1000000)
         self.page.wait_for_timeout(25000)
         time.sleep(3)
 
     def extract_data(self) -> None:
-        print('==> extracting data')
 
         def soupify(element: str) -> object:
             return BeautifulSoup(element, 'lxml')
@@ -123,16 +119,13 @@ class TikTokProfileScraper(Scraping):
         self.page_data['posts'] = len(self.posts)
 
     def execute(self) -> None:
-        print(len(self.items))
         for item in self.items:
             try:
-                print("Itérer ...")
                 self.set_item(item)
                 self.goto_tiktok_page()
                 self.extract_data()
                 self.save()
             except Exception as e:
-                print("Exception rencontrée !!!")
                 print(e)
 
         self.stop()

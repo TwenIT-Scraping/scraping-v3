@@ -36,9 +36,9 @@ class Scraping(object):
         page_data = self.page_data
         page_data['posts'] = self.posts
         page_data['url'] = self.url
-        page_data['createdAt'] = datetime().strftime('%Y-%m-%d')
+        page_data['createdAt'] = datetime.now().strftime('%Y-%m-%d')
 
-        with open(f"{environ.get('SOCIAL_FOLDER')}/{page_data.pop('name')}.json", 'w') as foutput:
+        with open(f"{environ.get('SOCIAL_FOLDER')}/{page_data.pop('name')}_{datetime.now().strftime('%Y-%m-%d')}.json", 'w') as foutput:
             json.dump(page_data, foutput, indent=4, sort_keys=True)
 
         self.posts = []

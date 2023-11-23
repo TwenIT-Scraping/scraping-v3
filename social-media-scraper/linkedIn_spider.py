@@ -11,15 +11,12 @@ def format_linkedIn_date(date: str) -> str:
         date = (datetime.now(
         ) - relativedelta(hours=int(''.join(filter(str.isdigit, date))))).strftime("%d/%m/%Y")
     elif 'sem' in date or 'week' in date:
-        print('semaine')
         date = (datetime.now(
         ) - relativedelta(weeks=int(''.join(filter(str.isdigit, date))))).strftime("%d/%m/%Y")
     elif 'mois' in date or 'month' in date:
-        print('mois')
         date = (datetime.now(
         ) - relativedelta(months=int(''.join(filter(str.isdigit, date))))).strftime("%d/%m/%Y")
     elif 'an' in date or 'year' in date:
-        print('an')
         date = (datetime.now(
         ) - relativedelta(years=int(''.join(filter(str.isdigit, date))))).strftime("%d/%m/%Y")
     elif 'w' in date:
@@ -53,7 +50,6 @@ class LinkedInProfileScraper(Scraping):
         self.context.close()
 
     def scoll_down_page(self) -> None:
-        print('==> load all posts')
         for i in range(5):
             self.page.evaluate(
                 "window.scrollTo(0, document.body.scrollHeight)")
@@ -61,12 +57,10 @@ class LinkedInProfileScraper(Scraping):
             time.sleep(5)
 
     def goto_login(self) -> None:
-        print('==> go to login page')
         self.page.goto("https://www.linkedin.com/login/fr")
         self.page.wait_for_timeout(10000)
 
     def fill_loginform(self) -> None:
-        print('==> filling form')
         self.page.wait_for_selector("[id='username']")
         self.page.locator("[id='username']").click()
         time.sleep(.5)
@@ -80,13 +74,11 @@ class LinkedInProfileScraper(Scraping):
         self.page.wait_for_timeout(60000)
 
     def goto_page(self) -> None:
-        print(self.url)
         self.page.goto(self.url+'/posts/?feedView=all')
         self.page.wait_for_timeout(10000)
         self.scoll_down_page()
 
     def extract_data(self) -> None:
-        print('==> extracting data ')
         soupe = BeautifulSoup(self.page.content(), 'lxml')
         followers = int(''.join(filter(str.isdigit, soupe.find('div', {'class': "org-top-card-summary-info-list"}).find_all(
             'div', {'class': "org-top-card-summary-info-list__info-item"})[-1].text.strip())))
@@ -132,7 +124,6 @@ class LinkedInProfileScraper(Scraping):
         self.goto_login()
         self.fill_loginform()
         for item in self.items:
-            print("Itérer ...")
             self.set_item(item)
             self.goto_page()
             self.extract_data()

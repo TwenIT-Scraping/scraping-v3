@@ -12,6 +12,7 @@ from changeip import refresh_connection
 import time
 import pathlib
 from api import ERApi
+from progress.bar import Bar
 
 __class_name__ = {
     # 'Facebook': FacebookProfileScraper,
@@ -32,9 +33,7 @@ class ListScraper:
 
     def init(self, eid=None, ename=None, categ='Social', source=None):
         self.settings = Settings(categ, eid, source, ename)
-        print("Preparing settings list")
         self.settings.prepare()
-        print(self.settings.items)
 
     def start(self):
         refresh_connection()
@@ -48,16 +47,18 @@ class ListScraper:
             by_source[source] = [
                 item for item in self.settings.items if item['source'] == source]
 
-        for item_key in by_source.keys():
-            time.sleep(random.randint(1, 3))
-            if item_key in __class_name__.keys() and len(by_source[item_key]):
-                print(f"****** {item_key} ******")
-                try:
-                    instance = __class_name__[item_key](
-                        items=by_source[item_key])
-                    instance.execute()
-                except Exception as e:
-                    print(e)
+        with Bar('Processing', max=len(by_source.keys())) as bar:
+            for item_key in by_source.keys():
+                time.sleep(random.randint(1, 3))
+                if item_key in __class_name__.keys() and len(by_source[item_key]):
+                    try:
+                        instance = __class_name__[item_key](
+                            items=by_source[item_key])
+                        instance.execute()
+                    except Exception as e:
+                        print(e)
+
+                bar.next()
 
     def transform_all_data(self):
 
@@ -69,7 +70,6 @@ class ListScraper:
     def transform_data(self, filename):
 
         results = ""
-        print("=> ", filename)
 
         with open(f"{os.environ.get('SOCIAL_FOLDER')}/{filename}.json", 'r') as finput:
             data = json.load(finput)
@@ -108,14 +108,10 @@ class ListScraper:
         with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{filename}.json", 'w') as foutput:
             json.dump(data, foutput, indent=4, sort_keys=True)
 
-        print("Done !")
-
     def upload_data(self, file):
         data = {}
         posts = ""
         post_count = 0
-
-        print("=> ", file)
 
         with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.json", 'r') as dinput:
             data = json.load(dinput)
@@ -135,13 +131,10 @@ class ListScraper:
         post.set_body({'post_items': posts})
 
         result = post.execute()
-        print(result)
 
     def upload_all_results(self):
         files = [pathlib.Path(f).stem for f in os.listdir(
             f"{os.environ.get('SOCIAL_FOLDER')}/uploads") if pathlib.Path(f).suffix == '.json']
-
-        print("Uploading ...")
 
         for file in files:
             self.upload_data(file)

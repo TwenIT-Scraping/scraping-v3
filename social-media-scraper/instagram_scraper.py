@@ -9,7 +9,6 @@ import re
 class InstagramProfileScraper(Scraping):
 
     def __init__(self, items: list = []) -> None:
-        print('==> initializing instagram scraper ...')
         super().__init__(items)
         self.set_credentials('instagram')
 
@@ -36,20 +35,14 @@ class InstagramProfileScraper(Scraping):
         pass
 
     def resolve_loginform(self) -> None:
-        print('==> resolving login form ...')
         self.fill_loginform()
 
     def goto_login(self) -> None:
-        print('==> logging In ...')
         self.page.goto(
             "https://www.instagram.com/accounts/login/", timeout=30000)
         self.page.wait_for_timeout(60000)
 
-    def log_out(self) -> None:
-        print('==> logout ...')
-
     def fill_loginform(self) -> None:
-        print('==> filling login form ...')
         self.page.wait_for_selector("[name='username']", timeout=30000)
         self.page.locator("[name='username']").click()
         time.sleep(.5)
@@ -61,7 +54,6 @@ class InstagramProfileScraper(Scraping):
                        self.current_credential['password'])
         time.sleep(.1)
         self.page.locator("[type='submit']").click()
-        print('==> submitted ...')
         self.page.wait_for_timeout(70000)
 
     def intercept_response(self, response) -> None:
@@ -99,7 +91,6 @@ class InstagramProfileScraper(Scraping):
                     "share": "0"
                 })
             except Exception as e:
-                print("Exception 2")
                 print(e)
                 pass
 
@@ -108,8 +99,6 @@ class InstagramProfileScraper(Scraping):
 
         for other_post in other_posts:
             try:
-                print(len(nested_lookup(
-                    key='node', document=other_post['node'])))
                 post_text = nested_lookup(
                     key='node', document=other_post['node'])[0]
                 self.posts.append({
@@ -120,7 +109,6 @@ class InstagramProfileScraper(Scraping):
                     "share": "0"
                 })
             except Exception as e:
-                print("Exception 3")
                 print(e)
                 pass
 
@@ -144,7 +132,6 @@ class InstagramProfileScraper(Scraping):
         self.goto_login()
         self.fill_loginform()
         for item in self.items:
-            print("Itérer ...")
             self.set_item(item)
             self.goto_insta_page()
             self.extract_data()

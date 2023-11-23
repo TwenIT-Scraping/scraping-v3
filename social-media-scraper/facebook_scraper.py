@@ -12,7 +12,6 @@ from scraping import Scraping
 class FacebookProfileScraper(Scraping):
 
     def __init__(self, items: list = []) -> None:
-        print('==> initializing facebook scraper ...')
         super().__init__(items)
         self.set_credentials('facebook')
 
@@ -38,19 +37,13 @@ class FacebookProfileScraper(Scraping):
         pass
 
     def resolve_loginform(self) -> None:
-        print('==> resolving login form ...')
         self.fill_loginform()
 
     def goto_login(self) -> None:
-        print('==> logging In ...')
         self.page.goto("https://www.facebook.com/")
         self.page.wait_for_timeout(30000)
 
-    def log_out(self) -> None:
-        print('==> logout ...')
-
     def fill_loginform(self) -> None:
-        print('==> filling login form ...')
         self.page.wait_for_selector("[id='email']", timeout=20000)
         self.page.locator("[id='email']").click()
         time.sleep(.5)
@@ -61,11 +54,9 @@ class FacebookProfileScraper(Scraping):
         self.page.fill("[id='pass']", self.current_credential['password'])
         time.sleep(.1)
         self.page.locator("[type='submit']").click()
-        print('==> submitted ...')
         self.page.wait_for_timeout(20000)
 
     def goto_fb_page(self) -> None:
-        print(self.url)
         self.page.goto(self.url, timeout=80000)
         self.page.wait_for_timeout(80000)
         time.sleep(.5)
@@ -93,19 +84,14 @@ class FacebookProfileScraper(Scraping):
             self.scoll_down_page()
             current_post = new_post
             new_post = self.get_post_count()
-            print('current_post', current_post)
-            print('new_post', new_post)
             if current_post >= 40:
                 break
 
     def format_date(self, date):
-        print(date)
         dt = date.split()
         day = None
         month = datetime.now().month
         year = datetime.now().year
-
-        print(dt)
 
         if dt[0][len(dt[0])-1] == 'h' and dt[0][:-1].isnumeric():
             time = datetime.now() + timedelta(hours=-(int(dt[0][:-1])))
@@ -230,7 +216,6 @@ class FacebookProfileScraper(Scraping):
         self.fill_loginform()
         for item in self.items:
             try:
-                print("Itérer ...")
                 self.set_item(item)
                 self.goto_fb_page()
                 self.load_page_content()

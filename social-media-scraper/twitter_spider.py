@@ -25,7 +25,6 @@ MONTHS = {
 class TwitterProfileScraper(Scraping):
 
     def __init__(self, items: list = []) -> None:
-        print('==> initializing twitter scraper ...')
         super().__init__(items)
 
         self.hotel_page_urls = []
@@ -51,19 +50,16 @@ class TwitterProfileScraper(Scraping):
         pass
 
     def resolve_loginform(self) -> None:
-        print('==> resolving login form ...')
         self.fill_loginform()
         while self.page.url != "https://twitter.com/home":
             self.fill_loginform()
         self.page.wait_for_timeout(10000)
 
     def goto_login(self) -> None:
-        print('==> logging In ...')
         self.page.goto("https://twitter.com/i/flow/login")
         self.page.wait_for_timeout(30000)
 
     def log_out(self) -> None:
-        print('==> Loggin out ...')
         self.page.locator(
             "//span[text()='{}']".format(self.current_credential['username'])).click()
         time.sleep(.5)
@@ -73,10 +69,7 @@ class TwitterProfileScraper(Scraping):
         self.page.locator("//span[text()='Log out']").click()
 
     def fill_loginform(self) -> None:
-        print('==> filling login form ...')
         time.sleep(5)
-        print(self.page.locator(
-            "//h1[@id='modal-header']").text_content().lower())
         match self.page.locator("//h1[@id='modal-header']").text_content().lower():
 
             case 'sign in to x':
@@ -92,7 +85,6 @@ class TwitterProfileScraper(Scraping):
                 time.sleep(randint(1, 3))
 
             case 'connectez‑vous à x':
-                print("connexion ici")
                 self.page.wait_for_selector(
                     "//input[@autocomplete='username']")
                 self.page.locator("//input[@autocomplete='username']").click()
@@ -147,12 +139,9 @@ class TwitterProfileScraper(Scraping):
 
     def extract_data(self) -> dict:
         global MONTHS
-        print("==> extracting data ...")
 
         with open("dada.json", "w") as f:
             f.write(json.dumps(self.xhr_calls, indent=4))
-
-        print()
 
         name = re.sub(r'[^\w]', ' ', nested_lookup(
             key='name', document=self.xhr_calls['profile'])[0])
@@ -191,23 +180,14 @@ class TwitterProfileScraper(Scraping):
 
         self.posts = tweets
 
-    # def save(self) -> None:
-    #     print('==> saving data ...')
-    #     with open('test.json', 'a') as openfile:
-    #         data = json.dumps(self.data_container, indent=4)
-    #         openfile.write(data)
-    #     del self.data_container
-
     def switch_acount(self) -> None:
         pass
 
     def execute(self) -> None:
         self.goto_login()
         self.resolve_loginform()
-        print(self.items)
 
         for item in self.items:
-            print("Itérer ...")
             self.set_item(item)
             self.goto_tweet_page()
             # self.load_page_content()
@@ -223,7 +203,6 @@ class TwitterProfileScraperFR(TwitterProfileScraper):
         self.set_credentials('twitter')
 
     def log_out(self) -> None:
-        print('==> Loggin out ...')
         self.page.locator(
             "//span[text()='{}']".format(self.current_credential['username'])).click()
         time.sleep(.5)
@@ -233,13 +212,9 @@ class TwitterProfileScraperFR(TwitterProfileScraper):
         self.page.locator("//span[text()='Log out']").click()
 
     def fill_loginform(self) -> None:
-        print('==> filling login form ...')
         time.sleep(5)
-        print(self.page.locator(
-            "//h1[@id='modal-header']").text_content().lower())
         match self.page.locator("//h1[@id='modal-header']").text_content().lower():
             case "connectez‑vous à x":
-                print("connexion ici")
                 self.page.wait_for_selector(
                     "//input[@autocomplete='username']")
                 self.page.locator("//input[@autocomplete='username']").click()
@@ -270,7 +245,6 @@ class TwitterProfileScraperFR(TwitterProfileScraper):
                 time.sleep(randint(1, 3))
 
             case _:
-                print("connexion ici")
                 self.page.wait_for_selector(
                     "//input[@autocomplete='username']")
                 self.page.locator("//input[@autocomplete='username']").click()
@@ -280,16 +254,3 @@ class TwitterProfileScraperFR(TwitterProfileScraper):
                 self.page.locator("//span[text()='Suivant']").click()
                 self.page.wait_for_timeout(10000)
                 time.sleep(randint(1, 3))
-
-
-# if __name__ == '__main__':
-#     print("==> program is lauching ('_')")
-#     t = TwitterProfileScraper()
-#     t.goto_login()
-#     t.resolve_loginform()
-#     t.load_hotel_pages()
-#     for url in t.hotel_page_urls:
-#         t.goto_tweet_page(url=url)
-#         t.extract_data()
-#         t.save()
-#     print("==> program finished ('_'))")
