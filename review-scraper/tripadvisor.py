@@ -435,6 +435,7 @@ class Tripadvisor_FR(Tripadvisor):
 
                 else:
                     print("Review card non trouvé, Arret !!!")
+                    break
 
                 if len(reviews) and not self.check_date(reviews[-1]['date_review']):
                     break
