@@ -96,6 +96,7 @@ class ListScraperV2:
         self.settings = None
         self.last_date = None
         self.env = env
+        print(self.env)
 
     def get_providers(self):
         res = ERApi(entity='providers', env=self.env).execute()

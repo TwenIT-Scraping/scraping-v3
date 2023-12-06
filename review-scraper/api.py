@@ -15,6 +15,7 @@ class ERApi:
 
         self.method = method
         self.entity = entity
+        print(env)
         token = os.environ.get(f'API_TOKEN_{env.upper()}')
         self.headers = {'Accept': 'application/json', 'Authorization': token}
         self.params = params
