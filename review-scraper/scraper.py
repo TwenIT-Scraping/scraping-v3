@@ -49,7 +49,7 @@ class ListScraper:
         self.ids = []
 
     def init(self, establishments=[]):
-        instance = ERApi(entity="establishment/name")
+        instance = ERApi(entity="establishment/name", env="PROD")
         etabs = instance.execute()
         if len(establishments):
             self.ids = list(map(lambda y: y, list(
@@ -92,12 +92,13 @@ class ListScraper:
 
 
 class ListScraperV2:
-    def __init__(self):
+    def __init__(self, env):
         self.settings = None
         self.last_date = None
+        self.env = env
 
     def get_providers(self):
-        res = ERApi(entity='providers').execute()
+        res = ERApi(entity='providers', env=self.env).execute()
         return list(map(lambda x: {'name': x['name'], 'count': len(x['settings'])}, res))
 
     def init(self, eid=None, ename=None, categ=None, source=None):

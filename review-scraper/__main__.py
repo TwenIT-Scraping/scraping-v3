@@ -43,6 +43,8 @@ def main_arguments() -> object:
                         help="Liste des sites à scaper uniquement pour les options 'by-website' et 'specified'.")
     parser.add_argument('--end-date', '-d', dest='end_date', default=None,
                         help="Optionnel: Date limite des commentaires à scraper.")
+    parser.add_argument('--env', '-v', dest='env', default="PROD",
+                        help="Optionnel: environnement de l'api. PROD par défaut")
     return parser.parse_args()
 
 
@@ -50,7 +52,8 @@ ARGS_INFO = {
     '-t': {'long': '--type', 'dest': 'type', 'help': "Définir les sites à scraper. Options: all, by-website, by-establishment, specified, auto, manual"},
     '-e': {'long': '--establishments', 'dest': 'establishments', "help": "Liste des établissements à scaper uniquement pour les options 'by-establishment' et 'specified'."},
     '-s': {'long': '--sites', 'dest': 'sites', "help": "Liste des sites à scaper uniquement pour les options 'by-website' et 'specified'."},
-    '-d': {'long': '--end-date', 'dest': 'end_date', 'help': "Optionnel: Date limite des commentaires à scraper."}
+    '-d': {'long': '--end-date', 'dest': 'end_date', 'help': "Optionnel: Date limite des commentaires à scraper."},
+    '-v': {'long': '--env', 'dest': 'env', 'help': "Optionnel: environnement de l'api. PROD par défaut"}
 }
 
 
@@ -89,7 +92,7 @@ if __name__ == '__main__':
 
         if not len(miss):
 
-            sc = ListScraperV2()
+            sc = ListScraperV2(env=args.env)
 
             if args.end_date:
                 sc.set_last_date(args.end_date)
@@ -149,5 +152,5 @@ if __name__ == '__main__':
     except Exception as e:
         now = datetime.now()
         with open(history_filename, 'a', encoding='utf-8') as file:
-            file.write("  ===>  Fin scrap meteo WITH ERRORS: " +
+            file.write("  ===>  Fin scrap reviews WITH ERRORS: " +
                        now.strftime("%d/%m/%Y %H:%M:%S") + ':' + str(e) + '\n')

@@ -12,7 +12,7 @@ from changeip import refresh_connection
 import time
 import pathlib
 from api import ERApi
-from progress.spinner import Spinner
+from progress.bar import ChargingBar
 
 __class_name__ = {
     # 'Facebook': FacebookProfileScraper,
@@ -132,9 +132,11 @@ class ListScraper:
     def upload_all_results(self):
         files = [pathlib.Path(f).stem for f in os.listdir(
             f"{os.environ.get('SOCIAL_FOLDER')}/uploads") if pathlib.Path(f).suffix == '.json']
-
+        progress = ChargingBar('Processing ', max=len(files))
         for file in files:
             self.upload_data(file)
+            progress.next()
+            print(" | ", file)
 
 
 # scraper = ListScraper()
