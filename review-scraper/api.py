@@ -10,7 +10,7 @@ from urllib3 import encode_multipart_formdata
 
 class ERApi:
 
-    def __init__(self, method="get", entity="", params={}, body={}, id=-1, env="PROD"):
+    def __init__(self, env, method="get", entity="", params={}, body={}, id=-1):
         dotenv.load_dotenv()
 
         self.method = method

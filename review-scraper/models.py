@@ -132,18 +132,19 @@ class Review(EReputationBase):
 
 
 class Settings:
-    def __init__(self, category=None, eid=None, source=None, ename=None):
+    def __init__(self, category=None, eid=None, source=None, ename=None, env="PROD"):
         self.eid = eid
         self.category = category
         self.ename = ename
         self.source = source
         self.items = []
+        self.env = env
 
     def prepare(self):
 
         try:
             page = 0
-            req = ERApi(method="get", entity="setting/list")
+            req = ERApi(method="get", entity="setting/list", env=self.env)
 
             self.eid and req.add_params({'eid': self.eid})
             self.category and req.add_params({'categ': self.category})

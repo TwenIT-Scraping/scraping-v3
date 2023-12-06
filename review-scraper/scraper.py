@@ -103,7 +103,7 @@ class ListScraperV2:
         return list(map(lambda x: {'name': x['name'], 'count': len(x['settings'])}, res))
 
     def init(self, eid=None, ename=None, categ=None, source=None):
-        self.settings = Settings(categ, eid, source, ename)
+        self.settings = Settings(categ, eid, source, ename, self.env)
         self.settings.prepare()
 
     def set_last_date(self, date):
