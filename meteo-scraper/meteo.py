@@ -296,6 +296,7 @@ class MeteoAPIScraper(MeteoAPI):
                         counter += 1
                         url = self.format_url(
                             data_source.loc[x].to_dict(), date)
+                        print(url)
                         data.append(url)
 
                         if counter == 45:
