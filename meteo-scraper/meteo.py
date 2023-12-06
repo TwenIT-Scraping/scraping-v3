@@ -26,13 +26,16 @@ def main_arguments() -> object:
                         help="Date ou intervalle de dates. Ex: 2023-10-13 ou 2023-10-01,2023-10-13")
     parser.add_argument('--api-key', '-k', dest='key', default=0,
                         help="Numero de clé api pour la météo.")
+    parser.add_argument('--env', '-v', dest='env', default="PROD",
+                        help="Optionnel: environnement de l'api. PROD par défaut")
     return parser.parse_args()
 
 
 ARGS_INFO = {
     '-t': {'long': '--type', 'dest': 'type', 'help': "Options: daily, today, interval"},
     '-d': {'long': '--dates', 'dest': 'dates', "help": "Date ou intervalle de dates. Ex: 2023-10-13 ou 2023-10-01,2023-10-13"},
-    '-k': {'long': '--api-key', 'dest': 'key', 'help': "Numero de clé api pour la météo."}
+    '-k': {'long': '--api-key', 'dest': 'key', 'help': "Numero de clé api pour la météo."},
+    '-v': {'long': '--env', 'dest': 'env', 'help': "Optionnel: environnement de l'api. PROD par défaut"}
 }
 
 
@@ -59,11 +62,11 @@ def clean():
 
 class MeteoAPI(object):
 
-    def __init__(self, logfile: str) -> None:
+    def __init__(self, logfile: str, env: str) -> None:
 
         self.logfile = logfile
-        self.nexties_api_key = os.environ.get("API_TOKEN")
-        self.nexties_api_url = os.environ.get("API_URL")
+        self.nexties_api_key = os.environ.get(f"API_TOKEN_{env}")
+        self.nexties_api_url = os.environ.get(f"API_URL_{env}")
         self.headers = {'Authorization': self.nexties_api_key,
                         'Content-Type': 'application/json'}
         self.history = {}
@@ -167,8 +170,8 @@ class MeteoAPI(object):
 
 class MeteoLocalityScraper(MeteoAPI):
 
-    def __init__(self, logfile: str, file_output: str) -> None:
-        super().__init__(logfile)
+    def __init__(self, logfile: str, file_output: str, env: str) -> None:
+        super().__init__(logfile, env=env)
         self.file_output = file_output
         self.localities = []
         self.etab_loaded = False
@@ -228,8 +231,8 @@ class MeteoLocalityScraper(MeteoAPI):
 
 class MeteoAPIScraper(MeteoAPI):
 
-    def __init__(self, logfile: str, data_source: str, url_file: str, output_file: str) -> None:
-        super().__init__(logfile)
+    def __init__(self, logfile: str, data_source: str, url_file: str, output_file: str, env: str) -> None:
+        super().__init__(logfile, env=env)
         self.data_source = data_source
         self.url_file = url_file
         self.output_file = output_file
@@ -398,11 +401,11 @@ if __name__ == '__main__':
     if not len(miss):
 
         try:
-            d = MeteoLocalityScraper('locality_log', 'locality')
+            d = MeteoLocalityScraper('locality_log', 'locality', env=args.env)
             d.initialize()
             time.sleep(2)
             m = MeteoAPIScraper('meteo_log', 'locality',
-                                'meteo_url', 'meteo_data')
+                                'meteo_url', 'meteo_data', env=args.env)
             if args.dates:
                 m.set_dates(args.dates.split(','))
             else:
