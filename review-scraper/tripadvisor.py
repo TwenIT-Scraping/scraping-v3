@@ -82,8 +82,6 @@ class Tripadvisor_UK(Tripadvisor):
                                 date_raw = item.find(
                                     'div', {'class': 'cRVSd'}).text.strip()
 
-                                print(date_raw)
-
                                 date_rawt = date_raw.split()[-2:]
 
                                 if int(date_rawt[1]) > 2000:
@@ -136,14 +134,12 @@ class Tripadvisor_UK(Tripadvisor):
 
                         rating_bubble = item.find(
                             'span', {'class': 'ui_bubble_rating'})['class'][1]
-                        print(rating_bubble)
                         rating = str(
                             int(int(rating_bubble.split('_')[1])/10)) + '/5'
 
                         try:
                             date_raw = item.find(
                                 'span', {'class': 'ratingDate'})['title']
-                            print(date_raw)
 
                             date_rawt = date_raw.split()
 
@@ -199,12 +195,9 @@ class Tripadvisor_FR(Tripadvisor):
         reviews = []
 
         time.sleep(10)
-        print("Entrée")
 
         try:
-            print("Type 1")
             while True:
-                print("Boucle ...")
                 page = self.driver.page_source
 
                 soupe = BeautifulSoup(page, 'lxml')
@@ -215,8 +208,6 @@ class Tripadvisor_FR(Tripadvisor):
                         'div', {'data-test-target': "HR_CC_CARD"})
 
                     if len(reviews_card):
-
-                        print("reviews_card trouvés!!!")
 
                         for item in reviews_card:
 
@@ -280,14 +271,12 @@ class Tripadvisor_FR(Tripadvisor):
                             }
 
                             to_save and reviews.append(review_data)
-                            print(review_data)
 
                     else:
                         print("Review card non trouvé, tenter autrement ...")
                         raise Exception()
 
                 except:
-                    print("Type 2")
                     reviews_card = soupe.find_all(
                         'div', {'class': "review-container"})
 
@@ -361,10 +350,8 @@ class Tripadvisor_FR(Tripadvisor):
             self.data = reviews
 
         except:
-            print("Type 3")
 
             while True:
-                print("Boucle ...")
                 time.sleep(5)
                 page = self.driver.page_source
 
@@ -374,9 +361,6 @@ class Tripadvisor_FR(Tripadvisor):
                     'div', {'data-automation': "reviewCard"})
 
                 if len(reviews_card):
-
-                    print("reviews_card trouvés!!!")
-                    print(len(reviews_card))
 
                     for item in reviews_card:
 
