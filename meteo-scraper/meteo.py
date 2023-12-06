@@ -182,7 +182,7 @@ class MeteoLocalityScraper(MeteoAPI):
             'last_page': 1,
         }
         if not os.path.exists(self.logfile):
-            with open(f"{os.environ.get('HISTORY_FOLDER')}/{self.logfile}_{datetime().strftime('%Y-%m-%d %H_%M_%S')}.json", "w") as logfile:
+            with open(f"{os.environ.get('HISTORY_FOLDER')}/{self.logfile}_{datetime.now().strftime('%Y-%m-%d %H_%M_%S')}.json", "w") as logfile:
                 logfile.write(json.dumps(log))
 
     def get_localities(self) -> None:
