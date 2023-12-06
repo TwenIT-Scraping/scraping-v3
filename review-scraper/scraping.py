@@ -22,7 +22,7 @@ import os
 
 class Scraping(object):
 
-    def __init__(self, in_background: bool, url: str, establishment: str, settings: str) -> None:
+    def __init__(self, in_background: bool, url: str, establishment: str, settings: str, env: str) -> None:
 
         # driver options
         self.chrome_options = webdriver.ChromeOptions()
@@ -60,6 +60,7 @@ class Scraping(object):
         self.settings = settings
 
         self.last_date = None
+        self.env = env
 
     def set_last_date(self, date):
         self.last_date = datetime.strptime(date, '%d/%m/%Y')
@@ -136,6 +137,7 @@ class Scraping(object):
 
         if self.formated_data:
             print(self.formated_data)
+            Review.save_multi(self.formated_data, self.env)
             print(len(self.data), "reviews uploaded!")
         else:
             print("No review uploaded!")
