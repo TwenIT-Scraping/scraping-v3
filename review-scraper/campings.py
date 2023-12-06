@@ -19,9 +19,9 @@ from urllib.parse import urlparse, parse_qs
 
 
 class Campings(Scraping):
-    def __init__(self, url: str, establishment: str, settings: str):
+    def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(in_background=False, url=url,
-                         establishment=establishment, settings=settings)
+                         establishment=establishment, settings=settings, env=env)
 
     def extract(self):
 

@@ -22,9 +22,9 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 
 class Google(Scraping):
-    def __init__(self, url: str, establishment: str, settings: str):
+    def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(in_background=False, url=url,
-                         establishment=establishment, settings=settings)
+                         establishment=establishment, settings=settings, env=env)
 
     def formate_date(self, raw_date, lang="fr"):
         split_date = raw_date.split()

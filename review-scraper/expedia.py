@@ -21,13 +21,13 @@ from tools import month_number
 
 
 class Expedia(Scraping):
-    def __init__(self, url: str, establishment: str, settings: str):
+    def __init__(self, url: str, establishment: str, settings: str, env: str):
         url_split = url.split('.')
         url_split[-1] = 'Avis-Voyageurs'
         url = '.'.join(url_split)
 
         super().__init__(in_background=False, url=url,
-                         establishment=establishment, settings=settings)
+                         establishment=establishment, settings=settings, env=env)
 
     def load_reviews(self):
         # time.sleep(5)

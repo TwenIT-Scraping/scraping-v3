@@ -19,10 +19,10 @@ from selenium.webdriver.support.select import Select
 
 class Hotels(Scraping):
 
-    def __init__(self, url: str, establishment: str, settings: str):
+    def __init__(self, url: str, establishment: str, settings: str, env: str):
         url = url + '?pwaDialog=reviews-property-reviews-1'
         super().__init__(in_background=False, url=url,
-                         establishment=establishment, settings=settings)
+                         establishment=establishment, settings=settings, env=env)
 
     def close_popup(self) -> None:
         try:
@@ -45,8 +45,8 @@ class Hotels(Scraping):
 
 class Hotels_FR(Hotels):
 
-    def __init__(self, url: str, establishment: str, settings: str):
-        super().__init__(url=url, establishment=establishment, settings=settings)
+    def __init__(self, url: str, establishment: str, settings: str, env: str):
+        super().__init__(url=url, establishment=establishment, settings=settings, env=env)
 
     def format_date(self, date: str) -> str:
         date = date.split(' ')
@@ -135,8 +135,8 @@ class Hotels_FR(Hotels):
 
 class Hotels_EN(Hotels):
 
-    def __init__(self, url: str, establishment: str, settings: str):
-        super().__init__(url=url, establishment=establishment, settings=settings)
+    def __init__(self, url: str, establishment: str, settings: str, env: str):
+        super().__init__(url=url, establishment=establishment, settings=settings, env=env)
 
     def load_reviews(self) -> None:
         super().load_reviews()

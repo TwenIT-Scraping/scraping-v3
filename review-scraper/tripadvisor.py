@@ -21,17 +21,17 @@ from tools import month_number
 
 
 class Tripadvisor(Scraping):
-    def __init__(self, url: str, establishment: str, settings: str):
+    def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(in_background=False, url=url,
-                         establishment=establishment, settings=settings)
+                         establishment=establishment, settings=settings, env=env)
 
     def extract(self):
         pass
 
 
 class Tripadvisor_UK(Tripadvisor):
-    def __init__(self, url: str, establishment: str, settings: str):
-        super().__init__(url=url, establishment=establishment, settings=settings)
+    def __init__(self, url: str, establishment: str, settings: str, env: str):
+        super().__init__(url=url, establishment=establishment, settings=settings, env=env)
 
     def extract(self):
         reviews = []
@@ -192,8 +192,8 @@ class Tripadvisor_UK(Tripadvisor):
 
 
 class Tripadvisor_FR(Tripadvisor):
-    def __init__(self, url: str, establishment: str, settings: str):
-        super().__init__(url=url, establishment=establishment, settings=settings)
+    def __init__(self, url: str, establishment: str, settings: str, env: str):
+        super().__init__(url=url, establishment=establishment, settings=settings, env=env)
 
     def extract(self):
         reviews = []

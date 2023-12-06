@@ -21,15 +21,15 @@ from dateutil import parser
 
 
 class Opentable(Scraping):
-    def __init__(self, url: str, establishment: str, settings: str):
+    def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(in_background=False, url=url,
-                         establishment=establishment, settings=settings)
+                         establishment=establishment, settings=settings, env=env)
         self.reviews_data = []
 
 
 class Opentable_UK(Opentable):
-    def __init__(self, url: str, establishment: str, settings: str):
-        super().__init__(url=url, establishment=establishment, settings=settings)
+    def __init__(self, url: str, establishment: str, settings: str, env: str):
+        super().__init__(url=url, establishment=establishment, settings=settings, env=env)
 
     def extract(self):
 

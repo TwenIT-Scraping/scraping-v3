@@ -14,9 +14,9 @@ from langdetect import detect
 
 
 class Maeva(Scraping):
-    def __init__(self, url: str, establishment: str, settings: str):
+    def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(in_background=False, url=url,
-                         establishment=establishment, settings=settings)
+                         establishment=establishment, settings=settings, env=env)
 
     def load_reviews(self) -> None:
         def get_last_review_date():

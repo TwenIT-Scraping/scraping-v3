@@ -21,10 +21,10 @@ from selenium.webdriver.support.select import Select
 
 
 class Booking(Scraping):
-    def __init__(self, url: str, establishment: str, settings: str):
+    def __init__(self, url: str, establishment: str, settings: str, env: str):
         defurl = url if url.endswith('.fr.html') else f"{url}.fr.html"
         super().__init__(in_background=False, url=defurl,
-                         establishment=establishment, settings=settings)
+                         establishment=establishment, settings=settings, env=env)
 
     def extract(self):
 

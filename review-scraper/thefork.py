@@ -23,13 +23,14 @@ from changeip import refresh_connection
 
 
 class Thefork(Scraping):
-    def __init__(self, url: str, establishment: str, settings: str):
+    def __init__(self, url: str, establishment: str, settings: str, env: str):
         refresh_connection()
         super().__init__(in_background=False, url=url,
-                         establishment=establishment, settings=settings)
-        
+                         establishment=establishment, settings=settings, env=env)
+
     def load_reviews(self):
-        self.driver.find_element(By.XPATH, "//button[@data-test='navigation-bar-button-restaurantReviews' and @role='link']").click()
+        self.driver.find_element(
+            By.XPATH, "//button[@data-test='navigation-bar-button-restaurantReviews' and @role='link']").click()
         print("to reviews done")
         time.sleep(5)
 
@@ -68,21 +69,19 @@ class Thefork(Scraping):
 
         reviews = []
 
-
-
         # while len(list(unique_everseen(reviews))) < review_count:
-            # try:
-            #     self.driver.find_element(
-            #         By.CSS_SELECTOR, "#root > div.css-yg5c6u.ehxxr8o8 > div.css-20te3v.ehxxr8o4 > div.css-t5d95i.ehxxr8o1 > div:nth-child(10) > div > div.css-wxii5q.elkhwc30 > div.css-kabp9.elkhwc30 > button").click()
-            #     WebDriverWait(self.driver, 20)
-            # except:
-            #     pass
+        # try:
+        #     self.driver.find_element(
+        #         By.CSS_SELECTOR, "#root > div.css-yg5c6u.ehxxr8o8 > div.css-20te3v.ehxxr8o4 > div.css-t5d95i.ehxxr8o1 > div:nth-child(10) > div > div.css-wxii5q.elkhwc30 > div.css-kabp9.elkhwc30 > button").click()
+        #     WebDriverWait(self.driver, 20)
+        # except:
+        #     pass
 
-            # try:
-            #     self.driver.find_element(
-            #         By.CLASS_NAME, "styles_discloseChevron__kqPf_").click()
-            # except:
-            #     pass
+        # try:
+        #     self.driver.find_element(
+        #         By.CLASS_NAME, "styles_discloseChevron__kqPf_").click()
+        # except:
+        #     pass
 
         while True:
             time.sleep(5)
@@ -97,7 +96,7 @@ class Thefork(Scraping):
 
         review_cards = soupe.find_all(
             'div', {'data-testid': 'restaurant-page-review-item'})
-        
+
         print(len(review_cards))
 
         for card in review_cards:
@@ -108,7 +107,7 @@ class Thefork(Scraping):
             rating = card.find('span', {'class': "css-ddyzjw e7dhrrp0"}).text.strip(
             ) if card.find('span', {'class': "css-ddyzjw e7dhrrp0"}) else ""
             author = card.find('cite', {'class': "css-1q25rhf ef3wbs40"}).text.strip(
-                ) if card.find('cite', {'class': "css-1q25rhf ef3wbs40"}) else ""
+            ) if card.find('cite', {'class': "css-1q25rhf ef3wbs40"}) else ""
             try:
                 lang = detect(comment)
             except:
