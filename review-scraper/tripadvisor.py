@@ -271,7 +271,7 @@ class Tripadvisor_FR(Tripadvisor):
                                 'rating': str(int(item.find('span', class_='ui_bubble_rating')['class'][1].split('_')[1]) / 10) + "/5" if item.find('span', class_='ui_bubble_rating') else "0/5",
                                 'language': lang,
                                 'source': urlparse(self.url).netloc.split('.')[1],
-                                'author': author,
+                                'author': ''.join(author),
                                 'establishment': f'/api/establishments/{self.establishment}',
                                 'settings': f'/api/settings/{self.settings}',
                                 'date_review': f"{day}/{month}/{year}",
@@ -280,6 +280,7 @@ class Tripadvisor_FR(Tripadvisor):
                             }
 
                             to_save and reviews.append(review_data)
+                            print(review_data)
 
                     else:
                         print("Review card non trouvé, tenter autrement ...")
