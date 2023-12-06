@@ -216,7 +216,7 @@ class MeteoLocalityScraper(MeteoAPI):
     def save(self) -> None:
         print('==> saving data ...')
         df = pd.DataFrame(self.localities)
-        df.to_csv(f"{os.environ.get('HISTORY_FOLDER')}/{self.file_output}-{datetime().strftime('%Y-%m-%d %H_%M_%S')}.csv",
+        df.to_csv(f"{os.environ.get('HISTORY_FOLDER')}/{self.file_output}-{datetime.now().strftime('%Y-%m-%d %H_%M_%S')}.csv",
                   mode='a', header=True, index=False)
         self.localities.clear()
 
@@ -305,7 +305,7 @@ class MeteoAPIScraper(MeteoAPI):
                                 1 < len(self.api_keys) else 0
                             self.set_key_index(next_index)
 
-                with open(f'{os.environ.get("HISTORY_FOLDER")}/{self.url_file}-{datetime().strftime("%Y-%m-%d %H_%M_%S")}.json', 'w') as openfile:
+                with open(f'{os.environ.get("HISTORY_FOLDER")}/{self.url_file}-{datetime.now().strftime("%Y-%m-%d %H_%M_%S")}.json', 'w') as openfile:
                     openfile.write(json.dumps(data, indent=4))
 
                 print('==> configuring url files done ...')
@@ -319,7 +319,7 @@ class MeteoAPIScraper(MeteoAPI):
     def load_urls(self) -> None:
         print('==> Loading urls ...')
         time.sleep(.5)
-        with open(f'{os.environ.get("HISTORY_FOLDER")}/{self.url_file}-{datetime().strftime("%Y-%m-%d %H_%M_%S")}.json', 'r') as openfile:
+        with open(f'{os.environ.get("HISTORY_FOLDER")}/{self.url_file}-{datetime.now().strftime("%Y-%m-%d %H_%M_%S")}.json', 'r') as openfile:
             self.urls = json.loads(openfile.read())
 
     def extract(self, data: dict) -> dict:
@@ -347,14 +347,14 @@ class MeteoAPIScraper(MeteoAPI):
         print('==> saving data ...')
 
         result = f"\n{data['locality']}${data['dateWeather']}${data['timeWeather']}${data['tempmax']}${data['tempmin']}${data['temp']}${data['dew']}${data['humidity']}${data['snow']}${data['windspeed']}${data['cloudcover']}${data['sunrise']}${data['sunset']}${data['conditions']}${data['description']}#"
-        with open(f'{os.environ.get("HISTORY_FOLDER")}/{self.output_file}-{datetime().strftime("%Y-%m-%d %H_%M_%S")}.txt', 'a') as filesave:
+        with open(f'{os.environ.get("HISTORY_FOLDER")}/{self.output_file}-{datetime.now().strftime("%Y-%m-%d %H_%M_%S")}.txt', 'a') as filesave:
             filesave.write(result)
 
     def upload(self):
 
         text = ""
 
-        with open(f'{os.environ.get("HISTORY_FOLDER")}/{self.output_file}-{datetime().strftime("%Y-%m-%d %H_%M_%S")}.txt', 'r') as file:
+        with open(f'{os.environ.get("HISTORY_FOLDER")}/{self.output_file}-{datetime.now().strftime("%Y-%m-%d %H_%M_%S")}.txt', 'r') as file:
             csvreader = csv.reader(file)
             for row in csvreader:
                 if len(row):
