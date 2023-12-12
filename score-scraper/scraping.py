@@ -1,23 +1,16 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import ElementNotVisibleException, ElementNotSelectableException
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.remote.command import Command
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.firefox.service import Service as FirefoxService
-from abc import abstractmethod
-import sys
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse, parse_qs
-from models import Review
-from tools import ReviewScore
 import dotenv
 import os
+from api import ERApi
 
 
 class Scraping(object):
@@ -93,30 +86,26 @@ class Scraping(object):
         self.driver.quit()
 
     def save(self) -> None:
-        print("Saving done!")
-        # if self.data == 0:
-        # print(self.url)
-        print(self.data)
         if self.data == 0:
-            print(self.url)
-
-        # self.format()
-
-        # if self.formated_data:
-        #     print(self.formated_data)
-        #     # Review.save_multi(self.formated_data, self.env)
-        #     print(len(self.data), "reviews uploaded!")
-        # else:
-        #     print("No review uploaded!")
+            print("!!!!! Erreur scraping: ", self.url)
+        else:
+            data = {
+                "source": self.source,
+                "establishment": f"/api/establishments/{self.establishment}",
+                "score": self.data,
+                "scoreDate": datetime.now().strftime("%Y-%m-%d")
+            }
+            print(data)
+            post_instance = ERApi(
+                method="post", entity="scores", env=self.env, body=data, params={})
+            post_instance.execute()
 
     def extract(self) -> None:
         time.sleep(2)
 
-        page = self.driver.page_source
-
-        soupe = BeautifulSoup(page, 'lxml')
-
         if self.css_selector:
+            page = self.driver.page_source
+            soupe = BeautifulSoup(page, 'lxml')
 
             score = float(soupe.find(self.balise, {self.attr: self.css_selector}).text.strip(
             ).replace(',', '.')) if soupe.find(self.balise, {self.attr: self.css_selector}) else 0
@@ -124,7 +113,6 @@ class Scraping(object):
             self.data = score / 2 if score > 5 else score
 
         if self.xpath_selector:
-            print(self.driver.find_element(By.XPATH, self.xpath_selector).text)
             score = float(self.driver.find_element(By.XPATH, self.xpath_selector).text) \
                 if self.driver.find_element(By.XPATH, self.xpath_selector) else 0
 

@@ -107,6 +107,9 @@ class ERApi:
                 verify=False
             )
 
+            if response.status_code == 201:
+                print("Enregistré avec success!!!")
+
         if response.status_code >= 400:
             response.raise_for_status()
 

@@ -13,6 +13,7 @@ import random
 from changeip import refresh_connection
 import time
 from datetime import datetime
+from thefork import Thefork
 
 
 __class_name__ = {
@@ -39,7 +40,8 @@ __class_name_v2__ = {
     'Trustpilot': Trustpilot,
     'Tripadvisor FR': Tripadvisor_FR,
     'Tripadvisor UK': Tripadvisor_UK,
-    'Expedia': Expedia
+    'Expedia': Expedia,
+    'Thefork': Thefork,
 }
 
 
