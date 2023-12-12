@@ -22,7 +22,7 @@ import os
 
 class Scraping(object):
 
-    def __init__(self, in_background: bool, url: str, establishment: str, settings: str, env: str) -> None:
+    def __init__(self, in_background: bool, url: str, establishment: str, env: str) -> None:
 
         # driver options
         self.chrome_options = webdriver.ChromeOptions()
@@ -54,31 +54,23 @@ class Scraping(object):
         self.driver.maximize_window()
 
         self.data = {}
-        self.score_data = {}
         self.url = url
 
+        self.balise = ""
+        self.attr = ""
+        self.css_selector = ""
+
+        self.xpath_selector = ""
+
         self.establishment = establishment
-        self.settings = settings
 
-        self.last_date = None
         self.env = env
-
-    def set_last_date(self, date):
-        self.last_date = datetime.strptime(date, '%d/%m/%Y')
 
     def set_establishment(self, establishment):
         self.establishment = establishment
 
     def set_url(self, url: str) -> None:
         self.url = url
-
-    def check_date(self, date) -> bool:
-        current_date = datetime.strptime(date, '%d/%m/%Y')
-
-        if self.last_date:
-            return current_date >= self.last_date
-        else:
-            return True
 
     def execute(self) -> None:
         try:
@@ -92,57 +84,42 @@ class Scraping(object):
         except Exception as e:
             print(e)
             self.driver.quit()
-            sys.exit("Arret")
 
     def scrap(self) -> None:
         self.driver.get(self.url)
 
-    def refresh(self) -> None:
-        self.driver.refresh()
-
     def exit(self) -> None:
         self.driver.quit()
-        sys.exit("Arret")
-
-    def format(self) -> None:
-
-        column_order = ['author', 'source', 'language',
-                        'rating', 'establishment', 'date_review', 'settings']
-
-        def check_value(item):
-            for key in column_order:
-                if not item[key] or item[key] == '':
-                    print("erreur: ", key)
-                    return False
-            return True
-
-        result = ""
-        review_score = ReviewScore()
-
-        for item in self.data:
-            if check_value(item):
-                score_data = review_score.compute_score(
-                    item['comment'], item['language'], item['rating'], item['source'])
-                if score_data['feeling'] and score_data['score'] and score_data['confidence']:
-                    line = '$'.join([item['author'], item['source'], item['language'], item['rating'], item['establishment'], item['date_review'],
-                                    item['comment'].replace('$', 'USD'), score_data['feeling'], score_data['score'], score_data['confidence'], item['settings'], item['date_visit'], item['novisitday']]) + "#"
-
-                    if len(line.split('$')) == 13:
-                        result += line
-
-        self.formated_data = result
 
     def save(self) -> None:
+        print("Saving done!")
 
-        self.format()
+        # self.format()
 
-        if self.formated_data:
-            print(self.formated_data)
-            # Review.save_multi(self.formated_data, self.env)
-            print(len(self.data), "reviews uploaded!")
-        else:
-            print("No review uploaded!")
+        # if self.formated_data:
+        #     print(self.formated_data)
+        #     # Review.save_multi(self.formated_data, self.env)
+        #     print(len(self.data), "reviews uploaded!")
+        # else:
+        #     print("No review uploaded!")
 
-    @abstractmethod
     def extract(self) -> None:
-        pass
+        time.sleep(2)
+
+        page = self.driver.page_source
+
+        soupe = BeautifulSoup(page, 'lxml')
+
+        if self.css_selector:
+
+            score = float(soupe.find(self.balise, {self.attr: self.css_selector}).text.strip(
+            ).replace(',', '.')) if soupe.find(self.balise, {self.attr: self.css_selector}) else 0
+
+            self.data = score / 2 if score > 5 else score
+
+        if self.xpath_selector:
+            print(self.driver.find_element(By.XPATH, self.xpath_selector).text)
+            score = float(self.driver.find_element(By.XPATH, self.xpath_selector).text) \
+                if self.driver.find_element(By.XPATH, self.xpath_selector) else 0
+
+            self.data = score / 2 if score > 5 else score
