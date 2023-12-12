@@ -12,6 +12,7 @@ class Tripadvisor(Scraping):
         self.attr = 'data-automation'
         self.balise = 'div'
         self.css_selector = 'reviewBubbleScore'
+        self.source = 'tripadvisor'
 
 
 class Tripadvisor_UK(Scraping):
@@ -22,6 +23,7 @@ class Tripadvisor_UK(Scraping):
         self.attr = 'data-automation'
         self.balise = 'div'
         self.css_selector = 'reviewBubbleScore'
+        self.source = 'tripadvisor'
 
 
 class Tripadvisor_FR(Scraping):
@@ -32,6 +34,7 @@ class Tripadvisor_FR(Scraping):
         self.attr = 'class'
         self.balise = 'span'
         self.css_selector = 'uwJeR P'
+        self.source = 'tripadvisor'
 
 
 # trp = Tripadvisor(

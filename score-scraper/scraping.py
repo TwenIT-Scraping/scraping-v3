@@ -63,6 +63,7 @@ class Scraping(object):
         self.xpath_selector = ""
 
         self.establishment = establishment
+        self.source = ""
 
         self.env = env
 

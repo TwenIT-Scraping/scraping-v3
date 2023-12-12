@@ -10,6 +10,7 @@ class Hotels_FR(Scraping):
         defurl = url if url.endswith('.fr.html') else f"{url}.fr.html"
         super().__init__(in_background=False, url=defurl,
                          establishment=establishment, env=env)
+        self.source = 'hotels'
 
     def extract(self) -> None:
         time.sleep(2)
@@ -25,6 +26,7 @@ class Hotels_EN(Scraping):
         defurl = url if url.endswith('.fr.html') else f"{url}.fr.html"
         super().__init__(in_background=False, url=defurl,
                          establishment=establishment, env=env)
+        self.source = 'hotels'
 
     def extract(self) -> None:
         time.sleep(2)

@@ -13,6 +13,7 @@ class Campings(Scraping):
         self.attr = 'class'
         self.balise = 'span'
         self.css_selector = 'summary__value'
+        self.source = 'campings'
 
 
 # trp = Campings(

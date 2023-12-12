@@ -12,6 +12,7 @@ class Thefork(Scraping):
         self.attr = 'data-test'
         self.balise = 'span'
         self.css_selector = 'rating-value'
+        self.source = 'thefork'
 
 
 # trp = Thefork(url="https://www.thefork.fr/restaurant/best-western-alexander-park-r308265/avis",

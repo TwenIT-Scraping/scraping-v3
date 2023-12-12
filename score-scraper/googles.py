@@ -13,6 +13,7 @@ class Google(Scraping):
         self.attr = 'class'
         self.balise = 'div'
         self.css_selector = 'FBsWCd'
+        self.source = 'google'
 
 
 # trp = Google(url="https://www.google.com/travel/hotels/entity/ChYIqtL21OvSv65QGgovbS8wdnB3cTRzEAE/reviews?utm_campaign=sharing&utm_medium=link&utm_source=htls&ts=CAESABogCgIaABIaEhQKBwjnDxAKGAISBwjnDxAKGAMYATICEAAqCQoFOgNNR0EaAA", establishment=3, env="DEv")

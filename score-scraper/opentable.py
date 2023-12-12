@@ -10,6 +10,7 @@ class Opentable(Scraping):
                          establishment=establishment, env=env)
 
         self.xpath_selector = "//div[@id='ratingInfo']/span"
+        self.source = 'opentable'
 
 
 class Opentable_UK(Scraping):
@@ -18,6 +19,7 @@ class Opentable_UK(Scraping):
                          establishment=establishment, env=env)
 
         self.xpath_selector = "//div[@id='ratingInfo']/span"
+        self.source = 'opentable'
 
 # trp = Opentable("https://www.opentable.com/the-belvedere",
 #                 establishment=4, env="DEV")

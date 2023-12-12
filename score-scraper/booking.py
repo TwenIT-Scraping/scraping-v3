@@ -12,6 +12,7 @@ class Booking(Scraping):
         self.attr = 'class'
         self.balise = 'span'
         self.css_selector = 'review-score-badge'
+        self.source = 'booking'
 
 
 # trp = Booking(

@@ -12,6 +12,7 @@ class Yelp(Scraping):
         self.attr = 'data-rating-typography'
         self.balise = 'p'
         self.css_selector = 'true'
+        self.source = 'yelp'
 
 
 # trp = Yelp(url="https://www.yelp.com/biz/28-50-wine-workshop-and-kitchen-london",

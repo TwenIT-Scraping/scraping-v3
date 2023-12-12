@@ -13,6 +13,7 @@ class Maeva(Scraping):
         self.attr = 'class'
         self.balise = 'span'
         self.css_selector = 'score-text'
+        self.source = 'maeva'
 
 
 # trp = Maeva(url="https://www.maeva.com/fr-fr/residence-cannes-villa-francia---maeva-home_49993.html",

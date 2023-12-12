@@ -12,6 +12,7 @@ class Trustpilot(Scraping):
         self.attr = 'data-rating-typography'
         self.balise = 'p'
         self.css_selector = 'true'
+        self.source = 'trustpilot'
 
 
 # trp = Trustpilot(url="https://fr.trustpilot.com/review/liberkeys.com",
