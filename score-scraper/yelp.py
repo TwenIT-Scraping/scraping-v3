@@ -14,7 +14,7 @@ class Yelp(Scraping):
         self.css_selector = 'true'
 
 
-trp = Yelp(url="https://www.yelp.com/biz/28-50-wine-workshop-and-kitchen-london",
-           establishment=3, env="DEV")
-trp.execute()
-print(trp.data)
+# trp = Yelp(url="https://www.yelp.com/biz/28-50-wine-workshop-and-kitchen-london",
+#            establishment=3, env="DEV")
+# trp.execute()
+# print(trp.data)

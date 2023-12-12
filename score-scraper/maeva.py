@@ -15,7 +15,7 @@ class Maeva(Scraping):
         self.css_selector = 'score-text'
 
 
-trp = Maeva(url="https://www.maeva.com/fr-fr/residence-cannes-villa-francia---maeva-home_49993.html",
-            establishment=4, env="DEV")
-trp.execute()
-print(trp.data)
+# trp = Maeva(url="https://www.maeva.com/fr-fr/residence-cannes-villa-francia---maeva-home_49993.html",
+#             establishment=4, env="DEV")
+# trp.execute()
+# print(trp.data)

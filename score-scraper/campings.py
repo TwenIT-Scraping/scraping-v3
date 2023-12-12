@@ -15,7 +15,7 @@ class Campings(Scraping):
         self.css_selector = 'summary__value'
 
 
-trp = Campings(
-    url="https://www.campings.com/fr/camping/le-pearl-camping-paradis-76750#reviews", establishment=4, env="DEV")
-trp.execute()
-print(trp.data)
+# trp = Campings(
+#     url="https://www.campings.com/fr/camping/le-pearl-camping-paradis-76750#reviews", establishment=4, env="DEV")
+# trp.execute()
+# print(trp.data)

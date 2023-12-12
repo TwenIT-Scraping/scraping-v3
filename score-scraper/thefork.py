@@ -14,7 +14,7 @@ class Thefork(Scraping):
         self.css_selector = 'rating-value'
 
 
-trp = Thefork(url="https://www.thefork.fr/restaurant/best-western-alexander-park-r308265/avis",
-              establishment=3, env="DEV")
-trp.execute()
-print(trp.data)
+# trp = Thefork(url="https://www.thefork.fr/restaurant/best-western-alexander-park-r308265/avis",
+#               establishment=3, env="DEV")
+# trp.execute()
+# print(trp.data)

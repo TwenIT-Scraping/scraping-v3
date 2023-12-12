@@ -20,7 +20,7 @@ class Hotels(Scraping):
         self.data = score / 2 if score > 5 else score
 
 
-trp = Hotels(url="https://uk.hotels.com/ho512192/the-standard-high-line-new-york-united-states-of-america/",
-             establishment=33, env="dev")
-trp.execute()
-print(trp.data)
+# trp = Hotels(url="https://uk.hotels.com/ho512192/the-standard-high-line-new-york-united-states-of-america/",
+#              establishment=33, env="dev")
+# trp.execute()
+# print(trp.data)

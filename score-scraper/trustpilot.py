@@ -14,7 +14,7 @@ class Trustpilot(Scraping):
         self.css_selector = 'true'
 
 
-trp = Trustpilot(url="https://fr.trustpilot.com/review/liberkeys.com",
-                 establishment="4", env="DEV")
-trp.execute()
-print(trp.data)
+# trp = Trustpilot(url="https://fr.trustpilot.com/review/liberkeys.com",
+#                  establishment="4", env="DEV")
+# trp.execute()
+# print(trp.data)

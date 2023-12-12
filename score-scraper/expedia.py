@@ -13,7 +13,7 @@ class Expedia(Scraping):
         self.xpath_selector = "//section[@id='Reviews']/div/div/div/div/div/div/span/div/div/div/span/div"
 
 
-trp = Expedia(url="https://www.expedia.com/Les-Deserts-Hotels-Vacanceole-Les-Balcons-DAix.h2481279.Hotel-Reviews",
-              establishment="4", env="DEV")
-trp.execute()
-print(trp.data)
+# trp = Expedia(url="https://www.expedia.com/Les-Deserts-Hotels-Vacanceole-Les-Balcons-DAix.h2481279.Hotel-Reviews",
+#               establishment="4", env="DEV")
+# trp.execute()
+# print(trp.data)

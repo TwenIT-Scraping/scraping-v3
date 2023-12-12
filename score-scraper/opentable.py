@@ -12,7 +12,7 @@ class Opentable(Scraping):
         self.xpath_selector = "//div[@id='ratingInfo']/span"
 
 
-trp = Opentable("https://www.opentable.com/the-belvedere",
-                establishment=4, env="DEV")
-trp.execute()
-print(trp.data)
+# trp = Opentable("https://www.opentable.com/the-belvedere",
+#                 establishment=4, env="DEV")
+# trp.execute()
+# print(trp.data)

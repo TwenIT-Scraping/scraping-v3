@@ -14,7 +14,7 @@ class Booking(Scraping):
         self.css_selector = 'review-score-badge'
 
 
-trp = Booking(
-    url="https://www.booking.com/reviews/fr/hotel/la-belle-etoile-les-deux-alpes.fr.html", establishment="4", env='DEV')
-trp.execute()
-print(trp.data)
+# trp = Booking(
+#     url="https://www.booking.com/reviews/fr/hotel/la-belle-etoile-les-deux-alpes.fr.html", establishment="4", env='DEV')
+# trp.execute()
+# print(trp.data)
