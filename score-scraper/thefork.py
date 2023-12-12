@@ -1,7 +1,5 @@
 from scraping import Scraping
 import time
-from datetime import datetime, timedelta
-from bs4 import BeautifulSoup
 
 
 class Thefork(Scraping):
