@@ -1,4 +1,4 @@
-from scraper import ListScraper, ListScraperV2
+from scraper import ListScraperV2
 import argparse
 from datetime import datetime
 import os

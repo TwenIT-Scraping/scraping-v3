@@ -43,54 +43,6 @@ __class_name_v2__ = {
 }
 
 
-class ListScraper:
-    def __init__(self,):
-        self.establishments = []
-        self.ids = []
-
-    def init(self, establishments=[]):
-        instance = ERApi(entity="establishment/name", env="PROD")
-        etabs = instance.execute()
-        if len(establishments):
-            self.ids = list(map(lambda y: y, list(
-                filter(lambda x: x['name'] in establishments, etabs))))
-        else:
-            self.ids = list(
-                map(lambda x: x, etabs))
-
-        for item in self.ids:
-            print("Récupération information des établissements: ",
-                  self.ids.index(item)+1, '/', len(self.ids))
-            etab = Establishment(rid=item['id'], name=item['name'])
-            etab.set_tag(item['tag'])
-            etab.refresh()
-            self.establishments.append(etab)
-
-    def start(self, websites=[]):
-        refresh_connection()
-
-        counter = 0
-
-        for item in self.establishments:
-            time.sleep(random.randint(1, 5))
-
-            print("****** Establishment: ", item.name, " ******")
-
-            for site in item.websites.keys():
-                if site in websites:
-                    if site in __class_name__.keys():
-                        print("===>\t", site)
-                        instance = __class_name__[site](
-                            url=item.websites[site], establishment=item.id)
-                        instance.execute()
-                        print("\n\n")
-                        counter += 1
-
-                        if counter == 4:
-                            counter == 0
-                            refresh_connection()
-
-
 class ListScraperV2:
     def __init__(self, env):
         self.settings = None
@@ -110,14 +62,12 @@ class ListScraperV2:
         self.last_date = date
 
     def start(self):
-        # refresh_connection()
-
-        # counter = 0
-        print("Liste des urls à sraper:")
-        print(list(map(lambda x: x['url'], self.settings.items)))
+        # print("Liste des urls à sraper:")
+        # print(list(map(lambda x: x['url'], self.settings.items)))
 
         for item in self.settings.items:
             time.sleep(random.randint(1, 3))
+            # print(item)
 
             print(
                 f"****** {item['establishment_name']} / {item['source']} ******")
@@ -126,28 +76,28 @@ class ListScraperV2:
                 print("=> A scraper !!!")
                 try:
                     instance = __class_name_v2__[item['source']](
-                        url=item['url'], establishment=item['establishment_id'], settings=item['id'], env=self.env)
+                        url=item['url'], establishment=item['establishment_id'], env=self.env)
 
-                    print(item['url'])
+                    # print(item['url'])
 
-                    if item['last_review_date']:
-                        if self.last_date:
-                            if datetime.strptime(self.last_date, "%d/%m/%Y") < datetime.strptime(item['last_review_date'], "%d/%m/%Y"):
-                                instance.set_last_date(
-                                    item['last_review_date'])
-                            else:
-                                instance.set_last_date(self.last_date)
-                        else:
-                            instance.set_last_date(item['last_review_date'])
+            #         if item['last_review_date']:
+            #             if self.last_date:
+            #                 if datetime.strptime(self.last_date, "%d/%m/%Y") < datetime.strptime(item['last_review_date'], "%d/%m/%Y"):
+            #                     instance.set_last_date(
+            #                         item['last_review_date'])
+            #                 else:
+            #                     instance.set_last_date(self.last_date)
+            #             else:
+            #                 instance.set_last_date(item['last_review_date'])
 
                     instance.execute()
                 except Exception as e:
                     print(e)
                     pass
 
-                # if counter == 4:
-                #     counter == 0
-                #     refresh_connection()
+            #     # if counter == 4:
+            #     #     counter == 0
+            #     #     refresh_connection()
 
             else:
                 print(

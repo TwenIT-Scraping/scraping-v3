@@ -93,6 +93,11 @@ class Scraping(object):
 
     def save(self) -> None:
         print("Saving done!")
+        # if self.data == 0:
+        # print(self.url)
+        print(self.data)
+        if self.data == 0:
+            print(self.url)
 
         # self.format()
 
