@@ -7,8 +7,7 @@ from random import randint
 import sys
 import os
 import time
-from abc import ABC, abstractmethod
-import keyboard
+from abc import abstractmethod
 import orjson
 import dotenv
 import argparse
@@ -91,16 +90,6 @@ class MeteoAPI(object):
                     timeout=120
                 )
 
-            # if response.status != 200:
-            #     print('==> failed to reach api nexties!!')
-            #     print(response.status)
-            #     print(response.json())
-            #     print('==> press enter to retry')
-            #     keyboard.wait('enter')
-            #     print('==> retrying ...')
-
-                # self.get_request(url, header)
-
             return orjson.loads(response.data)
 
         except urllib3.exceptions.HTTPError as e:
@@ -118,13 +107,10 @@ class MeteoAPI(object):
                 body=json.dumps(body),
                 headers=self.headers
             )
-            print(response.status)
-            print(response.url)
-            print(response.json())
-            # if response.status != 200:
-            #     print("Post code: ", response.status)
-            # else:
-            #     print("Upload successfully !!!")
+            if response.status != 200:
+                print("Post code: ", response.status)
+            else:
+                print("Upload successfully !!!")
 
         except urllib3.exceptions.HTTPError as e:
             print("Erreur post")
@@ -194,8 +180,6 @@ class MeteoLocalityScraper(MeteoAPI):
             result = self.get_request(
                 f"{self.nexties_api_url}/localities?page={page}", header=True)
 
-            # print(result)
-
             if 'hydra:view' in result.keys() and 'hydra:next' in result['hydra:view']:
                 has_next = True
             else:
@@ -224,10 +208,7 @@ class MeteoLocalityScraper(MeteoAPI):
 
     def initialize(self):
         self.create_logfile()
-        # self.get_page_numb()
-        # self.load_history()
         self.get_localities()
-        # self.save()
         print("==> All establishement loaded ('_')")
 
 
@@ -267,10 +248,7 @@ class MeteoAPIScraper(MeteoAPI):
             self.dates = dates
 
     def format_url(self, data: dict, date: str) -> str:
-        # api_key = self.api_keys[randint(1, (len(self.api_keys) - 1))]
         api_key = self.api_keys[self.meteo_key]
-        print(api_key)
-        # date = (datetime.now() - timedelta(days=35)).strftime('%Y-%m-%d')
         return {'locality_id': data['id'], 'url': f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{data['lat']}%2C{data['long']}/{date}/{date}/?unitGroup=us&key={api_key}&contentType=json"}
 
     def create_logfile(self) -> None:
@@ -289,8 +267,6 @@ class MeteoAPIScraper(MeteoAPI):
             if not os.path.exists(f'{self.url_file}.json'):
                 data = []
                 data_source = pd.read_csv(self.data_source)
-
-                # self.set_log('total_index', (len(data_source) + 1))
 
                 counter = 0
 
@@ -375,16 +351,12 @@ class MeteoAPIScraper(MeteoAPI):
         total = len(self.urls)
 
         for x in range(total):
-
-            # for x in range(self.history['last_index'], total):
-
             print(
                 f"==> locality {x+1} / {total}")
             req_data = self.get_request(self.urls[x]['url'])
             req_data['locality_id'] = self.urls[x]['locality_id']
             clean_data = self.extract(req_data)
             self.save(clean_data)
-            # self.set_log('last_index', self.history['last_index'] + 1)
             time.sleep(.5)
 
 
