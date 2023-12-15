@@ -51,12 +51,12 @@ def check_arguments(args):
     return miss
 
 
-def clean():
-    files = ['locality_log.json', 'locality.csv', 'meteo_data.txt',
-             'meteo_log.json', 'meteo_url.json']
-    for file in files:
-        if os.path.exists(f'{os.environ.get("HISTORY_FOLDER")}/{file}'):
-            os.remove(file)
+# def clean():
+#     files = ['locality_log.json', 'locality.csv', 'meteo_data.txt',
+#              'meteo_log.json', 'meteo_url.json']
+#     for file in files:
+#         if os.path.exists(f'{os.environ.get("HISTORY_FOLDER")}/{file}'):
+#             os.remove(file)
 
 
 class MeteoAPI(object):
@@ -407,8 +407,6 @@ if __name__ == '__main__':
         with open(history_filename, 'a', encoding='utf-8') as file:
             file.write("  ===>  Fin scrap meteo: " +
                        now.strftime("%d/%m/%Y %H:%M:%S") + '\n')
-
-        clean()
 
     else:
         now = datetime.now()
