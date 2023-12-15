@@ -1,5 +1,8 @@
 from scraping import Scraping
 import time
+from selenium.webdriver.common.by import By
+import time
+from bs4 import BeautifulSoup
 
 
 class Tripadvisor(Scraping):
@@ -33,6 +36,27 @@ class Tripadvisor_FR(Scraping):
         self.balise = 'span'
         self.css_selector = 'uwJeR P'
         self.source = 'tripadvisor'
+
+    def extract(self) -> None:
+        time.sleep(2)
+
+        if self.css_selector:
+            page = self.driver.page_source
+            soupe = BeautifulSoup(page, 'lxml')
+
+            print(len(soupe.find_all(self.balise, {
+                  self.attr: self.css_selector})))
+
+            score = float(soupe.find(self.balise, {self.attr: self.css_selector}).text.strip(
+            ).replace(',', '.')) if soupe.find(self.balise, {self.attr: self.css_selector}) else 0
+
+            self.data = score / 2 if score > 5 else score
+
+        if self.xpath_selector:
+            score = float(self.driver.find_element(By.XPATH, self.xpath_selector).text) \
+                if self.driver.find_element(By.XPATH, self.xpath_selector) else 0
+
+            self.data = score / 2 if score > 5 else score
 
 
 # trp = Tripadvisor(

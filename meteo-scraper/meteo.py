@@ -56,7 +56,7 @@ def clean():
     files = ['locality_log.json', 'locality.csv', 'meteo_data.txt',
              'meteo_log.json', 'meteo_url.json']
     for file in files:
-        if os.path.exists(f'{os.environ.get("HISTORY_FOLDER")}/file'):
+        if os.path.exists(f'{os.environ.get("HISTORY_FOLDER")}/{file}'):
             os.remove(file)
 
 
@@ -182,7 +182,7 @@ class MeteoLocalityScraper(MeteoAPI):
             'last_page': 1,
         }
         if not os.path.exists(self.logfile):
-            with open(f"{os.environ.get('HISTORY_FOLDER')}/{self.logfile}_{datetime.now().strftime('%Y-%m-%d %H_%M')}.json", "w") as logfile:
+            with open(f"{self.logfile}.json", "w") as logfile:
                 logfile.write(json.dumps(log))
 
     def get_localities(self) -> None:
@@ -193,6 +193,8 @@ class MeteoLocalityScraper(MeteoAPI):
         while has_next:
             result = self.get_request(
                 f"{self.nexties_api_url}/localities?page={page}", header=True)
+
+            # print(result)
 
             if 'hydra:view' in result.keys() and 'hydra:next' in result['hydra:view']:
                 has_next = True
@@ -215,9 +217,9 @@ class MeteoLocalityScraper(MeteoAPI):
 
     def save(self) -> None:
         print('==> saving data ...')
+        self.localities_file = f"{self.file_output}.csv"
         df = pd.DataFrame(self.localities)
-        df.to_csv(f"{os.environ.get('HISTORY_FOLDER')}/{self.file_output}-{datetime.now().strftime('%Y-%m-%d %H_%M')}.csv",
-                  mode='a', header=True, index=False)
+        df.to_csv(self.localities_file, mode='w', header=True, index=False)
         self.localities.clear()
 
     def initialize(self):
@@ -282,10 +284,11 @@ class MeteoAPIScraper(MeteoAPI):
     def setup_config(self) -> None:
         print('==> configuring urls ...')
         time.sleep(.3)
-        if os.path.exists(f'{self.data_source}.csv'):
+        print(self.data_source)
+        if os.path.exists(self.data_source):
             if not os.path.exists(f'{self.url_file}.json'):
                 data = []
-                data_source = pd.read_csv(f'{self.data_source}.csv')
+                data_source = pd.read_csv(self.data_source)
 
                 # self.set_log('total_index', (len(data_source) + 1))
 
@@ -305,7 +308,7 @@ class MeteoAPIScraper(MeteoAPI):
                                 1 < len(self.api_keys) else 0
                             self.set_key_index(next_index)
 
-                with open(f'{os.environ.get("HISTORY_FOLDER")}/{self.url_file}-{datetime.now().strftime("%Y-%m-%d %H_%M")}.json', 'w') as openfile:
+                with open(f'{self.url_file}.json', 'w') as openfile:
                     openfile.write(json.dumps(data, indent=4))
 
                 print('==> configuring url files done ...')
@@ -319,7 +322,8 @@ class MeteoAPIScraper(MeteoAPI):
     def load_urls(self) -> None:
         print('==> Loading urls ...')
         time.sleep(.5)
-        with open(f'{os.environ.get("HISTORY_FOLDER")}/{self.url_file}-{datetime.now().strftime("%Y-%m-%d %H_%M")}.json', 'r') as openfile:
+        print(self.url_file)
+        with open(f'{self.url_file}.json', 'r') as openfile:
             self.urls = json.loads(openfile.read())
 
     def extract(self, data: dict) -> dict:
@@ -347,14 +351,14 @@ class MeteoAPIScraper(MeteoAPI):
         print('==> saving data ...')
 
         result = f"\n{data['locality']}${data['dateWeather']}${data['timeWeather']}${data['tempmax']}${data['tempmin']}${data['temp']}${data['dew']}${data['humidity']}${data['snow']}${data['windspeed']}${data['cloudcover']}${data['sunrise']}${data['sunset']}${data['conditions']}${data['description']}#"
-        with open(f'{os.environ.get("HISTORY_FOLDER")}/{self.output_file}-{datetime.now().strftime("%Y-%m-%d %H_%M")}.txt', 'a') as filesave:
+        with open(f'{self.output_file}.txt', 'a') as filesave:
             filesave.write(result)
 
     def upload(self):
 
         text = ""
 
-        with open(f'{os.environ.get("HISTORY_FOLDER")}/{self.output_file}-{datetime.now().strftime("%Y-%m-%d %H_%M")}.txt', 'r') as file:
+        with open(f'{self.output_file}.txt', 'r') as file:
             csvreader = csv.reader(file)
             for row in csvreader:
                 if len(row):
@@ -369,10 +373,13 @@ class MeteoAPIScraper(MeteoAPI):
         self.load_urls()
         self.load_history()
         total = len(self.urls)
-        for x in range(self.history['last_index'], total):
+
+        for x in range(total):
+
+            # for x in range(self.history['last_index'], total):
 
             print(
-                f"==> locality {self.history['last_index'] + 1} / {total}")
+                f"==> locality {x+1} / {total}")
             req_data = self.get_request(self.urls[x]['url'])
             req_data['locality_id'] = self.urls[x]['locality_id']
             clean_data = self.extract(req_data)
@@ -383,7 +390,7 @@ class MeteoAPIScraper(MeteoAPI):
 
 if __name__ == '__main__':
 
-    history_filename = f'{os.environ.get("HISTORY_FOLDER")}/meteo-scraping-log.txt'
+    history_filename = f'{os.environ.get("HISTORY_FOLDER")}/meteo/meteo-scraping-log.txt'
 
     now = datetime.now()
     if os.path.exists(history_filename):
@@ -402,11 +409,13 @@ if __name__ == '__main__':
     if not len(miss):
 
         try:
-            d = MeteoLocalityScraper('locality_log', 'locality', env=args.env)
+            datetime_now = datetime.now().strftime("%Y-%m-%d %H_%M")
+            d = MeteoLocalityScraper(
+                f'{os.environ.get("HISTORY_FOLDER")}/meteo/locality_log_{datetime_now}', f'{os.environ.get("HISTORY_FOLDER")}/locality_{datetime_now}', env=args.env)
             d.initialize()
             time.sleep(2)
-            m = MeteoAPIScraper('meteo_log', 'locality',
-                                'meteo_url', 'meteo_data', env=args.env)
+            m = MeteoAPIScraper(f'{os.environ.get("HISTORY_FOLDER")}/meteo/locality_log_{datetime_now}', d.localities_file,
+                                f'{os.environ.get("HISTORY_FOLDER")}/meteo/meteo_url_{datetime_now}', f'{os.environ.get("HISTORY_FOLDER")}/meteo_data_{datetime_now}', env=args.env)
             if args.dates:
                 m.set_dates(args.dates.split(','))
             else:
