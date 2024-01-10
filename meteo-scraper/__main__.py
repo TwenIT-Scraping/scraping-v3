@@ -1,5 +1,5 @@
 import csv
-import urllib3
+# import urllib3
 import json
 import pandas as pd
 from datetime import datetime, timedelta
@@ -12,6 +12,9 @@ import orjson
 import dotenv
 import argparse
 import ssl
+import requests
+from urllib.parse import urlparse
+from urllib.parse import parse_qs
 
 dotenv.load_dotenv()
 
@@ -71,48 +74,67 @@ class MeteoAPI(object):
         self.history = {}
         self.http = None
 
-    def get_request(self, url: str, header: bool = False) -> dict:
+    def get_request(self, url: str, params: dict = {}) -> dict:
+        print(url)
         try:
-            response = None
-            self.http = urllib3.PoolManager(cert_reqs='CERT_NONE')
+            response = requests.get(
+                url, headers=self.headers, params=params, verify=False)
 
-            if header:
-                response = self.http.request(
-                    method='GET',
-                    url=url,
-                    headers=self.headers,
-                    timeout=120
-                )
-            else:
-                response = self.http.request(
-                    method='GET',
-                    url=url,
-                    timeout=120
-                )
+            if response.status_code >= 400:
+                response.raise_for_status()
 
-            return orjson.loads(response.data)
+            return response and response.json()
 
-        except urllib3.exceptions.HTTPError as e:
+            # self.http = urllib3.PoolManager(cert_reqs='CERT_NONE')
+
+            # if header:
+            #     response = self.http.request(
+            #         method='GET',
+            #         url=url,
+            #         headers=self.headers,
+            #         timeout=120
+            #     )
+            # else:
+            #     response = self.http.request(
+            #         method='GET',
+            #         url=url,
+            #         timeout=120
+            #     )
+
+            # return orjson.loads(response.data)
+
+        except Exception as e:
             print('==> Connexion failed!!')
             print(e.reason)
             sys.exit()
 
     def post_request(self, url: str, body: str) -> dict:
+        print(url)
         self.attempt_post = 1
-        self.http = urllib3.PoolManager(cert_reqs=ssl.CERT_NONE)
+        # self.http = urllib3.PoolManager(cert_reqs=ssl.CERT_NONE)
         try:
-            response = self.http.request(
-                method='POST',
-                url=url,
-                body=json.dumps(body),
-                headers=self.headers
-            )
-            if response.status != 200:
-                print("Post code: ", response.status)
+            response = requests.post(
+                url, headers=self.headers, body=json.dumps(body), verify=False)
+
+            if response.status_code >= 400:
+                response.raise_for_status()
+
             else:
                 print("Upload successfully !!!")
 
-        except urllib3.exceptions.HTTPError as e:
+                return response and response.json()
+            # response = self.http.request(
+            #     method='POST',
+            #     url=url,
+            #     body=json.dumps(body),
+            #     headers=self.headers
+            # )
+            # if response.status != 200:
+            #     print("Post code: ", response.status)
+            # else:
+            #     print("Upload successfully !!!")
+
+        except Exception as e:
             print("Erreur post")
             print(e.reason)
 
@@ -178,7 +200,8 @@ class MeteoLocalityScraper(MeteoAPI):
 
         while has_next:
             result = self.get_request(
-                f"{self.nexties_api_url}/localities?page={page}", header=True)
+                f"{self.nexties_api_url}/localities", params={page: page})
+            print(result)
 
             if 'hydra:view' in result.keys() and 'hydra:next' in result['hydra:view']:
                 has_next = True
@@ -262,7 +285,6 @@ class MeteoAPIScraper(MeteoAPI):
     def setup_config(self) -> None:
         print('==> configuring urls ...')
         time.sleep(.3)
-        print(self.data_source)
         if os.path.exists(self.data_source):
             if not os.path.exists(f'{self.url_file}.json'):
                 data = []
@@ -275,7 +297,6 @@ class MeteoAPIScraper(MeteoAPI):
                         counter += 1
                         url = self.format_url(
                             data_source.loc[x].to_dict(), date)
-                        print(url)
                         data.append(url)
 
                         if counter == 45:
@@ -298,7 +319,6 @@ class MeteoAPIScraper(MeteoAPI):
     def load_urls(self) -> None:
         print('==> Loading urls ...')
         time.sleep(.5)
-        print(self.url_file)
         with open(f'{self.url_file}.json', 'r') as openfile:
             self.urls = json.loads(openfile.read())
 
@@ -351,13 +371,21 @@ class MeteoAPIScraper(MeteoAPI):
         total = len(self.urls)
 
         for x in range(total):
-            print(
-                f"==> locality {x+1} / {total}")
-            req_data = self.get_request(self.urls[x]['url'])
-            req_data['locality_id'] = self.urls[x]['locality_id']
-            clean_data = self.extract(req_data)
-            self.save(clean_data)
-            time.sleep(.5)
+            try:
+                print(
+                    f"==> locality {x+1} / {total}")
+                print(self.urls[x])
+
+                # url = self.urls[x]
+
+                req_data = self.get_request(self.urls[x]['url'])
+                req_data['locality_id'] = self.urls[x]['locality_id']
+                clean_data = self.extract(req_data)
+                # print(clean_data)
+                self.save(clean_data)
+                time.sleep(.5)
+            except Exception as e:
+                print(e)
 
 
 if __name__ == '__main__':
