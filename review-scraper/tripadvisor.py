@@ -194,7 +194,7 @@ class Tripadvisor_FR(Tripadvisor):
     def extract(self):
         reviews = []
 
-        time.sleep(10)
+        time.sleep(30)
 
         try:
             while True:
