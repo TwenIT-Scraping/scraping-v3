@@ -52,7 +52,7 @@ class TikTokProfileScraper(Scraping):
     def goto_tiktok_page(self) -> None:
         self.page.goto(self.url, timeout=1000000)
         self.page.wait_for_timeout(25000)
-        time.sleep(3)
+        time.sleep(10)
 
     def extract_data(self) -> None:
 
@@ -61,10 +61,10 @@ class TikTokProfileScraper(Scraping):
 
         def extract_post() -> dict | None:
             self.page.wait_for_selector(
-                "div.tiktok-1xlna7p-DivProfileWrapper.ekjxngi4")
+                "div.css-1xlna7p-DivProfileWrapper.ekjxngi4")
             try:
                 next_post = self.page.locator(
-                    "div.tiktok-1xlna7p-DivProfileWrapper.ekjxngi4").inner_html()
+                    "div.css-1xlna7p-DivProfileWrapper.ekjxngi4").inner_html()
                 element = soupify(next_post)
 
                 date_list = element.find(
@@ -92,7 +92,7 @@ class TikTokProfileScraper(Scraping):
             return data
 
         header_element = self.page.locator(
-            "div.tiktok-1hfe8ic-DivShareLayoutContentV2.enm41491").inner_html()
+            "#app").inner_html()
         name = re.sub(r'[^\w]', ' ', soupify(header_element).find(
             'h1', {'data-e2e': 'user-title'}).text.strip())
         self.page_data['name'] = f"tiktok_{name}"
@@ -104,8 +104,8 @@ class TikTokProfileScraper(Scraping):
         self.page_data['source'] = 'tiktok'
 
         try:
-            self.page.click(
-                "div.tiktok-x6f6za-DivContainer-StyledDivContainerV2.eq741c50")
+            self.page.locator(
+                "css=[data-e2e='user-post-item'] a").first.click()
             self.page.wait_for_timeout(10000)
             self.posts.append(extract_post())
             x = 0
@@ -114,7 +114,8 @@ class TikTokProfileScraper(Scraping):
                 self.page.wait_for_timeout(10000)
                 self.posts.append(extract_post())
                 x += 1
-        except:
+        except Exception as e:
+            print(e)
             pass
 
         self.page_data['posts'] = len(self.posts)

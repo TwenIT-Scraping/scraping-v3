@@ -117,15 +117,19 @@ class FacebookProfileScraper(Scraping):
         first_value = 0
         second_value = 0
         value = value.lower()
+        print(value)
         try:
             if 'm' in value:
                 first_value = int(value.split(',')[0]) * 1000000
                 second_value = int(
                     ''.join(filter(str.isdigit, value.split(',')[1]))) * 100000
             if 'k' in value:
-                first_value = int(value.split(',')[0]) * 1000
-                second_value = int(
-                    ''.join(filter(str.isdigit, value.split(',')[1]))) * 100
+                v2 = value.split('k')[0].strip()
+                print(v2)
+                first_value = int(v2.split(',')[0]) * 1000
+                if len(v2.split(',')) > 1:
+                    second_value = int(
+                        ''.join(filter(str.isdigit, v2.split(',')[1]))) * 100
             else:
                 first_value = int(''.join(filter(str.isdigit, value)))
         except Exception as e:
@@ -140,13 +144,16 @@ class FacebookProfileScraper(Scraping):
             if soupe.find('div', {'class': "x1e56ztr x1xmf6yo"}) else ''
         page_likes = soupe.find_all('a', {'class': "x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xi81zsa x1s688f"})[0].text.strip() \
             if soupe.find_all('a', {'class': "x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xi81zsa x1s688f"}) else 0
+
         page_likes = self.format_string_number(page_likes)
+        print(page_likes)
 
         page_followers = soupe.find_all('a', {'class': "x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xi81zsa x1s688f"})[1].text.strip() \
             if soupe.find_all('a', {'class': "x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xi81zsa x1s688f"}) else 0
+
         page_followers = self.format_string_number(page_followers)
         post_container = soupe.find('div', {
-                                    'class': "x9f619 x1n2onr6 x1ja2u2z xeuugli xs83m0k x1xmf6yo x1emribx x1e56ztr x1i64zmx xjl7jj x19h7ccj xu9j1y6 x7ep2pv"})
+            'class': "x9f619 x1n2onr6 x1ja2u2z xeuugli xs83m0k x1xmf6yo x1emribx x1e56ztr x1i64zmx xjl7jj x19h7ccj xu9j1y6 x7ep2pv"})
         post_data = post_container.find_all('div', {'x1n2onr6 x1ja2u2z'})
 
         for post in post_data:

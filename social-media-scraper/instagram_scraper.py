@@ -1,3 +1,5 @@
+import json
+import os
 from playwright.sync_api import sync_playwright
 from nested_lookup import nested_lookup
 from datetime import datetime
@@ -66,6 +68,7 @@ class InstagramProfileScraper(Scraping):
 
     def goto_insta_page(self) -> None:
         self.page.on("response", self.intercept_response)
+        print(self.url)
         self.page.goto(self.url, timeout=50000)
         self.page.wait_for_timeout(6000)
         time.sleep(3)
@@ -78,40 +81,43 @@ class InstagramProfileScraper(Scraping):
 
     def extract_data(self) -> None:
 
-        all_posts = nested_lookup(
-            key='edge_felix_video_timeline', document=self.xhr_calls)[0]['edges']
+        # with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/test.json", 'w') as foutput:
+        #     json.dump(self.xhr_calls, foutput, indent=4, sort_keys=True)
 
-        for post in all_posts:
+        # all_posts = nested_lookup(
+        #     key='edge_felix_video_timeline', document=self.xhr_calls)[0]['edges']
 
-            try:
-                self.posts.append({
-                    "publishedAt": datetime.fromtimestamp(nested_lookup(key='taken_at_timestamp', document=post)[0]).strftime("%d-%m-%Y"),
-                    "title": nested_lookup(key='text', document=post)[0],
-                    "comments": nested_lookup(key='edge_media_to_comment', document=post)[0]['count'],
-                    "likes": nested_lookup(key='edge_liked_by', document=post)[0]['count'],
-                    "share": "0"
-                })
-            except Exception as e:
-                print(e)
-                pass
+        # for post in all_posts:
 
-        other_posts = nested_lookup(
-            key='edge_owner_to_timeline_media', document=self.xhr_calls)[0]['edges']
+        #     try:
+        #         self.posts.append({
+        #             "publishedAt": datetime.fromtimestamp(nested_lookup(key='taken_at_timestamp', document=post)[0]).strftime("%d-%m-%Y"),
+        #             "title": nested_lookup(key='text', document=post)[0],
+        #             "comments": nested_lookup(key='edge_media_to_comment', document=post)[0]['count'],
+        #             "likes": nested_lookup(key='edge_liked_by', document=post)[0]['count'],
+        #             "share": "0"
+        #         })
+        #     except Exception as e:
+        #         print(e)
+        #         pass
 
-        for other_post in other_posts:
-            try:
-                post_text = nested_lookup(
-                    key='node', document=other_post['node'])[0]
-                self.posts.append({
-                    "publishedAt": datetime.fromtimestamp(nested_lookup(key='taken_at_timestamp', document=other_post)[0]).strftime("%d/%m/%Y"),
-                    "title": post_text['text'] if type(post_text) == str else '',
-                    "comments": nested_lookup(key='edge_media_to_comment', document=other_post)[0]['count'],
-                    "likes": nested_lookup(key='edge_liked_by', document=other_post)[0]['count'],
-                    "share": "0"
-                })
-            except Exception as e:
-                print(e)
-                pass
+        # other_posts = nested_lookup(
+        #     key='edge_owner_to_timeline_media', document=self.xhr_calls)[0]['edges']
+
+        # for other_post in other_posts:
+        #     try:
+        #         post_text = nested_lookup(
+        #             key='node', document=other_post['node'])[0]
+        #         self.posts.append({
+        #             "publishedAt": datetime.fromtimestamp(nested_lookup(key='taken_at_timestamp', document=other_post)[0]).strftime("%d/%m/%Y"),
+        #             "title": post_text['text'] if type(post_text) == str else '',
+        #             "comments": nested_lookup(key='edge_media_to_comment', document=other_post)[0]['count'],
+        #             "likes": nested_lookup(key='edge_liked_by', document=other_post)[0]['count'],
+        #             "share": "0"
+        #         })
+        #     except Exception as e:
+        #         print(e)
+        #         pass
 
         e_name = re.sub(r'[^\w]', ' ', nested_lookup(
             key='full_name', document=self.xhr_calls)[0])
@@ -122,7 +128,7 @@ class InstagramProfileScraper(Scraping):
             "likes": 0,
             "source": "instagram",
             'establishment': self.establishment,
-            "posts": len(self.posts)
+            "posts": nested_lookup(key="edge_owner_to_timeline_media", document=self.xhr_calls)[0]['count']
         }
 
     def switch_acount(self) -> None:

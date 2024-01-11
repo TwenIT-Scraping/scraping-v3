@@ -65,45 +65,47 @@ class ListScraper:
             self.transform_data(file)
 
     def transform_data(self, filename):
-
         results = ""
+        try:
+            with open(f"{os.environ.get('SOCIAL_FOLDER')}/{filename}.json", 'r') as finput:
+                data = json.load(finput)
 
-        with open(f"{os.environ.get('SOCIAL_FOLDER')}/{filename}.json", 'r') as finput:
-            data = json.load(finput)
-
-        for item in data['posts']:
-            if "publishedAt" in item.keys():
-                item['uploadAt'] = item['publishedAt']
-                del item['publishedAt']
-                try:
-                    item['uploadAt'] = datetime.strptime(
-                        item['uploadAt'], '%d/%m/%Y').strftime('%Y-%m-%d')
-                except:
+            for item in data['posts']:
+                if "publishedAt" in item.keys():
+                    item['uploadAt'] = item['publishedAt']
+                    del item['publishedAt']
                     try:
                         item['uploadAt'] = datetime.strptime(
-                            item['uploadAt'], '%d-%m-%Y').strftime('%Y-%m-%d')
-                    except:
-                        continue
+                            item['uploadAt'], '%d/%m/%Y').strftime('%Y-%m-%d')
+                    except Exception as e:
+                        try:
+                            item['uploadAt'] = datetime.strptime(
+                                item['uploadAt'], '%d-%m-%Y').strftime('%Y-%m-%d')
+                        except:
+                            pass
 
-            if "description" in item.keys():
-                item['title'] = item['description']
+                if "description" in item.keys():
+                    item['title'] = item['description']
 
-            if "reaction" in item.keys():
-                item['likes'] = item['reaction']
+                if "reaction" in item.keys():
+                    item['likes'] = item['reaction']
 
-            if "shares" in item.keys():
-                item['share'] = item['shares']
+                if "shares" in item.keys():
+                    item['share'] = item['shares']
 
-            line = '|&|'.join([item['title'], item['uploadAt'],
-                               str(item['likes']), str(item['share']), str(item['comments'])]) + "|*|"
-            if len(line.split('|&|')) == 5:
-                results += line
+                line = '|&|'.join([item['title'], item['uploadAt'],
+                                   str(item['likes']), str(item['share']), str(item['comments'])]) + "|*|"
+                if len(line.split('|&|')) == 5:
+                    results += line
 
-        with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{filename}.txt", 'w', encoding='utf-8') as foutput:
-            foutput.write(results)
+            with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{filename}.txt", 'w', encoding='utf-8') as foutput:
+                foutput.write(results)
 
-        with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{filename}.json", 'w') as foutput:
-            json.dump(data, foutput, indent=4, sort_keys=True)
+            with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{filename}.json", 'w') as foutput:
+                json.dump(data, foutput, indent=4, sort_keys=True)
+
+        except Exception as e:
+            print(e)
 
     def upload_data(self, file):
         data = {}
@@ -128,6 +130,7 @@ class ListScraper:
         post.set_body({'post_items': posts})
 
         result = post.execute()
+        print(result)
 
     def upload_all_results(self):
         files = [pathlib.Path(f).stem for f in os.listdir(
