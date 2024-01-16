@@ -36,6 +36,7 @@ __class_name_v2__ = {
     'Google hotel': Google,
     'Google Travel': Google,
     'Opentable UK': Opentable_UK,
+    'Opentable': Opentable,
     'Trustpilot': Trustpilot,
     'Tripadvisor FR': Tripadvisor_FR,
     'Tripadvisor UK': Tripadvisor_UK,
@@ -114,7 +115,8 @@ class ListScraperV2:
 
         # counter = 0
         print("Liste des urls à sraper:")
-        print(list(map(lambda x: x['url'], self.settings.items)))
+        print(
+            list(map(lambda x: {'url': x['url'], 'settings': x['id']}, self.settings.items)))
 
         for item in self.settings.items:
             time.sleep(random.randint(1, 3))
@@ -128,7 +130,7 @@ class ListScraperV2:
                     instance = __class_name_v2__[item['source']](
                         url=item['url'], establishment=item['establishment_id'], settings=item['id'], env=self.env)
 
-                    print(item['url'])
+                    print('=> ', item['id'], ': ', item['url'])
 
                     if item['last_review_date']:
                         if self.last_date:
