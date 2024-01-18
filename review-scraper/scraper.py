@@ -117,6 +117,9 @@ class ListScraperV2:
         review_score = ReviewScore()
 
         def set_score(item):
+            print('============================')
+            print(item)
+            print('============================')
             score_data = review_score.compute_score(
                 item['comment'], item['language'], item['rating'], item['source'])
 
