@@ -110,7 +110,7 @@ class ListScraperV2:
 
     def get_comments(self, page):
         commentsApi = ERApi(entity='review/feeling_null',
-                            params={'page': page, 'limit': 20}, env=self.env)
+                            params={'page': page, 'limit': 50}, env=self.env)
         return commentsApi.execute()['data']
 
     def compute_scores(self, comments):
@@ -138,14 +138,14 @@ class ListScraperV2:
 
         print(data)
 
-        # req = ERApi(method="patchscores",
-        #             entity=f"review/update", env=self.env)
-        # req.set_body({'data_content': data})
-        # res = req.execute()
-        # print(res.status_code)
+        req = ERApi(method="patchscores",
+                    entity=f"review/update", env=self.env)
+        req.set_body({'data_content': data})
+        res = req.execute()
+        print(res.status_code)
 
     def update_feelings(self):
-        # 1- Récupérer la liste des commentaires non calculés par 20
+        # 1- Récupérer la liste des commentaires non calculés par 50
         # 2- calculer les feelings ... de ces commentaires
         # 3- upload les nouvelles valeurs
         # 4- Revenir à 1 tant que liste != liste vide
