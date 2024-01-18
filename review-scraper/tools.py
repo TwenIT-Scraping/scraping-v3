@@ -184,6 +184,11 @@ class ReviewScore:
                         confidence = score_value = (score_value + rating) / 2
                         feeling = "positive"
 
+                print('-----______-----')
+
+                print({'score': str(score_value), 'confidence': str(
+                    confidence), 'feeling': feeling})
+
                 return {'score': str(score_value), 'confidence': str(confidence), 'feeling': feeling}
 
             else:
