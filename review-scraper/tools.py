@@ -146,7 +146,7 @@ class ReviewScore:
                     "positive" if score_stars > 3 else "neutre")
                 print(feeling)
                 print('------________------')
-                print(rating)
+                print(rating, ' <=> ', rating_values)
 
                 if rating < 0.4:
                     if feeling == "negative":
