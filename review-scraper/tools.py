@@ -205,7 +205,7 @@ class ReviewScore:
         #     return {'score': "0", 'confidence': "0", 'feeling': "neutre"}
 
         # else:
-        #     return {'score': "0", 'confidence': "0", 'feeling': "neutre"}
+        return {'score': "0", 'confidence': "0", 'feeling': "neutre"}
 
     def update_scores(self):
         for review_id in range(1, 5187):

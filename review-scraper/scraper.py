@@ -128,7 +128,7 @@ class ListScraperV2:
             # item['confidence'] = score_data['confidence']
             return item
 
-        # return list(map(lambda x: set_score(x), comments))
+        return list(map(lambda x: set_score(x), comments))
 
     def upload_feelings(self, comments):
         data = ""
