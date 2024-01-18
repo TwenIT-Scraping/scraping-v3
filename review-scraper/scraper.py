@@ -117,17 +117,13 @@ class ListScraperV2:
         review_score = ReviewScore()
 
         def set_score(item):
-            print('============================')
-            print(item)
-            print('============================')
             score_data = review_score.compute_score(
                 item['comment'], item['language'], item['rating'], item['source'])
-            print(score_data)
-            print("**************************")
 
-            # item['feeling'] = score_data['feeling']
-            # item['score'] = score_data['score']
-            # item['confidence'] = score_data['confidence']
+            item['feeling'] = score_data['feeling']
+            item['score'] = score_data['score']
+            item['confidence'] = score_data['confidence']
+
             return item
 
         return list(map(lambda x: set_score(x), comments))
@@ -135,8 +131,8 @@ class ListScraperV2:
     def upload_feelings(self, comments):
         data = ""
         for item in comments:
-            line = ','.join([str(item['id']), str(item['feeling']),
-                            str(item['score']), str(item['confidence'])]) + ";"
+            line = '&'.join([str(item['id']), str(item['feeling']),
+                            str(item['score']), str(item['confidence'])]) + "#"
             if len(line.split(',')) == 4:
                 data += line
 
@@ -163,7 +159,7 @@ class ListScraperV2:
                     break
 
                 new_comments = self.compute_scores(comments)
-                # self.upload_feelings(new_comments)
+                self.upload_feelings(new_comments)
                 page += 1
 
             except Exception as e:
