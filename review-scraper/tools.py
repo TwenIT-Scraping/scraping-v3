@@ -135,8 +135,8 @@ class ReviewScore:
             rating_info = rating_structure[source]
 
             if rating_info[0] == 2:  # with /
+                rate_tmp = rating.split('/')
                 if rating_info[1] == 1:  # /5
-                    rate_tmp = rating.split('/')
                     rate = float(rate_tmp[0].replace(',', '.'))*2
                 else:  # /10
                     rate = float(rate_tmp[0].replace(',', '.'))
