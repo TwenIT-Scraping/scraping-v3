@@ -131,10 +131,8 @@ class ListScraperV2:
     def upload_feelings(self, comments):
         data = ""
         for item in comments:
-            print(item)
             line = '&'.join([str(item['id']), str(item['feeling']),
                             str(item['score']), str(item['confidence'])]) + "#"
-            print(line)
             if len(line.split('&')) == 4:
                 data += line
 
@@ -162,7 +160,7 @@ class ListScraperV2:
 
                 new_comments = self.compute_scores(comments)
                 # print(new_comments)
-                # self.upload_feelings(new_comments)
+                self.upload_feelings(new_comments)
                 page += 1
 
             except Exception as e:
