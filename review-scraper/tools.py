@@ -69,6 +69,29 @@ shortmonths_en = {
     'Dec': '12'
 }
 
+""" 
+        booking 7,0
+        tripadvisor 5.0/5
+        expedia 8/10
+        campings 4
+        trustpilot 3
+        maeva 5
+        hotels 8/10
+        google 5
+        """
+
+# [split '/' length, 1 si /5 et 2 si /10]
+rating_structure = {
+    'booking': [1, 2],
+    'tripadvisor': [2, 1],
+    'expedia': [2, 2],
+    'campings': [1, 1],
+    'trustpilot': [1, 1],
+    'maeva': [1, 1],
+    'hotels': [2, 2],
+    'google': [1, 1]
+}
+
 
 def month_number(name, lang, t=""):
     return globals()[f"{t}months_{lang}"][name]
@@ -105,98 +128,84 @@ class ReviewScore:
             return False
 
     def compute_score(self, text, lang, rating, source):
-        """ 
-        booking 7,0
-        tripadvisor 5.0/5
-        expedia 8/10
-        campings 4
-        trustpilot 3
-        maeva 5
-        hotels 8/10
-        google 5
-        """
 
-        rating_values = rating.split('/')
+        def compute_rating(rating, source):
+            rate = 0
+            rating_info = rating_structure[source]
 
-        if len(rating_values) == 2:
-            rating = float(rating_values[0].replace(',', '.')) / 5 if int(
-                rating_values[1]) == 5 else float(rating_values[0].replace(',', '.')) / 10
-        else:
-            rating = float(rating_values[0].replace(',', '.')) / 5 if source != 'booking' else float(
-                rating_values[0].replace(',', '.')) / 10
+            if rating_info[0] == 2:  # with /
+                if rating_info[1] == 1:  # /5
+                    rate_tmp = rating.split('/')
+                    rate = float(rate_tmp[0].replace(',', '.'))*2
+                else:  # /10
+                    rate = float(rating.replace(',', '.'))
+            else:  # without /
+                if rating_info[1] == 1:  # /5
+                    rate = float(rating.replace(',', '.'))*2
+                else:  # /10
+                    rate = float(rating.replace(',', '.'))
 
-        if os.environ.get('ENV_TYPE') == 'local':
-            return {'feeling': 'neutre', 'score': '0', 'confidence': '0'}
-        else:
-            score_data = self.get_score(text, lang)
-            print(score_data)
+            return rate/10
 
-            if score_data:
-                score_value = score_data[0]['score']
-                score_label = score_data[0]['label']
+        r = compute_rating(rating, source)
+        print(rating, source, '=>', r)
 
-                print('-----*****-----')
-                print(score_value)
-                print(score_label)
-                print('-----_____-----')
+        # if os.environ.get('ENV_TYPE') == 'local':
+        #     return {'feeling': 'neutre', 'score': '0', 'confidence': '0'}
+        # else:
+        #     score_data = self.get_score(text, lang)
 
-                score_stars = int(score_label.split()[0])
-                print(score_stars)
-                feeling = "negative" if score_stars < 3 else (
-                    "positive" if score_stars > 3 else "neutre")
-                print(feeling)
-                print('------________------')
-                print(rating, ' <=> ', rating_values)
+        #     if score_data:
+        #         score_value = score_data[0]['score']
+        #         score_label = score_data[0]['label']
 
-                if rating < 0.4:
-                    if feeling == "negative":
-                        score_value = (score_value + rating) / 2
-                        confidence = -1 * score_value
-                    elif feeling == "neutre":
-                        if rating < 0.4:
-                            feeling == "negative"
-                            score_value = (score_value + rating/4) / 2
-                            confidence = -1 * score_value
-                        else:
-                            confidence = 0
-                            score_value = 0
-                            feeling = "neutre"
-                    else:
-                        feeling == "neutre"
-                        confidence = 0
-                        score_value = 0
-                elif rating >= 0.4 and rating <= 0.6:
-                    if feeling == "negative" or feeling == "neutre":
-                        feeling = "neutre"
-                        confidence = 0
-                        score_value = 0
-                    else:
-                        confidence = score_value = (score_value/4 + rating) / 2
-                        feeling = "neutre"
-                else:
-                    if feeling == "negative":
-                        confidence = score_value = (
-                            score_value/4 + rating) / 2
-                        feeling = "neutre"
+        #         score_stars = int(score_label.split()[0])
+        #         feeling = "negative" if score_stars < 3 else (
+        #             "positive" if score_stars > 3 else "neutre")
 
-                    elif feeling == "neutre":
-                        confidence = score_value = (score_value/2 + rating) / 2
-                        feeling = "positive"
-                    else:
-                        confidence = score_value = (score_value + rating) / 2
-                        feeling = "positive"
+        # if rating < 0.4:
+        #     if feeling == "negative":
+        #         score_value = (score_value + rating) / 2
+        #         confidence = -1 * score_value
+        #     elif feeling == "neutre":
+        #         if rating < 0.4:
+        #             feeling == "negative"
+        #             score_value = (score_value + rating/4) / 2
+        #             confidence = -1 * score_value
+        #         else:
+        #             confidence = 0
+        #             score_value = 0
+        #             feeling = "neutre"
+        #     else:
+        #         feeling == "neutre"
+        #         confidence = 0
+        #         score_value = 0
+        # elif rating >= 0.4 and rating <= 0.6:
+        #     if feeling == "negative" or feeling == "neutre":
+        #         feeling = "neutre"
+        #         confidence = 0
+        #         score_value = 0
+        #     else:
+        #         confidence = score_value = (score_value/4 + rating) / 2
+        #         feeling = "neutre"
+        # else:
+        #     if feeling == "negative":
+        #         confidence = score_value = (
+        #             score_value/4 + rating) / 2
+        #         feeling = "neutre"
 
-                print('-----______-----')
+        #     elif feeling == "neutre":
+        #         confidence = score_value = (score_value/2 + rating) / 2
+        #         feeling = "positive"
+        #     else:
+        #         confidence = score_value = (score_value + rating) / 2
+        #         feeling = "positive"
 
-                print({'score': str(score_value), 'confidence': str(
-                    confidence), 'feeling': feeling})
+        # return {'score': str(score_value), 'confidence': str(confidence), 'feeling': feeling}
+        #     return {'score': "0", 'confidence': "0", 'feeling': "neutre"}
 
-                print('******************')
-
-                return {'score': str(score_value), 'confidence': str(confidence), 'feeling': feeling}
-
-            else:
-                return {'score': "0", 'confidence': "0", 'feeling': "neutre"}
+        # else:
+        #     return {'score': "0", 'confidence': "0", 'feeling': "neutre"}
 
     def update_scores(self):
         for review_id in range(1, 5187):

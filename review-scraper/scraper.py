@@ -123,12 +123,12 @@ class ListScraperV2:
             score_data = review_score.compute_score(
                 item['comment'], item['language'], item['rating'], item['source'])
 
-            item['feeling'] = score_data['feeling']
-            item['score'] = score_data['score']
-            item['confidence'] = score_data['confidence']
+            # item['feeling'] = score_data['feeling']
+            # item['score'] = score_data['score']
+            # item['confidence'] = score_data['confidence']
             return item
 
-        return list(map(lambda x: set_score(x), comments))
+        # return list(map(lambda x: set_score(x), comments))
 
     def upload_feelings(self, comments):
         data = ""
@@ -161,7 +161,7 @@ class ListScraperV2:
                     break
 
                 new_comments = self.compute_scores(comments)
-                self.upload_feelings(new_comments)
+                # self.upload_feelings(new_comments)
                 page += 1
 
             except Exception as e:
