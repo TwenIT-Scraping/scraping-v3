@@ -103,7 +103,7 @@ class ERApi:
             headers = self.headers
 
             response = requests.request(
-                "POST", url, headers=headers, data=json.dumps(self.body), verify=False)
+                "PUT", url, headers=headers, data=json.dumps(self.body), verify=False)
 
             if response:
                 print(response.json())
