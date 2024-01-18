@@ -116,17 +116,15 @@ class ReviewScore:
 
     def get_score(self, text, lang):
         if self.classifier:
-            print(text.replace('\"', "\'").encode('utf-8', 'ignore'))
             # if lang in ['en', 'nl', 'de', 'fr', 'it', 'es']:
-            # try:
-            #     return self.classifier(text.replace('\"', "\'").encode('utf-8', 'ignore'))
-            # except Exception as e:
-            #     print(e)
-            #     return False
+            try:
+                return self.classifier(text.replace('\"', "\'"))
+            except Exception as e:
+                print(e)
+                return False
             # else:
             #     print("Langue inconnue !!! => ", lang)
             #     return False
-            return False
         else:
             return False
 
