@@ -159,7 +159,8 @@ class ListScraperV2:
                     break
 
                 new_comments = self.compute_scores(comments)
-                self.upload_feelings(new_comments)
+                print(new_comments)
+                # self.upload_feelings(new_comments)
                 page += 1
 
             except Exception as e:
