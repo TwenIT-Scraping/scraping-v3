@@ -139,7 +139,7 @@ class ReviewScore:
                     rate_tmp = rating.split('/')
                     rate = float(rate_tmp[0].replace(',', '.'))*2
                 else:  # /10
-                    rate = float(rating.replace(',', '.'))
+                    rate = float(rate_tmp[0].replace(',', '.'))
             else:  # without /
                 if rating_info[1] == 1:  # /5
                     rate = float(rating.replace(',', '.'))*2
