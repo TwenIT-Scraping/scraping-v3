@@ -129,6 +129,7 @@ class ReviewScore:
             return {'feeling': 'neutre', 'score': '0', 'confidence': '0'}
         else:
             score_data = self.get_score(text, lang)
+            print(score_data)
 
             if score_data:
                 score_value = score_data[0]['score']
@@ -208,7 +209,3 @@ class ReviewScore:
             except Exception as e:
                 print(e)
                 pass
-
-
-# review_score = ReviewScore()
-# review_score.update_scores()
