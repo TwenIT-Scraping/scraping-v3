@@ -145,6 +145,7 @@ class ReviewScore:
                 feeling = "negative" if score_stars < 3 else (
                     "positive" if score_stars > 3 else "neutre")
                 print(feeling)
+                print('------________------')
                 print(rating)
 
                 if rating < 0.4:
@@ -189,6 +190,8 @@ class ReviewScore:
 
                 print({'score': str(score_value), 'confidence': str(
                     confidence), 'feeling': feeling})
+
+                print('******************')
 
                 return {'score': str(score_value), 'confidence': str(confidence), 'feeling': feeling}
 
