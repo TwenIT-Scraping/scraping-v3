@@ -89,7 +89,8 @@ rating_structure = {
     'trustpilot': [1, 1],
     'maeva': [1, 1],
     'hotels': [2, 2],
-    'google': [1, 1]
+    'google': [1, 1],
+    'opentable': [2, 1]
 }
 
 
