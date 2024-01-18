@@ -126,7 +126,7 @@ class ReviewScore:
                 rating_values[0].replace(',', '.')) / 10
 
         if os.environ.get('ENV_TYPE') == 'local':
-            return {'feeling': 'positive', 'score': '0.6786', 'confidence': '0.6786'}
+            return {'feeling': 'neutre', 'score': '0', 'confidence': '0'}
         else:
             score_data = self.get_score(text, lang)
 

@@ -97,6 +97,9 @@ if __name__ == '__main__':
             if args.end_date:
                 sc.set_last_date(args.end_date)
 
+            if args.type == 'update-feelings':
+                sc.update_feelings()
+
             if args.type == 'list':
                 print(sc.get_providers())
 

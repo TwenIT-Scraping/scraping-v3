@@ -97,6 +97,19 @@ class ERApi:
 
                 return response
 
+        elif self.method == 'patchscores':
+            url = f'{self.api_url}review/update'
+            self.add_header({"Content-Type": "application/json"})
+            headers = self.headers
+
+            response = requests.request(
+                "POST", url, headers=headers, data=json.dumps(self.body), verify=False)
+
+            if response:
+                print(response.json())
+
+                return response
+
         else:
             self.add_header({"Content-Type": "application/json"})
             response = getattr(requests, self.method)(
@@ -106,6 +119,8 @@ class ERApi:
                 data=json.dumps(self.body),
                 verify=False
             )
+
+            print(response.url)
 
         if response.status_code >= 400:
             response.raise_for_status()

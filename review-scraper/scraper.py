@@ -13,6 +13,7 @@ import random
 from changeip import refresh_connection
 import time
 from datetime import datetime
+from tools import ReviewScore
 
 
 __class_name__ = {
@@ -106,6 +107,61 @@ class ListScraperV2:
     def init(self, eid=None, ename=None, categ=None, source=None):
         self.settings = Settings(categ, eid, source, ename, self.env)
         self.settings.prepare()
+
+    def get_comments(self, page):
+        commentsApi = ERApi(entity='review/feeling_null',
+                            params={'page': page, 'limit': 20}, env=self.env)
+        return commentsApi.execute()['data']
+
+    def compute_scores(self, comments):
+        review_score = ReviewScore()
+
+        def set_score(item):
+            score_data = review_score.compute_score(
+                item['comment'], item['language'], item['rating'], item['source'])
+
+            item['feeling'] = score_data['feeling']
+            item['score'] = score_data['score']
+            item['confidence'] = score_data['confidence']
+            return item
+
+        return list(map(lambda x: set_score(x), comments))
+
+    def upload_feelings(self, comments):
+        data = ""
+        for item in comments:
+            line = ','.join(item['id'], [item['feeling'],
+                            item['score'], item['confidence']]) + ";"
+            if len(line.split(',')) == 4:
+                data += line
+
+        req = ERApi(method="patchscores",
+                    entity=f"review/update", env=self.env)
+        req.set_body({'data_content': data})
+        res = req.execute()
+        print(res.status_code)
+
+    def update_feelings(self):
+        # 1- Récupérer la liste des commentaires non calculés par 20
+        # 2- calculer les feelings ... de ces commentaires
+        # 3- upload les nouvelles valeurs
+        # 4- Revenir à 1 tant que liste != liste vide
+
+        page = 1
+        while True:
+            try:
+                comments = self.get_comments(page)
+
+                if len(comments) == 0:
+                    break
+
+                new_comments = self.compute_scores(comments)
+                self.upload_feelings(new_comments)
+                page += 1
+
+            except Exception as e:
+                print(e)
+                break
 
     def set_last_date(self, date):
         self.last_date = date
