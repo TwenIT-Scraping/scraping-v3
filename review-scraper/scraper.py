@@ -130,16 +130,18 @@ class ListScraperV2:
     def upload_feelings(self, comments):
         data = ""
         for item in comments:
-            line = ','.join(item['id'], [item['feeling'],
+            line = ','.join([item['id'], item['feeling'],
                             item['score'], item['confidence']]) + ";"
             if len(line.split(',')) == 4:
                 data += line
 
-        req = ERApi(method="patchscores",
-                    entity=f"review/update", env=self.env)
-        req.set_body({'data_content': data})
-        res = req.execute()
-        print(res.status_code)
+        print(data)
+
+        # req = ERApi(method="patchscores",
+        #             entity=f"review/update", env=self.env)
+        # req.set_body({'data_content': data})
+        # res = req.execute()
+        # print(res.status_code)
 
     def update_feelings(self):
         # 1- Récupérer la liste des commentaires non calculés par 20
