@@ -176,32 +176,34 @@ class ReviewScore:
                             confidence = 0
                             score_value = 0
                             feeling = "neutre"
+                    else:
+                        feeling == "neutre"
+                        confidence = 0
+                        score_value = 0
+                elif rating == 0.5:
+                    if feeling == "negative" or feeling == "neutre":
+                        feeling = "neutre"
+                        confidence = 0
+                        score_value = 0
+                    else:
+                        confidence = score_value = (score_value/4 + rating) / 2
+                        feeling = "neutre"
                 else:
-                    feeling == "neutre"
-                    confidence = 0
-                    score_value = 0
-            elif rating == 0.5:
-                if feeling == "negative" or feeling == "neutre":
-                    feeling = "neutre"
-                    confidence = 0
-                    score_value = 0
-                else:
-                    confidence = score_value = (score_value/4 + rating) / 2
-                    feeling = "neutre"
+                    if feeling == "negative":
+                        confidence = score_value = (
+                            score_value/4 + rating) / 2
+                        feeling = "neutre"
+
+                    elif feeling == "neutre":
+                        confidence = score_value = (score_value/2 + rating) / 2
+                        feeling = "positive"
+                    else:
+                        confidence = score_value = (score_value + rating) / 2
+                        feeling = "positive"
+
+                return {'score': str(score_value), 'confidence': str(confidence), 'feeling': feeling}
             else:
-                if feeling == "negative":
-                    confidence = score_value = (
-                        score_value/4 + rating) / 2
-                    feeling = "neutre"
-
-                elif feeling == "neutre":
-                    confidence = score_value = (score_value/2 + rating) / 2
-                    feeling = "positive"
-                else:
-                    confidence = score_value = (score_value + rating) / 2
-                    feeling = "positive"
-
-            return {'score': str(score_value), 'confidence': str(confidence), 'feeling': feeling}
+                return {'score': '0', 'confidence': '0', 'feeling': "neutre"}
 
     def update_scores(self):
         for review_id in range(1, 5187):
