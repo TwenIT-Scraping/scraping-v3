@@ -134,9 +134,17 @@ class ReviewScore:
             if score_data:
                 score_value = score_data[0]['score']
                 score_label = score_data[0]['label']
+
+                print('-----*****-----')
+                print(score_value)
+                print(score_label)
+                print('-----_____-----')
+
                 score_stars = int(score_label.split()[0])
+                print(score_stars)
                 feeling = "negative" if score_stars < 3 else (
                     "positive" if score_stars > 3 else "neutre")
+                print(feeling)
 
                 if rating < 0.4:
                     if feeling == "negative":
