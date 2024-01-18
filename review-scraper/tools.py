@@ -189,17 +189,24 @@ class ReviewScore:
                         confidence = score_value = (score_value/4 + rating) / 2
                         feeling = "neutre"
                 else:
-                    if feeling == "negative":
-                        confidence = score_value = (
-                            score_value/4 + rating) / 2
-                        feeling = "neutre"
-
-                    elif feeling == "neutre":
-                        confidence = score_value = (score_value/2 + rating) / 2
+                    if rating >= 0.7:
                         feeling = "positive"
-                    else:
                         confidence = score_value = (score_value + rating) / 2
-                        feeling = "positive"
+
+                    else:
+                        if feeling == "negative":
+                            confidence = score_value = (
+                                score_value/4 + rating) / 2
+                            feeling = "neutre"
+
+                        elif feeling == "neutre":
+                            confidence = score_value = (
+                                score_value/2 + rating) / 2
+                            feeling = "positive"
+                        else:
+                            confidence = score_value = (
+                                score_value + rating) / 2
+                            feeling = "positive"
 
                 return {'score': str(score_value), 'confidence': str(confidence), 'feeling': feeling}
             else:
