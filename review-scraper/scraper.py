@@ -133,6 +133,7 @@ class ListScraperV2:
         for item in comments:
             line = '&'.join([str(item['id']), str(item['feeling']),
                             str(item['score']), str(item['confidence'])]) + "#"
+            print(line)
             if len(line.split('&')) == 4:
                 data += line
 
