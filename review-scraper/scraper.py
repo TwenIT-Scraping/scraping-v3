@@ -133,7 +133,7 @@ class ListScraperV2:
         for item in comments:
             line = '&'.join([str(item['id']), str(item['feeling']),
                             str(item['score']), str(item['confidence'])]) + "#"
-            if len(line.split(',')) == 4:
+            if len(line.split('&')) == 4:
                 data += line
 
         print(data)
@@ -159,7 +159,7 @@ class ListScraperV2:
                     break
 
                 new_comments = self.compute_scores(comments)
-                print(new_comments)
+                # print(new_comments)
                 # self.upload_feelings(new_comments)
                 page += 1
 
