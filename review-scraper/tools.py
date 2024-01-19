@@ -90,7 +90,8 @@ rating_structure = {
     'maeva': [1, 1],
     'hotels': [2, 2],
     'google': [1, 1],
-    'opentable': [2, 1]
+    'opentable': [2, 1],
+    'App (Private)': [1, 1]
 }
 
 
