@@ -44,11 +44,14 @@ def check_arguments(args):
 
 
 def check_categories(text, labels):
-    classifier = pipeline(task="zero-shot-classification",
-                          device=0, model="facebook/bart-large-mnli")
+    try:
+        classifier = pipeline(task="zero-shot-classification",
+                              device=0, model="facebook/bart-large-mnli")
 
-    predictions = classifier(text, labels, multi_class=False)
-    pprint.pprint(predictions)
+        predictions = classifier(text, labels, multi_class=False)
+        print(predictions)
+    except Exception as e:
+        print(e)
 
 # def clean():
 #     files = ['locality_log.json', 'locality.csv', 'meteo_data.txt',
