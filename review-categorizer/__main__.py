@@ -24,14 +24,17 @@ def main_arguments() -> object:
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--type', '-t', dest='type', default='',
                         help="""Options: comment, review""")
-    parser.add_argument('--env', '-v', dest='env', default="PROD",
-                        help="Optionnel: environnement de l'api. PROD par défaut")
+    parser.add_argument('--env', '-v', dest='env', default="DEV",
+                        help="Optionnel: environnement de l'api. DEV par défaut")
+    parser.add_argument('--names', '-n', dest='names',
+                        help="Nom des établissements à traiter, séparé par des virgules.")
     return parser.parse_args()
 
 
 ARGS_INFO = {
     '-t': {'long': '--type', 'dest': 'type', 'help': "Options: comment, review"},
-    '-v': {'long': '--env', 'dest': 'env', 'help': "Optionnel: environnement de l'api. PROD par défaut"}
+    '-v': {'long': '--env', 'dest': 'env', 'help': "Optionnel: environnement de l'api. PROD par défaut"},
+    '-n': {'long': '--names', 'dest': 'names', 'help': "Nom des établissements à traiter, séparé par des virgules."}
 }
 
 
@@ -63,15 +66,17 @@ class ClassificationAPI(object):
                 print("Liste des catégories disponibles: ", res['categories'])
                 print("Nombre total lignes à traiter: ", res['count'])
 
-            while (page <= pages):
-                get_instance = ERApi(
-                    method="get", entity=f"establishment/{self.tag}/reviews_to_classify", env=self.env, params={'page': page, 'limit': self.limit})
-                res = get_instance.execute()
-                self.lines += res['reviews']
-                page += 1
-                time.sleep(1)
+            if len(self.categories):
 
-            print("Lignes récupérées: ", len(self.lines))
+                while (page <= pages):
+                    get_instance = ERApi(
+                        method="get", entity=f"establishment/{self.tag}/reviews_to_classify", env=self.env, params={'page': page, 'limit': self.limit})
+                    res = get_instance.execute()
+                    self.lines += res['reviews']
+                    page += 1
+                    time.sleep(1)
+
+                print("Lignes récupérées: ", len(self.lines))
 
         except Exception as e:
             print(e)
@@ -124,10 +129,13 @@ class ClassificationAPI(object):
     def execute(self):
         try:
             self.fetch_datas()
-            self.update_lines()
-            # res = self.transform_data()
-            res = self.upload()
-            print(res)
+            if len(self.categories):
+                self.update_lines()
+                # res = self.transform_data()
+                res = self.upload()
+                print(res)
+            else:
+                print("!!!! Pas de catégories")
         except Exception as e:
             print(e)
 
@@ -167,17 +175,26 @@ if __name__ == '__main__':
         try:
             datetime_now = datetime.now().strftime("%Y-%m-%d %H_%M")
 
-            if args.type == "reviews":
-                # check_categories("Exceptionnel: L'emplacement très proche des pistes | Le mobilier et équipements de la cuisine et de la salle à manger sont certes très propres mais un peu vieillissants", [
-                #                  "Emplacement", "équipement", "mobilier", "propreté", "visibilité", "nature"])
-                cl = ClassificationAPI(tag="645de52f135e8")
-                # cl.check_categories({
-                #     "id": 48020,
-                #     "text": "Exceptionnel: L'emplacement très proche des pistes | Le mobilier et équipements de la cuisine et de la salle à manger sont certes très propres mais un peu vieillissants"
-                # })
-                # cl.fetch_datas()
+            get_instance = ERApi(
+                method="get", entity=f"establishment/name", env=args.env)
+            all_establishments = get_instance.execute()
+            todo = []
 
-                cl.execute()
+            if args.names:
+                todo = [item for item in all_establishments if item['name']
+                        in args.names.split(',')]
+            else:
+                todo = all_establishments
+
+            for item in todo:
+                if args.type == "reviews":
+                    print("======> Etablissement: ",
+                          item['name'], ' <========')
+                    cl = ClassificationAPI(tag=item['tag'])
+                    cl.execute()
+            # if args.type == "reviews":
+            #     cl = ClassificationAPI(tag="645de52f135e8")
+            #     cl.execute()
 
         except Exception as e:
             now = datetime.now()

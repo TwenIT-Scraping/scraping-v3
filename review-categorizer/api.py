@@ -92,7 +92,8 @@ class ERApi:
                 "POST", url, headers=headers, data=json.dumps(self.body), verify=False)
 
             if response:
-                print(response.json())
+                if response.text:
+                    print(response.text)
 
                 return response
 
