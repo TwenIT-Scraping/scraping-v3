@@ -133,7 +133,7 @@ class ClassificationAPI(object):
             self.fetch_datas()
             if len(self.categories):
                 min_index = 0
-                max_index = 10
+                max_index = 10 if len(self.lines) < 10 else len(self.lines)
                 print("Début traitement ...")
                 while (max_index <= len(self.lines)):
                     print("par section ...")
