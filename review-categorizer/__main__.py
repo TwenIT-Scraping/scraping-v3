@@ -48,33 +48,35 @@ class ClassificationAPI(object):
         self.lines = []
         self.env = env
         self.limit = limit
+        self.page = 1
+        self.pages = 0
 
     def fetch_datas(self):
         try:
             get_instance = ERApi(
-                method="get", entity=f"establishment/{self.tag}/reviews_to_classify", env=self.env, params={'limit': self.limit})
+                method="get", entity=f"establishment/{self.tag}/reviews_to_classify", env=self.env, params={"page": self.page, 'limit': self.limit})
             res = get_instance.execute()
-            pages = 1
-            page = 2
 
             if (res):
                 self.categories = res['categories']
                 self.establishment = res['establishment']
-                pages = res['pages']
+                self.pages = res['pages']
                 self.lines = res['reviews']
                 print("Etablissement traité: ", res['establishment']['name'])
                 print("Liste des catégories disponibles: ", res['categories'])
                 print("Nombre total lignes à traiter: ", res['count'])
 
-            if len(self.categories):
+            self.page += 1
 
-                while (page <= pages):
-                    get_instance = ERApi(
-                        method="get", entity=f"establishment/{self.tag}/reviews_to_classify", env=self.env, params={'page': page, 'limit': self.limit})
-                    res = get_instance.execute()
-                    self.lines += res['reviews']
-                    page += 1
-                    time.sleep(1)
+            # if len(self.categories):
+
+            #     while (page <= pages):
+            #         get_instance = ERApi(
+            #             method="get", entity=f"establishment/{self.tag}/reviews_to_classify", env=self.env, params={'page': page, 'limit': self.limit})
+            #         res = get_instance.execute()
+            #         self.lines += res['reviews']
+            #         page += 1
+            #         time.sleep(1)
 
             print("Lignes récupérées: ", len(self.lines))
 
@@ -106,22 +108,22 @@ class ClassificationAPI(object):
         except Exception as e:
             print(e)
 
-    def update_lines(self, min_index, max_index):
-        for line in self.lines[min_index:max_index]:
+    def update_lines(self):
+        for line in self.lines:
             line = self.check_categories(line)
 
-    def transform_data(self, min_index, max_index):
+    def transform_data(self):
         result = ""
-        for line in self.lines[min_index:max_index]:
+        for line in self.lines:
             for i in range(0, len(line['prediction']['labels'])):
                 if line['prediction']['scores'][i] >= 0.9:
                     result += f"{self.type}&{line['prediction']['labels'][i]}&{line['prediction']['scores'][i]}&{line['id']}#"
 
         return result
 
-    def upload(self, min_index, max_index):
+    def upload(self):
         try:
-            data = self.transform_data(min_index, max_index)
+            data = self.transform_data()
             post_instance = ERApi(
                 method="postclassifications", entity=f"classification/multi", env=self.env, body={'data_content': data})
             return post_instance.execute()
@@ -130,22 +132,19 @@ class ClassificationAPI(object):
 
     def execute(self):
         try:
-            self.fetch_datas()
-            if len(self.categories):
-                min_index = 0
-                max_index = 10 if len(self.lines) < 10 else len(self.lines)
-                print("Début traitement ...")
-                while (min_index <= len(self.lines)):
-                    print("par section ...")
-                    self.update_lines(min_index, max_index)
+            while (True):
+                self.fetch_datas()
+                if len(self.categories):
+                    self.update_lines()
                     # res = self.transform_data()
-                    res = self.upload(min_index, max_index)
+                    res = self.upload()
                     print(res)
-                    min_index = max_index
-                    min_index = max_index + 10
-                print("Fin traitement !")
-            else:
-                print("!!!! Pas de catégories")
+                else:
+                    print("!!!! Pas de catégories")
+                    break
+
+                if self.page > self.pages:
+                    break
         except Exception as e:
             print(e)
 
