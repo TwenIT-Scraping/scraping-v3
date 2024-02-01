@@ -49,7 +49,7 @@ class ClassificationAPI(object):
         self.env = env
         self.limit = limit
         self.page = 1
-        self.pages = 0
+        self.pages = 1
 
     def fetch_datas(self):
         try:
