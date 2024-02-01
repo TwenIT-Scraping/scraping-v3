@@ -87,7 +87,7 @@ class ClassificationAPI(object):
                                   device=-1, model="facebook/bart-large-mnli")
 
             prediction = classifier(
-                line['text'], self.categories, multi_class=False)
+                line['text'], list(map(lambda x: x['category'], self.categories)), multi_class=False)
 
             # prediction = {
             #     # 'labels': ['travel', 'cooking', 'dancing'],
