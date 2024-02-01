@@ -40,7 +40,7 @@ ARGS_INFO = {
 
 class ClassificationAPI(object):
 
-    def __init__(self, env='dev', type='review', tag='', limit=50) -> None:
+    def __init__(self, env='dev', type='review', tag='', limit=5) -> None:
         self.type = type
         self.establishment = None
         self.categories = []
@@ -66,17 +66,17 @@ class ClassificationAPI(object):
                 print("Liste des catégories disponibles: ", res['categories'])
                 print("Nombre total lignes à traiter: ", res['count'])
 
-            if len(self.categories):
+            # if len(self.categories):
 
-                while (page <= pages):
-                    get_instance = ERApi(
-                        method="get", entity=f"establishment/{self.tag}/reviews_to_classify", env=self.env, params={'page': page, 'limit': self.limit})
-                    res = get_instance.execute()
-                    self.lines += res['reviews']
-                    page += 1
-                    time.sleep(1)
+            #     while (page <= pages):
+            #         get_instance = ERApi(
+            #             method="get", entity=f"establishment/{self.tag}/reviews_to_classify", env=self.env, params={'page': page, 'limit': self.limit})
+            #         res = get_instance.execute()
+            #         self.lines += res['reviews']
+            #         page += 1
+            #         time.sleep(1)
 
-                print("Lignes récupérées: ", len(self.lines))
+            print("Lignes récupérées: ", len(self.lines))
 
         except Exception as e:
             print(e)
@@ -97,9 +97,9 @@ class ClassificationAPI(object):
             #     'sequence': line['text']
             # }
 
-            print(prediction)
-
             line['prediction'] = prediction
+
+            print(line)
 
             return line
 
