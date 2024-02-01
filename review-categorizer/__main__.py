@@ -83,19 +83,21 @@ class ClassificationAPI(object):
 
     def check_categories(self, line):
         try:
-            # classifier = pipeline(task="zero-shot-classification",
-            #                       device=0, model="facebook/bart-large-mnli")
+            classifier = pipeline(task="zero-shot-classification",
+                                  device=-1, model="facebook/bart-large-mnli")
 
-            # prediction = classifier(
-            #     line['text'], self.categories, multi_class=False)
+            prediction = classifier(
+                line['text'], self.categories, multi_class=False)
 
-            prediction = {
-                # 'labels': ['travel', 'cooking', 'dancing'],
-                'labels': self.categories,
-                # 'scores': [random.uniform(0, 1) for i in range(3)],
-                'scores': [random.uniform(0, 1) for i in range(len(self.categories))],
-                'sequence': line['text']
-            }
+            # prediction = {
+            #     # 'labels': ['travel', 'cooking', 'dancing'],
+            #     'labels': self.categories,
+            #     # 'scores': [random.uniform(0, 1) for i in range(3)],
+            #     'scores': [random.uniform(0, 1) for i in range(len(self.categories))],
+            #     'sequence': line['text']
+            # }
+
+            print(prediction)
 
             line['prediction'] = prediction
 
