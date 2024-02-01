@@ -135,7 +135,7 @@ class ClassificationAPI(object):
                 min_index = 0
                 max_index = 10 if len(self.lines) < 10 else len(self.lines)
                 print("Début traitement ...")
-                while (max_index <= len(self.lines)):
+                while (min_index <= len(self.lines)):
                     print("par section ...")
                     self.update_lines(min_index, max_index)
                     # res = self.transform_data()
