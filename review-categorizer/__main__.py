@@ -66,15 +66,15 @@ class ClassificationAPI(object):
                 print("Liste des catégories disponibles: ", res['categories'])
                 print("Nombre total lignes à traiter: ", res['count'])
 
-            # if len(self.categories):
+            if len(self.categories):
 
-            #     while (page <= pages):
-            #         get_instance = ERApi(
-            #             method="get", entity=f"establishment/{self.tag}/reviews_to_classify", env=self.env, params={'page': page, 'limit': self.limit})
-            #         res = get_instance.execute()
-            #         self.lines += res['reviews']
-            #         page += 1
-            #         time.sleep(1)
+                while (page <= pages):
+                    get_instance = ERApi(
+                        method="get", entity=f"establishment/{self.tag}/reviews_to_classify", env=self.env, params={'page': page, 'limit': self.limit})
+                    res = get_instance.execute()
+                    self.lines += res['reviews']
+                    page += 1
+                    time.sleep(1)
 
             print("Lignes récupérées: ", len(self.lines))
 
@@ -115,7 +115,7 @@ class ClassificationAPI(object):
         for line in self.lines:
             for i in range(0, len(line['prediction']['labels'])):
                 if line['prediction']['scores'][i] >= 0.9:
-                    result += f"{self.type}&{line['prediction']['labels'][i]['category']}&{line['prediction']['scores'][i]}&{line['id']}#"
+                    result += f"{self.type}&{line['prediction']['labels'][i]}&{line['prediction']['scores'][i]}&{line['id']}#"
 
         return result
 
