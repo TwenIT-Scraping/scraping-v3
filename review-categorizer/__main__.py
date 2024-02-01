@@ -106,22 +106,22 @@ class ClassificationAPI(object):
         except Exception as e:
             print(e)
 
-    def update_lines(self):
-        for line in self.lines:
+    def update_lines(self, min_index, max_index):
+        for line in self.lines[min_index:max_index]:
             line = self.check_categories(line)
 
-    def transform_data(self):
+    def transform_data(self, min_index, max_index):
         result = ""
-        for line in self.lines:
+        for line in self.lines[min_index:max_index]:
             for i in range(0, len(line['prediction']['labels'])):
                 if line['prediction']['scores'][i] >= 0.9:
                     result += f"{self.type}&{line['prediction']['labels'][i]}&{line['prediction']['scores'][i]}&{line['id']}#"
 
         return result
 
-    def upload(self):
+    def upload(self, min_index, max_index):
         try:
-            data = self.transform_data()
+            data = self.transform_data(min_index, max_index)
             post_instance = ERApi(
                 method="postclassifications", entity=f"classification/multi", env=self.env, body={'data_content': data})
             return post_instance.execute()
@@ -132,10 +132,18 @@ class ClassificationAPI(object):
         try:
             self.fetch_datas()
             if len(self.categories):
-                self.update_lines()
-                # res = self.transform_data()
-                res = self.upload()
-                print(res)
+                min_index = 0
+                max_index = 10
+                print("Début traitement ...")
+                while (max_index <= len(self.lines)):
+                    print("par section ...")
+                    self.update_lines(min_index, max_index)
+                    # res = self.transform_data()
+                    res = self.upload(min_index, max_index)
+                    print(res)
+                    min_index = max_index
+                    min_index = max_index + 10
+                print("Fin traitement !")
             else:
                 print("!!!! Pas de catégories")
         except Exception as e:
