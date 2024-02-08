@@ -90,9 +90,13 @@ class MeteoAPI(object):
                     timeout=120
                 )
 
-            return orjson.loads(response.data)
+            print(response.data)
+            print(response.status)
+
+            return orjson.loads(response.status)
 
         except urllib3.exceptions.HTTPError as e:
+            print(e)
             print('==> Connexion failed!!')
             print(e.reason)
             sys.exit()
