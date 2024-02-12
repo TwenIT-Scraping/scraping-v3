@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
 from models import Review
-# from tools import ReviewScore
+from tools import ReviewScore
 import dotenv
 import os
 from changeip import refresh_connection
@@ -122,13 +122,13 @@ class Scraping(object):
             return True
 
         result = ""
-        # review_score = ReviewScore()
+        review_score = ReviewScore()
 
         for item in self.data:
             if check_value(item):
-                # score_data = review_score.compute_score(
-                #     item['comment'], item['language'], item['rating'], item['source'])
-                score_data = {'feeling': 'neutre', 'score': 0, 'confidence': 0}
+                score_data = review_score.compute_score(
+                    item['comment'], item['language'], item['rating'], item['source'])
+                # score_data = {'feeling': 'neutre', 'score': 0, 'confidence': 0}
                 if score_data['feeling'] and score_data['score'] and score_data['confidence']:
                     line = '$'.join([item['author'], item['source'], item['language'], item['rating'], item['establishment'], item['date_review'],
                                     item['comment'].replace('$', 'USD'), score_data['feeling'], score_data['score'], score_data['confidence'], item['settings'], item['date_visit'], item['novisitday']]) + "#"
