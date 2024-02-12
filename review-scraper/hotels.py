@@ -15,6 +15,7 @@ from langdetect import detect
 from tools import month_number
 from random import randint
 from selenium.webdriver.support.select import Select
+import locale
 
 
 class Hotels(Scraping):
@@ -196,6 +197,103 @@ class Hotels_EN(Hotels):
         #     data['source'] = urlparse(self.url).netloc.split('.')[1]
 
         #     reviews.append(data)
+
+        self.data = reviews
+
+
+class Hotels_ES(Hotels):
+
+    def __init__(self, url: str, establishment: str, settings: str, env: str):
+        super().__init__(url=url, establishment=establishment, settings=settings, env=env)
+        locale.setlocale(locale.LC_ALL, 'es_eS.utf8')
+
+    def format_date(self, date: str) -> str:
+
+        date = datetime.strptime(date, '%d de %B de %Y')
+
+        return date.strftime('%d/%m-%Y')
+
+        # date = date.split(' ')
+        # month = month_number(date[1], 'fr', 'short')
+
+        # return f'{date[0]}/{month}/{date[2]}'
+
+    def load_reviews(self) -> None:
+        def get_last_review_date():
+            page = self.driver.page_source
+            soupe = BeautifulSoup(page, 'lxml')
+            review_cards = soupe.find('div', {
+                'data-stid': 'property-reviews-list'}).find_all('article', {'itemprop': 'review'})[-1]
+
+            return self.format_date(review_cards.find(
+                'span', {'itemprop': 'datePublished'}).text.strip())
+
+        super().load_reviews()
+
+        print("Load reviews ...")
+
+        try:
+            self.driver.find_element(
+                By.XPATH, "//button[contains(text(), 'Ver todas las opiniones')]").click()
+        except Exception as e:
+            print(e)
+
+        time.sleep(3)
+
+        try:
+            self.driver.find_element(
+                By.XPATH, "//select[@id='sortBy']/option[@value='NEWEST_TO_OLDEST']").click()
+
+            time.sleep(2)
+
+            more_btn = self.driver.find_element(
+                By.XPATH, '//button[contains(text(), "Más opiniones")]')
+
+            while more_btn.is_displayed():
+                if not self.check_date(get_last_review_date()):
+                    break
+
+                more_btn.click()
+                WebDriverWait(self.driver, 5)
+                time.sleep(1)
+        except:
+            pass
+
+    def extract(self) -> None:
+
+        reviews = []
+
+        input("Veullez entrer une touche ...")
+
+        time.sleep(1)
+
+        self.load_reviews()
+
+        time.sleep(random.uniform(.5, 4.0))
+
+        soup = BeautifulSoup(self.driver.page_source, 'lxml')
+        review_cards = soup.find('div', {
+                                 'data-stid': 'property-reviews-list'}).find_all('article', {'itemprop': 'review'})
+
+        for review in review_cards:
+            data = {}
+            data['date_review'] = self.format_date(review.find(
+                'span', {'itemprop': 'datePublished'}).text.strip())
+            data['author'] = review.find('img').parent.text.split(',')[0]
+            data['rating'] = review.find('span', {'itemprop': 'ratingValue'}).text.split(
+                ' ')[0] if review.find('span', {'itemprop': 'ratingValue'}) else '0'
+            data['comment'] = review.find('span', {'itemprop': 'description'}).text if review.find(
+                'span', {'itemprop': 'description'}) else ''
+
+            data['language'] = 'fr'
+
+            data['establishment'] = f'/api/establishments/{self.establishment}'
+            data['settings'] = f'/api/establishments/{self.settings}'
+            data['source'] = urlparse(self.url).netloc.split('.')[1]
+            data['date_visit'] = data['date_review']
+            data['novisitday'] = "0"
+
+            reviews.append(data)
 
         self.data = reviews
 
