@@ -17,8 +17,8 @@ from tools import ReviewScore
 
 
 __class_name__ = {
-    'booking': Booking,
-    'Booking ES': Booking,
+    # 'booking': Booking,
+    # 'Booking ES': Booking,
     'maeva': Maeva,
     'camping': Campings,
     'hotels_com': Hotels_FR,
