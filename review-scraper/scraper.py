@@ -2,7 +2,7 @@ from models import Establishment, Settings
 # from booking import Booking
 from maeva import Maeva
 from campings import Campings
-from hotels import Hotels_FR, Hotels_EN
+# from hotels import Hotels_FR, Hotels_EN
 from googles import Google
 from opentable import Opentable, Opentable_UK
 from trustpilot import Trustpilot
@@ -21,7 +21,7 @@ __class_name__ = {
     # 'Booking ES': Booking,
     'maeva': Maeva,
     'camping': Campings,
-    'hotels_com': Hotels_FR,
+    # 'hotels_com': Hotels_FR,
     'google': Google,
     'opentable': Opentable,
     'trustpilot': Trustpilot,
@@ -36,8 +36,8 @@ __class_name_v2__ = {
     'Maeva ES': Maeva,
     'Campings': Campings,
     'Campings ES': Campings,
-    'Hotels.com FR': Hotels_FR,
-    'Hotels.com ES': Hotels_FR,
+    # 'Hotels.com FR': Hotels_FR,
+    # 'Hotels.com ES': Hotels_FR,
     'Google': Google,
     'Google hotel': Google,
     'Google Travel': Google,
