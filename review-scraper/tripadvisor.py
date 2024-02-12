@@ -23,7 +23,7 @@ from tools import month_number
 class Tripadvisor(Scraping):
     def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(in_background=False, url=url,
-                         establishment=establishment, settings=settings, env=env)
+                         establishment=establishment, settings=settings, env=env, force_refresh=True)
 
     def extract(self):
         pass
@@ -202,12 +202,17 @@ class Tripadvisor_FR(Tripadvisor):
 
                 soupe = BeautifulSoup(page, 'lxml')
 
+                review_tab = soupe.find(
+                    'div', {'data-test-target': 'reviews-tab'})
+                # print(review_tab)
+
                 try:
 
                     reviews_card = soupe.find_all(
                         'div', {'data-test-target': "HR_CC_CARD"})
 
-                    if len(reviews_card):
+                    if len(reviews_card) > 0:
+                        print(len(reviews_card))
 
                         for item in reviews_card:
 
@@ -276,7 +281,8 @@ class Tripadvisor_FR(Tripadvisor):
                         print("Review card non trouvé, tenter autrement ...")
                         raise Exception()
 
-                except:
+                except Exception as e:
+                    print(e)
                     reviews_card = soupe.find_all(
                         'div', {'class': "review-container"})
 
@@ -349,7 +355,8 @@ class Tripadvisor_FR(Tripadvisor):
 
             self.data = reviews
 
-        except:
+        except Exception as e:
+            print(e)
 
             while True:
                 time.sleep(5)

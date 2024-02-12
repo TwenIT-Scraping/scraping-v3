@@ -30,17 +30,25 @@ __class_name__ = {
 
 __class_name_v2__ = {
     'Booking': Booking,
+    'Booking ES': Booking,
     'Maeva': Maeva,
+    'Maeva ES': Maeva,
     'Campings': Campings,
+    'Campings ES': Campings,
     'Hotels.com FR': Hotels_FR,
+    'Hotels.com ES': Hotels_FR,
     'Google': Google,
     'Google hotel': Google,
     'Google Travel': Google,
     'Opentable UK': Opentable_UK,
+    'Opentable': Opentable,
     'Trustpilot': Trustpilot,
     'Tripadvisor FR': Tripadvisor_FR,
     'Tripadvisor UK': Tripadvisor_UK,
+    'Tripadvisor ES': Tripadvisor_UK,
     'Expedia': Expedia,
+    'Expedia FR': Expedia,
+    'Expedia ES': Expedia,
     'Thefork': Thefork,
 }
 

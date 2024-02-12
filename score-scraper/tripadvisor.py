@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 class Tripadvisor(Scraping):
     def __init__(self, url: str, establishment: str, env: str):
         super().__init__(in_background=False, url=url,
-                         establishment=establishment, env=env)
+                         establishment=establishment, env=env, force_refresh=True)
 
         self.attr = 'data-automation'
         self.balise = 'div'
@@ -19,7 +19,7 @@ class Tripadvisor(Scraping):
 class Tripadvisor_UK(Scraping):
     def __init__(self, url: str, establishment: str, env: str):
         super().__init__(in_background=False, url=url,
-                         establishment=establishment, env=env)
+                         establishment=establishment, env=env, force_refresh=True)
 
         self.attr = 'data-automation'
         self.balise = 'div'
@@ -30,7 +30,7 @@ class Tripadvisor_UK(Scraping):
 class Tripadvisor_FR(Scraping):
     def __init__(self, url: str, establishment: str, env: str):
         super().__init__(in_background=False, url=url,
-                         establishment=establishment, env=env)
+                         establishment=establishment, env=env, force_refresh=True)
 
         self.attr = 'class'
         self.balise = 'span'
@@ -38,19 +38,29 @@ class Tripadvisor_FR(Scraping):
         self.source = 'tripadvisor'
 
     def extract(self) -> None:
-        time.sleep(2)
+        time.sleep(5)
 
         if self.css_selector:
-            page = self.driver.page_source
-            soupe = BeautifulSoup(page, 'lxml')
+            while True:
+                page = self.driver.page_source
+                soupe = BeautifulSoup(page, 'lxml')
 
-            print(len(soupe.find_all(self.balise, {
-                  self.attr: self.css_selector})))
+                with open('test.txt', 'w', encoding='utf-8') as f:
+                    f.write(soupe.text.strip())
 
-            score = float(soupe.find(self.balise, {self.attr: self.css_selector}).text.strip(
-            ).replace(',', '.')) if soupe.find(self.balise, {self.attr: self.css_selector}) else 0
+                print(len(soupe.find_all(self.balise, {
+                    self.attr: self.css_selector})))
 
-            self.data = score / 2 if score > 5 else score
+                score = float(soupe.find(self.balise, {self.attr: self.css_selector}).text.strip(
+                ).replace(',', '.')) if soupe.find(self.balise, {self.attr: self.css_selector}) else 0
+
+                self.data = score / 2 if score > 5 else score
+
+                if score != 0:
+                    break
+
+                time.sleep(5)
+                self.driver.refresh()
 
         if self.xpath_selector:
             score = float(self.driver.find_element(By.XPATH, self.xpath_selector).text) \

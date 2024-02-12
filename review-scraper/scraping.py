@@ -18,11 +18,12 @@ from models import Review
 from tools import ReviewScore
 import dotenv
 import os
+from changeip import refresh_connection
 
 
 class Scraping(object):
 
-    def __init__(self, in_background: bool, url: str, establishment: str, settings: str, env: str) -> None:
+    def __init__(self, in_background: bool, url: str, establishment: str, settings: str, env: str, force_refresh=False) -> None:
 
         # driver options
         self.chrome_options = webdriver.ChromeOptions()
@@ -40,6 +41,7 @@ class Scraping(object):
         self.firefox_options.add_argument('--incognito')
         self.firefox_options.set_preference(
             'intl.accept_languages', 'en-US, en')
+        self.force_refresh = force_refresh
 
         dotenv.load_dotenv()
 
@@ -79,8 +81,12 @@ class Scraping(object):
         else:
             return True
 
-    def execute(self) -> None:
+    def execute(self):
         try:
+
+            if self.force_refresh:
+                refresh_connection()
+
             self.scrap()
             time.sleep(5)
             WebDriverWait(self.driver, 10)

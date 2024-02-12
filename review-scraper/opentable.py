@@ -107,7 +107,7 @@ class Opentable(Scraping):
                     'novisitday': "1"
                 })
 
-            if not self.check_date(self.reviews_data[-1]['date_review']):
+            if len(self.reviews_data) and not self.check_date(self.reviews_data[-1]['date_review']):
                 break
 
             try:
@@ -129,7 +129,7 @@ class Opentable(Scraping):
                     break
 
             except Exception as e:
-                print(e)
+                # print(e)
                 break
 
         self.data = self.reviews_data

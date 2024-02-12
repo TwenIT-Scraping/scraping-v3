@@ -11,11 +11,12 @@ from bs4 import BeautifulSoup
 import dotenv
 import os
 from api import ERApi
+from changeip import refresh_connection
 
 
 class Scraping(object):
 
-    def __init__(self, in_background: bool, url: str, establishment: str, env: str) -> None:
+    def __init__(self, in_background: bool, url: str, establishment: str, env: str, force_refresh=False) -> None:
 
         # driver options
         self.chrome_options = webdriver.ChromeOptions()
@@ -59,6 +60,7 @@ class Scraping(object):
         self.source = ""
 
         self.env = env
+        self.force_refresh = force_refresh
 
     def set_establishment(self, establishment):
         self.establishment = establishment
@@ -68,6 +70,9 @@ class Scraping(object):
 
     def execute(self) -> None:
         try:
+            if self.force_refresh:
+                refresh_connection()
+
             self.scrap()
             time.sleep(5)
             WebDriverWait(self.driver, 10)

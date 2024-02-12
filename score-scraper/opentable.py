@@ -7,6 +7,8 @@ class Opentable(Scraping):
         super().__init__(in_background=False, url=url,
                          establishment=establishment, env=env)
 
+        print(self.url)
+
         self.xpath_selector = "//div[@id='ratingInfo']/span"
         self.source = 'opentable'
 
