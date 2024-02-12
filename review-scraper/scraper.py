@@ -1,5 +1,5 @@
 from models import Establishment, Settings
-from booking import Booking
+# from booking import Booking
 from maeva import Maeva
 from campings import Campings
 from hotels import Hotels_FR, Hotels_EN
@@ -13,7 +13,7 @@ import random
 from changeip import refresh_connection
 import time
 from datetime import datetime
-from tools import ReviewScore
+# from tools import ReviewScore
 
 
 __class_name__ = {
@@ -121,20 +121,20 @@ class ListScraperV2:
                             params={'page': page, 'limit': 50}, env=self.env)
         return commentsApi.execute()['data']
 
-    def compute_scores(self, comments):
-        review_score = ReviewScore()
+    # def compute_scores(self, comments):
+    #     review_score = ReviewScore()
 
-        def set_score(item):
-            score_data = review_score.compute_score(
-                item['comment'], item['language'], item['rating'], item['source'])
+    #     def set_score(item):
+    #         score_data = review_score.compute_score(
+    #             item['comment'], item['language'], item['rating'], item['source'])
 
-            item['feeling'] = score_data['feeling']
-            item['score'] = score_data['score']
-            item['confidence'] = score_data['confidence']
+    #         item['feeling'] = score_data['feeling']
+    #         item['score'] = score_data['score']
+    #         item['confidence'] = score_data['confidence']
 
-            return item
+    #         return item
 
-        return list(map(lambda x: set_score(x), comments))
+    #     return list(map(lambda x: set_score(x), comments))
 
     def upload_feelings(self, comments):
         data = ""
@@ -166,9 +166,9 @@ class ListScraperV2:
                 if len(comments) == 0:
                     break
 
-                new_comments = self.compute_scores(comments)
-                # print(new_comments)
-                self.upload_feelings(new_comments)
+                # new_comments = self.compute_scores(comments)
+                # # print(new_comments)
+                # self.upload_feelings(new_comments)
                 page += 1
 
             except Exception as e:
