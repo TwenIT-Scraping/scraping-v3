@@ -205,7 +205,7 @@ class Hotels_ES(Hotels):
 
     def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(url=url, establishment=establishment, settings=settings, env=env)
-        locale.setlocale(locale.LC_ALL, 'es_eS.utf8')
+        locale.setlocale(locale.LC_ALL, 'esp_esp')
 
     def format_date(self, date: str) -> str:
 
