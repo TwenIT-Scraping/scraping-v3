@@ -108,7 +108,7 @@ class ReviewScore:
                 self.model_name)
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             self.classifier = pipeline(
-                'sentiment-analysis', model=self.model, tokenizer=self.tokenizer)
+                'sentiment-analysis', model=self.model, tokenizer=self.tokenizer, device=-1)
         else:
             self.model_name = ""
             self.model = None
