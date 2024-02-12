@@ -30,8 +30,8 @@ __class_name__ = {
 }
 
 __class_name_v2__ = {
-    'Booking': Booking,
-    'Booking ES': Booking,
+    # 'Booking': Booking,
+    # 'Booking ES': Booking,
     'Maeva': Maeva,
     'Maeva ES': Maeva,
     'Campings': Campings,
