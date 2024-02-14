@@ -281,13 +281,11 @@ class Hotels_ES(Hotels):
             comment = review.find('span', {'itemprop': 'description'}).text if review.find(
                 'span', {'itemprop': 'description'}) else ''
 
-            lang = 'fr'
+            lang = 'es'
 
             try:
                 lang = detect(comment)
-                print(lang)
             except Exception as e:
-                print(e)
                 pass
 
             if lang == 'es':
@@ -300,12 +298,12 @@ class Hotels_ES(Hotels):
                 data['comment'] = review.find('span', {'itemprop': 'description'}).text if review.find(
                     'span', {'itemprop': 'description'}) else ''
 
-                data['language'] = 'es'
+                data['language'] = lang
 
                 data['establishment'] = f'/api/establishments/{self.establishment}'
                 data['settings'] = f'/api/establishments/{self.settings}'
-                # data['source'] = urlparse(self.url).netloc.split('.')[1]
-                data['source'] = 'hotels.com'
+                data['source'] = urlparse(self.url).netloc.split('.')[1]
+                # data['source'] = 'hotels'
                 data['date_visit'] = data['date_review']
                 data['novisitday'] = "0"
 
