@@ -16,6 +16,7 @@ from tools import month_number
 from random import randint
 from selenium.webdriver.support.select import Select
 import locale
+from langdetect import detect
 
 
 class Hotels(Scraping):
@@ -276,24 +277,32 @@ class Hotels_ES(Hotels):
                                  'data-stid': 'property-reviews-list'}).find_all('article', {'itemprop': 'review'})
 
         for review in review_cards:
-            data = {}
-            data['date_review'] = self.format_date(review.find(
-                'span', {'itemprop': 'datePublished'}).text.strip())
-            data['author'] = review.find('img').parent.text.split(',')[0]
-            data['rating'] = review.find('span', {'itemprop': 'ratingValue'}).text.split(
-                ' ')[0] if review.find('span', {'itemprop': 'ratingValue'}) else '0'
-            data['comment'] = review.find('span', {'itemprop': 'description'}).text if review.find(
+
+            comment = review.find('span', {'itemprop': 'description'}).text if review.find(
                 'span', {'itemprop': 'description'}) else ''
 
-            data['language'] = 'fr'
+            print(detect(comment))
 
-            data['establishment'] = f'/api/establishments/{self.establishment}'
-            data['settings'] = f'/api/establishments/{self.settings}'
-            data['source'] = urlparse(self.url).netloc.split('.')[1]
-            data['date_visit'] = data['date_review']
-            data['novisitday'] = "0"
+            if detect(comment) == 'es':
+                data = {}
+                data['date_review'] = self.format_date(review.find(
+                    'span', {'itemprop': 'datePublished'}).text.strip())
+                data['author'] = review.find('img').parent.text.split(',')[0]
+                data['rating'] = review.find('span', {'itemprop': 'ratingValue'}).text.split(
+                    ' ')[0] if review.find('span', {'itemprop': 'ratingValue'}) else '0'
+                data['comment'] = review.find('span', {'itemprop': 'description'}).text if review.find(
+                    'span', {'itemprop': 'description'}) else ''
 
-            reviews.append(data)
+                data['language'] = 'es'
+
+                data['establishment'] = f'/api/establishments/{self.establishment}'
+                data['settings'] = f'/api/establishments/{self.settings}'
+                # data['source'] = urlparse(self.url).netloc.split('.')[1]
+                data['source'] = 'hotels.com'
+                data['date_visit'] = data['date_review']
+                data['novisitday'] = "0"
+
+                reviews.append(data)
 
         self.data = reviews
 
