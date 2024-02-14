@@ -281,9 +281,16 @@ class Hotels_ES(Hotels):
             comment = review.find('span', {'itemprop': 'description'}).text if review.find(
                 'span', {'itemprop': 'description'}) else ''
 
-            print(detect(comment))
+            lang = 'fr'
 
-            if detect(comment) == 'es':
+            try:
+                lang = detect(comment)
+                print(lang)
+            except Exception as e:
+                print(e)
+                pass
+
+            if lang == 'es':
                 data = {}
                 data['date_review'] = self.format_date(review.find(
                     'span', {'itemprop': 'datePublished'}).text.strip())
