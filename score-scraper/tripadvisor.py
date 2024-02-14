@@ -26,6 +26,10 @@ class Tripadvisor_UK(Scraping):
         self.css_selector = 'reviewBubbleScore'
         self.source = 'tripadvisor'
 
+    def extract(self) -> None:
+        input("Entrer une touche pour continuer ...")
+        return super().extract()
+
 
 class Tripadvisor_ES(Scraping):
     def __init__(self, url: str, establishment: str, env: str):
@@ -36,6 +40,10 @@ class Tripadvisor_ES(Scraping):
         self.balise = 'span'
         self.css_selector = 'kJyXc P'
         self.source = 'tripadvisor'
+
+    def extract(self) -> None:
+        input("Entrer une touche pour continuer ...")
+        return super().extract()
 
 
 class Tripadvisor_FR(Scraping):
@@ -50,6 +58,8 @@ class Tripadvisor_FR(Scraping):
 
     def extract(self) -> None:
         time.sleep(5)
+
+        input("Entrer une touche pour continuer ...")
 
         if self.css_selector:
             while True:
