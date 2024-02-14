@@ -211,7 +211,7 @@ class Hotels_ES(Hotels):
 
         date = datetime.strptime(date, '%d de %B de %Y')
 
-        return date.strftime('%d/%m-%Y')
+        return date.strftime('%d/%m/%Y')
 
         # date = date.split(' ')
         # month = month_number(date[1], 'fr', 'short')
@@ -250,8 +250,8 @@ class Hotels_ES(Hotels):
                 By.XPATH, '//button[contains(text(), "Más opiniones")]')
 
             while more_btn.is_displayed():
-                if not self.check_date(get_last_review_date()):
-                    break
+                # if not self.check_date(get_last_review_date()):
+                #     break
 
                 more_btn.click()
                 WebDriverWait(self.driver, 5)
