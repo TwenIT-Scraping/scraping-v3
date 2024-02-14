@@ -27,6 +27,17 @@ class Tripadvisor_UK(Scraping):
         self.source = 'tripadvisor'
 
 
+class Tripadvisor_ES(Scraping):
+    def __init__(self, url: str, establishment: str, env: str):
+        super().__init__(in_background=False, url=url,
+                         establishment=establishment, env=env, force_refresh=True)
+
+        self.attr = 'class'
+        self.balise = 'span'
+        self.css_selector = 'kJyXc P'
+        self.source = 'tripadvisor'
+
+
 class Tripadvisor_FR(Scraping):
     def __init__(self, url: str, establishment: str, env: str):
         super().__init__(in_background=False, url=url,
