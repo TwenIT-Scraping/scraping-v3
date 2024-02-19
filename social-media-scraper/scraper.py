@@ -30,10 +30,15 @@ __class_name__ = {
 class ListScraper:
     def __init__(self):
         self.settings = None
+        self.auto_save = False
 
     def init(self, eid=None, ename=None, categ='Social', source=None):
         self.settings = Settings(categ, eid, source, ename)
         self.settings.prepare()
+
+    def set_auto_save(self):
+        print("set auto save to active")
+        self.auto_save = True
 
     def start(self):
         refresh_connection()
@@ -53,7 +58,16 @@ class ListScraper:
                 try:
                     instance = __class_name__[item_key](
                         items=by_source[item_key])
-                    instance.execute()
+                    files = instance.execute()
+
+                    print("After execute...")
+
+                    if self.auto_save:
+                        print("Transform and upload ...")
+                        for f in files:
+                            self.transform_data(filename=f)
+                            self.upload_data(file=f)
+
                 except Exception as e:
                     print(e)
 
@@ -67,8 +81,8 @@ class ListScraper:
     def transform_data(self, filename):
         results = ""
         try:
-            with open(f"{os.environ.get('SOCIAL_FOLDER')}/{filename}.json", 'r') as finput:
-                data = json.load(finput)
+            with open(f"{os.environ.get('SOCIAL_FOLDER')}/{filename}.json", 'r', encoding='utf-8') as finput:
+                data = json.load(finput, strict=False)
 
             for item in data['posts']:
                 if "publishedAt" in item.keys():
@@ -106,6 +120,7 @@ class ListScraper:
 
         except Exception as e:
             print(e)
+            print(filename)
 
     def upload_data(self, file):
         data = {}

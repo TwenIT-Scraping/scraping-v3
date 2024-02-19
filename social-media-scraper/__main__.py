@@ -16,6 +16,8 @@ def main_arguments() -> object:
                         help="Liste des sites à scaper uniquement pour les options 'by-website' et 'specified'.")
     parser.add_argument('--name', '-n', dest='name', default="",
                         help="Nom du fichier à traiter.")
+    parser.add_argument('--auto-save', '-a', dest='auto_save',
+                        default="1", choices=["0", "1"], help="Uploader tout de suite les résultats.")
     return parser.parse_args()
 
 
@@ -23,7 +25,8 @@ ARGS_INFO = {
     '-t': {'long': '--type', 'dest': 'type', 'help': "Définir les sites à scraper. Options: all, by-website, by-establishment, specified, auto, manual"},
     '-e': {'long': '--establishments', 'dest': 'establishments', "help": "Liste des établissements à scaper uniquement pour les options 'by-establishment' et 'specified'."},
     '-s': {'long': '--sites', 'dest': 'sites', "help": "Liste des sites à scaper uniquement pour les options 'by-website' et 'specified'."},
-    '-n': {'long': '--name', 'dest': 'name', "help": "Nom du fichier à traiter."}
+    '-n': {'long': '--name', 'dest': 'name', "help": "Nom du fichier à traiter."},
+    '-a': {'long': '--auto-save', 'dest': 'auto_save', "help": "Uploader tout de suite les résultats."}
 }
 
 
@@ -87,6 +90,9 @@ if __name__ == '__main__':
                 if not len(miss):
                     with open(history_filename, 'a', encoding='utf-8') as file:
                         file.write(f" ({args.sites}) ")
+
+                    if args.auto_save == "1":
+                        sc.set_auto_save()
 
                     for s in args.sites.split('|'):
                         print("Site: ", s)
