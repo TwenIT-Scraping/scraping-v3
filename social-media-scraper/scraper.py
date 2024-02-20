@@ -40,6 +40,13 @@ class ListScraper:
         print("set auto save to active")
         self.auto_save = True
 
+    def get_providers(self):
+        try:
+            res = ERApi(entity='providers').execute()
+        except Exception as e:
+            print(e)
+        return list(map(lambda x: {'name': x['name'], 'count': len(x['settings'])}, res))
+
     def start(self):
         refresh_connection()
 
@@ -107,9 +114,16 @@ class ListScraper:
                 if "shares" in item.keys():
                     item['share'] = item['shares']
 
+                comments = ""
+
+                for com in item['comment_values']:
+                    comments += '|cc|'.join(
+                        [com['comment'], com['author'], str(com['likes']), datetime.strptime(
+                            com['published_at'], '%d/%m/%Y').strftime('%Y-%m-%d')]) + "|cl|"
+
                 line = '|&|'.join([item['title'], item['uploadAt'],
-                                   str(item['likes']), str(item['share']), str(item['comments'])]) + "|*|"
-                if len(line.split('|&|')) == 5:
+                                   str(item['likes']), str(item['share']), str(item['comments']), comments]) + "|*|"
+                if len(line.split('|&|')) == 6:
                     results += line
 
             with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{filename}.txt", 'w', encoding='utf-8') as foutput:
@@ -125,26 +139,24 @@ class ListScraper:
     def upload_data(self, file):
         data = {}
         posts = ""
-        post_count = 0
 
         with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.json", 'r') as dinput:
             data = json.load(dinput)
-            post_count = len(data['posts'])
-            del data['posts']
+            data['posts'] = len(data['posts'])
             del data['url']
 
         with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.txt", 'r', encoding='utf-8') as pinput:
             for line in pinput.readlines():
                 posts += " " + line.strip()
 
-        data['posts'] = post_count
+        data['post_items'] = posts
 
         post = ERApi(method='postmulti')
-        post.add_params(data)
 
-        post.set_body({'post_items': posts})
+        post.set_body(data)
 
         result = post.execute()
+
         print(result)
 
     def upload_all_results(self):

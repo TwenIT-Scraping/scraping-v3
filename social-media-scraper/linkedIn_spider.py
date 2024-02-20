@@ -6,6 +6,7 @@ import time
 from scraping import Scraping
 from progress.bar import ChargingBar, FillingCirclesBar
 import re
+import sys
 
 
 def format_linkedIn_date(date: str) -> str:
@@ -74,6 +75,13 @@ class LinkedInProfileScraper(Scraping):
         time.sleep(1)
         self.page.locator("[type='submit']").click()
         self.page.wait_for_timeout(60000)
+        try:
+            captcha = self.page.locator(
+                'div.body__banner-wrapper').locator('h1')
+            if captcha:
+                input("Press enter when you have finished captcha resolution ...")
+        except:
+            pass
 
     def goto_page(self, page) -> None:
         # self.page.goto(self.url+'/posts/?feedView=all')
@@ -82,6 +90,16 @@ class LinkedInProfileScraper(Scraping):
         self.scoll_down_page()
 
     def extract_data(self) -> None:
+        def convert_count(value):
+            if 'k' in value:
+                tmp = value.split('k')
+                millier = int(tmp[0])
+                centaine = int(tmp[1]) if len(tmp) > 1 and tmp[1] != "" else 0
+
+                return (millier*1000)+(centaine*100)
+            else:
+                return value
+
         try:
             comments_link = self.page.locator(
                 "button.social-details-social-counts__count-value.t-12.hoverable-link-text").filter(has_text=re.compile("comment")).all()
@@ -105,8 +123,14 @@ class LinkedInProfileScraper(Scraping):
                 break
 
         soupe = BeautifulSoup(self.page.content(), 'lxml')
-        followers = int(''.join(filter(str.isdigit, soupe.find('div', {'class': "org-top-card-summary-info-list"}).find_all(
-            'div', {'class': "org-top-card-summary-info-list__info-item"})[-1].text.strip())))
+
+        followers = soupe.find('div', {'class': "org-top-card-summary-info-list"}).find_all(
+            'div', {'class': "org-top-card-summary-info-list__info-item"})[-1].text.strip()
+        try:
+            followers = convert_count(followers.split(' ')[0].lower())
+        except Exception as e:
+            print(e)
+            sys.exit(1)
 
         name = soupe.find(
             'section', {'class': 'org-top-card artdeco-card'}).find('h1').text.strip()
@@ -136,8 +160,8 @@ class LinkedInProfileScraper(Scraping):
                     comment_values = []
 
                     for comment in comment_list:
-                        # author = comment.find('span', {'class': 'comments-post-meta__name-text'}).find('span', {'aria-hidden': "true"}).text.strip(
-                        # ) if comment.find('span', {'class': 'comments-post-meta__name-text'}) and comment.find('span', {'class': 'comments-post-meta__name-text'}).find('span', {'aria-hidden': "true"}) else ""
+                        author = comment.find('span', {'class': 'comments-post-meta__name-text'}).find('span', {'aria-hidden': "true"}).text.strip(
+                        ) if comment.find('span', {'class': 'comments-post-meta__name-text'}) and comment.find('span', {'class': 'comments-post-meta__name-text'}).find('span', {'aria-hidden': "true"}) else ""
                         comment_text = comment.find('span', {'class': 'comments-comment-item__main-content'}).text.strip(
                         ) if comment.find('span', {'class': 'comments-comment-item__main-content'}) else ""
                         published_at = format_linkedIn_date(comment.find(
@@ -149,7 +173,8 @@ class LinkedInProfileScraper(Scraping):
                         comment_values.append({
                             'comment': comment_text,
                             'published_at': published_at,
-                            'likes': clikes
+                            'likes': clikes,
+                            'author': author
                         })
 
                     # comments = int(''.join(filter(str.isdigit, post.find('li', {'class': "social-details-social-counts__comments"}).text.strip().split(' ')[0]))) if \
@@ -183,22 +208,10 @@ class LinkedInProfileScraper(Scraping):
 
                     total_comments += comments
 
-                    # if comments > 0:
-                    #     print(f"with {comments} comments")
-                    #     try:
-                    #         print(post.locator("button"))
-                    #         post.locator("button").click()
-                    #         time.sleep(2)
-                    #     except Exception as e:
-                    #         print(e)
-                    #         pass
-
                 except Exception as e:
                     print("Exception interne")
                     print(e)
                     pass
-
-            # print(total_comments)
 
         except Exception as e:
             print("Exception externe")

@@ -44,24 +44,32 @@ class ERApi:
         if self.method == 'postmulti':
 
             url = f'{self.api_url}social/multi'
-            files = []
 
-            response = requests.request(
-                "POST", url, headers=self.headers, params=self.params, data=json.dumps(self.body), files=files, verify=False)
+            try:
 
-            if response.status_code != 200:
-                raise response.raise_for_status()
+                response = requests.request(
+                    "POST", url, headers=self.headers, data=json.dumps(self.body), verify=False)
 
-            return response
+                if response.status_code != 200:
+                    raise response.raise_for_status()
+
+                print(response.json())
+
+                return response
+            except Exception as e:
+                print(e)
 
         else:
-            self.add_header({"Content-Type": "application/json"})
-            response = getattr(requests, self.method)(
-                f'{self.api_url}{self.entity}',
-                params=self.params,
-                headers=self.headers,
-                data=self.body,
-                verify=False
-            )
+            try:
+                self.add_header({"Content-Type": "application/json"})
+                response = getattr(requests, self.method)(
+                    f'{self.api_url}{self.entity}',
+                    params=self.params,
+                    headers=self.headers,
+                    data=self.body,
+                    verify=False
+                )
+            except Exception as e:
+                print(e)
 
         return response and response.json()

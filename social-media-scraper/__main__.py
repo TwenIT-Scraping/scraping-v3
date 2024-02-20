@@ -69,6 +69,9 @@ if __name__ == '__main__':
 
             sc = ListScraper()
 
+            if args.type == 'list':
+                print(sc.get_providers())
+
             if args.type == 'prepare-all':
                 sc.transform_all_data()
 
@@ -108,6 +111,9 @@ if __name__ == '__main__':
                     with open(history_filename, 'a', encoding='utf-8') as file:
                         file.write(f" ({args.establishments}) ")
 
+                    if args.auto_save == "1":
+                        sc.set_auto_save()
+
                     for e in args.establishments.split('|'):
                         sc.init(ename=e)
                         sc.start()
@@ -120,6 +126,9 @@ if __name__ == '__main__':
                 if not len(miss):
                     with open(history_filename, 'a', encoding='utf-8') as file:
                         file.write(f" ({args.establishments}: {args.sites}) ")
+
+                    if args.auto_save == "1":
+                        sc.set_auto_save()
 
                     sc.init(source=args.sites, ename=args.establishments)
                     sc.start()
