@@ -17,13 +17,13 @@ from progress.bar import ChargingBar
 __class_name__ = {
     # 'Facebook': FacebookProfileScraper,
     # 'Youtube': FacebookProfileScraper,
-    'Instagram': InstagramProfileScraper,
-    'Linkedin': LinkedInProfileScraper,
+    'Instagram hashtag': InstagramProfileScraper,
+    'Linkedin hashtag': LinkedInProfileScraper,
     'facebook EN': FacebookProfileScraper,
-    'Twitter': TwitterProfileScraperFR,
-    'Twitter (X)': TwitterProfileScraperFR,
-    'Tiktok': TikTokProfileScraper,
-    'Facebook': FacebookProfileScraper
+    'Twitter hashtag': TwitterProfileScraperFR,
+    'Twitter (X) hashtag': TwitterProfileScraperFR,
+    'Tiktok hashtag': TikTokProfileScraper,
+    'Facebook hashtag': FacebookProfileScraper
 }
 
 
@@ -32,7 +32,7 @@ class ListScraper:
         self.settings = None
         self.auto_save = False
 
-    def init(self, eid=None, ename=None, categ='Social', source=None):
+    def init(self, eid=None, ename=None, categ='Hashtag', source=None):
         self.settings = Settings(categ, eid, source, ename)
         self.settings.prepare()
 
@@ -73,7 +73,7 @@ class ListScraper:
                         print("Transform and upload ...")
                         for f in files:
                             self.transform_data(filename=f)
-                            self.upload_data(file=f)
+                            # self.upload_data(file=f)
 
                 except Exception as e:
                     print(e)
@@ -121,8 +121,8 @@ class ListScraper:
                         [com['comment'], com['author'], str(com['likes']), datetime.strptime(
                             com['published_at'], '%d/%m/%Y').strftime('%Y-%m-%d')]) + "|cl|"
 
-                line = '|&|'.join([item['title'], item['uploadAt'],
-                                   str(item['likes']), str(item['share']), str(item['comments']), comments]) + "|*|"
+                line = '|&|'.join([item['author'], item['title'], item['uploadAt'],
+                                   str(item['likes']), str(item['share']), str(item['comments']), item['hashtag'], comments]) + "|*|"
                 if len(line.split('|&|')) == 6:
                     results += line
 

@@ -84,21 +84,22 @@ class LinkedInProfileScraper(Scraping):
             pass
 
     def goto_page(self, page) -> None:
-        # self.page.goto(self.url+'/posts/?feedView=all')
         self.page.goto(self.url+page)
         self.page.wait_for_timeout(10000)
+
+        try:
+            self.page.locator(
+                "a.app-aware-link").filter(has_text=re.compile("post")).click()
+            time.sleep(5)
+
+        except Exception as e:
+            print(e)
+
         self.scoll_down_page()
 
     def extract_data(self) -> None:
-        def convert_count(value):
-            if 'k' in value:
-                tmp = value.split('k')
-                millier = int(tmp[0])
-                centaine = int(tmp[1]) if len(tmp) > 1 and tmp[1] != "" else 0
 
-                return (millier*1000)+(centaine*100)
-            else:
-                return value
+        hashtag = self.page.url.split("=")[1].split('&')[0]
 
         try:
             comments_link = self.page.locator(
@@ -123,107 +124,109 @@ class LinkedInProfileScraper(Scraping):
                 break
 
         soupe = BeautifulSoup(self.page.content(), 'lxml')
-
-        followers = soupe.find('div', {'class': "org-top-card-summary-info-list"}).find_all(
-            'div', {'class': "org-top-card-summary-info-list__info-item"})[-1].text.strip()
-        try:
-            followers = convert_count(followers.split(' ')[0].lower())
-        except Exception as e:
-            print(e)
-            sys.exit(1)
-
-        name = soupe.find(
-            'section', {'class': 'org-top-card artdeco-card'}).find('h1').text.strip()
+        post_items = []
 
         try:
-            post_container = soupe.find(
-                'div', class_='scaffold-finite-scroll__content').find_all('div', class_='occludable-update') if soupe.find(
-                'div', class_='scaffold-finite-scroll__content') else []
+            post_containers = soupe.find_all(
+                'ul', class_='reusable-search__entity-result-list')
 
-            total_comments = 0
-
-            for post in post_container:
-                try:
-                    comments_container = post.find(
-                        'li', {'class': "social-details-social-counts__comments"})
-
-                    comments = 0
-
-                    if comments_container:
-                        comments = int(
-                            ''.join(filter(str.isdigit, comments_container.text.strip().split(' ')[0])))
-                        # print(f"with {comments} comments")
-
-                    comment_list = post.find_all(
-                        'article', {'class': 'comments-comments-list__comment-item'})
-
-                    comment_values = []
-
-                    for comment in comment_list:
-                        author = comment.find('span', {'class': 'comments-post-meta__name-text'}).find('span', {'aria-hidden': "true"}).text.strip(
-                        ) if comment.find('span', {'class': 'comments-post-meta__name-text'}) and comment.find('span', {'class': 'comments-post-meta__name-text'}).find('span', {'aria-hidden': "true"}) else ""
-                        comment_text = comment.find('span', {'class': 'comments-comment-item__main-content'}).text.strip(
-                        ) if comment.find('span', {'class': 'comments-comment-item__main-content'}) else ""
-                        published_at = format_linkedIn_date(comment.find(
-                            'time', {'class': 'comments-comment-item__timestamp'}).text.strip()) if comment.find(
-                            'time', {'class': 'comments-comment-item__timestamp'}) else ""
-                        clikes = int(comment.find(
-                            'button', {'class': 'comments-comment-social-bar__reactions-count'}).text.strip()) if comment.find(
-                            'button', {'class': 'comments-comment-social-bar__reactions-count'}) else 0
-                        comment_values.append({
-                            'comment': comment_text,
-                            'published_at': published_at,
-                            'likes': clikes,
-                            'author': author
-                        })
-
-                    # comments = int(''.join(filter(str.isdigit, post.find('li', {'class': "social-details-social-counts__comments"}).text.strip().split(' ')[0]))) if \
-                    #     post.find('li', {'class': "social-details-social-counts__item social-details-social-counts__comments social-details-social-counts__item--with-social-proof"}) else 0
-                    shares = int(''.join(filter(str.isdigit, post.find('li', {'class': "social-details-social-counts__item social-details-social-counts__item--with-social-proof"}).text.strip().split(' ')[0][:-15]))) if \
-                        post.find('li', {'class': "social-details-social-counts__item social-details-social-counts__item--with-social-proof"}) else 0
-                    title = post.find('span', {'class': "break-words"}).text.strip(
-                    ) if post.find('span', {'class': "break-words"}) else ""
-                    likes = int(post.find('span', {'class': "social-details-social-counts__reactions-count"}).text.strip()) if \
-                        post.find('span', {'class': "social-details-social-counts__reactions-count"}) else 0
-
-                    date = post.find(
-                        'span', {'class': "update-components-actor__sub-description"}).text.split() if post.find(
-                        'span', {'class': "update-components-actor__sub-description"}) else ""
-                    date2 = ""
-
-                    if date:
-                        date2 = post.find('span', {'class': "update-components-actor__sub-description"}).find(
-                            'span', {'class': "visually-hidden"}).text.strip() or ""
-                        date2 = format_linkedIn_date(date2)
-
-                    if (date2):
-                        self.posts.append({
-                            "description": title,
-                            "reaction": likes,
-                            "comments": comments,
-                            "shares": shares,
-                            "publishedAt": date2,
-                            'comment_values': comment_values
-                        })
-
-                    total_comments += comments
-
-                except Exception as e:
-                    print("Exception interne")
-                    print(e)
-                    pass
+            for container in post_containers:
+                items = container.find_all(
+                    'div', class_="feed-shared-update-v2")
+                [post_items.append(item) for item in items]
 
         except Exception as e:
             print("Exception externe")
             print(e)
             pass
 
+        for post in post_items:
+            try:
+                post_author = post.find('span', class_="update-components-actor__name").find('span', class_="visually-hidden").text.strip(
+                ) if post.find('span', class_="update-components-actor__name") and post.find('span', class_="update-components-actor__name").find('span', class_="visually-hidden") else ""
+
+            except Exception as e:
+                print(e)
+                pass
+
+            total_comments = 0
+
+            try:
+                comments_container = post.find(
+                    'li', {'class': "social-details-social-counts__comments"})
+
+                comments = 0
+
+                if comments_container:
+                    comments = int(
+                        ''.join(filter(str.isdigit, comments_container.text.strip().split(' ')[0])))
+                    # print(f"with {comments} comments")
+
+                comment_list = post.find_all(
+                    'article', {'class': 'comments-comments-list__comment-item'})
+
+                comment_values = []
+
+                for comment in comment_list:
+                    author = comment.find('span', {'class': 'comments-post-meta__name-text'}).find('span', {'aria-hidden': "true"}).text.strip(
+                    ) if comment.find('span', {'class': 'comments-post-meta__name-text'}) and comment.find('span', {'class': 'comments-post-meta__name-text'}).find('span', {'aria-hidden': "true"}) else ""
+                    comment_text = comment.find('span', {'class': 'comments-comment-item__main-content'}).text.strip(
+                    ) if comment.find('span', {'class': 'comments-comment-item__main-content'}) else ""
+                    published_at = format_linkedIn_date(comment.find(
+                        'time', {'class': 'comments-comment-item__timestamp'}).text.strip()) if comment.find(
+                        'time', {'class': 'comments-comment-item__timestamp'}) else ""
+                    clikes = int(comment.find(
+                        'button', {'class': 'comments-comment-social-bar__reactions-count'}).text.strip()) if comment.find(
+                        'button', {'class': 'comments-comment-social-bar__reactions-count'}) else 0
+                    comment_values.append({
+                        'comment': comment_text,
+                        'published_at': published_at,
+                        'likes': clikes,
+                        'author': author
+                    })
+
+                # comments = int(''.join(filter(str.isdigit, post.find('li', {'class': "social-details-social-counts__comments"}).text.strip().split(' ')[0]))) if \
+                #     post.find('li', {'class': "social-details-social-counts__item social-details-social-counts__comments social-details-social-counts__item--with-social-proof"}) else 0
+                shares = int(''.join(filter(str.isdigit, post.find('li', {'class': "social-details-social-counts__item social-details-social-counts__item--with-social-proof"}).text.strip().split(' ')[0][:-15]))) if \
+                    post.find('li', {'class': "social-details-social-counts__item social-details-social-counts__item--with-social-proof"}) else 0
+                title = post.find('span', {'class': "break-words"}).text.strip(
+                ) if post.find('span', {'class': "break-words"}) else ""
+                likes = int(post.find('span', {'class': "social-details-social-counts__reactions-count"}).text.strip()) if \
+                    post.find('span', {'class': "social-details-social-counts__reactions-count"}) else 0
+
+                date = post.find(
+                    'span', {'class': "update-components-actor__sub-description"}).text.split() if post.find(
+                    'span', {'class': "update-components-actor__sub-description"}) else ""
+                date2 = ""
+
+                if date:
+                    date2 = post.find('span', {'class': "update-components-actor__sub-description"}).find(
+                        'span', {'class': "visually-hidden"}).text.strip() or ""
+                    date2 = format_linkedIn_date(date2)
+
+                if (date2):
+                    self.posts.append({
+                        "author": post_author,
+                        "description": title,
+                        "reaction": likes,
+                        "comments": comments,
+                        "shares": shares,
+                        "publishedAt": date2,
+                        'comment_values': comment_values,
+                        'hashtag': hashtag
+                    })
+
+                total_comments += comments
+
+            except Exception as e:
+                print("Exception interne")
+                print(e)
+                pass
+
         self.page_data = {
-            'followers': followers,
             'likes': 0,
             'source': "linkedin",
             'establishment': self.establishment,
-            'name': f"linkedin_{name}",
             'posts': len(self.posts)
         }
 
@@ -237,31 +240,22 @@ class LinkedInProfileScraper(Scraping):
         print(" | Logged in!")
         output_files = []
         for item in self.items:
-            p_item = FillingCirclesBar(item['establishment_name'], max=6)
+            p_item = FillingCirclesBar(item['establishment_name'], max=4)
             try:
                 self.set_item(item)
                 p_item.next()
                 print(" | Open page")
-                self.goto_page('/posts/?feedView=all')
+                self.goto_page('')
                 p_item.next()
                 print(" | Extracting all posts")
-                self.extract_data()
-                p_item.next()
-                self.goto_page('/posts/?feedView=articles')
-                p_item.next()
-                print(" | Extracting all artiles")
-                self.extract_data()
-                p_item.next()
-                self.goto_page('/posts/?feedView=images')
-                print(" | Extracting all images")
                 self.extract_data()
                 p_item.next()
                 print(" | Saving")
                 output_files.append(self.save())
                 p_item.next()
                 print(" | Saved !")
-            except:
-                pass
+            except Exception as e:
+                print(e)
 
         self.stop()
 
