@@ -121,9 +121,10 @@ class ListScraper:
                         [com['comment'], com['author'], str(com['likes']), datetime.strptime(
                             com['published_at'], '%d/%m/%Y').strftime('%Y-%m-%d')]) + "|cl|"
 
-                line = '|&|'.join([item['title'], item['uploadAt'],
-                                   str(item['likes']), str(item['share']), str(item['comments']), comments]) + "|*|"
-                if len(line.split('|&|')) == 6:
+                line = '|&|'.join([item['author'], item['title'], item['uploadAt'],
+                                   str(item['likes']), str(item['share']), str(item['comments']), item['hashtag'], comments]) + "|*|"
+
+                if len(line.split('|&|')) == 8:
                     results += line
 
             with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{filename}.txt", 'w', encoding='utf-8') as foutput:

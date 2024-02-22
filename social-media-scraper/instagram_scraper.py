@@ -16,7 +16,9 @@ class InstagramProfileScraper(Scraping):
         self.set_credentials('instagram')
 
         self.hotel_page_urls = []
-        self.xhr_calls = []
+        self.xhr_page = []
+        self.xhr_posts = []
+        self.xhr_comments = []
         self.data = []
 
         self.playwright = sync_playwright().start()
@@ -24,6 +26,8 @@ class InstagramProfileScraper(Scraping):
             headless=False, args=['--start-maximized'])
         self.context = self.browser.new_context(no_viewport=True)
         self.page = self.context.new_page()
+        self.post_index = 0
+        self.open_post = False
 
     def stop(self):
         self.context.close()
@@ -43,7 +47,7 @@ class InstagramProfileScraper(Scraping):
     def goto_login(self) -> None:
         self.page.goto(
             "https://www.instagram.com/accounts/login/", timeout=30000)
-        self.page.wait_for_timeout(60000)
+        self.page.wait_for_timeout(30000)
 
     def fill_loginform(self) -> None:
         self.page.wait_for_selector("[name='username']", timeout=30000)
@@ -62,16 +66,90 @@ class InstagramProfileScraper(Scraping):
     def intercept_response(self, response) -> None:
         """capture all background requests and save them"""
         response_type = response.request.resource_type
+
         if response_type == "xhr":
             if 'web_profile_info' in response.url:
-                self.xhr_calls = response.json()
+                self.xhr_page = response.json()['data']['user']
+            if 'graphql' in response.url:
+                if 'xdt_api__v1__feed__user_timeline_graphql_connection' in response.json()['data']:
+                    [self.xhr_posts.append(item) for item in response.json(
+                    )['data']['xdt_api__v1__feed__user_timeline_graphql_connection']['edges']]
+
+            if 'comments/' in response.url:
+                try:
+                    self.xhr_comments.append(response.json())
+                except Exception as e:
+                    print(e)
+                    pass
+
+    def open_posts(self):
+        posts = self.page.locator(
+            "div._aabd._aa8k.x2pgyrj.xbkimgs.xfllauq.xh8taat.xo2y696 a.x1i10hfl.xjbqb8w.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz._a6hd").all()
+
+        posts[0].click()
+        time.sleep(3)
+
+        btns = self.page.locator(
+            "div.x1n2onr6.xzkaem6").locator("button._abl-").all()
+
+        p = 1
+
+        while True:
+            print(p)
+
+            for btn in btns:
+                if len(btn.locator('svg').all()) > 0:
+                    for svg in btn.locator('svg').all():
+                        if svg.get_attribute('aria-label') == "Suivant":
+                            btn.click()
+                            time.sleep(3)
+                            break
+
+            self.page.wait_for_timeout(2000)
+            p += 1
+
+            if p > len(self.xhr_posts) or p > 500:
+                break
+
+    def complete_source_data(self):
+
+        posts = nested_lookup(key='node', document=self.xhr_posts)
+        coms = self.xhr_comments
+
+        for index in range(len(coms)):
+            try:
+                pk = coms[index]['caption']['pk']
+
+                print(pk)
+
+                if pk != posts[index]['caption']['pk']:
+                    for post in posts:
+                        if "caption" in post.keys() and post["caption"]["pk"] == pk:
+                            post["comments"] = coms[index]
+                else:
+                    posts[index]["comments"] = coms[index]
+
+            except Exception as e:
+                print(e)
+                pass
+
+        self.xhr_posts = posts
 
     def goto_insta_page(self) -> None:
         self.page.on("response", self.intercept_response)
-        print(self.url)
         self.page.goto(self.url, timeout=50000)
         self.page.wait_for_timeout(6000)
         time.sleep(3)
+        # self.scroll_down_page()
+        self.open_posts()
+        self.complete_source_data()
+
+    def scroll_down_page(self) -> None:
+        for i in range(5):
+            self.page.evaluate(
+                "window.scrollTo(0, document.body.scrollHeight)")
+            self.page.wait_for_timeout(5000)
+            time.sleep(3)
 
     def get_json_content(self, item: object, key: str) -> object:
         try:
@@ -81,55 +159,58 @@ class InstagramProfileScraper(Scraping):
 
     def extract_data(self) -> None:
 
-        # with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/test.json", 'w') as foutput:
-        #     json.dump(self.xhr_calls, foutput, indent=4, sort_keys=True)
+        posts = self.xhr_posts
 
-        # all_posts = nested_lookup(
-        #     key='edge_felix_video_timeline', document=self.xhr_calls)[0]['edges']
+        for post in posts:
 
-        # for post in all_posts:
+            if type(post["comments"]) != list:
 
-        #     try:
-        #         self.posts.append({
-        #             "publishedAt": datetime.fromtimestamp(nested_lookup(key='taken_at_timestamp', document=post)[0]).strftime("%d-%m-%Y"),
-        #             "title": nested_lookup(key='text', document=post)[0],
-        #             "comments": nested_lookup(key='edge_media_to_comment', document=post)[0]['count'],
-        #             "likes": nested_lookup(key='edge_liked_by', document=post)[0]['count'],
-        #             "share": "0"
-        #         })
-        #     except Exception as e:
-        #         print(e)
-        #         pass
+                comments = post["comments"]["comments"]
+                comment_values = []
 
-        # other_posts = nested_lookup(
-        #     key='edge_owner_to_timeline_media', document=self.xhr_calls)[0]['edges']
+                for cmt in comments:
+                    try:
+                        comment_values.append({
+                            'comment': cmt["text"],
+                            'published_at': datetime.fromtimestamp(cmt["created_at"]).strftime("%d/%m/%Y"),
+                            'likes': cmt["comment_like_count"],
+                            'author': cmt["user"]["full_name"]
+                        })
+                    except Exception as e:
+                        print(e)
+                        pass
 
-        # for other_post in other_posts:
-        #     try:
-        #         post_text = nested_lookup(
-        #             key='node', document=other_post['node'])[0]
-        #         self.posts.append({
-        #             "publishedAt": datetime.fromtimestamp(nested_lookup(key='taken_at_timestamp', document=other_post)[0]).strftime("%d/%m/%Y"),
-        #             "title": post_text['text'] if type(post_text) == str else '',
-        #             "comments": nested_lookup(key='edge_media_to_comment', document=other_post)[0]['count'],
-        #             "likes": nested_lookup(key='edge_liked_by', document=other_post)[0]['count'],
-        #             "share": "0"
-        #         })
-        #     except Exception as e:
-        #         print(e)
-        #         pass
+                try:
+                    self.posts.append({
+                        "author": post["owner"]["full_name"],
+                        "publishedAt": datetime.fromtimestamp(post["comments"]["caption"]["created_at"]).strftime("%d/%m/%Y"),
+                        "description": post["caption"]["text"],
+                        "reaction": post["like_count"],
+                        "comments": len(comment_values),
+                        "shares": 0,
+                        "hashtag": "",
+                        "comment_values": comment_values
+                    })
 
-        e_name = re.sub(r'[^\w]', ' ', nested_lookup(
-            key='full_name', document=self.xhr_calls)[0])
+                except Exception as e:
+                    print(e)
+                    pass
 
-        self.page_data = {
-            "followers": nested_lookup(key='edge_followed_by', document=self.xhr_calls)[0]['count'],
-            "name": f"instagram_{e_name}",
-            "likes": 0,
-            "source": "instagram",
-            'establishment': self.establishment,
-            "posts": nested_lookup(key="edge_owner_to_timeline_media", document=self.xhr_calls)[0]['count']
-        }
+        print("posts traités: ", len(self.posts))
+
+        try:
+            self.page_data = {
+                'followers': nested_lookup(key='edge_followed_by', document=self.xhr_page)[0]["count"],
+                'likes': 0,
+                'source': "instagram",
+                'establishment': self.establishment,
+                'name': f"instagram_{nested_lookup(key='full_name', document=self.xhr_page)[0]}",
+                'posts': len(self.posts)
+            }
+
+        except Exception as e:
+            print(e)
+            pass
 
     def switch_acount(self) -> None:
         pass
@@ -145,8 +226,9 @@ class InstagramProfileScraper(Scraping):
         self.fill_loginform()
         progress.next()
         print(" | Logged in!")
+        output_files = []
         for item in self.items:
-            p_item = FillingCirclesBar(item['establishment_name'], max=4)
+            p_item = FillingCirclesBar(item['establishment_name'], max=3)
             self.set_item(item)
             p_item.next()
             print(" | Open page")
@@ -156,8 +238,10 @@ class InstagramProfileScraper(Scraping):
             self.extract_data()
             p_item.next()
             print(" | Saving")
-            self.save()
+            output_files.append(self.save())
             p_item.next()
             print(" | Saved")
 
         self.stop()
+
+        return output_files

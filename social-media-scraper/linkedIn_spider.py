@@ -53,11 +53,11 @@ class LinkedInProfileScraper(Scraping):
         self.context.close()
 
     def scoll_down_page(self) -> None:
-        for i in range(5):
+        for i in range(15):
             self.page.evaluate(
                 "window.scrollTo(0, document.body.scrollHeight)")
-            self.page.wait_for_timeout(20000)
-            time.sleep(5)
+            self.page.wait_for_timeout(10000)
+            time.sleep(3)
 
     def goto_login(self) -> None:
         self.page.goto("https://www.linkedin.com/login/fr")
@@ -179,6 +179,12 @@ class LinkedInProfileScraper(Scraping):
 
                     # comments = int(''.join(filter(str.isdigit, post.find('li', {'class': "social-details-social-counts__comments"}).text.strip().split(' ')[0]))) if \
                     #     post.find('li', {'class': "social-details-social-counts__item social-details-social-counts__comments social-details-social-counts__item--with-social-proof"}) else 0
+                    try:
+                        post_author = post.find('span', class_="update-components-actor__name").find('span', class_="visually-hidden").text.strip(
+                        ) if post.find('span', class_="update-components-actor__name") and post.find('span', class_="update-components-actor__name").find('span', class_="visually-hidden") else ""
+                    except Exception as e:
+                        print(e)
+
                     shares = int(''.join(filter(str.isdigit, post.find('li', {'class': "social-details-social-counts__item social-details-social-counts__item--with-social-proof"}).text.strip().split(' ')[0][:-15]))) if \
                         post.find('li', {'class': "social-details-social-counts__item social-details-social-counts__item--with-social-proof"}) else 0
                     title = post.find('span', {'class': "break-words"}).text.strip(
@@ -198,12 +204,14 @@ class LinkedInProfileScraper(Scraping):
 
                     if (date2):
                         self.posts.append({
+                            "author": post_author,
                             "description": title,
                             "reaction": likes,
                             "comments": comments,
                             "shares": shares,
                             "publishedAt": date2,
-                            'comment_values': comment_values
+                            'comment_values': comment_values,
+                            'hashtag': ""
                         })
 
                     total_comments += comments
@@ -237,11 +245,16 @@ class LinkedInProfileScraper(Scraping):
         print(" | Logged in!")
         output_files = []
         for item in self.items:
-            p_item = FillingCirclesBar(item['establishment_name'], max=5)
+            p_item = FillingCirclesBar(item['establishment_name'], max=6)
             try:
                 self.set_item(item)
                 p_item.next()
                 print(" | Open page")
+                self.goto_page('/posts/?feedView=all')
+                p_item.next()
+                print(" | Extracting all posts")
+                self.extract_data()
+                p_item.next()
                 self.goto_page('/posts/?feedView=articles')
                 p_item.next()
                 print(" | Extracting all artiles")

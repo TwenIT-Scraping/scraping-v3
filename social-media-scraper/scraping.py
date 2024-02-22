@@ -39,6 +39,7 @@ class Scraping(object):
             page_data['posts'] = self.posts
             page_data['url'] = self.url
             page_data['createdAt'] = datetime.now().strftime('%Y-%m-%d')
+            page_data['hasStat'] = "1"
 
             e_name = re.sub(r'[^a-zA-Z0-9\s]+', '',
                             page_data.pop('name')).replace(' ', '_')
@@ -50,8 +51,11 @@ class Scraping(object):
 
             self.posts = []
             self.page_data = {}
+
             return output_file
+
         except Exception as e:
+            print("Erreur ici")
             print(e)
 
     def stop(self):
