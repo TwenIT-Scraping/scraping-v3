@@ -29,6 +29,14 @@ class InstagramProfileScraper(Scraping):
         self.post_index = 0
         self.open_post = False
 
+    def clean_data(self):
+        self.xhr_page = []
+        self.xhr_posts = []
+        self.xhr_comments = []
+        self.data = []
+        self.posts = []
+        self.page_data = {}
+
     def stop(self):
         self.context.close()
 
@@ -230,6 +238,7 @@ class InstagramProfileScraper(Scraping):
         for item in self.items:
             p_item = FillingCirclesBar(item['establishment_name'], max=3)
             self.set_item(item)
+            self.clean_data()
             p_item.next()
             print(" | Open page")
             self.goto_insta_page()
