@@ -40,7 +40,7 @@ ARGS_INFO = {
 
 class ClassificationAPI(object):
 
-    def __init__(self, env='dev', type='review', tag='', limit=5) -> None:
+    def __init__(self, env='dev', type='reviews', tag='', limit=5) -> None:
         self.type = type
         self.establishment = None
         self.categories = []
@@ -54,7 +54,7 @@ class ClassificationAPI(object):
     def fetch_datas(self):
         try:
             get_instance = ERApi(
-                method="get", entity=f"establishment/{self.tag}/reviews_to_classify", env=self.env, params={"page": self.page, 'limit': self.limit})
+                method="get", entity=f"establishment/{self.tag}/reviews_to_classify", env=self.env, params={"type": self.type, "page": self.page, 'limit': self.limit})
             res = get_instance.execute()
 
             if (res):
@@ -196,14 +196,10 @@ if __name__ == '__main__':
                 todo = all_establishments
 
             for item in todo:
-                if args.type == "reviews":
-                    print("======> Etablissement: ",
-                          item['name'], ' <========')
-                    cl = ClassificationAPI(tag=item['tag'])
-                    cl.execute()
-            # if args.type == "reviews":
-            #     cl = ClassificationAPI(tag="645de52f135e8")
-            #     cl.execute()
+                print("======> Etablissement: ",
+                      item['name'], ' <========')
+                cl = ClassificationAPI(tag=item['tag'], type=args.type)
+                cl.execute()
 
         except Exception as e:
             now = datetime.now()
