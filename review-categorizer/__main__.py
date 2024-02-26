@@ -266,7 +266,17 @@ class ClassificationAPI(object):
                     print(e)
 
             else:
-                line['prediction'] = None
+                try:
+                    classifier = pipeline(task="zero-shot-classification",
+                                          device=-1, model="facebook/bart-large-mnli")
+
+                    prediction = classifier(
+                        line['text'], list(map(lambda x: x['category'], ["Ménage", "Accueil"])), multi_label=False)
+
+                    line['prediction'] = prediction
+
+                except Exception as e:
+                    print(e)
 
         return line
 
