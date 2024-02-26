@@ -294,10 +294,10 @@ class ClassificationAPI(object):
             l_categs = ""
             for i in range(0, len(line['prediction']['labels'])):
                 if line['prediction']['scores'][i] >= 0.9:
-                    l_categs += f"{line['prediction']['labels'][i]}${line['prediction']['scores'][i]}|"
+                    l_categs += f"{line['prediction']['labels'][i]}${str(line['prediction']['scores'][i])}|"
 
             l = "&".join([line['id'], self.type, line['feeling'],
-                         line['score'], line['confidence'], l_categs])
+                         str(line['score']), str(line['confidence']), l_categs])
             result += l + "#"
 
         return result
