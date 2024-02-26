@@ -307,6 +307,8 @@ class ClassificationAPI(object):
     def execute(self):
         try:
             while (True):
+                print("============> Page ", self.page,
+                      "sur ", self.pages, " <===============")
                 self.fetch_datas()
             # if len(self.categories):
                 self.update_lines()
@@ -373,7 +375,8 @@ if __name__ == '__main__':
             for item in todo:
                 print("======> Etablissement: ",
                       item['name'], ' <========')
-                cl = ClassificationAPI(tag=item['tag'], type=args.type)
+                cl = ClassificationAPI(
+                    tag=item['tag'], type=args.type, limit=20)
                 cl.execute()
 
         except Exception as e:
