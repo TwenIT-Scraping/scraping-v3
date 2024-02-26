@@ -288,7 +288,6 @@ class ClassificationAPI(object):
 
     def transform_data(self):
 
-        print(self.lines)
         result = ""
         for line in self.lines:
             l_categs = ""
@@ -296,12 +295,8 @@ class ClassificationAPI(object):
                 if line['prediction']['scores'][i] >= 0.9:
                     l_categs += f"{line['prediction']['labels'][i]}${str(line['prediction']['scores'][i])}|"
 
-            print(l_categs)
-
             l = "&".join([str(line['id']), self.type, line['feeling'],
                          str(line['score']), str(line['confidence']), l_categs])
-
-            print(l)
             result += l + "#"
 
         return result
