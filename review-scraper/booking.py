@@ -25,6 +25,7 @@ class Booking(Scraping):
         defurl = url if url.endswith('.fr.html') else f"{url}.fr.html"
         super().__init__(in_background=False, url=defurl,
                          establishment=establishment, settings=settings, env=env)
+        self.lang = "en"
 
     def extract(self):
 
@@ -80,19 +81,20 @@ class Booking(Scraping):
                         lang = 'en'
 
                     try:
-                        reviews.append({
-                            'comment': comment,
-                            'rating': card.find('span', {'class': 'review-score-badge'}).text.strip()
-                            if card.find('span', {'class': 'review-score-badge'}) else "0",
-                            'date_review': date_review,
-                            'language': lang,
-                            'source': urlparse(self.url).netloc.split('.')[1],
-                            'author': card.find('p', {'class': 'reviewer_name'}).text.strip() if card.find('p', {'class': 'reviewer_name'}) else "",
-                            'establishment': f'/api/establishments/{self.establishment}',
-                            'settings': f'/api/settings/{self.settings}',
-                            'date_visit': date_review,
-                            'novisitday': "0"
-                        })
+                        if lang == self.lang:
+                            reviews.append({
+                                'comment': comment,
+                                'rating': card.find('span', {'class': 'review-score-badge'}).text.strip()
+                                if card.find('span', {'class': 'review-score-badge'}) else "0",
+                                'date_review': date_review,
+                                'language': lang,
+                                'source': urlparse(self.url).netloc.split('.')[1],
+                                'author': card.find('p', {'class': 'reviewer_name'}).text.strip() if card.find('p', {'class': 'reviewer_name'}) else "",
+                                'establishment': f'/api/establishments/{self.establishment}',
+                                'settings': f'/api/settings/{self.settings}',
+                                'date_visit': date_review,
+                                'novisitday': "0"
+                            })
                     except Exception as e:
                         print(e)
                         continue
@@ -117,6 +119,12 @@ class Booking(Scraping):
             pass
 
         self.data = reviews
+
+
+class Booking_ES(Booking):
+    def __init__(self, url: str, establishment: str, settings: str, env: str):
+        super().__init__(url=url, establishment=establishment, settings=settings, env=env)
+        self.lang = "en"
 
 
 # trp = Booking(url="https://www.booking.com/reviews/fr/hotel/la-belle-etoile-les-deux-alpes.fr.html")
