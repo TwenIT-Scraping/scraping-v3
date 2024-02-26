@@ -289,13 +289,18 @@ class ClassificationAPI(object):
     def transform_data(self):
 
         print(self.lines)
-        # result = ""
-        # for line in self.lines:
-        #     for i in range(0, len(line['prediction']['labels'])):
-        #         if line['prediction']['scores'][i] >= 0.9:
-        #             result += f"{self.type}&{line['prediction']['labels'][i]}&{line['prediction']['scores'][i]}&{line['id']}#"
+        result = ""
+        for line in self.lines:
+            l_categs = ""
+            for i in range(0, len(line['prediction']['labels'])):
+                if line['prediction']['scores'][i] >= 0.9:
+                    l_categs += f"{line['prediction']['labels'][i]}${line['prediction']['scores'][i]}|"
 
-        # return result
+            l = "&".join([line['id'], self.type, line['feeling'],
+                         line['score'], line['confidence'], l_categs])
+            result += l + "#"
+
+        return result
 
     def upload(self):
         try:
@@ -312,7 +317,8 @@ class ClassificationAPI(object):
                 self.fetch_datas()
             # if len(self.categories):
                 self.update_lines()
-                self.transform_data()
+                res = self.transform_data()
+                print(res)
                 # res = self.upload()
                 # print(res)
                 # else:
