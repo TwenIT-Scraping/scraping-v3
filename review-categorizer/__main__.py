@@ -237,10 +237,10 @@ class ClassificationAPI(object):
     def check_categories(self, line):
         if os.environ.get('ENV_TYPE') == 'local':
             line['prediction'] = {
-                'labels': ['travel', 'cooking', 'dancing'],
-                # 'labels': self.categories,
-                'scores': [random.uniform(0, 1) for i in range(3)],
-                # 'scores': [random.uniform(0, 1) for i in range(len(self.categories))],
+                # 'labels': ['travel', 'cooking', 'dancing'],
+                'labels': self.categories,
+                # 'scores': [random.uniform(0, 1) for i in range(3)],
+                'scores': [random.uniform(0, 1) for i in range(len(self.categories))],
                 'sequence': line['text']
             }
         else:
@@ -266,17 +266,7 @@ class ClassificationAPI(object):
                     print(e)
 
             else:
-                try:
-                    classifier = pipeline(task="zero-shot-classification",
-                                          device=-1, model="facebook/bart-large-mnli")
-
-                    prediction = classifier(
-                        line['text'], list(map(lambda x: x['category'], [{'id': 1, 'category': 'Ménage'}, {'id': 3, 'category': 'Mobilier'}])), multi_label=False)
-
-                    line['prediction'] = prediction
-
-                except Exception as e:
-                    print(e)
+                line['prediction'] = None
 
         return line
 
@@ -294,9 +284,10 @@ class ClassificationAPI(object):
 
             print(line['prediction'])
 
-            for i in range(0, len(line['prediction']['labels'])):
-                # if line['prediction']['scores'][i] >= 0.9:
-                l_categs += f"{line['prediction']['labels'][i]}${str(line['prediction']['scores'][i])}|"
+            if line['prediction']:
+                for i in range(0, len(line['prediction']['labels'])):
+                    if line['prediction']['scores'][i] >= 0.9:
+                        l_categs += f"{line['prediction']['labels'][i]}${str(line['prediction']['scores'][i])}|"
 
             l = "&".join([str(line['id']), self.type, line['feeling'],
                          str(line['score']), str(line['confidence']), l_categs])
