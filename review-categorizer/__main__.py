@@ -271,7 +271,7 @@ class ClassificationAPI(object):
                                           device=-1, model="facebook/bart-large-mnli")
 
                     prediction = classifier(
-                        line['text'], list(map(lambda x: x['category'], ["Ménage", "Accueil"])), multi_label=False)
+                        line['text'], list(map(lambda x: x['category'], [{'id': 1, 'category': 'Ménage'}, {'id': 3, 'category': 'Mobilier'}])), multi_label=False)
 
                     line['prediction'] = prediction
 
