@@ -18,6 +18,141 @@ from api import ERApi
 
 dotenv.load_dotenv()
 
+rating_structure = {
+    'booking': [1, 2],
+    'tripadvisor': [2, 1],
+    'expedia': [2, 2],
+    'campings': [1, 1],
+    'trustpilot': [1, 1],
+    'maeva': [1, 1],
+    'hotels': [2, 2],
+    'google': [1, 1],
+    'opentable': [2, 1],
+    'App (Private)': [1, 1]
+}
+
+
+class ReviewScore:
+
+    def __init__(self):
+        if os.environ.get('ENV_TYPE') == 'remote':
+            self.model_name = "nlptown/bert-base-multilingual-uncased-sentiment"
+            self.model = AutoModelForSequenceClassification.from_pretrained(
+                self.model_name)
+            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+            self.classifier = pipeline(
+                'sentiment-analysis', model=self.model, tokenizer=self.tokenizer, device=-1)
+        else:
+            self.model_name = ""
+            self.model = None
+            self.tokenizer = None
+            self.classifier = None
+
+    def get_score(self, text):
+        if self.classifier:
+            # if lang in ['en', 'nl', 'de', 'fr', 'it', 'es']:
+            try:
+                return self.classifier(text.replace('\"', "\'"))
+            except Exception as e:
+                print(e)
+                return False
+        else:
+            return False
+
+    def compute_review_score(self, text, lang, rating, source):
+
+        def compute_rating(rating, source):
+            rate = 0
+            rating_info = rating_structure[source]
+
+            if rating_info[0] == 2:  # with /
+                rate_tmp = rating.split('/')
+                if rating_info[1] == 1:  # /5
+                    rate = float(rate_tmp[0].replace(',', '.'))*2
+                else:  # /10
+                    rate = float(rate_tmp[0].replace(',', '.'))
+            else:  # without /
+                if rating_info[1] == 1:  # /5
+                    rate = float(rating.replace(',', '.'))*2
+                else:  # /10
+                    rate = float(rating.replace(',', '.'))
+
+            return rate/10
+
+        rating = compute_rating(rating, source)
+
+        if os.environ.get('ENV_TYPE') == 'local':
+            return {'feeling': 'neutre', 'score': '0', 'confidence': '0'}
+        else:
+            score_data = self.get_score(text, lang)
+
+            if score_data:
+                score_value = score_data[0]['score']
+                score_label = score_data[0]['label']
+
+                score_stars = int(score_label.split()[0])
+                feeling = "negative" if score_stars < 3 else (
+                    "positive" if score_stars > 3 else "neutre")
+
+                if rating < 0.5:
+                    if feeling == "neutre":
+                        feeling = "negative"
+                    elif feeling == "positive":
+                        feeling = "neutre"
+                elif rating == 0.5:
+                    feeling = "neutre"
+                else:
+                    if rating >= 0.7:
+                        feeling = "positive"
+                    else:
+                        if feeling == "negative":
+                            feeling = "neutre"
+
+                        elif feeling == "neutre":
+                            feeling = "positive"
+                        else:
+                            feeling = "positive"
+
+                if feeling == "negative":
+                    score_value = (score_value + rating) / 2
+                    confidence = -1 * score_value
+                elif feeling == "neutre":
+                    confidence = 0
+                    score_value = 0
+                else:
+                    confidence = score_value = (score_value + rating) / 2
+
+                return {'score': str(score_value), 'confidence': str(confidence), 'feeling': feeling}
+            else:
+                return {'score': '0', 'confidence': '0', 'feeling': "neutre"}
+
+    def compute_comment_score(self, text):
+
+        if os.environ.get('ENV_TYPE') == 'local':
+            return {'feeling': 'neutre', 'score': '0', 'confidence': '0'}
+        else:
+            score_data = self.get_score(text)
+
+            if score_data:
+                score_value = score_data[0]['score']
+                score_label = score_data[0]['label']
+
+                score_stars = int(score_label.split()[0])
+                feeling = "negative" if score_stars < 3 else (
+                    "positive" if score_stars > 3 else "neutre")
+
+                if feeling == "negative":
+                    confidence = -1 * score_value
+                elif feeling == "neutre":
+                    confidence = 0
+                    score_value = 0
+                else:
+                    confidence = score_value
+
+                return {'score': str(score_value), 'confidence': str(confidence), 'feeling': feeling}
+            else:
+                return {'score': '0', 'confidence': '0', 'feeling': "neutre"}
+
 
 def main_arguments() -> object:
     parser = argparse.ArgumentParser(description="Programme catégorisation",
@@ -83,43 +218,74 @@ class ClassificationAPI(object):
         except Exception as e:
             print(e)
 
+    def compute_scores(self, comments):
+
+        review_score = ReviewScore()
+
+        def set_score(item):
+            score_data = review_score.compute_comment_score(item['text']) if self.type == "comments" else review_score.compute_review_score(
+                item['text'], item['language'], item['rating'], item['source'])
+
+            item['feeling'] = score_data['feeling']
+            item['score'] = score_data['score']
+            item['confidence'] = score_data['confidence']
+
+            return item
+
+        return list(map(lambda x: set_score(x), comments))
+
     def check_categories(self, line):
-        try:
-            classifier = pipeline(task="zero-shot-classification",
-                                  device=-1, model="facebook/bart-large-mnli")
+        if os.environ.get('ENV_TYPE') == 'local':
+            line['prediction'] = {
+                'labels': ['travel', 'cooking', 'dancing'],
+                # 'labels': self.categories,
+                'scores': [random.uniform(0, 1) for i in range(3)],
+                # 'scores': [random.uniform(0, 1) for i in range(len(self.categories))],
+                'sequence': line['text']
+            }
+        else:
+            if len(self.categories):
+                try:
+                    classifier = pipeline(task="zero-shot-classification",
+                                          device=-1, model="facebook/bart-large-mnli")
 
-            prediction = classifier(
-                line['text'], list(map(lambda x: x['category'], self.categories)), multi_label=False)
+                    prediction = classifier(
+                        line['text'], list(map(lambda x: x['category'], self.categories)), multi_label=False)
 
-            # prediction = {
-            #     # 'labels': ['travel', 'cooking', 'dancing'],
-            #     'labels': self.categories,
-            #     # 'scores': [random.uniform(0, 1) for i in range(3)],
-            #     'scores': [random.uniform(0, 1) for i in range(len(self.categories))],
-            #     'sequence': line['text']
-            # }
+                    # prediction = {
+                    #     # 'labels': ['travel', 'cooking', 'dancing'],
+                    #     'labels': self.categories,
+                    #     # 'scores': [random.uniform(0, 1) for i in range(3)],
+                    #     'scores': [random.uniform(0, 1) for i in range(len(self.categories))],
+                    #     'sequence': line['text']
+                    # }
 
-            line['prediction'] = prediction
+                    line['prediction'] = prediction
 
-            print(line)
+                except Exception as e:
+                    print(e)
 
-            return line
+            else:
+                line['prediction'] = None
 
-        except Exception as e:
-            print(e)
+        return line
 
     def update_lines(self):
         for line in self.lines:
             line = self.check_categories(line)
 
-    def transform_data(self):
-        result = ""
-        for line in self.lines:
-            for i in range(0, len(line['prediction']['labels'])):
-                if line['prediction']['scores'][i] >= 0.9:
-                    result += f"{self.type}&{line['prediction']['labels'][i]}&{line['prediction']['scores'][i]}&{line['id']}#"
+        self.lines = self.compute_scores(self.lines)
 
-        return result
+    def transform_data(self):
+
+        print(self.lines)
+        # result = ""
+        # for line in self.lines:
+        #     for i in range(0, len(line['prediction']['labels'])):
+        #         if line['prediction']['scores'][i] >= 0.9:
+        #             result += f"{self.type}&{line['prediction']['labels'][i]}&{line['prediction']['scores'][i]}&{line['id']}#"
+
+        # return result
 
     def upload(self):
         try:
@@ -134,14 +300,14 @@ class ClassificationAPI(object):
         try:
             while (True):
                 self.fetch_datas()
-                if len(self.categories):
-                    self.update_lines()
-                    # res = self.transform_data()
-                    res = self.upload()
-                    print(res)
-                else:
-                    print("!!!! Pas de catégories")
-                    break
+            # if len(self.categories):
+                self.update_lines()
+                self.transform_data()
+                # res = self.upload()
+                # print(res)
+                # else:
+                #     print("!!!! Pas de catégories")
+                #     break
 
                 if self.page > self.pages:
                     break
