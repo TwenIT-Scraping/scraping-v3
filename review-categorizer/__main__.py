@@ -310,10 +310,10 @@ class ClassificationAPI(object):
                 self.fetch_datas()
             # if len(self.categories):
                 self.update_lines()
-                res = self.transform_data()
-                print(res)
-                # res = self.upload()
+                # res = self.transform_data()
                 # print(res)
+                res = self.upload()
+                print(res)
                 # else:
                 #     print("!!!! Pas de catégories")
                 #     break
