@@ -15,6 +15,8 @@ class Scraping(object):
         self.establishment = ''
         self.url = ''
         self.current_credential = {}
+        self.name = ''
+        self.hashtag = ''
 
     def set_current_credential(self, index):
         self.current_credential = self.credentials[index]
@@ -46,7 +48,7 @@ class Scraping(object):
                 e_name = re.sub(r'[^a-zA-Z0-9\s]+', '',
                                 self.name).replace(' ', '_')
 
-                output_file = f"h_{page_data['source']}_{self.establishment}_{e_name}_{datetime.now().strftime('%Y-%m-%d')}"
+                output_file = f"h_{page_data['source']}_{self.hashtag}_{self.establishment}_{e_name}_{datetime.now().strftime('%Y-%m-%d')}"
             except Exception as e:
                 print(e)
 

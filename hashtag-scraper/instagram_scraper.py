@@ -96,10 +96,13 @@ class InstagramProfileScraper(Scraping):
 
     def open_posts(self):
         posts = self.page.locator(
-            "a.x1i10hfl.xjbqb8w.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz._a6hd").all()
+            "main a.x1i10hfl.xjbqb8w.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz._a6hd").all()
 
         posts[0].click()
+        self.page.wait_for_timeout(2000)
         time.sleep(3)
+
+        self.open_comments()
 
         btns = self.page.locator(
             "div.x1n2onr6.xzkaem6").locator("button._abl-").all()
@@ -118,34 +121,74 @@ class InstagramProfileScraper(Scraping):
                             break
 
             self.page.wait_for_timeout(2000)
+            self.open_comments()
             p += 1
 
             if p > len(self.xhr_posts) or p > 500:
                 break
 
-    # def complete_source_data(self):
+    def open_comments(self):
 
-    #     posts = nested_lookup(key='node', document=self.xhr_posts)
-    #     coms = self.xhr_comments
+        btns = self.page.locator(
+            "ul._a9z6._a9za").locator("button._abl-").all()
 
-    #     for index in range(len(coms)):
-    #         try:
-    #             pk = coms[index]['caption']['pk']
+        while True:
+            no_next = True
 
-    #             print(pk)
+            for btn in btns:
+                if len(btn.locator('svg').all()) > 0:
+                    for svg in btn.locator('svg').all():
+                        if svg.get_attribute('aria-label') == "Load more comments" or svg.get_attribute('aria-label') == "Charger d’autres commentaires":
+                            btn.click()
+                            time.sleep(3)
+                            no_next = False
+                            break
+                else:
+                    no_next = True
 
-    #             if pk != posts[index]['caption']['pk']:
-    #                 for post in posts:
-    #                     if "caption" in post.keys() and post["caption"]["pk"] == pk:
-    #                         post["comments"] = coms[index]
-    #             else:
-    #                 posts[index]["comments"] = coms[index]
+            if no_next:
+                break
 
-    #         except Exception as e:
-    #             print(e)
-    #             pass
+            self.page.wait_for_timeout(2000)
 
-    #     self.xhr_posts = posts
+    def complete_source_data(self):
+
+        def find_post_by_pk(posts, pk):
+            for index in range(len(posts)):
+                if "caption" in posts[index].keys() and posts[index]["caption"]["pk"] == pk:
+                    return index
+
+            return -1
+
+        posts = self.xhr_posts
+        coms = self.xhr_comments
+
+        for index in range(len(coms)):
+            try:
+                if index < len(coms) and index < len(posts):
+                    pk = coms[index]['caption']['pk']
+
+                    if pk != posts[index]['caption']['pk']:
+                        post_index = find_post_by_pk(
+                            posts, coms[index]['caption']['pk'])
+                        if post_index != -1:
+                            [posts[post_index]["comments"].append(
+                                comment) for comment in coms[index]["comments"]]
+                    else:
+                        [posts[index]["comments"].append(
+                            comment) for comment in coms[index]["comments"]]
+                else:
+                    post_index = find_post_by_pk(
+                        posts, coms[index]['caption']['pk'])
+                    if post_index != -1:
+                        [posts[post_index]["comments"].append(
+                            comment) for comment in coms[index]["comments"]]
+
+            except Exception as e:
+                print(e)
+                pass
+
+        self.xhr_posts = posts
 
     def goto_insta_page(self) -> None:
         self.page.on("response", self.intercept_response)
@@ -154,7 +197,7 @@ class InstagramProfileScraper(Scraping):
         time.sleep(3)
         # self.scroll_down_page()
         self.open_posts()
-        # self.complete_source_data()
+        self.complete_source_data()
 
     def scroll_down_page(self) -> None:
         for i in range(5):
@@ -169,65 +212,64 @@ class InstagramProfileScraper(Scraping):
         except KeyError:
             return ''
 
+    def set_item(self, item):
+        super().set_item(item)
+        self.hashtag = self.url.split("/")[-2:][0] if self.url.split(
+            "/")[-1:][0] == "" else self.url.split("/")[-1:][0]
+
     def extract_data(self) -> None:
 
-        hashtag = self.page.url.split("/")[-1:][0]
+        # with open(f"{environ.get('SOCIAL_FOLDER')}/{hashtag}posts_hashtag.json", 'w') as foutput:
+        #     json.dump(self.xhr_posts, foutput, indent=4, sort_keys=True)
 
-        with open(f"{environ.get('SOCIAL_FOLDER')}/{hashtag}_hashtag.json", 'w') as foutput:
-            json.dump(self.xhr_posts, foutput, indent=4, sort_keys=True)
+        # with open(f"{environ.get('SOCIAL_FOLDER')}/{hashtag}comments_hashtag.json", 'w') as foutput:
+        #     json.dump(self.xhr_comments, foutput, indent=4, sort_keys=True)
 
         print(len(self.xhr_posts), " posts trouvés.")
+        print(len(self.xhr_comments), " comments trouvés.")
 
-        # for post in posts:
+        with open(f"{environ.get('SOCIAL_FOLDER')}/resultsposts_hashtag.json", 'w') as foutput:
+            json.dump(self.xhr_posts, foutput, indent=4, sort_keys=True)
 
-        #     if type(post["comments"]) != list:
+        for post in self.xhr_posts:
+            comment_values = []
 
-        #         comments = post["comments"]["comments"]
-        #         comment_values = []
+            for cmt in post["comments"]:
+                try:
+                    comment_values.append({
+                        'comment': cmt["text"],
+                        'published_at': datetime.fromtimestamp(cmt["created_at"]).strftime("%d/%m/%Y"),
+                        'likes': cmt["comment_like_count"],
+                        'author': cmt["user"]["full_name"] if cmt["user"]["full_name"] else cmt["user"]["username"]
+                    })
+                except Exception as e:
+                    print(e)
+                    pass
 
-        #         for cmt in comments:
-        #             try:
-        #                 comment_values.append({
-        #                     'comment': cmt["text"],
-        #                     'published_at': datetime.fromtimestamp(cmt["created_at"]).strftime("%d/%m/%Y"),
-        #                     'likes': cmt["comment_like_count"],
-        #                     'author': cmt["user"]["full_name"]
-        #                 })
-        #             except Exception as e:
-        #                 print(e)
-        #                 pass
+            try:
+                self.posts.append({
+                    "author": post["owner"]["full_name"] if post["owner"]["full_name"] else post["owner"]["username"],
+                    "publishedAt": datetime.fromtimestamp(post["caption"]["created_at"]).strftime("%d/%m/%Y"),
+                    "description": post["caption"]["text"],
+                    "reaction": post["like_count"],
+                    "comments": len(comment_values),
+                    "shares": 0,
+                    "hashtag": self.hashtag,
+                    "comment_values": comment_values
+                })
 
-        #         try:
-        #             self.posts.append({
-        #                 "author": post["owner"]["full_name"],
-        #                 "publishedAt": datetime.fromtimestamp(post["comments"]["caption"]["created_at"]).strftime("%d/%m/%Y"),
-        #                 "description": post["caption"]["text"],
-        #                 "reaction": post["like_count"],
-        #                 "comments": len(comment_values),
-        #                 "shares": 0,
-        #                 "hashtag": "",
-        #                 "comment_values": comment_values
-        #             })
+            except Exception as e:
+                print(e)
+                pass
 
-        #         except Exception as e:
-        #             print(e)
-        #             pass
+        print("posts traités: ", len(self.posts))
 
-        # print("posts traités: ", len(self.posts))
-
-        # try:
-        #     self.page_data = {
-        #         'followers': nested_lookup(key='edge_followed_by', document=self.xhr_page)[0]["count"],
-        #         'likes': 0,
-        #         'source': "instagram",
-        #         'establishment': self.establishment,
-        #         'name': f"instagram_{nested_lookup(key='full_name', document=self.xhr_page)[0]}",
-        #         'posts': len(self.posts)
-        #     }
-
-        # except Exception as e:
-        #     print(e)
-        #     pass
+        self.page_data = {
+            'likes': 0,
+            'source': "instagram",
+            'establishment': self.establishment,
+            'posts': len(self.posts)
+        }
 
     def switch_acount(self) -> None:
         pass
@@ -255,11 +297,11 @@ class InstagramProfileScraper(Scraping):
             print(" | Extracting")
             self.extract_data()
             p_item.next()
-            # print(" | Saving")
-            # output_files.append(self.save())
-            # p_item.next()
-            # print(" | Saved")
+            print(" | Saving")
+            output_files.append(self.save())
+            p_item.next()
+            print(" | Saved")
 
         self.stop()
 
-        # return output_files
+        return output_files

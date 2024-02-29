@@ -123,7 +123,7 @@ class ListScraper:
 
                 line = '|&|'.join([item['author'], item['title'], item['uploadAt'],
                                    str(item['likes']), str(item['share']), str(item['comments']), item['hashtag'], comments]) + "|*|"
-                if len(line.split('|&|')) == 6:
+                if len(line.split('|&|')) == 8:
                     results += line
 
             with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{filename}.txt", 'w', encoding='utf-8') as foutput:

@@ -63,6 +63,10 @@ class LinkedInProfileScraper(Scraping):
         self.page.goto("https://www.linkedin.com/login/fr")
         self.page.wait_for_timeout(10000)
 
+    def set_item(self, item):
+        super().set_item(item)
+        self.hashtag = self.page.url.split("=")[1].split('&')[0]
+
     def fill_loginform(self) -> None:
         self.page.wait_for_selector("[id='username']")
         self.page.locator("[id='username']").click()
@@ -98,8 +102,6 @@ class LinkedInProfileScraper(Scraping):
         self.scoll_down_page()
 
     def extract_data(self) -> None:
-
-        hashtag = self.page.url.split("=")[1].split('&')[0]
 
         try:
             comments_link = self.page.locator(
@@ -213,7 +215,7 @@ class LinkedInProfileScraper(Scraping):
                         "shares": shares,
                         "publishedAt": date2,
                         'comment_values': comment_values,
-                        'hashtag': hashtag
+                        'hashtag': self.hashtag
                     })
 
                 total_comments += comments
