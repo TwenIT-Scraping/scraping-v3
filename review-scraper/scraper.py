@@ -1,5 +1,5 @@
 from models import Establishment, Settings
-from booking import Booking
+from booking import Booking, Booking_ES
 from maeva import Maeva
 from campings import Campings
 from hotels import Hotels_FR, Hotels_EN, Hotels_ES
@@ -31,7 +31,7 @@ __class_name__ = {
 
 __class_name_v2__ = {
     'Booking': Booking,
-    'Booking ES': Booking,
+    'Booking ES': Booking_ES,
     'Maeva': Maeva,
     'Maeva ES': Maeva,
     'Campings': Campings,
