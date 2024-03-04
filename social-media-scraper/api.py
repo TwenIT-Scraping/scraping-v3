@@ -7,17 +7,17 @@ from urllib3 import encode_multipart_formdata
 
 class ERApi:
 
-    def __init__(self, method="get", entity="", params={}, body={}, id=-1):
+    def __init__(self, env, method="get", entity="", params={}, body={}, id=-1):
         dotenv.load_dotenv()
 
         self.method = method
         self.entity = entity
-        token = os.environ.get('API_TOKEN')
+        token = os.environ.get(f'API_TOKEN_{env.upper()}')
         self.headers = {'Accept': 'application/json', 'Authorization': token}
         self.params = params
         self.body = body
         self.id = id
-        self.api_url = os.environ.get("API_URL")
+        self.api_url = os.environ.get(f"API_URL_{env.upper()}")
 
     def set_id(self, id):
         self.id = id

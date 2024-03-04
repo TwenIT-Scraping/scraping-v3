@@ -18,6 +18,8 @@ def main_arguments() -> object:
                         help="Nom du fichier à traiter.")
     parser.add_argument('--auto-save', '-a', dest='auto_save',
                         default="1", choices=["0", "1"], help="Uploader tout de suite les résultats.")
+    parser.add_argument('--env', '-v', dest='env', default="DEV",
+                        help="Optionnel: environnement de l'api. DEV par défaut")
     return parser.parse_args()
 
 
@@ -26,7 +28,8 @@ ARGS_INFO = {
     '-e': {'long': '--establishments', 'dest': 'establishments', "help": "Liste des établissements à scaper uniquement pour les options 'by-establishment' et 'specified'."},
     '-s': {'long': '--sites', 'dest': 'sites', "help": "Liste des sites à scaper uniquement pour les options 'by-website' et 'specified'."},
     '-n': {'long': '--name', 'dest': 'name', "help": "Nom du fichier à traiter."},
-    '-a': {'long': '--auto-save', 'dest': 'auto_save', "help": "Uploader tout de suite les résultats."}
+    '-a': {'long': '--auto-save', 'dest': 'auto_save', "help": "Uploader tout de suite les résultats."},
+    '-v': {'long': '--env', 'dest': 'env', 'help': "Optionnel: environnement de l'api. PROD par défaut"}
 }
 
 
@@ -67,7 +70,7 @@ if __name__ == '__main__':
 
         if not len(miss):
 
-            sc = ListScraper()
+            sc = ListScraper(env=args.env)
 
             if args.type == 'list':
                 data = sc.get_providers()

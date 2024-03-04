@@ -28,9 +28,10 @@ __class_name__ = {
 
 
 class ListScraper:
-    def __init__(self):
+    def __init__(self, env: str):
         self.settings = None
         self.auto_save = False
+        self.env = env
 
     def init(self, eid=None, ename=None, categ='Hashtag', source=None):
         self.settings = Settings(categ, eid, source, ename)
