@@ -124,7 +124,7 @@ class Booking(Scraping):
 class Booking_ES(Booking):
     def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(url=url, establishment=establishment, settings=settings, env=env)
-        self.lang = "en"
+        self.lang = "es"
 
 
 # trp = Booking(url="https://www.booking.com/reviews/fr/hotel/la-belle-etoile-les-deux-alpes.fr.html")
