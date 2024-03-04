@@ -27,6 +27,9 @@ class Booking(Scraping):
                          establishment=establishment, settings=settings, env=env)
         self.lang = "en"
 
+    def set_url(self, url: str) -> None:
+        super().set_url(f"{url}?r_lang={self.lang}")
+
     def extract(self):
 
         reviews = []

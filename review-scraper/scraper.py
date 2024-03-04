@@ -206,6 +206,8 @@ class ListScraperV2:
                     instance = __class_name_v2__[item['source']](
                         url=item['url'], establishment=item['establishment_id'], settings=item['id'], env=self.env)
 
+                    instance.set_url(item['url'])
+
                     print('=> ', item['id'], ': ', item['url'])
 
                     if item['last_review_date']:
