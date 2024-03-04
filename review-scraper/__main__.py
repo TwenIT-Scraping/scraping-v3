@@ -101,7 +101,9 @@ if __name__ == '__main__':
                 sc.update_feelings()
 
             if args.type == 'list':
-                print(sc.get_providers())
+                data = sc.get_providers()
+                print("-> Providers: ", ", ".join(data['providers']))
+                print("-> Establishments: ", ", ".join(data['establishments']))
 
             if args.type == 'all':
                 sc.init()

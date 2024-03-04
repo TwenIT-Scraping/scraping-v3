@@ -7,6 +7,7 @@ from facebook_scraper import FacebookProfileScraper
 from instagram_scraper import InstagramProfileScraper
 from tiktok_spider import TikTokProfileScraper
 from linkedIn_spider import LinkedInProfileScraper
+from youtube_scraper import YoutubeProfileScraper
 import random
 from changeip import refresh_connection
 import time
@@ -16,7 +17,7 @@ from progress.bar import ChargingBar
 
 __class_name__ = {
     # 'Facebook': FacebookProfileScraper,
-    # 'Youtube': FacebookProfileScraper,
+    'Youtube': YoutubeProfileScraper,
     'Instagram': InstagramProfileScraper,
     'Linkedin': LinkedInProfileScraper,
     'facebook EN': FacebookProfileScraper,
@@ -42,10 +43,15 @@ class ListScraper:
 
     def get_providers(self):
         try:
-            res = ERApi(entity='providers').execute()
+            res = ERApi(entity='provider/list?categ=Social',
+                        env=self.env).execute()
         except Exception as e:
             print(e)
-        return list(map(lambda x: {'name': x['name'], 'count': len(x['settings'])}, res))
+
+        return {
+            "providers": list(map(lambda x: x['name'], res['providers'])),
+            "establishments": res['establishments']
+        }
 
     def start(self):
         refresh_connection()

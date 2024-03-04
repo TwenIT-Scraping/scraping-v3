@@ -42,10 +42,15 @@ class ListScraper:
 
     def get_providers(self):
         try:
-            res = ERApi(entity='providers').execute()
+            res = ERApi(entity='provider/list?categ=Hashtag',
+                        env=self.env).execute()
         except Exception as e:
             print(e)
-        return list(map(lambda x: {'name': x['name'], 'count': len(x['settings'])}, res))
+
+        return {
+            "providers": list(map(lambda x: x['name'], res['providers'])),
+            "establishments": res['establishments']
+        }
 
     def start(self):
         refresh_connection()

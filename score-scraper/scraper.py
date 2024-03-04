@@ -61,8 +61,16 @@ class ListScraperV2:
         print(self.env)
 
     def get_providers(self):
-        res = ERApi(entity='providers', env=self.env).execute()
-        return list(map(lambda x: {'name': x['name'], 'count': len(x['settings'])}, res))
+        try:
+            res = ERApi(entity='provider/list?categ=Platform',
+                        env=self.env).execute()
+        except Exception as e:
+            print(e)
+
+        return {
+            "providers": list(map(lambda x: x['name'], res['providers'])),
+            "establishments": res['establishments']
+        }
 
     def init(self, eid=None, ename=None, categ=None, source=None):
         self.settings = Settings(categ, eid, source, ename, self.env)
