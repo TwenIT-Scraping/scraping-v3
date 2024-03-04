@@ -203,6 +203,7 @@ class ListScraperV2:
             if item['source'] in __class_name_v2__.keys():
                 print("=> A scraper !!!")
                 try:
+                    print(item['url'])
                     instance = __class_name_v2__[item['source']](
                         url=item['url'], establishment=item['establishment_id'], settings=item['id'], env=self.env)
 
