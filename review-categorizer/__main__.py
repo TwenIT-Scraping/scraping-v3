@@ -272,7 +272,10 @@ class ClassificationAPI(object):
 
     def update_lines(self):
         for line in self.lines:
-            line = self.check_categories(line)
+            if line['text'] != "":
+                line = self.check_categories(line)
+            else:
+                self.lines.remove(line)
 
         self.lines = self.compute_scores(self.lines)
 
