@@ -35,11 +35,10 @@ class ListScraper:
         self.env = env
 
     def init(self, eid=None, ename=None, categ='Social', source=None):
-        self.settings = Settings(categ, eid, source, ename)
+        self.settings = Settings(categ, eid, source, ename, env=self.env)
         self.settings.prepare()
 
     def set_auto_save(self):
-        print("set auto save to active")
         self.auto_save = True
 
     def get_providers(self):
