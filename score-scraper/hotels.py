@@ -17,7 +17,7 @@ class Hotels_FR(Scraping):
         time.sleep(2)
 
         score = float(self.driver.find_element(
-            By.XPATH, "//meta[@itemprop='ratingValue']").get_attribute('content'))
+            By.XPATH, "//meta[@itemprop='ratingValue']").get_attribute('content').replace(',', '.'))
 
         self.data = score / 2 if score > 5 else score
 
@@ -36,7 +36,7 @@ class Hotels_EN(Scraping):
         time.sleep(2)
 
         score = float(self.driver.find_element(
-            By.XPATH, "//meta[@itemprop='ratingValue']").get_attribute('content'))
+            By.XPATH, "//meta[@itemprop='ratingValue']").get_attribute('content').replace(',', '.'))
 
         self.data = score / 2 if score > 5 else score
 
