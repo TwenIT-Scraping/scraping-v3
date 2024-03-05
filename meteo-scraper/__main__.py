@@ -90,6 +90,8 @@ class MeteoAPI(object):
                     timeout=120
                 )
 
+            print(response)
+
             return orjson.loads(response.data)
 
         except urllib3.exceptions.HTTPError as e:
