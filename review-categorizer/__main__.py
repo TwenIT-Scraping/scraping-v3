@@ -286,7 +286,8 @@ class ClassificationAPI(object):
         for line in self.lines:
             l_categs = ""
 
-            print(line['prediction'])
+            [print(line['prediction']) if 'prediction' in line.keys()
+             else print("no prediction found")]
 
             if line['prediction']:
                 for i in range(0, len(line['prediction']['labels'])):
