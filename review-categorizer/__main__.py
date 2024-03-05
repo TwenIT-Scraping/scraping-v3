@@ -84,7 +84,7 @@ class ReviewScore:
         if os.environ.get('ENV_TYPE') == 'local':
             return {'feeling': 'neutre', 'score': '0', 'confidence': '0'}
         else:
-            score_data = self.get_score(text, lang)
+            score_data = self.get_score(text)
 
             if score_data:
                 score_value = score_data[0]['score']
