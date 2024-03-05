@@ -12,6 +12,7 @@ class Settings:
         self.items = []
 
     def prepare(self):
+        page = 0
         try:
             req = ERApi(method="get", entity="setting/list", env=self.env)
         except Exception as e:
@@ -23,7 +24,6 @@ class Settings:
         self.source and req.add_params({'src': self.source})
 
         while True:
-            print(page)
             page += 1
             req.add_params({'page': page})
             res = req.execute()
