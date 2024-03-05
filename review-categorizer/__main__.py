@@ -275,8 +275,6 @@ class ClassificationAPI(object):
         for line in self.lines:
             if line['text'] != "":
                 line = self.check_categories(line)
-            else:
-                self.lines.remove(line)
 
         self.lines = self.compute_scores(self.lines)
 
