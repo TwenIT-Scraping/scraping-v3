@@ -264,6 +264,7 @@ class ClassificationAPI(object):
 
                 except Exception as e:
                     print(e)
+                    line['prediction'] = None
 
             else:
                 line['prediction'] = None
