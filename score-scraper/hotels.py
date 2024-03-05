@@ -11,6 +11,9 @@ class Hotels_FR(Scraping):
         self.source = 'hotels'
 
     def extract(self) -> None:
+
+        input("Enter a key to continue ...")
+
         time.sleep(2)
 
         score = float(self.driver.find_element(
@@ -27,6 +30,9 @@ class Hotels_EN(Scraping):
         self.source = 'hotels'
 
     def extract(self) -> None:
+
+        input("Enter a key to continue ...")
+
         time.sleep(2)
 
         score = float(self.driver.find_element(
