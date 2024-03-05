@@ -73,6 +73,7 @@ class MeteoAPI(object):
 
     def get_request(self, url: str, header: bool = False) -> dict:
         try:
+            print(url)
             response = None
             self.http = urllib3.PoolManager(cert_reqs='CERT_NONE')
 
@@ -90,7 +91,6 @@ class MeteoAPI(object):
                     timeout=120
                 )
 
-            print(response.url)
             print(response.data)
 
             return orjson.loads(response.data)
