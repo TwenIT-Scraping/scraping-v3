@@ -90,7 +90,7 @@ class MeteoAPI(object):
                     timeout=120
                 )
 
-            print(response.json())
+            print(response.data)
 
             return orjson.loads(response.data)
 
