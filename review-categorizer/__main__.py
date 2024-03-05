@@ -289,7 +289,7 @@ class ClassificationAPI(object):
             [print(line['prediction']) if 'prediction' in line.keys()
              else print("no prediction found")]
 
-            if line['prediction']:
+            if 'prediction' in line.keys() and line['prediction']:
                 for i in range(0, len(line['prediction']['labels'])):
                     if line['prediction']['scores'][i] >= 0.9:
                         l_categs += f"{line['prediction']['labels'][i]}${str(line['prediction']['scores'][i])}|"
