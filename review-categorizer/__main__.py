@@ -376,7 +376,7 @@ if __name__ == '__main__':
                 print("======> Etablissement: ",
                       item['name'], ' <========')
                 cl = ClassificationAPI(
-                    tag=item['tag'], type=args.type, limit=20)
+                    tag=item['tag'], type=args.type, limit=20, env=args.env)
                 cl.execute()
 
         except Exception as e:
