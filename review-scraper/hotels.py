@@ -78,8 +78,8 @@ class Hotels_FR(Hotels):
         time.sleep(3)
 
         try:
-            self.driver.find_element(
-                By.XPATH, "//select[@id='sortBy']/option[@value='NEWEST_TO_OLDEST']").click()
+            # self.driver.find_element(
+            #     By.XPATH, "//select[@id='sortBy']/option[@value='NEWEST_TO_OLDEST']").click()
 
             time.sleep(2)
 
