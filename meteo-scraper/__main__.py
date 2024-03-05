@@ -91,7 +91,6 @@ class MeteoAPI(object):
                 )
 
             print(response.status)
-            print(response.message)
             print(response.content)
             print(response.json())
 
