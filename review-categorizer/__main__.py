@@ -310,15 +310,15 @@ class ClassificationAPI(object):
                 print("============> Page ", self.page,
                       "sur ", self.pages, " <===============")
                 self.fetch_datas()
-            # if len(self.categories):
-                self.update_lines()
+                if len(self.categories):
+                    self.update_lines()
                 # res = self.transform_data()
                 # print(res)
-                res = self.upload()
-                print(res)
-                # else:
-                #     print("!!!! Pas de catégories")
-                #     break
+                    res = self.upload()
+                    print(res)
+                else:
+                    print("!!!! Pas de catégories")
+                    break
 
                 if self.page > self.pages:
                     break
