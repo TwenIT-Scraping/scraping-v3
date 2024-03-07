@@ -573,7 +573,7 @@ class Tripadvisor_ES(Tripadvisor):
                             print("=> Click to next...")
                             self.driver.execute_script(
                                 "arguments[0].click();", next_btn)
-                            time.sleep(20)
+                            time.sleep(5)
                         else:
                             print("=> Next button not found!")
                             break
