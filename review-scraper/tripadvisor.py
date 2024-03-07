@@ -476,6 +476,7 @@ class Tripadvisor_ES(Tripadvisor):
 
         try:
             while True:
+                print("==== Extracting ... ====")
                 page = self.driver.page_source
 
                 soupe = BeautifulSoup(page, 'lxml')
@@ -573,6 +574,27 @@ class Tripadvisor_ES(Tripadvisor):
                         print("Review card non trouvé, tenter autrement ...")
                         raise Exception()
 
+                    try:
+                        print("***** Pass to next page ...")
+                        next_btn = self.driver.find_element(
+                            By.XPATH, "//a[@data-smoke-attr='pagination-next-arrow']")
+
+                        if next_btn:
+                            print("=> Click to next...")
+                            self.driver.execute_script(
+                                "arguments[0].click();", next_btn)
+                            time.sleep(20)
+                        else:
+                            print("=> Next button not found!")
+                            break
+
+                    except Exception as e:
+                        print("////// Error when passing to next page...")
+                        print(e)
+                        break
+
+                    self.data = reviews
+
                 except Exception as e:
                     print(e)
                     reviews_card = soupe.find_all(
@@ -627,8 +649,8 @@ class Tripadvisor_ES(Tripadvisor):
 
                         to_save and reviews.append(review_data)
 
-                if not self.check_date(reviews[-1]['date_review']):
-                    break
+                # if not self.check_date(reviews[-1]['date_review']):
+                #     break
 
                 try:
                     next_btn = self.driver.find_element(
