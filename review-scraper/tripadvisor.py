@@ -487,7 +487,6 @@ class Tripadvisor_ES(Tripadvisor):
                         'div', {'data-test-target': "HR_CC_CARD"})
 
                     if len(reviews_card) > 0:
-                        print(len(reviews_card))
 
                         for item in reviews_card:
 
@@ -539,11 +538,6 @@ class Tripadvisor_ES(Tripadvisor):
                                             date_raw_withp[0][1:], 'es', 'short')
                                         year = date_raw_withp[1][:-1]
 
-                            # print(f"{day}/{month}/{year}")
-
-                            # author = item.select_one("[href*=Profile]").text.strip(
-                            # ) if item.select_one("[href*=Profile]") else "",
-
                             to_save = date_raw != '' and author != ''
 
                             review_data = {
@@ -562,12 +556,13 @@ class Tripadvisor_ES(Tripadvisor):
                                 'novisitday': "1"
                             }
 
-                            print(review_data)
-
-                            # to_save and reviews.append(review_data)
+                            to_save and reviews.append(review_data)
 
                     else:
                         raise Exception("Aucun card trouvé!!!")
+
+                    if len(reviews) and not self.check_date(reviews[-1]['date_review']):
+                        break
 
                     try:
                         print("***** Pass to next page ...")
