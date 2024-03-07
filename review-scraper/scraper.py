@@ -6,7 +6,7 @@ from hotels import Hotels_FR, Hotels_EN, Hotels_ES
 from googles import Google
 from opentable import Opentable, Opentable_UK
 from trustpilot import Trustpilot
-from tripadvisor import Tripadvisor_UK, Tripadvisor_FR
+from tripadvisor import Tripadvisor_UK, Tripadvisor_FR, Tripadvisor_ES
 from expedia import Expedia
 from api import ERApi
 import random
@@ -46,7 +46,7 @@ __class_name_v2__ = {
     'Trustpilot': Trustpilot,
     'Tripadvisor FR': Tripadvisor_FR,
     'Tripadvisor UK': Tripadvisor_UK,
-    'Tripadvisor ES': Tripadvisor_UK,
+    'Tripadvisor ES': Tripadvisor_ES,
     'Expedia': Expedia,
     'Expedia FR': Expedia,
     'Expedia ES': Expedia,
@@ -207,7 +207,7 @@ class ListScraperV2:
                     instance = __class_name_v2__[item['source']](
                         url=item['url'], establishment=item['establishment_id'], settings=item['id'], env=self.env)
 
-                    instance.set_url(item['url'])
+                    # instance.set_url(item['url'])
 
                     print('=> ', item['id'], ': ', item['url'])
 

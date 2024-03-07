@@ -38,6 +38,21 @@ months_en = {
     'December': '12'
 }
 
+months_es = {
+    'enero': '01',
+    'febrero': '02',
+    'marzo': '03',
+    'abril': '04',
+    'mayo': '05',
+    'junio': '06',
+    'julio': '07',
+    'agosto': '08',
+    'septiembre': '09',
+    'octubre': '10',
+    'noviembre': '11',
+    'deciembre': '12'
+}
+
 shortmonths_fr = {
     'janv.': '01',
     'févr.': '02',
@@ -67,6 +82,21 @@ shortmonths_en = {
     'Oct': '10',
     'Nov': '11',
     'Dec': '12'
+}
+
+shortmonths_es = {
+    'ene': '01',
+    'feb': '02',
+    'mar': '03',
+    'abr': '04',
+    'may': '05',
+    'jun': '06',
+    'jul': '07',
+    'ago': '08',
+    'sept': '09',
+    'oct': '10',
+    'nov': '11',
+    'dic': '12'
 }
 
 """ 

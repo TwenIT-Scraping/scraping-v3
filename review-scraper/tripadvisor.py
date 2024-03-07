@@ -464,6 +464,298 @@ class Tripadvisor_FR(Tripadvisor):
             self.data = reviews
 
 
+class Tripadvisor_ES(Tripadvisor):
+    def __init__(self, url: str, establishment: str, settings: str, env: str):
+        url = url.replace(".fr/", ".es/")
+        super().__init__(url=url, establishment=establishment, settings=settings, env=env)
+
+    def extract(self):
+        reviews = []
+
+        time.sleep(30)
+
+        try:
+            while True:
+                page = self.driver.page_source
+
+                soupe = BeautifulSoup(page, 'lxml')
+
+                review_tab = soupe.find(
+                    'div', {'data-test-target': 'reviews-tab'})
+                # print(review_tab)
+
+                try:
+
+                    reviews_card = soupe.find_all(
+                        'div', {'data-test-target': "HR_CC_CARD"})
+
+                    if len(reviews_card) > 0:
+                        print(len(reviews_card))
+
+                        for item in reviews_card:
+
+                            to_save = True
+
+                            title = item.find('div', {'data-test-target': 'review-title'}).text.strip(
+                            ) if item.find('div', {'data-test-target': 'review-title'}) else ''
+
+                            detail = item.find('span', {'class': 'orRIx'}).find('span').text.strip(
+                            ).replace('\n', '') if item.find('span', {'class': 'orRIx'}) else ''
+
+                            comment = f"{title}{': ' if title and detail else ''}{detail}"
+
+                            try:
+                                lang = detect(comment)
+                            except:
+                                lang = 'es'
+
+                            year = datetime.today().year
+                            month = datetime.today().month
+                            day = datetime.today().day
+
+                            links = item.find_all(
+                                "a", href=lambda href: href and "Profile" in href)
+                            author_link = [
+                                link for link in links if link.text.strip() != ""]
+
+                            author = author_link[0].text.strip() if len(
+                                author_link) > 0 else ""
+
+                            date_raw = author_link[0].parent.text.strip() if len(
+                                author_link) > 0 else ""
+
+                            if date_raw:
+                                date_raw_withp = date_raw.split()[-2:]
+
+                                if date_raw_withp[1][0] == '(':
+                                    if date_raw_withp[1] == "(hoy)":
+                                        day = datetime.today().day
+                                    elif date_raw_withp[1] == "(ayer)":
+                                        day = datetime.today().day - 1
+                                else:
+                                    if date_raw_withp[0][1:].isnumeric():
+                                        day = int(date_raw_withp[0][1:])
+                                        month = month_number(
+                                            date_raw_withp[1][:-1], 'es', 'short')
+                                    else:
+                                        month = month_number(
+                                            date_raw_withp[0][1:], 'es', 'short')
+                                        year = date_raw_withp[1][:-1]
+
+                            # print(f"{day}/{month}/{year}")
+
+                            # author = item.select_one("[href*=Profile]").text.strip(
+                            # ) if item.select_one("[href*=Profile]") else "",
+
+                            to_save = date_raw != '' and author != ''
+
+                            review_data = {
+                                'comment': comment,
+                                'rating': str(int(item.find('div', {'data-test-target': 'review-rating'}).find('svg').find('title').text.strip().split(' ')[0].split(',')[0]))+"/5"
+                                if item.find('div', {'data-test-target': 'review-rating'})
+                                and item.find('div', {'data-test-target': 'review-rating'}).find('svg')
+                                and item.find('div', {'data-test-target': 'review-rating'}).find('svg').find('title') else "0/5",
+                                'language': lang,
+                                'source': 'tripadvisor',
+                                'author': ''.join(author),
+                                'establishment': f'/api/establishments/{self.establishment}',
+                                'settings': f'/api/settings/{self.settings}',
+                                'date_review': f"{day}/{month}/{year}",
+                                'date_visit': f"{day}/{month}/{year}",
+                                'novisitday': "1"
+                            }
+
+                            print(review_data)
+
+                            # to_save and reviews.append(review_data)
+
+                    else:
+                        print("Review card non trouvé, tenter autrement ...")
+                        raise Exception()
+
+                except Exception as e:
+                    print(e)
+                    reviews_card = soupe.find_all(
+                        'div', {'class': "review-container"})
+
+                    for item in reviews_card:
+                        to_save = True
+
+                        title = item.find('a', {'class': 'title'}).text.strip(
+                        ) if item.find('a', {'class': 'title'}) else ''
+                        detail = item.find(
+                            'div', {'data-prwidget-name': 'reviews_text_summary_hsx'}).text.strip() if item.find(
+                            'div', {'data-prwidget-name': 'reviews_text_summary_hsx'}) else ''
+
+                        comment = f"{title}{': ' if title and detail else ''}{detail}"
+
+                        try:
+                            lang = detect(comment)
+                        except:
+                            lang = 'en'
+
+                        rating_bubble = item.find(
+                            'span', {'class': 'ui_bubble_rating'})['class'][1]
+
+                        rating = str(
+                            int(int(rating_bubble.split('_')[1])/10)) + '/5'
+
+                        date_raw = item.find(
+                            'span', {'class': 'ratingDate'})['title']
+
+                        if date_raw != '':
+                            date_rawt = date_raw.split()
+                            month = month_number(date_rawt[1], 'fr', '')
+
+                        author = item.find('div', {'onclick': "widgetEvCall('handlers.usernameClick', event, this);"}).text.strip(
+                        ) if item.find('div', {'onclick': "widgetEvCall('handlers.usernameClick', event, this);"}) else ""
+
+                        to_save = date_raw != '' and author != ''
+
+                        review_data = {
+                            'comment': comment,
+                            'rating': rating,
+                            'language': lang,
+                            'source': urlparse(self.url).netloc.split('.')[1],
+                            'author': author,
+                            'establishment': f'/api/establishments/{self.establishment}',
+                            'settings': f'/api/settings/{self.settings}',
+                            'date_review': f"{date_rawt[0]}/{month}/{date_rawt[2]}",
+                            'date_visit': f"{date_rawt[0]}/{month}/{date_rawt[2]}",
+                            'novisitday': "1"
+                        }
+
+                        to_save and reviews.append(review_data)
+
+                if not self.check_date(reviews[-1]['date_review']):
+                    break
+
+                try:
+                    next_btn = self.driver.find_element(
+                        By.CSS_SELECTOR, "a.nav.next")
+                    disable_btn = 'disabled' in next_btn.get_attribute(
+                        'class').split()
+                    if next_btn and not disable_btn:
+                        self.driver.execute_script(
+                            "arguments[0].click();", next_btn)
+                        time.sleep(2)
+                    else:
+                        break
+
+                except Exception as e:
+                    break
+
+            self.data = reviews
+
+        except Exception as e:
+            print(e)
+
+            while True:
+                time.sleep(5)
+                page = self.driver.page_source
+
+                soupe = BeautifulSoup(page, 'lxml')
+
+                reviews_card = soupe.find_all(
+                    'div', {'data-automation': "reviewCard"})
+
+                if len(reviews_card):
+
+                    for item in reviews_card:
+
+                        to_save = True
+
+                        rating_bubble = item.find(
+                            'svg', {'class': 'UctUV d H0'})['aria-label']
+                        rating = str(
+                            int(rating_bubble.split(',')[0])) + '/5'
+
+                        author = item.find(
+                            'a', {'class': 'BMQDV _F Gv wSSLS SwZTJ FGwzt ukgoS'}).text.strip() if item.find(
+                            'a', {'class': 'BMQDV _F Gv wSSLS SwZTJ FGwzt ukgoS'}) else ''
+
+                        title = item.find(
+                            'div', {'class': 'biGQs _P fiohW qWPrE ncFvv fOtGX'}).text.strip() if item.find(
+                            'div', {'class': 'biGQs _P fiohW qWPrE ncFvv fOtGX'}) else ''
+
+                        comment = item.find(
+                            'div', {'class': '_T FKffI'}).text.strip() if item.find(
+                            'div', {'class': '_T FKffI'}) else ''
+
+                        comment = f"{title}{': ' if title and comment else ''}{comment}"
+
+                        try:
+                            lang = detect(comment)
+                        except:
+                            lang = 'es'
+
+                        year = datetime.today().year
+                        month = datetime.today().month
+                        day = datetime.today().day
+
+                        date_raw = item.find(
+                            'div', {'class': 'RpeCd'}).text.strip() if item.find(
+                            'div', {'class': 'RpeCd'}) else ''
+
+                        if date_raw:
+
+                            date_raw_withp = date_raw.split(' • ')[0].split()
+
+                            if date_raw_withp[1][0] == '(':
+                                if date_raw_withp[1] == "(Aujourd'hui)":
+                                    day = datetime.today().day
+                                elif date_raw_withp[1] == "(Hier)":
+                                    day = datetime.today().day - 1
+                            else:
+                                if date_raw_withp[0].isnumeric():
+                                    day = int(date_raw_withp[0])
+                                    month = month_number(
+                                        date_raw_withp[1], 'fr', 'short')
+                                else:
+                                    month = month_number(
+                                        date_raw_withp[0], 'fr', 'short')
+                                    year = date_raw_withp[1]
+
+                        if author == '' or comment == '' or date_raw == '':
+                            to_save = False
+
+                        lang == 'es' and to_save and reviews.append({
+                            'comment': comment,
+                            'rating': rating,
+                            'language': lang,
+                            'source': urlparse(self.url).netloc.split('.')[1],
+                            'author': author,
+                            'establishment': f'/api/establishments/{self.establishment}',
+                            'settings': f'/api/settings/{self.settings}',
+                            'date_review': f"{day}/{month}/{year}",
+                            'date_visit': f"{day}/{month}/{year}",
+                            'novisitday': "1"
+                        })
+
+                else:
+                    print("Review card non trouvé, Arret !!!")
+                    break
+
+                # if len(reviews) and not self.check_date(reviews[-1]['date_review']):
+                #     break
+
+                try:
+                    next_btn = self.driver.find_element(
+                        By.XPATH, "//a[@data-smoke-attr='pagination-next-arrow']")
+
+                    if next_btn:
+                        self.driver.execute_script(
+                            "arguments[0].click();", next_btn)
+                        time.sleep(2)
+                    else:
+                        break
+
+                except Exception as e:
+                    break
+
+            self.data = reviews
+
+
 # trp = Tripadvisor_FR(
 #     url="https://www.tripadvisor.fr/Attraction_Review-g3520917-d518281-Reviews-Courchevel-Saint_Bon_Tarentaise_Courchevel_Savoie_Auvergne_Rhone_Alpes.html", establishment=33, settings=1)
 # trp.execute()
