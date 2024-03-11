@@ -82,7 +82,7 @@ class Scraping(object):
         #     print("A comparer avec: ", self.last_date)
         #     return current_date >= self.last_date
         # else:
-        print("A comparer avec: ", current_date + timedelta(days=-365))
+        print("A comparer avec: ", datetime.now() + timedelta(days=-365))
         return current_date >= current_date + timedelta(days=-365)
 
     def execute(self):
