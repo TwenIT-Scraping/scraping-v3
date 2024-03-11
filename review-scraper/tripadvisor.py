@@ -472,7 +472,8 @@ class Tripadvisor_ES(Tripadvisor):
     def extract(self):
         reviews = []
 
-        time.sleep(30)
+        # time.sleep(30)
+        input("Appuiez sur la touche entrée pour continuer ...")
 
         try:
             while True:
@@ -485,6 +486,8 @@ class Tripadvisor_ES(Tripadvisor):
 
                     reviews_card = soupe.find_all(
                         'div', {'data-test-target': "HR_CC_CARD"})
+
+                    print("**** Card trouvé: ", len(reviews_card), " ****")
 
                     if len(reviews_card) > 0:
 
@@ -566,11 +569,12 @@ class Tripadvisor_ES(Tripadvisor):
                                   len(reviews))
 
                     else:
+                        print("!!!!!!!!!!!! Pas de card trouvé !!!!!!!!!!!!!!!")
                         raise Exception("Aucun card trouvé!!!")
 
-                    if len(reviews) and not self.check_date(reviews[-1]['date_review']):
-                        print("!!!!!!!!!!!!!! Date dépassée !!!!!!!!!!!!!!")
-                        break
+                    # if len(reviews) and not self.check_date(reviews[-1]['date_review']):
+                    #     print("!!!!!!!!!!!!!! Date dépassée !!!!!!!!!!!!!!")
+                    #     break
 
                     try:
                         print("***** Pass to next page ...")
