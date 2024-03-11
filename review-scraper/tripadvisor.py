@@ -540,6 +540,9 @@ class Tripadvisor_ES(Tripadvisor):
 
                             to_save = date_raw != '' and author != ''
 
+                            print("A sauvegarder: ", to_save)
+                            print("informations initiales: ", date_raw, author)
+
                             review_data = {
                                 'comment': comment,
                                 'rating': str(int(item.find('div', {'data-test-target': 'review-rating'}).find('svg').find('title').text.strip().split(' ')[0].split(',')[0]))+"/5"
@@ -556,12 +559,17 @@ class Tripadvisor_ES(Tripadvisor):
                                 'novisitday': "1"
                             }
 
+                            print(review_data)
+
                             to_save and reviews.append(review_data)
+                            print("====> nombre reviews à l'instant: ",
+                                  len(reviews))
 
                     else:
                         raise Exception("Aucun card trouvé!!!")
 
                     if len(reviews) and not self.check_date(reviews[-1]['date_review']):
+                        print("!!!!!!!!!!!!!! Date dépassée !!!!!!!!!!!!!!")
                         break
 
                     try:
@@ -590,6 +598,9 @@ class Tripadvisor_ES(Tripadvisor):
         except Exception as e:
             print("Exception niveau 1:")
             print(e)
+
+        print("<=============> Nombre reviews final: ",
+              len(reviews), "<============>")
 
         self.data = reviews
 
