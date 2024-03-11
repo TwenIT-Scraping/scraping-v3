@@ -163,7 +163,7 @@ class Tripadvisor_UK(Tripadvisor):
 
                         reviews.append(review_data)
 
-                if not self.check_date(reviews[-1]['date_review']):
+                if not self.check_date(review_data['date_review']):
                     break
 
                 try:
@@ -574,13 +574,13 @@ class Tripadvisor_ES(Tripadvisor):
                             print("====> nombre reviews à l'instant: ",
                                   len(reviews))
 
+                        if not self.check_date(review_data['date_review']):
+                            print("!!!!!!!!!!!!!! Date dépassée !!!!!!!!!!!!!!")
+                            break
+
                     else:
                         print("!!!!!!!!!!!! Pas de card trouvé !!!!!!!!!!!!!!!")
                         raise Exception("Aucun card trouvé!!!")
-
-                    # if len(reviews) and not self.check_date(reviews[-1]['date_review']):
-                    #     print("!!!!!!!!!!!!!! Date dépassée !!!!!!!!!!!!!!")
-                    #     break
 
                     try:
                         print("***** Pass to next page ...")

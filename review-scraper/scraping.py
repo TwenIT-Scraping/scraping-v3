@@ -76,10 +76,12 @@ class Scraping(object):
     def check_date(self, date) -> bool:
         current_date = datetime.strptime(date, '%d/%m/%Y')
 
+        print("Date à vérifier: ", current_date.strftime('%d/%m/%Y'))
+
         if self.last_date:
             return current_date >= self.last_date
         else:
-            return True
+            return current_date >= current_date + timedelta(days=-365)
 
     def execute(self):
         try:
