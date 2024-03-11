@@ -163,8 +163,8 @@ class Tripadvisor_UK(Tripadvisor):
 
                         reviews.append(review_data)
 
-                if not self.check_date(review_data['date_review']):
-                    break
+                # if not self.check_date(review_data['date_review']):
+                #     break
 
                 try:
                     next_btn = self.driver.find_element(
