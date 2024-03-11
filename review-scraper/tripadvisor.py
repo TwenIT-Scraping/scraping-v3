@@ -2,7 +2,7 @@ from scraping import Scraping
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import ElementNotVisibleException, ElementNotSelectableException
+from selenium.common.exceptions import ElementNotVisibleException, ElementNotSelectableException, NoSuchElementException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.remote.command import Command
 from webdriver_manager.chrome import ChromeDriverManager
@@ -470,6 +470,12 @@ class Tripadvisor_ES(Tripadvisor):
         super().__init__(url=url, establishment=establishment, settings=settings, env=env)
 
     def extract(self):
+        def get_next_btn_element() -> object:
+            try:
+                return self.driver.find_element(By.CSS_SELECTOR, "a.ui_button.nav.next.primary")
+            except NoSuchElementException:
+                return self.driver.find_element(By.XPATH, "//a[@data-smoke-attr='pagination-next-arrow']")
+
         reviews = []
 
         # time.sleep(30)
@@ -578,14 +584,16 @@ class Tripadvisor_ES(Tripadvisor):
 
                     try:
                         print("***** Pass to next page ...")
-                        next_btn = self.driver.find_element(
-                            By.XPATH, "//a[@data-smoke-attr='pagination-next-arrow']")
+                        next_btn = get_next_btn_element()
 
                         if next_btn:
                             print("=> Click to next...")
-                            self.driver.execute_script(
-                                "arguments[0].click();", next_btn)
-                            time.sleep(5)
+                            try:
+                                next_btn.click()
+                            except:
+                                self.driver.execute_script(
+                                    "arguments[0].click();", next_btn)
+                                time.sleep(5)
                         else:
                             print("=> Next button not found!")
                             break
