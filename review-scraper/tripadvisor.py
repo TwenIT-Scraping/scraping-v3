@@ -335,8 +335,8 @@ class Tripadvisor_FR(Tripadvisor):
 
                         to_save and reviews.append(review_data)
 
-                if not self.check_date(reviews[-1]['date_review']):
-                    break
+                # if not self.check_date(reviews[-1]['date_review']):
+                #     break
 
                 try:
                     next_btn = self.driver.find_element(
@@ -444,8 +444,8 @@ class Tripadvisor_FR(Tripadvisor):
                     print("Review card non trouvé, Arret !!!")
                     break
 
-                if len(reviews) and not self.check_date(reviews[-1]['date_review']):
-                    break
+                # if len(reviews) and not self.check_date(reviews[-1]['date_review']):
+                #     break
 
                 try:
                     next_btn = self.driver.find_element(
@@ -574,9 +574,9 @@ class Tripadvisor_ES(Tripadvisor):
                             print("====> nombre reviews à l'instant: ",
                                   len(reviews))
 
-                        if not self.check_date(review_data['date_review']):
-                            print("!!!!!!!!!!!!!! Date dépassée !!!!!!!!!!!!!!")
-                            break
+                        # if not self.check_date(review_data['date_review']):
+                        #     print("!!!!!!!!!!!!!! Date dépassée !!!!!!!!!!!!!!")
+                        #     break
 
                     else:
                         print("!!!!!!!!!!!! Pas de card trouvé !!!!!!!!!!!!!!!")
