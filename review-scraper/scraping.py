@@ -163,7 +163,7 @@ class Scraping(object):
 
         if self.formated_data:
             # print(self.formated_data)
-            # Review.save_multi(self.formated_data, self.env)
+            Review.save_multi(self.formated_data, self.env)
             print(len(self.data), "reviews uploaded!")
         else:
             print("No review uploaded!")
