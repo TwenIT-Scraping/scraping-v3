@@ -28,7 +28,7 @@ class Booking(Scraping):
                          establishment=establishment, settings=settings, env=env)
 
     def set_url(self, url: str) -> None:
-        super().set_url(f"{url}?r_lang={self.lang}")
+        super().set_url(f"{url}?r_lang={self.lang}&order=completed_desc")
 
     def check_page(self) -> None:
         try:
