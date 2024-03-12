@@ -283,6 +283,7 @@ class ClassificationAPI(object):
         result = ""
         for line in self.lines:
             l_categs = ""
+            c_categs = ""
 
             [print(line['prediction']) if 'prediction' in line.keys()
              else print("no prediction found")]
@@ -292,8 +293,12 @@ class ClassificationAPI(object):
                     if line['prediction']['scores'][i] >= 0.9:
                         l_categs += f"{line['prediction']['labels'][i]}${str(line['prediction']['scores'][i])}|"
 
+            if len(self.categories):
+                c_categs = "|".join(
+                    list(map(lambda x: x['category'], self.categories)))
+
             l = "&".join([str(line['id']), self.type, line['feeling'],
-                         str(line['score']), str(line['confidence']), l_categs])
+                         str(line['score']), str(line['confidence']), l_categs, c_categs])
             result += l + "#"
 
         return result
@@ -301,9 +306,10 @@ class ClassificationAPI(object):
     def upload(self):
         try:
             data = self.transform_data()
-            post_instance = ERApi(
-                method="postclassifications", entity=f"classification/multi", env=self.env, body={'data_content': data})
-            return post_instance.execute()
+            print(data)
+            # post_instance = ERApi(
+            #     method="postclassifications", entity=f"classification/multi", env=self.env, body={'data_content': data})
+            # return post_instance.execute()
         except Exception as e:
             print(e)
 
