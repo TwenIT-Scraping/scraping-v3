@@ -19,6 +19,7 @@ from langdetect import detect
 from tools import month_number
 from selenium.webdriver.support.select import Select
 from models import Settings
+from requests.models import PreparedRequest
 
 
 class Booking(Scraping):
@@ -27,8 +28,13 @@ class Booking(Scraping):
         super().__init__(in_background=False, url=defurl,
                          establishment=establishment, settings=settings, env=env)
 
-    def set_url(self, url: str) -> None:
-        super().set_url(f"{url}?r_lang={self.lang}&order=completed_desc")
+    def set_language(self, language) -> None:
+        super().set_language(language)
+        url = self.url.split('?')[0]
+        params = {'r_lang': self.lang, 'order': 'completed_desc'}
+        req = PreparedRequest()
+        req.prepare_url(url, params)
+        super().set_url(req.url)
 
     def check_page(self) -> None:
         try:

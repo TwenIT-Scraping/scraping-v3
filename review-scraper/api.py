@@ -62,13 +62,16 @@ class ERApi:
             if self.id != -1:
                 self.add_header(
                     {"Content-Type": "application/merge-patch+json"})
-                response = getattr(requests, self.method)(
-                    f'{self.api_url}{self.entity}/{self.id}',
-                    params=self.params,
-                    headers=self.headers,
-                    data=json.dumps(self.body)
-                )
-                return response
+                try:
+                    response = getattr(requests, self.method)(
+                        f'{self.api_url}{self.entity}/{self.id}',
+                        params=self.params,
+                        headers=self.headers,
+                        data=json.dumps(self.body)
+                    )
+                    return response
+                except Exception as e:
+                    print(e)
             else:
                 messagebox.askyesno(
                     "Information", "Identifiant non spécifié!!!")

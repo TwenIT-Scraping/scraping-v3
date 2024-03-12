@@ -84,15 +84,7 @@ class Scraping(object):
 
     def check_date(self, date) -> bool:
         current_date = datetime.strptime(date, '%d/%m/%Y')
-
-        print("Date à vérifier: ", current_date.strftime('%d/%m/%Y'))
-
-        # if self.last_date:
-        #     print("A comparer avec: ", self.last_date)
-        #     return current_date >= self.last_date
-        # else:
-        print("A comparer avec: ", datetime.now() + timedelta(days=-365))
-        return current_date >= current_date + timedelta(days=-365)
+        return current_date >= (current_date - timedelta(days=365))
 
     def execute(self):
         try:
@@ -162,7 +154,7 @@ class Scraping(object):
         self.format()
 
         if self.formated_data:
-            # print(self.formated_data)
+            print(self.formated_data)
             Review.save_multi(self.formated_data, self.env)
             print(len(self.data), "reviews uploaded!")
         else:
