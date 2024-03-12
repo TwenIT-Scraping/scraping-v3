@@ -60,7 +60,8 @@ class ERApi:
 
         elif self.method == 'patch' or self.method == 'put':
             if self.id != -1:
-                self.add_header({"Content-Type": "application/json"})
+                self.add_header(
+                    {"Content-Type": "application/merge-patch+json"})
                 response = getattr(requests, self.method)(
                     f'{self.api_url}{self.entity}/{self.id}',
                     params=self.params,

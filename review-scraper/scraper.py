@@ -206,6 +206,9 @@ class ListScraperV2:
                     print(item['url'])
                     instance = __class_name_v2__[item['source']](
                         url=item['url'], establishment=item['establishment_id'], settings=item['id'], env=self.env)
+                    item['language'] and instance.set_language(
+                        item['language'])
+                    instance.set_setting_id(item['id'])
 
                     # instance.set_url(item['url'])
 

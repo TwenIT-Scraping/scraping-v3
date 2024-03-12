@@ -63,6 +63,11 @@ class Scraping(object):
 
         self.last_date = None
         self.env = env
+        self.lang = 'en'
+        self.setting_id = "-1"
+
+    def set_setting_id(self, setting_id):
+        self.setting_id = setting_id
 
     def set_last_date(self, date):
         self.last_date = datetime.strptime(date, '%d/%m/%Y')
@@ -72,6 +77,10 @@ class Scraping(object):
 
     def set_url(self, url: str) -> None:
         self.url = url
+
+    def set_language(self, language: str) -> None:
+        print("La langue du client: ", language.lower())
+        self.lang = language.lower()
 
     def check_date(self, date) -> bool:
         current_date = datetime.strptime(date, '%d/%m/%Y')
@@ -94,9 +103,12 @@ class Scraping(object):
             self.scrap()
             time.sleep(5)
             WebDriverWait(self.driver, 10)
-            self.extract()
-            time.sleep(2)
-            self.save()
+            if self.check_page():
+                self.extract()
+                time.sleep(2)
+                self.save()
+            else:
+                print("!!!!!!!! Cette page n'existe pas !!!!!!!!")
             self.driver.quit()
         except Exception as e:
             print(e)
@@ -112,6 +124,9 @@ class Scraping(object):
     def exit(self) -> None:
         self.driver.quit()
         sys.exit("Arret")
+
+    def check_page(self) -> None:
+        return True
 
     def format(self) -> None:
 
@@ -147,8 +162,8 @@ class Scraping(object):
         self.format()
 
         if self.formated_data:
-            print(self.formated_data)
-            Review.save_multi(self.formated_data, self.env)
+            # print(self.formated_data)
+            # Review.save_multi(self.formated_data, self.env)
             print(len(self.data), "reviews uploaded!")
         else:
             print("No review uploaded!")

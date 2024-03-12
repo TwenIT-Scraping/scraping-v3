@@ -160,10 +160,19 @@ class Settings:
                     self.items = self.items + res
                 else:
                     break
+
         except Exception as e:
             print(e)
             raise Exception(
                 "Des erreurs sont rencontrées durant l'initialisation !!!")
+
+    @staticmethod
+    def disable_setting(setting_id, env):
+        print(f"// ***  Disable a setting: {setting_id} ... *** //")
+        req = ERApi(method="patch", entity="settings",
+                    id=setting_id, body={'enable': False}, env=env)
+        res = req.execute()
+        print(f"// **************** {res} ************** //")
 
 # etab = Establishment(rid=2)
 # etab.refresh()

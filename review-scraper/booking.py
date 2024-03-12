@@ -18,6 +18,7 @@ from urllib.parse import urlparse, parse_qs
 from langdetect import detect
 from tools import month_number
 from selenium.webdriver.support.select import Select
+from models import Settings
 
 
 class Booking(Scraping):
@@ -25,10 +26,18 @@ class Booking(Scraping):
         defurl = url if url.endswith('.fr.html') else f"{url}.fr.html"
         super().__init__(in_background=False, url=defurl,
                          establishment=establishment, settings=settings, env=env)
-        self.lang = "en"
 
     def set_url(self, url: str) -> None:
         super().set_url(f"{url}?r_lang={self.lang}")
+
+    def check_page(self) -> None:
+        try:
+            page_404 = self.driver.find_element(
+                By.XPATH, "//div[@id='error404page']")
+            Settings.disable_setting(self.setting_id, env=self.env)
+            return False if page_404 else True
+        except:
+            return True
 
     def extract(self):
 
@@ -39,18 +48,21 @@ class Booking(Scraping):
         # review_order.select_by_value('completed_desc')
 
         try:
-            view_list_btn = self.driver.find_element(
-                By.XPATH, "//div[@class='review_list_nav_wrapper clearfix']/form/input[@type='submit']")
-            self.driver.execute_script("arguments[0].click();", view_list_btn)
+            # view_list_btn = self.driver.find_element(
+            #     By.XPATH, "//div[@class='review_list_nav_wrapper clearfix']/form/input[@type='submit']")
+            # self.driver.execute_script("arguments[0].click();", view_list_btn)
 
             while True:
-                time.sleep(10)
+                time.sleep(5)
 
                 page = self.driver.page_source
 
                 soupe = BeautifulSoup(page, 'lxml')
 
                 review_cards = soupe.find_all('li', {'itemprop': 'review'})
+                count = len(review_cards)
+
+                print(f"====> {count} cards trouvés !")
 
                 for card in review_cards:
                     title = card.find('div', {'class': 'review_item_header_content'}).text.strip(
@@ -84,7 +96,7 @@ class Booking(Scraping):
                         lang = 'en'
 
                     try:
-                        if lang == self.lang:
+                        if self.lang and lang == self.lang:
                             reviews.append({
                                 'comment': comment,
                                 'rating': card.find('span', {'class': 'review-score-badge'}).text.strip()
@@ -102,8 +114,8 @@ class Booking(Scraping):
                         print(e)
                         continue
 
-                # if not self.check_date(reviews[-1]['date_review']):
-                #     break
+                if not self.check_date(reviews[-1]['date_review']):
+                    break
 
                 try:
 
@@ -127,7 +139,7 @@ class Booking(Scraping):
 class Booking_ES(Booking):
     def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(url=url, establishment=establishment, settings=settings, env=env)
-        self.lang = "es"
+        # self.lang = "es"
 
 
 # trp = Booking(url="https://www.booking.com/reviews/fr/hotel/la-belle-etoile-les-deux-alpes.fr.html")
