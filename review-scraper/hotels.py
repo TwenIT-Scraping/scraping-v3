@@ -288,27 +288,27 @@ class Hotels_ES(Hotels):
             except Exception as e:
                 pass
 
-            if lang == 'es':
-                data = {}
-                data['date_review'] = self.format_date(review.find(
-                    'span', {'itemprop': 'datePublished'}).text.strip())
-                data['author'] = review.find('img').parent.text.split(',')[0]
-                data['rating'] = review.find('span', {'itemprop': 'ratingValue'}).text.split(
-                    ' ')[0] if review.find('span', {'itemprop': 'ratingValue'}) else '0'
-                data['comment'] = review.find('span', {'itemprop': 'description'}).text if review.find(
-                    'span', {'itemprop': 'description'}) else ''
+            # if lang == 'es':
+            data = {}
+            data['date_review'] = self.format_date(review.find(
+                'span', {'itemprop': 'datePublished'}).text.strip())
+            data['author'] = review.find('img').parent.text.split(',')[0]
+            data['rating'] = review.find('span', {'itemprop': 'ratingValue'}).text.split(
+                ' ')[0] if review.find('span', {'itemprop': 'ratingValue'}) else '0'
+            data['comment'] = review.find('span', {'itemprop': 'description'}).text if review.find(
+                'span', {'itemprop': 'description'}) else ''
 
-                data['language'] = lang
+            data['language'] = lang
 
-                data['establishment'] = f'/api/establishments/{self.establishment}'
-                data['settings'] = f'/api/establishments/{self.settings}'
-                data['source'] = urlparse(self.url).netloc.split('.')[1]
-                # data['source'] = 'hotels'
-                data['date_visit'] = data['date_review']
-                data['novisitday'] = "0"
+            data['establishment'] = f'/api/establishments/{self.establishment}'
+            data['settings'] = f'/api/establishments/{self.settings}'
+            data['source'] = urlparse(self.url).netloc.split('.')[1]
+            # data['source'] = 'hotels'
+            data['date_visit'] = data['date_review']
+            data['novisitday'] = "0"
 
-                reviews.append(data)
-                print(data)
+            reviews.append(data)
+            print(data)
 
         self.data = reviews
 
