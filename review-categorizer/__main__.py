@@ -237,7 +237,7 @@ class ClassificationAPI(object):
 
         results = []
 
-        with Spinner('Calcule scores… ') as bar:
+        with Spinner('Calcul scores… ') as bar:
             for item in comments:
                 results.append(set_score(item))
                 bar.next()
@@ -282,7 +282,7 @@ class ClassificationAPI(object):
         return line
 
     def update_lines(self):
-        progress = ChargingBar('Calcule catégorisation', max=len(self.lines))
+        progress = ChargingBar('Calcul catégorisation', max=len(self.lines))
         for i in range(len(self.lines)):
             progress.next()
             # print(f'Calcule catégorisation {i}/{len(self.lines)}')
@@ -307,12 +307,13 @@ class ClassificationAPI(object):
                 for i in range(0, len(line['prediction']['labels'])):
                     if line['prediction']['scores'][i] >= 0.9:
                         l_categs += f"{line['prediction']['labels'][i]}${str(line['prediction']['scores'][i])}|"
-                        print(
-                            f"- {line['prediction']['labels'][i]} => {line['prediction']['sequence']}")
 
             if len(self.categories):
                 c_categs = "|".join(
                     list(map(lambda x: x['category'], self.categories)))
+
+            l_categs != "" and print(
+                f"- {l_categs.replace('|', ', ')} => {line['prediction']['sequence']}")
 
             l = "&".join([str(line['id']), self.type, line['feeling'],
                          str(line['score']), str(line['confidence']), l_categs, c_categs])
@@ -338,10 +339,10 @@ class ClassificationAPI(object):
                 self.fetch_datas()
                 if len(self.categories):
                     self.update_lines()
-                # res = self.transform_data()
-                # print(res)
-                    res = self.upload()
+                    res = self.transform_data()
                     print(res)
+                    # res = self.upload()
+                    # print(res)
                 else:
                     print("!!!! Pas de catégories")
                     break
