@@ -201,7 +201,8 @@ class ClassificationAPI(object):
                 self.lines = res['reviews']
                 print("Etablissement traité: ", res['establishment']['name'])
                 print("Liste des catégories disponibles: ", res['categories'])
-                print("Nombre total lignes à traiter: ", res['count'])
+                print(
+                    f"Lignes traitées: {(self.page-1)*self.limit}/{res['count']}")
 
             self.page += 1
 
@@ -304,6 +305,8 @@ class ClassificationAPI(object):
                 for i in range(0, len(line['prediction']['labels'])):
                     if line['prediction']['scores'][i] >= 0.9:
                         l_categs += f"{line['prediction']['labels'][i]}${str(line['prediction']['scores'][i])}|"
+                        print(
+                            f"- {line['prediction']['labels'][i]} => {line['prediction']['sequence']}")
 
             if len(self.categories):
                 c_categs = "|".join(
