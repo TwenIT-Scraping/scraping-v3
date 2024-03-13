@@ -312,8 +312,12 @@ class ClassificationAPI(object):
                 c_categs = "|".join(
                     list(map(lambda x: x['category'], self.categories)))
 
+            print("\n******** Catégories trouvées *********\n")
+
             l_categs != "" and print(
                 f"- {l_categs.replace('|', ', ')} => {line['prediction']['sequence']}")
+
+            print("\n**************************************\n")
 
             l = "&".join([str(line['id']), self.type, line['feeling'],
                          str(line['score']), str(line['confidence']), l_categs, c_categs])
