@@ -308,6 +308,7 @@ class Hotels_ES(Hotels):
                 data['novisitday'] = "0"
 
                 reviews.append(data)
+                print(data)
 
         self.data = reviews
 
