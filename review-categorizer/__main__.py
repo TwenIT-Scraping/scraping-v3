@@ -15,6 +15,8 @@ import argparse
 import ssl
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 from api import ERApi
+from progress.bar import ChargingBar
+from progress.spinner import Spinner
 
 dotenv.load_dotenv()
 
@@ -232,7 +234,14 @@ class ClassificationAPI(object):
 
             return item
 
-        return list(map(lambda x: set_score(x), comments))
+        results = []
+
+        with Spinner('Calcule scores… ') as bar:
+            for item in comments:
+                results.append(set_score(item))
+                bar.next()
+
+        return results
 
     def check_categories(self, line):
         if os.environ.get('ENV_TYPE') == 'local':
@@ -272,9 +281,12 @@ class ClassificationAPI(object):
         return line
 
     def update_lines(self):
-        for line in self.lines:
+        for i in ChargingBar(range(len(self.lines)), redirect_stdout=True):
+            print(f'Calcule catégorisation {i}/{len(self.lines)}')
+            line = self.lines[i]
+
             if line['text'] != "":
-                line = self.check_categories(line)
+                self.lines[i] = self.check_categories(line)
 
         self.lines = self.compute_scores(self.lines)
 
