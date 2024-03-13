@@ -282,8 +282,10 @@ class ClassificationAPI(object):
         return line
 
     def update_lines(self):
-        for i in ChargingBar(range(len(self.lines)), redirect_stdout=True):
-            print(f'Calcule catégorisation {i}/{len(self.lines)}')
+        progress = ChargingBar('Calcule catégorisation', max=len(self.lines))
+        for i in range(len(self.lines)):
+            progress.next()
+            # print(f'Calcule catégorisation {i}/{len(self.lines)}')
             line = self.lines[i]
 
             if line['text'] != "":
