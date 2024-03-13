@@ -206,16 +206,6 @@ class ClassificationAPI(object):
 
             self.page += 1
 
-            # if len(self.categories):
-
-            #     while (page <= pages):
-            #         get_instance = ERApi(
-            #             method="get", entity=f"establishment/{self.tag}/reviews_to_classify", env=self.env, params={'page': page, 'limit': self.limit})
-            #         res = get_instance.execute()
-            #         self.lines += res['reviews']
-            #         page += 1
-            #         time.sleep(1)
-
             print("Lignes récupérées: ", len(self.lines))
 
         except Exception as e:
@@ -285,7 +275,6 @@ class ClassificationAPI(object):
         progress = ChargingBar('Calcul catégorisation', max=len(self.lines))
         for i in range(len(self.lines)):
             progress.next()
-            # print(f'Calcule catégorisation {i}/{len(self.lines)}')
             line = self.lines[i]
 
             if line['text'] != "":
@@ -302,9 +291,6 @@ class ClassificationAPI(object):
         for line in self.lines:
             l_categs = ""
             c_categs = ""
-
-            # [print(line['prediction']) if 'prediction' in line.keys()
-            #  else print("no prediction found")]
 
             if 'prediction' in line.keys() and line['prediction']:
                 for i in range(0, len(line['prediction']['labels'])):
@@ -330,9 +316,9 @@ class ClassificationAPI(object):
         try:
             data = self.transform_data()
             # print(data)
-            # post_instance = ERApi(
-            #     method="postclassifications", entity=f"classification/multi", env=self.env, body={'data_content': data})
-            # return post_instance.execute()
+            post_instance = ERApi(
+                method="postclassifications", entity=f"classification/multi", env=self.env, body={'data_content': data})
+            return post_instance.execute()
         except Exception as e:
             print(e)
 
@@ -344,10 +330,10 @@ class ClassificationAPI(object):
                 self.fetch_datas()
                 if len(self.categories):
                     self.update_lines()
-                    res = self.transform_data()
+                    # res = self.transform_data()
                     # print(res)
-                    # res = self.upload()
-                    # print(res)
+                    res = self.upload()
+                    print(res)
                 else:
                     print("!!!! Pas de catégories")
                     break
