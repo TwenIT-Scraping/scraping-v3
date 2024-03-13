@@ -313,7 +313,7 @@ class ClassificationAPI(object):
                     list(map(lambda x: x['category'], self.categories)))
 
             l_categs != "" and print(
-                f"- {[item.split('$')[0] for item in l_categs.replace('|', ', ') if item != '']} => {line['prediction']['sequence']}")
+                f"- {[item for item in l_categs.replace('|', ', ') if item != '']} => {line['prediction']['sequence']}")
 
             l = "&".join([str(line['id']), self.type, line['feeling'],
                          str(line['score']), str(line['confidence']), l_categs, c_categs])
