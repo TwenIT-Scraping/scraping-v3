@@ -313,7 +313,7 @@ class ClassificationAPI(object):
                     list(map(lambda x: x['category'], self.categories)))
 
             l_categs != "" and print(
-                f"- {l_categs.replace('|', ', ')} => {line['prediction']['sequence']}")
+                f"- {[item.split('$')[0] for item in l_categs.replace('|', ', ') if item != '']} => {line['prediction']['sequence']}")
 
             l = "&".join([str(line['id']), self.type, line['feeling'],
                          str(line['score']), str(line['confidence']), l_categs, c_categs])
@@ -324,7 +324,7 @@ class ClassificationAPI(object):
     def upload(self):
         try:
             data = self.transform_data()
-            print(data)
+            # print(data)
             # post_instance = ERApi(
             #     method="postclassifications", entity=f"classification/multi", env=self.env, body={'data_content': data})
             # return post_instance.execute()
@@ -340,7 +340,7 @@ class ClassificationAPI(object):
                 if len(self.categories):
                     self.update_lines()
                     res = self.transform_data()
-                    print(res)
+                    # print(res)
                     # res = self.upload()
                     # print(res)
                 else:
