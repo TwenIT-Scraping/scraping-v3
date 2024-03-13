@@ -300,8 +300,8 @@ class ClassificationAPI(object):
             l_categs = ""
             c_categs = ""
 
-            [print(line['prediction']) if 'prediction' in line.keys()
-             else print("no prediction found")]
+            # [print(line['prediction']) if 'prediction' in line.keys()
+            #  else print("no prediction found")]
 
             if 'prediction' in line.keys() and line['prediction']:
                 for i in range(0, len(line['prediction']['labels'])):
