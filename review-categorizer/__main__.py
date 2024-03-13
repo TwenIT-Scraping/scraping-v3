@@ -308,9 +308,6 @@ class ClassificationAPI(object):
                          str(line['score']), str(line['confidence']), l_categs, c_categs])
             result += l + "#"
 
-            print("\nRésultat:")
-            print(result)
-
         print("\n**************************************\n")
 
         return result
