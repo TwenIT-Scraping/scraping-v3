@@ -71,37 +71,42 @@ class Booking(Scraping):
                 print(f"====> {count} cards trouvés !")
 
                 for card in review_cards:
-                    title = card.find('div', {'class': 'review_item_header_content'}).text.strip(
-                    ) if card.find('div', {'class': 'review_item_header_content'}) else ""
-                    negative = card.find('p', {'class': 'review_neg'}).text.strip(
-                    ) if card.find('p', {'class': 'review_neg'}) else ""
-                    positive = card.find('p', {'class': 'review_pos'}).text.strip(
-                    ) if card.find('p', {'class': 'review_pos'}) else ""
-                    detail = f'{positive} | {negative}' if positive and negative else (
-                        positive if positive else negative)
-                    comment = f"{title}{': ' if title and detail else ''}{detail}"
-
-                    raw_date = card.find('p', {'class': 'review_item_date'}).text.strip(
-                    ) if card.find('p', {'class': 'review_item_date'}) else ""
-                    dates = raw_date.split()
                     try:
-                        date_review = f"{dates[-3]}/{month_number(dates[-2], 'fr')}/{dates[-1]}"
+                        title = card.find('div', {'class': 'review_item_header_content'}).text.strip(
+                        ) if card.find('div', {'class': 'review_item_header_content'}) else ""
+                        negative = card.find('p', {'class': 'review_neg'}).text.strip(
+                        ) if card.find('p', {'class': 'review_neg'}) else ""
+                        positive = card.find('p', {'class': 'review_pos'}).text.strip(
+                        ) if card.find('p', {'class': 'review_pos'}) else ""
+                        detail = f'{positive} | {negative}' if positive and negative else (
+                            positive if positive else negative)
+                        comment = f"{title}{': ' if title and detail else ''}{detail}"
+
+                        raw_date = card.find('p', {'class': 'review_item_date'}).text.strip(
+                        ) if card.find('p', {'class': 'review_item_date'}) else ""
+                        dates = raw_date.split()
+                        try:
+                            date_review = f"{dates[-3]}/{month_number(dates[-2], 'fr')}/{dates[-1]}"
+                        except Exception as e:
+                            date_review = f"{dates[-3]}/{month_number(dates[-2], 'en')}/{dates[-1]}"
+                        if card.find('p', {'class': 'review_staydate '}):
+                            date_visit_raw = card.find(
+                                'p', {'class': 'review_staydate '}).text.strip().split()[-2:]
+                            date_visit = f"{(datetime().day-1)}/{month_number(date_visit_raw[0], 'en')}/{date_visit_raw[1]}"
+                            print(date_visit)
+                        else:
+                            date_visit = date_review
+
+                        try:
+                            lang = detect(comment)
+                        except:
+                            lang = 'en'
+
+                        print(self.lang, lang)
+
                     except Exception as e:
-                        date_review = f"{dates[-3]}/{month_number(dates[-2], 'en')}/{dates[-1]}"
-                    if card.find('p', {'class': 'review_staydate '}):
-                        date_visit_raw = card.find(
-                            'p', {'class': 'review_staydate '}).text.strip().split()[-2:]
-                        date_visit = f"{(datetime().day-1)}/{month_number(date_visit_raw[0], 'en')}/{date_visit_raw[1]}"
-                        print(date_visit)
-                    else:
-                        date_visit = date_review
-
-                    try:
-                        lang = detect(comment)
-                    except:
-                        lang = 'en'
-
-                    print(self.lang, lang)
+                        print("Exception")
+                        print(e)
 
                     try:
                         if self.lang and lang == self.lang:
