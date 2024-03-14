@@ -185,9 +185,6 @@ class ReviewScore:
             return {'feeling': 'neutre', 'score': '0', 'confidence': '0'}
         else:
             score_data = self.get_score(text, lang)
-            print("\n******* Sentiment Analisys ********")
-            print(score_data)
-            print("******* Sentiment Analisys ********\n")
 
             if score_data:
                 score_value = score_data[0]['score']
