@@ -85,10 +85,18 @@ class Booking(Scraping):
                         raw_date = card.find('p', {'class': 'review_item_date'}).text.strip(
                         ) if card.find('p', {'class': 'review_item_date'}) else ""
                         dates = raw_date.split()
-                        try:
-                            date_review = f"{dates[-3]}/{month_number(dates[-2], 'fr')}/{dates[-1]}"
-                        except Exception as e:
-                            date_review = f"{dates[-3]}/{month_number(dates[-2], 'en')}/{dates[-1]}"
+
+                        date_review = ""
+
+                        if self.lang == "es":
+                            # date_review = f"{dates[-3]}/{month_number(dates[-2], 'fr')}/{dates[-1]}"
+                            print(dates)
+                        else:
+                            try:
+                                date_review = f"{dates[-3]}/{month_number(dates[-2], 'fr')}/{dates[-1]}"
+                            except Exception as e:
+                                date_review = f"{dates[-3]}/{month_number(dates[-2], 'en')}/{dates[-1]}"
+
                         if card.find('p', {'class': 'review_staydate '}):
                             date_visit_raw = card.find(
                                 'p', {'class': 'review_staydate '}).text.strip().split()[-2:]
