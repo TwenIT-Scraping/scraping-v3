@@ -101,6 +101,8 @@ class Booking(Scraping):
                     except:
                         lang = 'en'
 
+                    print(self.lang, lang)
+
                     try:
                         if self.lang and lang == self.lang:
                             reviews.append({
