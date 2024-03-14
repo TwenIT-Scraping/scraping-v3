@@ -89,7 +89,7 @@ class ReviewScore:
             score_data = self.get_score(text)
 
             if score_data:
-                score_value = score_data[0]['score']
+                confidence = score_data[0]['score']
                 score_label = score_data[0]['label']
 
                 score_stars = int(score_label.split()[0])
@@ -116,13 +116,17 @@ class ReviewScore:
                             feeling = "positive"
 
                 if feeling == "negative":
-                    score_value = (score_value + rating) / 2
-                    confidence = -1 * score_value
+                    if score_stars == 1:
+                        score_value = -1*confidence
+                    if score_stars == 2:
+                        score_value = -0.75
                 elif feeling == "neutre":
-                    confidence = 0
                     score_value = 0
                 else:
-                    confidence = score_value = (score_value + rating) / 2
+                    if score_stars == 4:
+                        score_value = 0.75
+                    if score_stars == 5:
+                        score_value = confidence
 
                 return {'score': str(score_value), 'confidence': str(confidence), 'feeling': feeling}
             else:
