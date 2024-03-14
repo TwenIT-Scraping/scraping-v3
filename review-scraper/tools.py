@@ -50,7 +50,7 @@ months_es = {
     'septiembre': '09',
     'octubre': '10',
     'noviembre': '11',
-    'deciembre': '12'
+    'diciembre': '12'
 }
 
 shortmonths_fr = {
