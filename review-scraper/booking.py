@@ -89,8 +89,9 @@ class Booking(Scraping):
                         date_review = ""
 
                         if self.lang == "es":
-                            # date_review = f"{dates[-3]}/{month_number(dates[-2], 'fr')}/{dates[-1]}"
+                            date_review = f"{dates[-5]}/{month_number(dates[-3], 'es')}/{dates[-1]}"
                             print(dates)
+                            print(date_review)
                         else:
                             try:
                                 date_review = f"{dates[-3]}/{month_number(dates[-2], 'fr')}/{dates[-1]}"
