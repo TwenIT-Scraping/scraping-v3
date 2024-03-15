@@ -298,7 +298,7 @@ class ClassificationAPI(object):
 
             if 'prediction' in line.keys() and line['prediction']:
                 for i in range(0, len(line['prediction']['labels'])):
-                    if line['prediction']['scores'][i] >= 0.9:
+                    if line['prediction']['scores'][i] >= 0.9 and len(f"{line['prediction']['sequence']}") > 30:
                         l_categs += f"{line['prediction']['labels'][i]}${str(line['prediction']['scores'][i])}|"
 
             if len(self.categories):
