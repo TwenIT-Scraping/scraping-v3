@@ -388,11 +388,15 @@ if __name__ == '__main__':
             all_establishments = get_instance.execute()
             todo = []
 
+            print("Initialement: ", len(all_establishments))
+
             if args.names:
                 todo = [item for item in all_establishments if item['name']
-                        in args.names.split(',')]
+                        in args.names.split(',') and item['customer_id']]
             else:
-                todo = all_establishments
+                todo = [item for item in all_establishments if item['customer_id']]
+
+            print("Après filtre: ", len(todo))
 
             for item in todo:
                 print("======> Etablissement: ",
