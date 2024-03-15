@@ -24,7 +24,7 @@ rating_structure = {
     'booking': [1, 2],
     'tripadvisor': [2, 1],
     'expedia': [2, 2],
-    'campings': [1, 1],
+    'campings': [1, 2],
     'trustpilot': [1, 1],
     'maeva': [1, 1],
     'hotels': [2, 2],
