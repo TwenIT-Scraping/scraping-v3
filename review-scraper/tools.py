@@ -189,6 +189,7 @@ class ReviewScore:
             if score_data:
                 confidence = score_data[0]['score']
                 score_label = score_data[0]['label']
+                score_value = confidence
 
                 score_stars = int(score_label.split()[0])
                 feeling = "negative" if score_stars < 3 else (
