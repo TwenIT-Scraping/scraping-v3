@@ -90,6 +90,7 @@ class ReviewScore:
 
             if score_data:
                 confidence = score_data[0]['score']
+                score_value = confidence
                 score_label = score_data[0]['label']
 
                 score_stars = int(score_label.split()[0])
