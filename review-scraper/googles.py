@@ -1,3 +1,4 @@
+import os
 import random
 
 import pandas as pd
@@ -30,7 +31,7 @@ class Google(Scraping):
     def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(in_background=False, url=url,
                          establishment=establishment, settings=settings, env=env)
-        
+
         self.my_datas = []
 
     @abstractmethod
@@ -146,9 +147,19 @@ class Google_ES(Google):
     def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(url=url,
                          establishment=establishment, settings=settings, env=env)
-        
-        # self.firefox_options.set_preference(
-        #     'intl.accept_languages', 'es')
+
+        self.chrome_options.add_argument(f'--lang=es')
+        self.chrome_options.add_argument('--disable-translate')
+
+        if os.environ.get('SYSTEM') == 'linux':
+            self.driver = webdriver.Chrome(options=self.chrome_options) if os.environ.get(
+                'DRIVER') == 'chrome' else webdriver.Firefox(options=self.firefox_options)
+        else:
+            self.driver = webdriver.Chrome(service=ChromeService(
+                ChromeDriverManager().install()), options=self.chrome_options) if os.environ.get('DRIVER') == 'chrome' else webdriver.Firefox(service=FirefoxService(
+                    GeckoDriverManager().install()), options=self.firefox_options)
+
+        self.driver.maximize_window()
 
     def load_reviews(self):
         def get_last_review_date():
