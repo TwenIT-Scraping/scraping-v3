@@ -327,8 +327,8 @@ class Google_ES(Google):
             return []
 
 
-trp = Google_ES(url="https://www.google.com/travel/hotels/entity/ChYIqtL21OvSv65QGgovbS8wdnB3cTRzEAE/reviews?utm_campaign=sharing&utm_medium=link&utm_source=htls",
-                establishment=3, settings=1, env="DEV")
-trp.set_language('es')
-trp.execute()
-print(trp.my_datas)
+# trp = Google_ES(url="https://www.google.com/travel/hotels/entity/ChYIqtL21OvSv65QGgovbS8wdnB3cTRzEAE/reviews?utm_campaign=sharing&utm_medium=link&utm_source=htls",
+#                 establishment=3, settings=1, env="DEV")
+# trp.set_language('es')
+# trp.execute()
+# print(trp.my_datas)
