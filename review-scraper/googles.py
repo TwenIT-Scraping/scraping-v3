@@ -30,6 +30,7 @@ class Google(Scraping):
     def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(in_background=False, url=url,
                          establishment=establishment, settings=settings, env=env)
+        
         self.my_datas = []
 
     @abstractmethod
@@ -145,8 +146,7 @@ class Google_ES(Google):
     def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(url=url,
                          establishment=establishment, settings=settings, env=env)
-        self.chrome_options.add_argument('disable-translate')
-        self.chrome_options.add_argument(f'--lang={self.lang}')
+        
         # self.firefox_options.set_preference(
         #     'intl.accept_languages', 'es')
 

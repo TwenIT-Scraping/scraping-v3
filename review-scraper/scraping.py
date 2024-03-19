@@ -33,6 +33,9 @@ class Scraping(object):
         in_background and self.chrome_options.add_argument('--headless')
         self.chrome_options.add_argument('--incognito')
 
+        self.chrome_options.add_argument(f'--lang=es')
+        self.chrome_options.add_argument('--disable-translate')
+
         self.firefox_options = webdriver.FirefoxOptions()
         self.firefox_options.add_argument('--disable-gpu')
         self.firefox_options.add_argument('--ignore-certificate-errors')
