@@ -140,57 +140,55 @@ class Settings:
         self.items = []
         self.env = env
 
-    def prepare(self, competitor: bool = True):
+    def prepare(self):
 
-        if not competitor:
-            try:
-                page = 0
-                req = ERApi(method="get", entity="setting/list", env=self.env)
+        try:
+            page = 0
+            req = ERApi(method="get", entity="setting/list", env=self.env)
 
-                self.eid and req.add_params({'eid': self.eid})
-                self.category and req.add_params({'categ': self.category})
-                self.ename and req.add_params({'ename': self.ename})
-                self.source and req.add_params({'src': self.source})
+            self.eid and req.add_params({'eid': self.eid})
+            self.category and req.add_params({'categ': self.category})
+            self.ename and req.add_params({'ename': self.ename})
+            self.source and req.add_params({'src': self.source})
 
-                while True:
-                    page += 1
-                    req.add_params({'page': page})
-                    res = req.execute()
+            while True:
+                page += 1
+                req.add_params({'page': page})
+                res = req.execute()
 
-                    if len(res) > 0:
-                        self.items = self.items + res
-                    else:
-                        break
+                if len(res) > 0:
+                    self.items = self.items + res
+                else:
+                    break
 
-            except Exception as e:
-                print(e)
-                raise Exception(
-                    "Des erreurs sont rencontrées durant l'initialisation !!!")
-        else:
-            try:
-                page = 0
-                req = ERApi(
-                    method="get", entity="setting/competitors/list", env=self.env)
+        except Exception as e:
+            print(e)
+            raise Exception(
+                "Des erreurs sont rencontrées durant l'initialisation !!!")
+        try:
+            page = 0
+            req = ERApi(
+                method="get", entity="setting/competitors/list", env=self.env)
 
-                self.eid and req.add_params({'eid': self.eid})
-                self.category and req.add_params({'categ': self.category})
-                self.ename and req.add_params({'ename': self.ename})
-                self.source and req.add_params({'src': self.source})
+            self.eid and req.add_params({'eid': self.eid})
+            self.category and req.add_params({'categ': self.category})
+            self.ename and req.add_params({'ename': self.ename})
+            self.source and req.add_params({'src': self.source})
 
-                while True:
-                    page += 1
-                    req.add_params({'page': page})
-                    res = req.execute()
+            while True:
+                page += 1
+                req.add_params({'page': page})
+                res = req.execute()
 
-                    if len(res) > 0:
-                        self.items = self.items + res
-                    else:
-                        break
+                if len(res) > 0:
+                    self.items = self.items + res
+                else:
+                    break
 
-            except Exception as e:
-                print(e)
-                raise Exception(
-                    "Des erreurs sont rencontrées durant l'initialisation !!!")
+        except Exception as e:
+            print(e)
+            raise Exception(
+                "Des erreurs sont rencontrées durant l'initialisation !!!")
 
     @staticmethod
     def disable_setting(setting_id, env):
