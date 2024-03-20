@@ -208,7 +208,7 @@ class ClassificationAPI(object):
 
         try:
             get_instance = ERApi(
-                method="get", entity=endpoint, env=self.env, params={"type": self.type, "page": self.page, 'limit': self.limit})
+                method="get", entity=endpoint, env=self.env, params={"all": "yes", "type": self.type, "page": self.page, 'limit': self.limit})
             res = get_instance.execute()
 
             if (res):
