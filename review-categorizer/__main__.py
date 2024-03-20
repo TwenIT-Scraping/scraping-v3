@@ -170,17 +170,20 @@ class ReviewScore:
 def main_arguments() -> object:
     parser = argparse.ArgumentParser(description="Programme catégorisation",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--type', '-t', dest='type', default='',
-                        help="""Options: comment, review""")
+    parser.add_argument('--type', '-t', dest='type', default='reviews',
+                        help="""Options: comments, reviews""")
     parser.add_argument('--env', '-v', dest='env', default="DEV",
                         help="Optionnel: environnement de l'api. DEV par défaut")
     parser.add_argument('--names', '-n', dest='names',
                         help="Nom des établissements à traiter, séparé par des virgules.")
+    parser.add_argument('--column', '-c', dest='column',
+                        help="Option: feeling, category", default="category")
     return parser.parse_args()
 
 
 ARGS_INFO = {
-    '-t': {'long': '--type', 'dest': 'type', 'help': "Options: comment, review"},
+    '-t': {'long': '--type', 'dest': 'type', 'help': "Options: comments, reviews, posts. reviews par défaut."},
+    '-c': {'long': '--column', 'dest': 'column', 'help': "Options: feeling, category. category par défaut."},
     '-v': {'long': '--env', 'dest': 'env', 'help': "Optionnel: environnement de l'api. PROD par défaut"},
     '-n': {'long': '--names', 'dest': 'names', 'help': "Nom des établissements à traiter, séparé par des virgules."}
 }
@@ -188,7 +191,7 @@ ARGS_INFO = {
 
 class ClassificationAPI(object):
 
-    def __init__(self, env='dev', type='reviews', tag='', limit=5) -> None:
+    def __init__(self, env='dev', type='reviews', tag='', limit=5, column="category") -> None:
         self.type = type
         self.establishment = None
         self.categories = []
@@ -198,20 +201,28 @@ class ClassificationAPI(object):
         self.limit = limit
         self.page = 1
         self.pages = 1
+        self.column = column
 
     def fetch_datas(self):
+        endpoint = f"establishment/{self.tag}/reviews_to_classify" if self.column == "category" else f"establishment/{self.tag}/reviews_to_score"
+
         try:
             get_instance = ERApi(
-                method="get", entity=f"establishment/{self.tag}/reviews_to_classify", env=self.env, params={"type": self.type, "page": self.page, 'limit': self.limit})
+                method="get", entity=endpoint, env=self.env, params={"type": self.type, "page": self.page, 'limit': self.limit})
             res = get_instance.execute()
 
             if (res):
-                self.categories = res['categories']
+                print("Etablissement traité: ", res['establishment']['name'])
+
+                if self.column == "category":
+                    print("Liste des catégories disponibles: ",
+                          res['categories'])
+                    self.categories = res['categories']
+
                 self.establishment = res['establishment']
                 self.pages = res['pages']
                 self.lines = res['reviews']
-                print("Etablissement traité: ", res['establishment']['name'])
-                print("Liste des catégories disponibles: ", res['categories'])
+
                 print(
                     f"Lignes traitées: {(self.page-1)*self.limit}/{res['count']}")
 
@@ -238,10 +249,10 @@ class ClassificationAPI(object):
 
         results = []
 
-        with Spinner('Calcul scores… ') as bar:
-            for item in comments:
-                results.append(set_score(item))
-                bar.next()
+        progress = ChargingBar('Calcul scores: ', max=len(comments))
+        for item in comments:
+            results.append(set_score(item))
+            progress.next()
 
         return results
 
@@ -283,52 +294,67 @@ class ClassificationAPI(object):
         return line
 
     def update_lines(self):
-        progress = ChargingBar('Calcul catégorisation', max=len(self.lines))
-        for i in range(len(self.lines)):
-            progress.next()
-            line = self.lines[i]
+        if self.column == "category":
+            progress = ChargingBar(
+                'Calcul catégorisation', max=len(self.lines))
+            for i in range(len(self.lines)):
+                progress.next()
+                line = self.lines[i]
 
-            if line['text'] != "":
-                self.lines[i] = self.check_categories(line)
+                if line['text'] != "":
+                    self.lines[i] = self.check_categories(line)
 
-        self.lines = self.compute_scores(self.lines)
+        if self.column == "feeling":
+            self.lines = self.compute_scores(self.lines)
 
     def transform_data(self):
 
         result = ""
 
-        print("\n******** Catégories trouvées *********\n")
+        if self.column == "feeling":
 
-        for line in self.lines:
-            l_categs = ""
-            c_categs = ""
+            print("Transformation ...")
+            for line in self.lines:
 
-            if 'prediction' in line.keys() and line['prediction']:
-                for i in range(0, len(line['prediction']['labels'])):
-                    if line['prediction']['scores'][i] >= 0.9 and len(f"{line['prediction']['sequence']}") > 30:
-                        l_categs += f"{line['prediction']['labels'][i]}${str(line['prediction']['scores'][i])}|"
+                l = "&".join([str(line['id']), self.type, line['feeling'],
+                              str(line['score']), str(line['confidence'])])
+                result += l + "#"
 
-            if len(self.categories):
-                c_categs = "|".join(
-                    list(map(lambda x: x['category'], self.categories)))
+        if self.column == "category":
 
-            l_categs != "" and print(
-                f"- {l_categs.replace('|', ', ')} => {line['prediction']['sequence']}\n")
+            print("\n******** Catégories trouvées *********\n")
 
-            l = "&".join([str(line['id']), self.type, line['feeling'],
-                         str(line['score']), str(line['confidence']), l_categs, c_categs])
-            result += l + "#"
+            for line in self.lines:
+                l_categs = ""
+                c_categs = ""
 
-        print("\n**************************************\n")
+                if 'prediction' in line.keys() and line['prediction']:
+                    for i in range(0, len(line['prediction']['labels'])):
+                        if line['prediction']['scores'][i] >= 0.9 and len(f"{line['prediction']['sequence']}") > 30:
+                            l_categs += f"{line['prediction']['labels'][i]}${str(line['prediction']['scores'][i])}|"
+
+                if len(self.categories):
+                    c_categs = "|".join(
+                        list(map(lambda x: x['category'], self.categories)))
+
+                l_categs != "" and print(
+                    f"- {l_categs.replace('|', ', ')} => {line['prediction']['sequence']}\n")
+
+                l = "&".join([str(line['id']), self.type, l_categs, c_categs])
+                result += l + "#"
+
+            print("\n**************************************\n")
 
         return result
 
     def upload(self):
         try:
             data = self.transform_data()
+
+            endpoint = "classification/multi" if self.column == "category" else "feeling/multi"
             # print(data)
             post_instance = ERApi(
-                method="postclassifications", entity=f"classification/multi", env=self.env, body={'data_content': data})
+                method="postclassifications", entity=endpoint, env=self.env, body={'data_content': data})
             return post_instance.execute()
         except Exception as e:
             print(e)
@@ -410,7 +436,7 @@ if __name__ == '__main__':
                 print("======> Etablissement: ",
                       item['name'], ' <========')
                 cl = ClassificationAPI(
-                    tag=item['tag'], type=args.type, limit=20, env=args.env)
+                    tag=item['tag'], type=args.type, limit=20, env=args.env, column=args.column)
                 cl.execute()
 
         except Exception as e:
