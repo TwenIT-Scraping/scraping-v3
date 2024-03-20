@@ -208,7 +208,7 @@ class ClassificationAPI(object):
 
         try:
             get_instance = ERApi(
-                method="get", entity=endpoint, env=self.env, params={"type": self.type, "page": self.page, 'limit': self.limit})
+                method="get", entity=endpoint, env=self.env, params={"all": "yes", "type": self.type, "page": self.page, 'limit': self.limit})
             res = get_instance.execute()
 
             if (res):
@@ -350,6 +350,8 @@ class ClassificationAPI(object):
     def upload(self):
         try:
             data = self.transform_data()
+
+            print(data)
 
             endpoint = "classification/multi" if self.column == "category" else "feeling/multi"
             # print(data)
