@@ -365,16 +365,21 @@ class ClassificationAPI(object):
                 print("============> Page ", self.page,
                       "sur ", self.pages, " <===============")
                 self.fetch_datas()
-                # if len(self.categories):
-                #     self.update_lines()
-                #     # res = self.transform_data()
-                #     # print(res)
-                #     if os.environ.get('ENV_TYPE') != 'local':
-                #         res = self.upload()
-                #         print(res)
-                # else:
-                #     print("!!!! Pas de catégories")
-                #     break
+                if self.column == "category":
+                    if len(self.categories):
+                        self.update_lines()
+                        # res = self.transform_data()
+                        # print(res)
+
+                    else:
+                        print("!!!! Pas de catégories")
+                        break
+                else:
+                    self.update_lines()
+
+                if os.environ.get('ENV_TYPE') != 'local':
+                    res = self.upload()
+                    print(res)
 
                 print(len(self.lines))
 
