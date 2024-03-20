@@ -351,6 +351,8 @@ class ClassificationAPI(object):
         try:
             data = self.transform_data()
 
+            print(data)
+
             endpoint = "classification/multi" if self.column == "category" else "feeling/multi"
             # print(data)
             post_instance = ERApi(
