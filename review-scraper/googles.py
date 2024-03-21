@@ -80,6 +80,8 @@ class Google(Scraping):
         split_date = raw_date.split(' ')
         today = datetime.now()
         language = self.detect(raw_date)
+        if 'mes' in raw_date:
+            language = 'es'
         match language:
             case "fr":
 
@@ -150,14 +152,17 @@ class Google_ES(Google):
 
         self.chrome_options.add_argument(f'--lang=es')
         self.chrome_options.add_argument('--disable-translate')
+        self.data_loaded = False
+        self.driver = webdriver.Chrome(options=self.chrome_options)
 
-        if os.environ.get('SYSTEM') == 'linux':
-            self.driver = webdriver.Chrome(options=self.chrome_options) if os.environ.get(
-                'DRIVER') == 'chrome' else webdriver.Firefox(options=self.firefox_options)
-        else:
-            self.driver = webdriver.Chrome(service=ChromeService(
-                ChromeDriverManager().install()), options=self.chrome_options) if os.environ.get('DRIVER') == 'chrome' else webdriver.Firefox(service=FirefoxService(
-                    GeckoDriverManager().install()), options=self.firefox_options)
+
+        # if os.environ.get('SYSTEM') == 'linux':
+        #     self.driver = webdriver.Chrome(options=self.chrome_options) if os.environ.get(
+        #         'DRIVER') == 'chrome' else webdriver.Firefox(options=self.firefox_options)
+        # else:
+        #     self.driver = webdriver.Chrome(service=ChromeService(
+        #         ChromeDriverManager().install()), options=self.chrome_options) if os.environ.get('DRIVER') == 'chrome' else webdriver.Firefox(service=FirefoxService(
+        #             GeckoDriverManager().install()), options=self.firefox_options)
 
         self.driver.maximize_window()
 
@@ -182,17 +187,28 @@ class Google_ES(Google):
         # except:
         #     pass
 
-        results = int(''.join([x for x in self.driver.find_element(
-            By.CSS_SELECTOR, '#reviews > c-wiz > c-wiz > div > div > div > div > div.ChBWlb.TjtFVc > div.pDLIp > div > div.zhMoVd.nNUNpc > div.UkIqCb > div > span').text if x.isdigit()]))
+        try:
+            self.driver.execute_script(f"window.scrollTo(0, 500);")
+            order_dropdown = self.driver.find_element(By.XPATH, "//div[@jsname='wQNmvb']")
+            self.driver.execute_script("arguments[0].click();", order_dropdown)
+            time.sleep(2)
+            order_item = self.driver.find_elements(By.XPATH, "//div[@jsname='V68bde']/div[@jsname='wQNmvb']")[1]
+            self.driver.execute_script("arguments[0].click();", order_item)
+            time.sleep(1)
+        except Exception as e:
+            print("pass review order ...")
+            print(e)
+        pass
 
         index = 0
-        for i in range(results//6):
+        while not self.data_loaded:
             self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
             if index == 10:
                 for k in range(2):
                     self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_UP)
-                data = self.extract()
-                self.save_data(data)
+                time.sleep(1)
+                self.extract()
+                self.save_data()
                 index = 0
             index += 1
 
@@ -261,11 +277,9 @@ class Google_ES(Google):
         #     if datetime.strptime(self.my_datas[-1]['date_review'], '%d/%m/%Y') < datetime.now() - timedelta(days=31):
         #         break
 
-    def save_data(self, data_source: list) -> None:
+    def save_data(self) -> None:
         new_data = []
-        print("New datas: ", len(data_source))
-        df = pd.concat([pd.DataFrame(self.my_datas),
-                       pd.DataFrame(data_source)])
+        df = pd.DataFrame(self.my_datas)
         df.drop_duplicates(subset=['rating', 'author', 'date_review', 'comment',
                            'language', 'source', 'date_visit', 'novisitday'], inplace=True)
         for i in range(len(df)):
@@ -273,12 +287,9 @@ class Google_ES(Google):
         self.my_datas = new_data
         print("=>  Actual datas: ", len(self.my_datas))
 
-    def extract(self):
+    def extract(self) -> None:
 
         try:
-
-            reviews = []
-
             page = self.driver.page_source
 
             soupe = BeautifulSoup(page, 'lxml')
@@ -319,12 +330,11 @@ class Google_ES(Google):
 
                     # print(date_raw)
                     date_review = self.formate_date(
-                        date_raw) if date_raw else "01/01/1999"
-                    # print(date_review)
+                        date_raw) if date_raw else ""
+                    print(date_review)
 
-                    if date_review:
-
-                        if (author or comment or rating != "0") and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365):
+                    if date_review != "":
+                        if (author != "" or comment != "" or rating != "0") and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365):
                             d = {
                                 'rating': rating,
                                 'author': author,
@@ -337,13 +347,15 @@ class Google_ES(Google):
                                 'date_visit': date_review,
                                 'novisitday': "1"
                             }
-                            # print(d)
-                            reviews.append(d)
+                            self.my_datas.append(d)
+                    
+                        if datetime.strptime(date_review, '%d/%m/%Y') < datetime.now() - timedelta(days=365):
+                            self.data_loaded = True
+                            return
+                    
 
-            return reviews
         except Exception as e:
             print("Exception: ", e)
-            return []
 
 
 trp = Google_ES(url="https://www.google.com/travel/hotels/entity/ChYIqtL21OvSv65QGgovbS8wdnB3cTRzEAE/reviews?utm_campaign=sharing&utm_medium=link&utm_source=htls",

@@ -28,8 +28,7 @@ class Scraping(object):
         self.chrome_options = webdriver.ChromeOptions()
         self.chrome_options.add_argument('--ignore-certificate-errors')
         self.chrome_options.add_argument('--disable-gpu')
-        self.chrome_options.add_argument(
-            '--disable-blink-features=AutomationControlled')
+        self.chrome_options.add_argument('--disable-blink-features=AutomationControlled')
         in_background and self.chrome_options.add_argument('--headless')
         self.chrome_options.add_argument('--incognito')
 
@@ -38,19 +37,18 @@ class Scraping(object):
         self.firefox_options.add_argument('--ignore-certificate-errors')
         in_background and self.firefox_options.add_argument('--headless')
         self.firefox_options.add_argument('--incognito')
-        self.firefox_options.set_preference(
-            'intl.accept_languages', 'en-US, en')
+        self.firefox_options.set_preference('intl.accept_languages', 'en-US, en')
         self.force_refresh = force_refresh
 
         dotenv.load_dotenv()
-
-        if os.environ.get('SYSTEM') == 'linux':
-            self.driver = webdriver.Chrome(options=self.chrome_options) if os.environ.get(
-                'DRIVER') == 'chrome' else webdriver.Firefox(options=self.firefox_options)
-        else:
-            self.driver = webdriver.Chrome(service=ChromeService(
-                ChromeDriverManager().install()), options=self.chrome_options) if os.environ.get('DRIVER') == 'chrome' else webdriver.Firefox(service=FirefoxService(
-                    GeckoDriverManager().install()), options=self.firefox_options)
+        self.driver = webdriver.Chrome(options=self.chrome_options)
+        # if os.environ.get('SYSTEM') == 'linux':
+        #     self.driver = webdriver.Chrome(options=self.chrome_options) if os.environ.get(
+        #         'DRIVER') == 'chrome' else webdriver.Firefox(options=self.firefox_options)
+        # else:
+        #     self.driver = webdriver.Chrome(service=ChromeService(
+        #         ChromeDriverManager().install()), options=self.chrome_options) if os.environ.get('DRIVER') == 'chrome' else webdriver.Firefox(service=FirefoxService(
+        #             GeckoDriverManager().install()), options=self.firefox_options)
 
         self.driver.maximize_window()
 
