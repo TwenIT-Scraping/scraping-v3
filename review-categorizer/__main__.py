@@ -84,7 +84,7 @@ class ReviewScore:
         rating = compute_rating(rating, source)
 
         if os.environ.get('ENV_TYPE') == 'local':
-            return {'feeling': 'neutre', 'score': '0', 'confidence': '0'}
+            return {'feeling': None, 'score': None, 'confidence': None}
         else:
             score_data = self.get_score(text)
 
@@ -131,12 +131,12 @@ class ReviewScore:
 
                 return {'score': str(score_value), 'confidence': str(confidence), 'feeling': feeling}
             else:
-                return {'score': '0', 'confidence': '0', 'feeling': "neutre"}
+                return {'score': None, 'confidence': None, 'feeling': None}
 
     def compute_comment_score(self, text):
 
         if os.environ.get('ENV_TYPE') == 'local':
-            return {'feeling': 'neutre', 'score': '0', 'confidence': '0'}
+            return {'feeling': None, 'score': None, 'confidence': None}
         else:
             score_data = self.get_score(text)
 
@@ -164,7 +164,7 @@ class ReviewScore:
 
                 return {'score': str(score_value), 'confidence': str(confidence), 'feeling': feeling}
             else:
-                return {'score': '0', 'confidence': '0', 'feeling': "neutre"}
+                return {'score': None, 'confidence': None, 'feeling': None}
 
 
 def main_arguments() -> object:
@@ -238,8 +238,14 @@ class ClassificationAPI(object):
         review_score = ReviewScore()
 
         def set_score(item):
-            score_data = review_score.compute_comment_score(item['text']) if self.type == "comments" else review_score.compute_review_score(
-                item['text'], item['language'], item['rating'], item['source'])
+            score_data = {}
+            if self.type == "comments":
+                score_data = review_score.compute_comment_score(item['text'])
+            elif self.type == "posts":
+                score_data = review_score.compute_comment_score(item['text'])
+            else:
+                score_data = review_score.compute_review_score(
+                    item['text'], item['language'], item['rating'], item['source'])
 
             item['feeling'] = score_data['feeling']
             item['score'] = score_data['score']
