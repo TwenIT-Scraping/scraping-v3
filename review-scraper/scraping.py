@@ -41,14 +41,14 @@ class Scraping(object):
         self.force_refresh = force_refresh
 
         dotenv.load_dotenv()
-        self.driver = webdriver.Chrome(options=self.chrome_options)
-        # if os.environ.get('SYSTEM') == 'linux':
-        #     self.driver = webdriver.Chrome(options=self.chrome_options) if os.environ.get(
-        #         'DRIVER') == 'chrome' else webdriver.Firefox(options=self.firefox_options)
-        # else:
-        #     self.driver = webdriver.Chrome(service=ChromeService(
-        #         ChromeDriverManager().install()), options=self.chrome_options) if os.environ.get('DRIVER') == 'chrome' else webdriver.Firefox(service=FirefoxService(
-        #             GeckoDriverManager().install()), options=self.firefox_options)
+        # self.driver = webdriver.Chrome(options=self.chrome_options)
+        if os.environ.get('SYSTEM') == 'linux':
+            self.driver = webdriver.Chrome(options=self.chrome_options) if os.environ.get(
+                'DRIVER') == 'chrome' else webdriver.Firefox(options=self.firefox_options)
+        else:
+            self.driver = webdriver.Chrome(service=ChromeService(
+                ChromeDriverManager().install()), options=self.chrome_options) if os.environ.get('DRIVER') == 'chrome' else webdriver.Firefox(service=FirefoxService(
+                    GeckoDriverManager().install()), options=self.firefox_options)
 
         self.driver.maximize_window()
 
