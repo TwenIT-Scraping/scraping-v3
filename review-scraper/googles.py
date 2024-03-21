@@ -153,16 +153,16 @@ class Google_ES(Google):
         self.chrome_options.add_argument(f'--lang=es')
         self.chrome_options.add_argument('--disable-translate')
         self.data_loaded = False
-        # self.driver = webdriver.Chrome(options=self.chrome_options)
+        self.driver = webdriver.Chrome(options=self.chrome_options)
 
 
-        if os.environ.get('SYSTEM') == 'linux':
-            self.driver = webdriver.Chrome(options=self.chrome_options) if os.environ.get(
-                'DRIVER') == 'chrome' else webdriver.Firefox(options=self.firefox_options)
-        else:
-            self.driver = webdriver.Chrome(service=ChromeService(
-                ChromeDriverManager().install()), options=self.chrome_options) if os.environ.get('DRIVER') == 'chrome' else webdriver.Firefox(service=FirefoxService(
-                    GeckoDriverManager().install()), options=self.firefox_options)
+        # if os.environ.get('SYSTEM') == 'linux':
+        #     self.driver = webdriver.Chrome(options=self.chrome_options) if os.environ.get(
+        #         'DRIVER') == 'chrome' else webdriver.Firefox(options=self.firefox_options)
+        # else:
+        #     self.driver = webdriver.Chrome(service=ChromeService(
+        #         ChromeDriverManager().install()), options=self.chrome_options) if os.environ.get('DRIVER') == 'chrome' else webdriver.Firefox(service=FirefoxService(
+        #             GeckoDriverManager().install()), options=self.firefox_options)
 
         self.driver.maximize_window()
 
@@ -187,6 +187,11 @@ class Google_ES(Google):
         # except:
         #     pass
 
+        try:
+            self.driver.find_element(By.CSS_SELECTOR, 'span.VfPpkd-vQzf8d').click()
+            time.sleep(2)
+        except:
+            pass
         try:
             self.driver.execute_script(f"window.scrollTo(0, 500);")
             order_dropdown = self.driver.find_element(By.XPATH, "//div[@jsname='wQNmvb']")
