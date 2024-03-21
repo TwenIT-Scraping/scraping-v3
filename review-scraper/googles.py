@@ -153,16 +153,16 @@ class Google_ES(Google):
         self.chrome_options.add_argument(f'--lang=es')
         self.chrome_options.add_argument('--disable-translate')
         self.data_loaded = False
-        self.driver = webdriver.Chrome(options=self.chrome_options)
+        # self.driver = webdriver.Chrome(options=self.chrome_options)
 
 
-        # if os.environ.get('SYSTEM') == 'linux':
-        #     self.driver = webdriver.Chrome(options=self.chrome_options) if os.environ.get(
-        #         'DRIVER') == 'chrome' else webdriver.Firefox(options=self.firefox_options)
-        # else:
-        #     self.driver = webdriver.Chrome(service=ChromeService(
-        #         ChromeDriverManager().install()), options=self.chrome_options) if os.environ.get('DRIVER') == 'chrome' else webdriver.Firefox(service=FirefoxService(
-        #             GeckoDriverManager().install()), options=self.firefox_options)
+        if os.environ.get('SYSTEM') == 'linux':
+            self.driver = webdriver.Chrome(options=self.chrome_options) if os.environ.get(
+                'DRIVER') == 'chrome' else webdriver.Firefox(options=self.firefox_options)
+        else:
+            self.driver = webdriver.Chrome(service=ChromeService(
+                ChromeDriverManager().install()), options=self.chrome_options) if os.environ.get('DRIVER') == 'chrome' else webdriver.Firefox(service=FirefoxService(
+                    GeckoDriverManager().install()), options=self.firefox_options)
 
         self.driver.maximize_window()
 
