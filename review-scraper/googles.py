@@ -32,8 +32,6 @@ class Google(Scraping):
         super().__init__(in_background=False, url=url,
                          establishment=establishment, settings=settings, env=env)
 
-        self.my_datas = []
-
     @abstractmethod
     def load_reviews(self):
         pass
@@ -50,7 +48,7 @@ class Google(Scraping):
             if self.check_page():
                 self.load_reviews()
                 time.sleep(2)
-                self.save()
+                # self.save()
             else:
                 print("!!!!!!!! Cette page n'existe pas !!!!!!!!")
             self.driver.quit()
@@ -284,13 +282,13 @@ class Google_ES(Google):
 
     def save_data(self) -> None:
         new_data = []
-        df = pd.DataFrame(self.my_datas)
+        df = pd.DataFrame(self.data)
         df.drop_duplicates(subset=['rating', 'author', 'date_review', 'comment',
                            'language', 'source', 'date_visit', 'novisitday'], inplace=True)
         for i in range(len(df)):
             new_data.append(df.iloc[i].to_dict())
-        self.my_datas = new_data
-        print("=>  Actual datas: ", len(self.my_datas))
+        self.data = new_data
+        print("=>  Actual datas: ", len(self.data))
 
     def extract(self) -> None:
 
@@ -352,7 +350,7 @@ class Google_ES(Google):
                                 'date_visit': date_review,
                                 'novisitday': "1"
                             }
-                            self.my_datas.append(d)
+                            self.data.append(d)
                     
                         if datetime.strptime(date_review, '%d/%m/%Y') < datetime.now() - timedelta(days=365):
                             self.data_loaded = True
