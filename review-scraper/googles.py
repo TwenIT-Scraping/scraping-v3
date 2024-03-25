@@ -1,19 +1,11 @@
 import os
 import random
-
 import pandas as pd
 from scraping import Scraping
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import ElementNotVisibleException, ElementNotSelectableException
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.remote.command import Command
-from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.firefox import GeckoDriverManager
-from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.firefox.service import Service as FirefoxService
-from abc import abstractmethod
 import sys
 import time
 from datetime import datetime, timedelta
@@ -21,27 +13,73 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
 from langdetect import detect
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
-# from googletrans import Translator
 from lingua import Language, LanguageDetectorBuilder
 from changeip import refresh_connection
 
 
-class Google(Scraping):
+class BaseGoogleScrap(Scraping):
     def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(in_background=False, url=url,
                          establishment=establishment, settings=settings, env=env)
+        self.url_lang_code = {
+            'fr':'fr-FR',
+            'en':'en-EN',
+            'es':'es-ES',
+        }
 
-    @abstractmethod
-    def load_reviews(self):
+    def load_reviews(self) -> None:
+
+        try:
+            self.driver.find_element(By.CSS_SELECTOR, 'span.VfPpkd-vQzf8d').click()
+            time.sleep(2)
+        except:
+            pass
+        try:
+            self.driver.execute_script("window.scrollTo(0, 500);")
+            order_dropdown = self.driver.find_element(By.XPATH, "//div[@jsname='wQNmvb']")
+            self.driver.execute_script("arguments[0].click();", order_dropdown)
+            time.sleep(2)
+            order_item = self.driver.find_elements(By.XPATH, "//div[@jsname='V68bde']/div[@jsname='wQNmvb']")[1]
+            self.driver.execute_script("arguments[0].click();", order_item)
+            time.sleep(1)
+        except Exception as e:
+            print("pass review order ...")
+            print(e)
         pass
 
-    def execute(self):
+        index = 0
+        scrollHeight = 500
+        currentHeight = 0
+        while not self.data_loaded:
+            self.driver.execute_script(f"window.scrollTo({currentHeight}, {scrollHeight});")
+            time.sleep(0.2)
+            if index == 10:
+                self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_UP)
+                self.extract()
+                self.save_data()
+                index = 0
+            index += 1
+            currentHeight = scrollHeight
+            scrollHeight += 200
+    
+    def format_url(self, language:str) -> str:
+        try:
+            hl_params_inde = self.url.index('&hl=') + 4
+            new_url = self.url[:hl_params_inde] + self.url_lang_code[language] + self.url[hl_params_inde + 5:]
+            print(new_url)
+            return new_url
+        except ValueError:
+            print(f"{self.url}&hl={self.url_lang_code[language]}" )
+            return f"{self.url}&hl={self.url_lang_code[language]}" 
+
+
+    def execute(self) -> None:
         try:
 
             if self.force_refresh:
                 refresh_connection()
 
+            self.format_url(self.lang)
             self.scrap()
             time.sleep(5)
             WebDriverWait(self.driver, 10)
@@ -74,7 +112,7 @@ class Google(Scraping):
         except:
             return ''
 
-    def formate_date(self, raw_date):
+    def formate_date(self, raw_date:str) -> str:
         split_date = raw_date.split(' ')
         today = datetime.now()
         language = self.detect(raw_date)
@@ -83,22 +121,22 @@ class Google(Scraping):
         match language:
             case "fr":
 
-                if split_date[4] == 'jour':
+                if split_date[1] == 'jour':
                     return datetime.strftime(today + timedelta(days=-1), '%d/%m/%Y')
-                elif split_date[4] == 'jours':
+                elif split_date[1] == 'jours':
                     return datetime.strftime(today + timedelta(days=-(int(split_date[3]))), '%d/%m/%Y')
-                if split_date[4] == 'semaine':
+                if split_date[1] == 'semaine':
                     return datetime.strftime(today + timedelta(days=-7), '%d/%m/%Y')
-                elif split_date[4] == 'semaines':
+                elif split_date[1] == 'semaines':
                     return datetime.strftime(today + timedelta(days=-7*int(split_date[3])), '%d/%m/%Y')
-                elif split_date[4] == 'mois':
-                    if split_date[3] == 'un':
+                elif split_date[1] == 'mois':
+                    if split_date[0] == 'un':
                         return datetime.strftime(today + timedelta(days=-31), '%d/%m/%Y')
                     else:
                         return datetime.strftime(today + timedelta(days=-31*int(split_date[3])), '%d/%m/%Y')
-                elif split_date[4] == 'an':
+                elif split_date[1] == 'an':
                     return datetime.strftime(today + timedelta(days=-365), '%d/%m/%Y')
-                elif split_date[4] == 'ans':
+                elif split_date[1] == 'ans':
                     return datetime.strftime(today + timedelta(days=-(int(split_date[3])*365)), '%d/%m/%Y')
                 else:
                     return datetime.strftime(today, '%d/%m/%Y')
@@ -141,145 +179,7 @@ class Google(Scraping):
                     return datetime.strftime(today + timedelta(days=-(int(split_date[0])*365)), '%d/%m/%Y')
                 else:
                     return datetime.strftime(today, '%d/%m/%Y')
-
-
-class Google_ES(Google):
-    def __init__(self, url: str, establishment: str, settings: str, env: str):
-        super().__init__(url=url,
-                         establishment=establishment, settings=settings, env=env)
-
-        self.chrome_options.add_argument(f'--lang=es')
-        self.chrome_options.add_argument('--disable-translate')
-        self.data_loaded = False
-        self.driver = webdriver.Chrome(options=self.chrome_options)
-
-
-        # if os.environ.get('SYSTEM') == 'linux':
-        #     self.driver = webdriver.Chrome(options=self.chrome_options) if os.environ.get(
-        #         'DRIVER') == 'chrome' else webdriver.Firefox(options=self.firefox_options)
-        # else:
-        #     self.driver = webdriver.Chrome(service=ChromeService(
-        #         ChromeDriverManager().install()), options=self.chrome_options) if os.environ.get('DRIVER') == 'chrome' else webdriver.Firefox(service=FirefoxService(
-        #             GeckoDriverManager().install()), options=self.firefox_options)
-
-        self.driver.maximize_window()
-
-    def load_reviews(self):
-        # def get_last_review_date():
-        #     page = self.driver.page_source
-        #     soupe = BeautifulSoup(page, 'lxml')
-        #     last_review_cards = soupe.find_all('div', {'jsname': "Pa5DKe"})[-1]
-        #     date_raw = last_review_cards.find('span', {'class': 'iUtr1'}).text.strip(
-        #     ) if last_review_cards.find('span', {'class': 'iUtr1'}) else ""
-        #     comment = last_review_cards.find('div', {'class': 'K7oBsc'}).find('span').text.strip()\
-        #         .replace(" En savoir plus", "") if last_review_cards.find('div', {'class': 'K7oBsc'}) else ""
-        #     try:
-        #         lang = detect(comment)
-        #     except:
-        #         lang = 'en'
-        #     return self.formate_date(date_raw, lang) if date_raw else "01/01/1999"
-        # try:
-        #     self.driver.find_element(
-        #         By.XPATH, "//div[@aria-label='Avis' and @aria-controls='reviews' and @role='tab']").click()
-        #     time.sleep(2)
-        # except:
-        #     pass
-
-        try:
-            self.driver.find_element(By.CSS_SELECTOR, 'span.VfPpkd-vQzf8d').click()
-            time.sleep(2)
-        except:
-            pass
-        try:
-            self.driver.execute_script(f"window.scrollTo(0, 500);")
-            order_dropdown = self.driver.find_element(By.XPATH, "//div[@jsname='wQNmvb']")
-            self.driver.execute_script("arguments[0].click();", order_dropdown)
-            time.sleep(2)
-            order_item = self.driver.find_elements(By.XPATH, "//div[@jsname='V68bde']/div[@jsname='wQNmvb']")[1]
-            self.driver.execute_script("arguments[0].click();", order_item)
-            time.sleep(1)
-        except Exception as e:
-            print("pass review order ...")
-            print(e)
-        pass
-
-        index = 0
-        while not self.data_loaded:
-            self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
-            if index == 10:
-                for k in range(2):
-                    self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_UP)
-                time.sleep(1)
-                self.extract()
-                self.save_data()
-                index = 0
-            index += 1
-
-        # index = 0
-
-        # try:
-        #     accept_btn = self.driver.find_element(
-        #         By.XPATH, "//span[contains(text(), 'Tout accepter') or contains(text(), 'Accept all')]")
-        #     self.driver.execute_script("arguments[0].click();", accept_btn)
-        #     time.sleep(random.randint(2, 5))
-        # except:
-        #     print("pass accept all button ...")
-        #     pass
-
-        # time.sleep(5)
-
-        # try:
-        #     self.driver.find_element(
-        #         By.XPATH, "//div[@aria-label='Avis' and @aria-controls='reviews' and @role='tab']").click()
-        #     time.sleep(2)
-        # except:
-        #     print("pass reviews tab click")
-        #     pass
-
-        # try:
-        #     self.driver.execute_script(
-        #         f"window.scrollTo(0, 500);")
-        #     index += 1
-        #     order_dropdown = self.driver.find_element(
-        #         By.XPATH, "//div[@jsname='wQNmvb']")
-        #     self.driver.execute_script("arguments[0].click();", order_dropdown)
-        #     time.sleep(2)
-        #     order_item = self.driver.find_elements(
-        #         By.XPATH, "//div[@jsname='V68bde']/div[@jsname='wQNmvb']")[1]
-        #     self.driver.execute_script("arguments[0].click();", order_item)
-        #     time.sleep(1)
-        # except Exception as e:
-        #     print("pass review order ...")
-        #     print(e)
-        #     pass
-
-        # new_frame_height = frame_height = self.driver.execute_script(
-        #     "return document.querySelector('div[jsname=\"KYYiw\"]').scrollHeight")
-
-        # while True:
-        #     new_frame_height = self.driver.execute_script(
-        #         "return document.querySelector('div[jsname=\"KYYiw\"]').scrollHeight")
-        #     height = (frame_height/20)*index
-
-        #     # Scroll down to bottom
-        #     try:
-        #         self.driver.execute_script(
-        #             f"window.scrollTo(0, {str(height)});")
-        #         index += 1
-
-        #         # Wait to load page
-        #         time.sleep(1)
-        #         new_datas = self.extract()
-        #         self.save_data(new_datas)
-        #     except Exception as e:
-        #         print(e)
-
-        #     if height == new_frame_height:
-        #         break
-
-        #     if datetime.strptime(self.my_datas[-1]['date_review'], '%d/%m/%Y') < datetime.now() - timedelta(days=31):
-        #         break
-
+                
     def save_data(self) -> None:
         new_data = []
         df = pd.DataFrame(self.data)
@@ -290,79 +190,102 @@ class Google_ES(Google):
         self.data = new_data
         print("=>  Actual datas: ", len(self.data))
 
-    def extract(self) -> None:
+
+class Google(BaseGoogleScrap):
+
+    def __init__(self, url: str, establishment: str, settings: str, env: str, language:str):
+        super().__init__(url=url, establishment=establishment, settings=settings, env=env)
+        self.lang = language
+        self.chrome_options.add_argument(f'--lang={self.lang}')
+        self.chrome_options.add_argument('--disable-translate')
+        self.data_loaded = False
+        self.driver = webdriver.Chrome(options=self.chrome_options)
+    
+        # if os.environ.get('SYSTEM') == 'linux':
+        #     self.driver = webdriver.Chrome(options=self.chrome_options) if os.environ.get(
+        #         'DRIVER') == 'chrome' else webdriver.Firefox(options=self.firefox_options)
+        # else:
+        #     self.driver = webdriver.Chrome(service=ChromeService(
+        #         ChromeDriverManager().install()), options=self.chrome_options) if os.environ.get('DRIVER') == 'chrome' else webdriver.Firefox(service=FirefoxService(
+        #             GeckoDriverManager().install()), options=self.firefox_options)
+
+        self.driver.maximize_window()
+
+    def extract(self) -> list:
+        print('extraction..')
+        reviews = []
 
         try:
-            page = self.driver.page_source
+            accept_btn = self.driver.find_element(
+                By.XPATH, "//span[contains(text(), 'Tout accepter') or contains(text(), 'Accept all')], or contains(text(), 'Aceptar todo')")
+            self.driver.execute_script("arguments[0].click();", accept_btn)
+            time.sleep(random.randint(2, 5))
+        except:
+            pass
 
-            soupe = BeautifulSoup(page, 'lxml')
+        time.sleep(5)
 
-            review_container = soupe.find_all('div', {'jsname': 'SvNErb'})
+        try:
+            self.driver.find_element(
+                By.XPATH, "//div[@role='listbox' and @jsname='fMAOF']").click()
+            time.sleep(random.uniform(.5, 2.5))
+            self.driver.find_element(
+                By.XPATH, "//div[@role='option' and @data-value='2' and @data-hveid='CAMQkAY']").click()
+            time.sleep(random.uniform(.2, 2))
+        except:
+            pass
 
-            for container in review_container:
-                cards = container.find_all('div', {'class': 'Svr5cf bKhjM'})
-                for card in cards:
-                    author = card.find('a', {'class': 'DHIhE QB2Jof'}).text.strip(
-                    ) if card.find('a', {'class': 'DHIhE QB2Jof'}) else ""
-                    # print(author)
-                    try:
-                        comment = card.find('div', {'class': 'K7oBsc'}).find('span').text.replace('(Traducido por Google) ', '').replace('\xa0... Ver más', '').replace(" En savoir plus", "") \
-                            .replace('(Traduit par Google)', '').replace('(Traduce by Google)', '').lower().split('(original)')[-1] if card.find('div', {'class': 'K7oBsc'}) else ""
-                    except:
-                        comment = ""
-                    # print(comment)
-                    rating = card.find('div', {'class': 'GDWaad'}).text.strip().split(
-                        '/')[0] if card.find('div', {'class': 'GDWaad'}) else "0"
-                    # print(rating)
-                    try:
-                        lang = self.detect(comment)
-                    except:
-                        print("Exception langue!!!")
-                        lang = 'en'
-                    # print(lang)
-                    date_raw = card.find(
-                        'span', {'class': 'iUtr1 CQYfx'}).text.lower()
-                    # print(date_raw)
-                    match(self.detect(date_raw)):
-                        case 'es':
-                            date_raw = date_raw.replace('hace ', '').replace(
-                                '\xa0', '').strip() if card.find('span', {'class': 'iUtr1 CQYfx'}) else ""
-                        case _:
-                            date_raw = date_raw.lower().replace('\xa0', '').strip(
-                            ) if card.find('span', {'class': 'iUtr1 CQYfx'}) else ""
+        page = self.driver.page_source
 
-                    # print(date_raw)
-                    date_review = self.formate_date(
-                        date_raw) if date_raw else ""
-                    print(date_review)
+        soupe = BeautifulSoup(page, 'lxml')
+        container = soupe.find('div', {'jsname':'SvNErb'})
+        cards = container.find_all('div', {'class':'Svr5cf bKhjM'})
 
-                    if date_review != "":
-                        if (author != "" or comment != "" or rating != "0") and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365):
-                            d = {
-                                'rating': rating,
-                                'author': author,
-                                'date_review': date_review,
-                                'comment': comment,
-                                'language': lang,
-                                'source': urlparse(self.url).netloc.split('.')[1],
-                                'establishment': f'/api/establishments/{self.establishment}',
-                                'settings': f'/api/settings/{self.settings}',
-                                'date_visit': date_review,
-                                'novisitday': "1"
-                            }
-                            self.data.append(d)
-                    
-                        if datetime.strptime(date_review, '%d/%m/%Y') < datetime.now() - timedelta(days=365):
-                            self.data_loaded = True
-                            return
-                    
+        for card in cards:
+            author = card.find('a', {'class':'DHIhE QB2Jof'}).text.strip() if card.find('a', {'class':'DHIhE QB2Jof'}) else ""
+            try:
+                comment = card.find('div', {'class':'K7oBsc'}).find('span').text.replace('(Traducido por Google) ', '').replace('\xa0... Ver más', '').replace(" En savoir plus", "") \
+                .replace('(Traduit par Google)', '').replace('(Traduce by Google)', '').lower() if card.find('div', {'class':'K7oBsc'}) else ""
+                if "avis d'origine" in comment:
+                    comment = comment.split("(avis d'origine)")[-1]
+                if "(original)" in comment:
+                    comment = comment.split("(original)")[-1]
+            except:
+                comment = ""
+            rating = card.find('div', {'class': 'GDWaad'}).text.strip().split(
+                '/')[0] if card.find('div', {'class': 'GDWaad'}) else "0"
+            try:
+                lang = detect(comment)
+            except:
+                lang = 'en'
+            date_raw = card.find('span', {'class': 'iUtr1 CQYfx'}).text.lower()
+            match(detect(date_raw)):
+                case 'fr':
+                    date_raw = date_raw.replace('il y a ', '').replace('\xa0','').strip() if card.find('span', {'class': 'iUtr1 CQYfx'}) else ""
+                case 'es':
+                    date_raw = date_raw.replace('hace ', '').replace('\xa0','').strip() if card.find('span', {'class': 'iUtr1 CQYfx'}) else ""
+                case 'en':
+                    date_raw = date_raw.replace('ago', '').replace('\xa0','').strip() if card.find('span', {'class': 'iUtr1 CQYfx'}) else ""
+            date_review = self.formate_date(date_raw) if date_raw else ""
 
-        except Exception as e:
-            print("Exception: ", e)
+            if date_review:
+                if (author or comment or rating != "0") and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365):
+                    reviews.append({
+                        'rating': rating,
+                        'author': author,
+                        'date_review': date_review,
+                        'comment': comment,
+                        'language': lang,
+                        'source': urlparse(self.driver.current_url).netloc.split('.')[1],
+                        'date_visit': date_review,
+                        'novisitday': "1"
+                    })
+                if datetime.strptime(date_review, '%d/%m/%Y') < datetime.now() - timedelta(days=365):
+                    self.data_loaded = True
+                    return
+        self.data = reviews
 
-
-# trp = Google_ES(url="https://www.google.com/travel/hotels/entity/ChYIqtL21OvSv65QGgovbS8wdnB3cTRzEAE/reviews?utm_campaign=sharing&utm_medium=link&utm_source=htls",
-#                 establishment=3, settings=1, env="DEV")
-# trp.set_language('es')
-# trp.execute()
-# print(trp.my_datas)
+trp = Google(url="https://www.google.com/travel/hotels/entity/ChYIqtL21OvSv65QGgovbS8wdnB3cTRzEAE/reviews?utm_campaign=sharing&utm_medium=link&utm_source=htls&ts=CAEaIAoCGgASGhIUCgcI6A8QAxgLEgcI6A8QAxgMGAEyAhAAKgkKBToDTUdBGgA&ved=0CAAQ5JsGahcKEwiY1evEleyEAxUAAAAAHQAAAAAQAw",
+                establishment=3, settings=1, env="DEV", language='es')
+trp.execute()
+print(trp.my_datas)
