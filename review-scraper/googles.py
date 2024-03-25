@@ -30,8 +30,8 @@ class BaseGoogleScrap(Scraping):
     def load_reviews(self) -> None:
 
         try:
-            self.driver.find_element(By.CSS_SELECTOR, 'span.VfPpkd-vQzf8d').click()
             time.sleep(2)
+            self.driver.find_element(By.XPATH, f"//button[@jsname='b3VHJd']").click()
         except:
             pass
         try:
@@ -78,8 +78,8 @@ class BaseGoogleScrap(Scraping):
 
             if self.force_refresh:
                 refresh_connection()
-
-            self.format_url(self.lang)
+            url = self.format_url(self.lang)
+            self.set_url(url)
             self.scrap()
             try:
                 time.sleep(3)
@@ -201,21 +201,13 @@ class BaseGoogleScrap(Scraping):
 
 class Google(BaseGoogleScrap):
 
-    def __init__(self, url: str, establishment: str, settings: str, env: str, language:str):
+    def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(url=url, establishment=establishment, settings=settings, env=env)
-        self.lang = language
+
         self.chrome_options.add_argument(f'--lang={self.lang}')
         self.chrome_options.add_argument('--disable-translate')
         self.data_loaded = False
-        self.driver = webdriver.Chrome(options=self.chrome_options)
-    
-        # if os.environ.get('SYSTEM') == 'linux':
-        #     self.driver = webdriver.Chrome(options=self.chrome_options) if os.environ.get(
-        #         'DRIVER') == 'chrome' else webdriver.Firefox(options=self.firefox_options)
-        # else:
-        #     self.driver = webdriver.Chrome(service=ChromeService(
-        #         ChromeDriverManager().install()), options=self.chrome_options) if os.environ.get('DRIVER') == 'chrome' else webdriver.Firefox(service=FirefoxService(
-        #             GeckoDriverManager().install()), options=self.firefox_options)
+        # self.driver = webdriver.Chrome(options=self.chrome_options)
 
         self.driver.maximize_window()
 
@@ -283,7 +275,8 @@ class Google(BaseGoogleScrap):
                     return
         self.data = reviews
 
-trp = Google(url="https://www.google.com/travel/hotels/entity/ChYIqtL21OvSv65QGgovbS8wdnB3cTRzEAE/reviews?utm_campaign=sharing&utm_medium=link&utm_source=htls&ts=CAEaIAoCGgASGhIUCgcI6A8QAxgLEgcI6A8QAxgMGAEyAhAAKgkKBToDTUdBGgA&ved=0CAAQ5JsGahcKEwiY1evEleyEAxUAAAAAHQAAAAAQAw",
-                establishment=3, settings=1, env="DEV", language='es')
-trp.execute()
-print(trp.my_datas)
+# trp = Google(url="https://www.google.com/travel/hotels/entity/ChYIqtL21OvSv65QGgovbS8wdnB3cTRzEAE/reviews?utm_campaign=sharing&utm_medium=link&utm_source=htls&ts=CAEaIAoCGgASGhIUCgcI6A8QAxgLEgcI6A8QAxgMGAEyAhAAKgkKBToDTUdBGgA&ved=0CAAQ5JsGahcKEwiY1evEleyEAxUAAAAAHQAAAAAQAw",
+#                 establishment=3, settings=1, env="DEV")
+# trp.set_language('es')
+# trp.execute()
+# print(trp.data)
