@@ -81,6 +81,14 @@ class BaseGoogleScrap(Scraping):
 
             self.format_url(self.lang)
             self.scrap()
+            try:
+                time.sleep(3)
+                accept_btn = self.driver.find_element(
+                    By.XPATH, "//span[contains(text(), 'Tout accepter') or contains(text(), 'Accept all')], or contains(text(), 'Aceptar todo')")
+                self.driver.execute_script("arguments[0].click();", accept_btn)
+                time.sleep(random.randint(2, 5))
+            except:
+                pass
             time.sleep(5)
             WebDriverWait(self.driver, 10)
             if self.check_page():
@@ -214,16 +222,6 @@ class Google(BaseGoogleScrap):
     def extract(self) -> list:
         print('extraction..')
         reviews = []
-
-        try:
-            accept_btn = self.driver.find_element(
-                By.XPATH, "//span[contains(text(), 'Tout accepter') or contains(text(), 'Accept all')], or contains(text(), 'Aceptar todo')")
-            self.driver.execute_script("arguments[0].click();", accept_btn)
-            time.sleep(random.randint(2, 5))
-        except:
-            pass
-
-        time.sleep(5)
 
         try:
             self.driver.find_element(
