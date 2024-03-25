@@ -148,6 +148,6 @@ class Maeva(Scraping):
             sys.exit("Arret")
 
 
-trp = Maeva(url="https://www.maeva.com/fr-fr/residence-cannes-villa-francia---maeva-home_49993.html",
-            establishment=3, settings=1, env='DEV')
-trp.execute()
+# trp = Maeva(url="https://www.maeva.com/fr-fr/residence-cannes-villa-francia---maeva-home_49993.html",
+#             establishment=3, settings=1, env='DEV')
+# trp.execute()
