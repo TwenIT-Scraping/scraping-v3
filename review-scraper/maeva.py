@@ -58,6 +58,11 @@ class Maeva(Scraping):
 
     def load_reviews(self) -> None:
         time.sleep(2)
+        try:
+            self.driver.find_element(By.ID, 'didomi-notice-agree-button').click()
+            time.sleep(2)
+        except:
+            pass
         self.driver.execute_script("popin({selector:'#avis-comp'});")
         time.sleep(1)
         self.driver.find_element(By.XPATH, "//button[contains(text(), 'Les plus récents')]").click()
