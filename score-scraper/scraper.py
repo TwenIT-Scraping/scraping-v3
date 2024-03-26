@@ -8,6 +8,7 @@ from opentable import Opentable, Opentable_UK
 from trustpilot import Trustpilot
 from tripadvisor import Tripadvisor, Tripadvisor_UK, Tripadvisor_FR, Tripadvisor_ES
 from expedia import Expedia
+from yelp import Yelp
 from api import ERApi
 import random
 from changeip import refresh_connection
@@ -51,6 +52,7 @@ __class_name_v2__ = {
     'Expedia FR': Expedia,
     'Expedia ES': Expedia,
     'Thefork': Thefork,
+    'Yelp': Yelp
 }
 
 
