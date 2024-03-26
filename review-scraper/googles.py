@@ -94,6 +94,7 @@ class BaseGoogleScrap(Scraping):
             if self.check_page():
                 self.load_reviews()
                 time.sleep(2)
+                print(self.data)
                 self.save()
             else:
                 print("!!!!!!!! Cette page n'existe pas !!!!!!!!")
@@ -141,11 +142,11 @@ class BaseGoogleScrap(Scraping):
                     if split_date[0] == 'un':
                         return datetime.strftime(today + timedelta(days=-31), '%d/%m/%Y')
                     else:
-                        return datetime.strftime(today + timedelta(days=-31*int(split_date[3])), '%d/%m/%Y')
+                        return datetime.strftime(today + timedelta(days=-31*int(split_date[0])), '%d/%m/%Y')
                 elif split_date[1] == 'an':
                     return datetime.strftime(today + timedelta(days=-365), '%d/%m/%Y')
                 elif split_date[1] == 'ans':
-                    return datetime.strftime(today + timedelta(days=-(int(split_date[3])*365)), '%d/%m/%Y')
+                    return datetime.strftime(today + timedelta(days=-(int(split_date[0])*365)), '%d/%m/%Y')
                 else:
                     return datetime.strftime(today, '%d/%m/%Y')
 
@@ -268,8 +269,8 @@ class Google(BaseGoogleScrap):
                     return
         self.data = reviews
 
-# trp = Google(url="https://www.google.com/travel/hotels/entity/ChYIqtL21OvSv65QGgovbS8wdnB3cTRzEAE/reviews?utm_campaign=sharing&utm_medium=link&utm_source=htls&ts=CAEaIAoCGgASGhIUCgcI6A8QAxgLEgcI6A8QAxgMGAEyAhAAKgkKBToDTUdBGgA&ved=0CAAQ5JsGahcKEwiY1evEleyEAxUAAAAAHQAAAAAQAw",
+# g = Google(url="https://www.google.fr/travel/search?q=https://www.google.com/travel/search?gsas=1&qs=MihDaG9JM3ZQbGdhV3ZwYmFkQVJvTkwyY3ZNVEZuYWpSeFgzZzBjUkFC&ts=CAEaHAoAEhgSEgoHCOgPEAMYGxIHCOgPEAMYHDICCAA&ap=ugEHcmV2aWV3cw",
 #                 establishment=3, settings=1, env="DEV")
-# trp.set_language('es')
-# trp.execute()
-# print(trp.data)
+# g.set_language('fr')
+# g.execute()
+# print(g.data)
