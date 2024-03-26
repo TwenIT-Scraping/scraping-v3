@@ -118,7 +118,9 @@ class Maeva(Scraping):
                             'language': language,
                             'source': source,
                             'date_visit': date_review,
-                            'novisitday': "1"
+                            'novisitday': "1",
+                            'establishment': f'/api/establishments/{self.establishment}',
+                            'settings': f'/api/settings/{self.settings}',   
                         })
                 if datetime.strptime(date_review, '%d/%m/%Y') < datetime.now() - timedelta(days=365):
                     self.data_loaded = True
