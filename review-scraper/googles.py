@@ -94,7 +94,7 @@ class BaseGoogleScrap(Scraping):
             if self.check_page():
                 self.load_reviews()
                 time.sleep(2)
-                # self.save()
+                self.save()
             else:
                 print("!!!!!!!! Cette page n'existe pas !!!!!!!!")
             self.driver.quit()
