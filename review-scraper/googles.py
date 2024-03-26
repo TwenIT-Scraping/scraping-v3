@@ -258,7 +258,7 @@ class Google(BaseGoogleScrap):
                     date_raw = date_raw.replace('ago', '').replace('\xa0','').strip() if card.find('span', {'class': 'iUtr1 CQYfx'}) else ""
             date_review = self.formate_date(date_raw) if date_raw else ""
 
-            if date_review:
+            if date_review != "" and date_review is not None:
                 if (author or comment or rating != "0") and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365):
                     reviews.append({
                         'rating': rating,
