@@ -228,8 +228,7 @@ class Google(BaseGoogleScrap):
         page = self.driver.page_source
 
         soupe = BeautifulSoup(page, 'lxml')
-        container = soupe.find('div', {'jsname':'SvNErb'})
-        cards = container.find_all('div', {'class':'Svr5cf bKhjM'})
+        cards = soupe.find_all('div', {'class':'Svr5cf bKhjM'})
 
         for card in cards:
             author = card.find('a', {'class':'DHIhE QB2Jof'}).text.strip() if card.find('a', {'class':'DHIhE QB2Jof'}) else ""
@@ -249,13 +248,7 @@ class Google(BaseGoogleScrap):
             except:
                 lang = 'en'
             date_raw = card.find('span', {'class': 'iUtr1 CQYfx'}).text.lower()
-            match(detect(date_raw)):
-                case 'fr':
-                    date_raw = date_raw.replace('il y a ', '').replace('\xa0','').strip() if card.find('span', {'class': 'iUtr1 CQYfx'}) else ""
-                case 'es':
-                    date_raw = date_raw.replace('hace ', '').replace('\xa0','').strip() if card.find('span', {'class': 'iUtr1 CQYfx'}) else ""
-                case 'en':
-                    date_raw = date_raw.replace('ago', '').replace('\xa0','').strip() if card.find('span', {'class': 'iUtr1 CQYfx'}) else ""
+            date_raw = date_raw.replace('il y a ', '').replace('hace ', '').replace('ago', '').replace('\xa0',' ').strip() if card.find('span', {'class': 'iUtr1 CQYfx'}) else ""
             date_review = self.formate_date(date_raw) if date_raw else ""
 
             if date_review != "" and date_review is not None:
