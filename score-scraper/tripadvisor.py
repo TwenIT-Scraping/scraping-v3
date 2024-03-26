@@ -15,6 +15,10 @@ class Tripadvisor(Scraping):
         self.css_selector = 'reviewBubbleScore'
         self.source = 'tripadvisor'
 
+    def extract(self) -> None:
+        input("Entrer une touche pour continuer ...")
+        return super().extract()
+
 
 class Tripadvisor_UK(Scraping):
     def __init__(self, url: str, establishment: str, env: str):

@@ -15,9 +15,9 @@ class Thefork(Scraping):
         self.source = 'thefork'
 
     def extract(self):
-        input("Entrer pour continuer ...")
 
-        super().extract()
+        input("Entrer une touche pour continuer ...")
+        return super().extract()
 
 
 # trp = Thefork(url="https://www.thefork.fr/restaurant/best-western-alexander-park-r308265/avis",
