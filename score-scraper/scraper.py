@@ -3,7 +3,7 @@ from booking import Booking
 from maeva import Maeva
 from campings import Campings
 from hotels import Hotels_FR, Hotels_EN
-from googles import Google
+from googles import Google, GoogleTravel
 from opentable import Opentable, Opentable_UK
 from trustpilot import Trustpilot
 from tripadvisor import Tripadvisor_UK, Tripadvisor_FR, Tripadvisor_ES
@@ -39,7 +39,7 @@ __class_name_v2__ = {
     'Hotels.com ES': Hotels_FR,
     'Google': Google,
     'Google hotel': Google,
-    'Google Travel': Google,
+    'Google Travel': GoogleTravel,
     'Opentable UK': Opentable_UK,
     'Opentable': Opentable,
     'Trustpilot': Trustpilot,
