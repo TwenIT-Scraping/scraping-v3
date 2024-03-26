@@ -94,7 +94,8 @@ class BaseGoogleScrap(Scraping):
             if self.check_page():
                 self.load_reviews()
                 time.sleep(2)
-                # self.save()
+                print(self.data)
+                self.save()
             else:
                 print("!!!!!!!! Cette page n'existe pas !!!!!!!!")
             self.driver.quit()
@@ -132,20 +133,20 @@ class BaseGoogleScrap(Scraping):
                 if split_date[1] == 'jour':
                     return datetime.strftime(today + timedelta(days=-1), '%d/%m/%Y')
                 elif split_date[1] == 'jours':
-                    return datetime.strftime(today + timedelta(days=-(int(split_date[3]))), '%d/%m/%Y')
+                    return datetime.strftime(today + timedelta(days=-(int(split_date[0]))), '%d/%m/%Y')
                 if split_date[1] == 'semaine':
                     return datetime.strftime(today + timedelta(days=-7), '%d/%m/%Y')
                 elif split_date[1] == 'semaines':
-                    return datetime.strftime(today + timedelta(days=-7*int(split_date[3])), '%d/%m/%Y')
+                    return datetime.strftime(today + timedelta(days=-7*int(split_date[0])), '%d/%m/%Y')
                 elif split_date[1] == 'mois':
                     if split_date[0] == 'un':
                         return datetime.strftime(today + timedelta(days=-31), '%d/%m/%Y')
                     else:
-                        return datetime.strftime(today + timedelta(days=-31*int(split_date[3])), '%d/%m/%Y')
+                        return datetime.strftime(today + timedelta(days=-31*int(split_date[0])), '%d/%m/%Y')
                 elif split_date[1] == 'an':
                     return datetime.strftime(today + timedelta(days=-365), '%d/%m/%Y')
                 elif split_date[1] == 'ans':
-                    return datetime.strftime(today + timedelta(days=-(int(split_date[3])*365)), '%d/%m/%Y')
+                    return datetime.strftime(today + timedelta(days=-(int(split_date[0])*365)), '%d/%m/%Y')
                 else:
                     return datetime.strftime(today, '%d/%m/%Y')
 
@@ -228,8 +229,7 @@ class Google(BaseGoogleScrap):
         page = self.driver.page_source
 
         soupe = BeautifulSoup(page, 'lxml')
-        container = soupe.find('div', {'jsname':'SvNErb'})
-        cards = container.find_all('div', {'class':'Svr5cf bKhjM'})
+        cards = soupe.find_all('div', {'class':'Svr5cf bKhjM'})
 
         for card in cards:
             author = card.find('a', {'class':'DHIhE QB2Jof'}).text.strip() if card.find('a', {'class':'DHIhE QB2Jof'}) else ""
@@ -249,16 +249,10 @@ class Google(BaseGoogleScrap):
             except:
                 lang = 'en'
             date_raw = card.find('span', {'class': 'iUtr1 CQYfx'}).text.lower()
-            match(detect(date_raw)):
-                case 'fr':
-                    date_raw = date_raw.replace('il y a ', '').replace('\xa0','').strip() if card.find('span', {'class': 'iUtr1 CQYfx'}) else ""
-                case 'es':
-                    date_raw = date_raw.replace('hace ', '').replace('\xa0','').strip() if card.find('span', {'class': 'iUtr1 CQYfx'}) else ""
-                case 'en':
-                    date_raw = date_raw.replace('ago', '').replace('\xa0','').strip() if card.find('span', {'class': 'iUtr1 CQYfx'}) else ""
+            date_raw = date_raw.replace('il y a ', '').replace('hace ', '').replace('ago', '').replace('\xa0',' ').strip() if card.find('span', {'class': 'iUtr1 CQYfx'}) else ""
             date_review = self.formate_date(date_raw) if date_raw else ""
 
-            if date_review:
+            if date_review != "" and date_review is not None:
                 if (author or comment or rating != "0") and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365):
                     reviews.append({
                         'rating': rating,
@@ -268,15 +262,17 @@ class Google(BaseGoogleScrap):
                         'language': lang,
                         'source': urlparse(self.driver.current_url).netloc.split('.')[1],
                         'date_visit': date_review,
-                        'novisitday': "1"
+                        'novisitday': "1",
+                        'establishment': f'/api/establishments/{self.establishment}',
+                        'settings': f'/api/settings/{self.settings}',   
                     })
                 if datetime.strptime(date_review, '%d/%m/%Y') < datetime.now() - timedelta(days=365):
                     self.data_loaded = True
                     return
         self.data = reviews
 
-# trp = Google(url="https://www.google.com/travel/hotels/entity/ChYIqtL21OvSv65QGgovbS8wdnB3cTRzEAE/reviews?utm_campaign=sharing&utm_medium=link&utm_source=htls&ts=CAEaIAoCGgASGhIUCgcI6A8QAxgLEgcI6A8QAxgMGAEyAhAAKgkKBToDTUdBGgA&ved=0CAAQ5JsGahcKEwiY1evEleyEAxUAAAAAHQAAAAAQAw",
+# g = Google(url="https://www.google.fr/travel/search?q=https://www.google.com/travel/search?gsas=1&qs=MihDaG9JM3ZQbGdhV3ZwYmFkQVJvTkwyY3ZNVEZuYWpSeFgzZzBjUkFC&ts=CAEaHAoAEhgSEgoHCOgPEAMYGxIHCOgPEAMYHDICCAA&ap=ugEHcmV2aWV3cw",
 #                 establishment=3, settings=1, env="DEV")
-# trp.set_language('es')
-# trp.execute()
-# print(trp.data)
+# g.set_language('fr')
+# g.execute()
+# print(g.data)
