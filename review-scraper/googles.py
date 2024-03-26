@@ -133,11 +133,11 @@ class BaseGoogleScrap(Scraping):
                 if split_date[1] == 'jour':
                     return datetime.strftime(today + timedelta(days=-1), '%d/%m/%Y')
                 elif split_date[1] == 'jours':
-                    return datetime.strftime(today + timedelta(days=-(int(split_date[3]))), '%d/%m/%Y')
+                    return datetime.strftime(today + timedelta(days=-(int(split_date[0]))), '%d/%m/%Y')
                 if split_date[1] == 'semaine':
                     return datetime.strftime(today + timedelta(days=-7), '%d/%m/%Y')
                 elif split_date[1] == 'semaines':
-                    return datetime.strftime(today + timedelta(days=-7*int(split_date[3])), '%d/%m/%Y')
+                    return datetime.strftime(today + timedelta(days=-7*int(split_date[0])), '%d/%m/%Y')
                 elif split_date[1] == 'mois':
                     if split_date[0] == 'un':
                         return datetime.strftime(today + timedelta(days=-31), '%d/%m/%Y')
