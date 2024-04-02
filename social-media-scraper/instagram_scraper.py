@@ -94,7 +94,7 @@ class InstagramProfileScraper(Scraping):
         # posts = self.page.locator(
         #     "div._aabd._aa8k.x2pgyrj.xbkimgs.xfllauq.xh8taat.xo2y696 a.x1i10hfl.xjbqb8w.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz._a6hd").all()
         posts = self.page.locator(
-            "a.x1i10hfl.xjbqb8w.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz._a6hd").all()
+            "div._ac7v.xzboxd6.xras4av.xgc1b0m a.x1i10hfl.xjbqb8w.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz._a6hd").all()
 
         print("posts found: ", len(posts))
 
@@ -128,7 +128,7 @@ class InstagramProfileScraper(Scraping):
             self.page.wait_for_timeout(2000)
             p += 1
 
-            if p > len(self.xhr_posts) or p > 500:
+            if p > len(self.xhr_posts) or p > 100:
                 break
 
     def complete_source_data(self):
@@ -203,17 +203,19 @@ class InstagramProfileScraper(Scraping):
                         pass
 
                 try:
-
-                    post["owner"]["full_name"] and post["caption"]["text"] and self.posts.append({
-                        "author": post["owner"]["full_name"],
-                        "publishedAt": datetime.fromtimestamp(post["comments"]["caption"]["created_at"]).strftime("%d/%m/%Y"),
-                        "description": post["caption"]["text"],
-                        "reaction": post["like_count"],
-                        "comments": len(comment_values),
-                        "shares": 0,
-                        "hashtag": "",
-                        "comment_values": comment_values
-                    })
+                    if 'caption' in post.keys() and 'comments' in post.keys() and 'caption' in post['comments'].keys():
+                        published_at = datetime.fromtimestamp(
+                            post["comments"]["caption"]["created_at"])
+                        published_at > (datetime.now() - timedelta(days=365)) and post["owner"]["full_name"] and post["caption"]["text"] and self.posts.append({
+                            "author": post["owner"]["full_name"],
+                            "publishedAt": published_at.strftime("%d/%m/%Y"),
+                            "description": post["caption"]["text"],
+                            "reaction": post["like_count"],
+                            "comments": len(comment_values),
+                            "shares": 0,
+                            "hashtag": "",
+                            "comment_values": comment_values
+                        })
 
                 except Exception as e:
                     print(e)
