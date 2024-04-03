@@ -96,19 +96,19 @@ class InstagramProfileScraper(Scraping):
         posts = self.page.locator(
             "div._ac7v.xzboxd6.xras4av.xgc1b0m a.x1i10hfl.xjbqb8w.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz._a6hd").all()
 
-        print("posts found: ", len(posts))
+        # print("posts found: ", len(posts))
 
         try:
             posts[0].click()
         except Exception as e:
             print(e)
+            pass
 
         time.sleep(3)
 
         p = 1
 
         while True:
-            print(p)
 
             btns = self.page.locator(
                 "div.x1n2onr6.xzkaem6").locator("button._abl-").all()
@@ -120,7 +120,6 @@ class InstagramProfileScraper(Scraping):
                     # print('Buttons found!!!')
                     for svg in btn.locator('svg').all():
                         if svg.get_attribute('aria-label') == "Suivant" or svg.get_attribute('aria-label') == "Next":
-                            print("=> Next button found!")
                             btn.click()
                             time.sleep(3)
                             break
@@ -140,7 +139,7 @@ class InstagramProfileScraper(Scraping):
             try:
                 pk = coms[index]['caption']['pk']
 
-                print(pk)
+                # print(pk)
 
                 if pk != posts[index]['caption']['pk']:
                     for post in posts:
