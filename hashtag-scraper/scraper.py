@@ -71,6 +71,7 @@ class ListScraper:
                 try:
                     instance = __class_name__[item_key](
                         items=by_source[item_key])
+                    instance.set_environ(self.env)
                     files = instance.execute()
 
                     print("After execute...")
@@ -79,7 +80,7 @@ class ListScraper:
                         print("Transform and upload ...")
                         for f in files:
                             self.transform_data(filename=f)
-                            # self.upload_data(file=f)
+                            self.upload_data(file=f)
 
                 except Exception as e:
                     print(e)
@@ -145,6 +146,7 @@ class ListScraper:
     def upload_data(self, file):
         data = {}
         posts = ""
+        print("uploading ...")
 
         with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.json", 'r') as dinput:
             data = json.load(dinput)
@@ -157,13 +159,14 @@ class ListScraper:
 
         data['post_items'] = posts
 
-        post = ERApi(method='postmulti')
+        post = ERApi(method='postmulti', env=self.env)
 
         post.set_body(data)
 
         result = post.execute()
 
         print(result)
+        print(result.json())
 
     def upload_all_results(self):
         files = [pathlib.Path(f).stem for f in os.listdir(

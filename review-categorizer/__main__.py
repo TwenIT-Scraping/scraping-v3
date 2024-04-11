@@ -307,7 +307,7 @@ class ClassificationAPI(object):
                 progress.next()
                 line = self.lines[i]
 
-                if line['text'] != "":
+                if line['text'] != "" and len(line['text']) >= 50:
                     self.lines[i] = self.check_categories(line)
 
         if self.column == "feeling":
@@ -320,6 +320,7 @@ class ClassificationAPI(object):
         if self.column == "feeling":
 
             print("Transformation ...")
+
             for line in self.lines:
 
                 l = "&".join([str(line['id']), self.type, line['feeling'],

@@ -53,8 +53,6 @@ class ERApi:
                 if response.status_code != 200:
                     raise response.raise_for_status()
 
-                print(response.json())
-
                 return response
             except Exception as e:
                 print(e)
