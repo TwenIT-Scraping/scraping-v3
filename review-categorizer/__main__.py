@@ -310,7 +310,7 @@ class ClassificationAPI(object):
                 progress.next()
                 line = self.lines[i]
 
-                if line['text'] != "" and len(line['text']) >= 50:
+                if line['text'] != "" and len(line['text']) >= 30:
                     self.lines[i] = self.check_categories(line)
 
         if self.column == "feeling":

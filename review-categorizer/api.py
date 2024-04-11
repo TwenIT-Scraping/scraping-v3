@@ -100,7 +100,7 @@ class ERApi:
         else:
             self.add_header({"Content-Type": "application/json"})
             response = getattr(requests, self.method)(
-                f'{self.api_url}/{self.entity}',
+                f'{self.api_url}{self.entity}',
                 params=self.params,
                 headers=self.headers,
                 data=json.dumps(self.body),
