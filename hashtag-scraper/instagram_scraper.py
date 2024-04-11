@@ -79,9 +79,13 @@ class InstagramProfileScraper(Scraping):
         if response_type == "xhr":
             if 'web_info/?tag_name' in response.url:
                 # self.xhr_posts = response.json()
-                responses = response.json()
-                [self.xhr_posts.append(item) for item in nested_lookup(
-                    key='media', document=responses)]
+                try:
+                    responses = response.json()
+                    [self.xhr_posts.append(item) for item in nested_lookup(
+                        key='media', document=responses)]
+                except Exception as e:
+                    print(e)
+                    pass
             # if 'graphql' in response.url:
             #     if 'xdt_api__v1__feed__user_timeline_graphql_connection' in response.json()['data']:
             #         [self.xhr_posts.append(item) for item in response.json(
