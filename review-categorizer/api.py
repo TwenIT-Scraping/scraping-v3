@@ -100,12 +100,14 @@ class ERApi:
         else:
             self.add_header({"Content-Type": "application/json"})
             response = getattr(requests, self.method)(
-                f'{self.api_url}{self.entity}',
+                f'{self.api_url}/{self.entity}',
                 params=self.params,
                 headers=self.headers,
                 data=json.dumps(self.body),
                 verify=False
             )
+            print(self.api_url, self.entity)
+            print(response)
 
         if response.status_code >= 400:
             response.raise_for_status()

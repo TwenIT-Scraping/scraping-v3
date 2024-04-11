@@ -59,6 +59,7 @@ class ReviewScore:
                 print(e)
                 return False
         else:
+            print("classifier not initiated!!!")
             return False
 
     def compute_review_score(self, text, lang, rating, source):
@@ -239,6 +240,7 @@ class ClassificationAPI(object):
 
         def set_score(item):
             score_data = {}
+            
             if self.type == "comments":
                 score_data = review_score.compute_comment_score(item['text'])
             elif self.type == "posts":
@@ -257,8 +259,9 @@ class ClassificationAPI(object):
 
         progress = ChargingBar('Calcul scores: ', max=len(comments))
         for item in comments:
-            results.append(set_score(item))
-            progress.next()
+            if item['text'] and len(item['text'])>0:
+                results.append(set_score(item))
+                progress.next()
 
         return results
 
