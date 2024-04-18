@@ -1,6 +1,6 @@
 from api import ERApi
 import json
-
+from datetime import datetime
 
 class EReputationBase:
 
@@ -164,7 +164,29 @@ class Settings:
             print(e)
             raise Exception(
                 "Des erreurs sont rencontrées durant l'initialisation !!!")
+        
+class Log:
 
+    def __init__(self, env='PROD'):
+        self.start_date = datetime.now()
+        self.end_date = None
+        self.process = ""
+        self.event = ""
+        self.code = 1
+        
+    def set_result(self ,process, event,code):
+        self.process = process
+        self.event = event
+        self.code = code 
+        self.end_date = datetime.now()   
+    
+    def send_result(self):
+        post_api = ERApi(env=self.env, method='post', entity='logs', body={"process": self.process, "event": self.event, "code": self.code } )
+        try:
+            post_api.execute()
+        except Exception as e:
+            raise Exception("Api Error!!!")
+        
 # etab = Establishment(rid=2)
 # etab.refresh()
 # print(etab.websites)
