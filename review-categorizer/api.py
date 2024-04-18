@@ -84,7 +84,7 @@ class ERApi:
 
         elif self.method == 'postclassifications':
 
-            url = f'{self.api_url}classification/multi'
+            url = f'{self.api_url}{self.entity}'
             self.add_header({"Content-Type": "application/json"})
             headers = self.headers
 

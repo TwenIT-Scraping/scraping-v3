@@ -15,7 +15,6 @@ from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
 from models import Review
-from tools import ReviewScore
 import dotenv
 import os
 from changeip import refresh_connection
@@ -29,8 +28,7 @@ class Scraping(object):
         self.chrome_options = webdriver.ChromeOptions()
         self.chrome_options.add_argument('--ignore-certificate-errors')
         self.chrome_options.add_argument('--disable-gpu')
-        self.chrome_options.add_argument(
-            '--disable-blink-features=AutomationControlled')
+        self.chrome_options.add_argument('--disable-blink-features=AutomationControlled')
         in_background and self.chrome_options.add_argument('--headless')
         self.chrome_options.add_argument('--incognito')
 
@@ -39,19 +37,18 @@ class Scraping(object):
         self.firefox_options.add_argument('--ignore-certificate-errors')
         in_background and self.firefox_options.add_argument('--headless')
         self.firefox_options.add_argument('--incognito')
-        self.firefox_options.set_preference(
-            'intl.accept_languages', 'en-US, en')
+        self.firefox_options.set_preference('intl.accept_languages', 'en-US, en')
         self.force_refresh = force_refresh
 
         dotenv.load_dotenv()
-
-        if os.environ.get('SYSTEM') == 'linux':
-            self.driver = webdriver.Chrome(options=self.chrome_options) if os.environ.get(
-                'DRIVER') == 'chrome' else webdriver.Firefox(options=self.firefox_options)
-        else:
-            self.driver = webdriver.Chrome(service=ChromeService(
-                ChromeDriverManager().install()), options=self.chrome_options) if os.environ.get('DRIVER') == 'chrome' else webdriver.Firefox(service=FirefoxService(
-                    GeckoDriverManager().install()), options=self.firefox_options)
+        self.driver = webdriver.Chrome(options=self.chrome_options)
+        # if os.environ.get('SYSTEM') == 'linux':
+        #     self.driver = webdriver.Chrome(options=self.chrome_options) if os.environ.get(
+        #         'DRIVER') == 'chrome' else webdriver.Firefox(options=self.firefox_options)
+        # else:
+        #     self.driver = webdriver.Chrome(service=ChromeService(
+        #         ChromeDriverManager().install()), options=self.chrome_options) if os.environ.get('DRIVER') == 'chrome' else webdriver.Firefox(service=FirefoxService(
+        #             GeckoDriverManager().install()), options=self.firefox_options)
 
         self.driver.maximize_window()
 
@@ -133,19 +130,13 @@ class Scraping(object):
             return True
 
         result = ""
-        review_score = ReviewScore()
 
         for item in self.data:
             if check_value(item):
-                score_data = review_score.compute_score(
-                    item['comment'], item['language'], item['rating'], item['source'])
-                # score_data = {'feeling': 'neutre', 'score': 0, 'confidence': 0}
-                if score_data['feeling'] and score_data['score'] and score_data['confidence']:
-                    line = '$'.join([item['author'], item['source'], item['language'], item['rating'], item['establishment'], item['date_review'],
-                                    item['comment'].replace('$', 'USD'), score_data['feeling'], score_data['score'], score_data['confidence'], item['settings'], item['date_visit'], item['novisitday']]) + "#"
+                line = '$'.join([item['author'], item['source'], item['language'], item['rating'], item['establishment'], item['date_review'],
+                                item['comment'].replace('$', 'USD'), item['settings'], item['date_visit'], item['novisitday']]) + "#"
 
-                    if len(line.split('$')) == 13:
-                        result += line
+                result += line
 
         self.formated_data = result
 

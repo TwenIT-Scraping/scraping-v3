@@ -158,7 +158,7 @@ class ListScraper:
 
         data['post_items'] = posts
 
-        post = ERApi(method='postmulti')
+        post = ERApi(method='postmulti', env=self.env)
 
         post.set_body(data)
 

@@ -15,6 +15,10 @@ class Scraping(object):
         self.establishment = ''
         self.url = ''
         self.current_credential = {}
+        self.env = 'DEV'
+
+    def set_environ(self, env):
+        self.env = env
 
     def set_current_credential(self, index):
         self.current_credential = self.credentials[index]
@@ -44,7 +48,7 @@ class Scraping(object):
             e_name = re.sub(r'[^a-zA-Z0-9\s]+', '',
                             page_data.pop('name')).replace(' ', '_')
 
-            output_file = f"{self.establishment}_{e_name}_{datetime.now().strftime('%Y-%m-%d')}"
+            output_file = f"{self.env}_{self.establishment}_{e_name}_{datetime.now().strftime('%Y-%m-%d')}"
 
             with open(f"{environ.get('SOCIAL_FOLDER')}/{output_file}.json", 'w') as foutput:
                 json.dump(page_data, foutput, indent=4, sort_keys=True)

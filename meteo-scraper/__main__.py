@@ -77,6 +77,7 @@ class MeteoAPI(object):
             self.http = urllib3.PoolManager(cert_reqs='CERT_NONE')
 
             if header:
+                print(url)
                 response = self.http.request(
                     method='GET',
                     url=url,
@@ -248,6 +249,17 @@ class MeteoAPIScraper(MeteoAPI):
         else:
             self.dates = dates
 
+    def get_missing_days(self):
+        try:
+            result = self.get_request(
+                f"{self.nexties_api_url}/weathers/missing_days?dateFrom={self.dates[0]}&dateTo={self.dates[-1]}", header=True)
+
+            if result and "dates" in result.keys():
+                print("=> Jours manquants:")
+                [print("-\t", day) for day in result['dates']]
+        except Exception as e:
+            print(e)
+
     def format_url(self, data: dict, date: str) -> str:
         api_key = self.api_keys[self.meteo_key]
         return {'locality_id': data['id'], 'url': f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{data['lat']}%2C{data['long']}/{date}/{date}/?unitGroup=us&key={api_key}&contentType=json"}
@@ -379,6 +391,7 @@ if __name__ == '__main__':
     if not len(miss):
 
         try:
+
             datetime_now = datetime.now().strftime("%Y-%m-%d %H_%M")
             d = MeteoLocalityScraper(
                 f'{os.environ.get("HISTORY_FOLDER")}/meteo/locality_log_{datetime_now}', f'{os.environ.get("HISTORY_FOLDER")}/locality_{datetime_now}', env=args.env)
@@ -392,8 +405,12 @@ if __name__ == '__main__':
                 m.set_dates([datetime.now().strftime('%Y-%m-%d')])
 
             m.set_key_index(int(args.key))
-            m.start()
-            m.upload()
+            if args.type == "missing-days":
+                m.get_missing_days()
+            else:
+                m.start()
+                m.upload()
+
         except Exception as e:
             now = datetime.now()
             with open(history_filename, 'a', encoding='utf-8') as file:

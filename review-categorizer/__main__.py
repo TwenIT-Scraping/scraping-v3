@@ -24,7 +24,7 @@ rating_structure = {
     'booking': [1, 2],
     'tripadvisor': [2, 1],
     'expedia': [2, 2],
-    'campings': [1, 1],
+    'campings': [1, 2],
     'trustpilot': [1, 1],
     'maeva': [1, 1],
     'hotels': [2, 2],
@@ -84,12 +84,13 @@ class ReviewScore:
         rating = compute_rating(rating, source)
 
         if os.environ.get('ENV_TYPE') == 'local':
-            return {'feeling': 'neutre', 'score': '0', 'confidence': '0'}
+            return {'feeling': None, 'score': None, 'confidence': None}
         else:
             score_data = self.get_score(text)
 
             if score_data:
-                score_value = score_data[0]['score']
+                confidence = score_data[0]['score']
+                score_value = confidence
                 score_label = score_data[0]['label']
 
                 score_stars = int(score_label.split()[0])
@@ -116,27 +117,32 @@ class ReviewScore:
                             feeling = "positive"
 
                 if feeling == "negative":
-                    score_value = (score_value + rating) / 2
-                    confidence = -1 * score_value
+                    if score_stars == 1:
+                        score_value = -1*confidence
+                    if score_stars == 2:
+                        score_value = -0.75
                 elif feeling == "neutre":
-                    confidence = 0
                     score_value = 0
                 else:
-                    confidence = score_value = (score_value + rating) / 2
+                    if score_stars == 4:
+                        score_value = 0.75
+                    if score_stars == 5:
+                        score_value = confidence
 
                 return {'score': str(score_value), 'confidence': str(confidence), 'feeling': feeling}
             else:
-                return {'score': '0', 'confidence': '0', 'feeling': "neutre"}
+                return {'score': None, 'confidence': None, 'feeling': None}
 
     def compute_comment_score(self, text):
 
         if os.environ.get('ENV_TYPE') == 'local':
-            return {'feeling': 'neutre', 'score': '0', 'confidence': '0'}
+            return {'feeling': None, 'score': None, 'confidence': None}
         else:
             score_data = self.get_score(text)
 
             if score_data:
-                score_value = score_data[0]['score']
+                confidence = score_data[0]['score']
+                score_value = confidence
                 score_label = score_data[0]['label']
 
                 score_stars = int(score_label.split()[0])
@@ -144,32 +150,40 @@ class ReviewScore:
                     "positive" if score_stars > 3 else "neutre")
 
                 if feeling == "negative":
-                    confidence = -1 * score_value
+                    if score_stars == 1:
+                        score_value = -1*confidence
+                    if score_stars == 2:
+                        score_value = -0.75
                 elif feeling == "neutre":
-                    confidence = 0
                     score_value = 0
                 else:
-                    confidence = score_value
+                    if score_stars == 4:
+                        score_value = 0.75
+                    if score_stars == 5:
+                        score_value = confidence
 
                 return {'score': str(score_value), 'confidence': str(confidence), 'feeling': feeling}
             else:
-                return {'score': '0', 'confidence': '0', 'feeling': "neutre"}
+                return {'score': None, 'confidence': None, 'feeling': None}
 
 
 def main_arguments() -> object:
     parser = argparse.ArgumentParser(description="Programme catégorisation",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--type', '-t', dest='type', default='',
-                        help="""Options: comment, review""")
+    parser.add_argument('--type', '-t', dest='type', default='reviews',
+                        help="""Options: comments, reviews""")
     parser.add_argument('--env', '-v', dest='env', default="DEV",
                         help="Optionnel: environnement de l'api. DEV par défaut")
     parser.add_argument('--names', '-n', dest='names',
                         help="Nom des établissements à traiter, séparé par des virgules.")
+    parser.add_argument('--column', '-c', dest='column',
+                        help="Option: feeling, category", default="category")
     return parser.parse_args()
 
 
 ARGS_INFO = {
-    '-t': {'long': '--type', 'dest': 'type', 'help': "Options: comment, review"},
+    '-t': {'long': '--type', 'dest': 'type', 'help': "Options: comments, reviews, posts. reviews par défaut."},
+    '-c': {'long': '--column', 'dest': 'column', 'help': "Options: feeling, category. category par défaut."},
     '-v': {'long': '--env', 'dest': 'env', 'help': "Optionnel: environnement de l'api. PROD par défaut"},
     '-n': {'long': '--names', 'dest': 'names', 'help': "Nom des établissements à traiter, séparé par des virgules."}
 }
@@ -177,7 +191,7 @@ ARGS_INFO = {
 
 class ClassificationAPI(object):
 
-    def __init__(self, env='dev', type='reviews', tag='', limit=5) -> None:
+    def __init__(self, env='dev', type='reviews', tag='', limit=5, column="category") -> None:
         self.type = type
         self.establishment = None
         self.categories = []
@@ -187,20 +201,28 @@ class ClassificationAPI(object):
         self.limit = limit
         self.page = 1
         self.pages = 1
+        self.column = column
 
     def fetch_datas(self):
+        endpoint = f"establishment/{self.tag}/reviews_to_classify" if self.column == "category" else f"establishment/{self.tag}/reviews_to_score"
+
         try:
             get_instance = ERApi(
-                method="get", entity=f"establishment/{self.tag}/reviews_to_classify", env=self.env, params={"type": self.type, "page": self.page, 'limit': self.limit})
+                method="get", entity=endpoint, env=self.env, params={"all": "yes", "type": self.type, "page": self.page, 'limit': self.limit})
             res = get_instance.execute()
 
             if (res):
-                self.categories = res['categories']
+                print("Etablissement traité: ", res['establishment']['name'])
+
+                if self.column == "category":
+                    print("Liste des catégories disponibles: ",
+                          res['categories'])
+                    self.categories = res['categories']
+
                 self.establishment = res['establishment']
                 self.pages = res['pages']
                 self.lines = res['reviews']
-                print("Etablissement traité: ", res['establishment']['name'])
-                print("Liste des catégories disponibles: ", res['categories'])
+
                 print(
                     f"Lignes traitées: {(self.page-1)*self.limit}/{res['count']}")
 
@@ -216,8 +238,14 @@ class ClassificationAPI(object):
         review_score = ReviewScore()
 
         def set_score(item):
-            score_data = review_score.compute_comment_score(item['text']) if self.type == "comments" else review_score.compute_review_score(
-                item['text'], item['language'], item['rating'], item['source'])
+            score_data = {}
+            if self.type == "comments":
+                score_data = review_score.compute_comment_score(item['text'])
+            elif self.type == "posts":
+                score_data = review_score.compute_comment_score(item['text'])
+            else:
+                score_data = review_score.compute_review_score(
+                    item['text'], item['language'], item['rating'], item['source'])
 
             item['feeling'] = score_data['feeling']
             item['score'] = score_data['score']
@@ -227,10 +255,10 @@ class ClassificationAPI(object):
 
         results = []
 
-        with Spinner('Calcul scores… ') as bar:
-            for item in comments:
-                results.append(set_score(item))
-                bar.next()
+        progress = ChargingBar('Calcul scores: ', max=len(comments))
+        for item in comments:
+            results.append(set_score(item))
+            progress.next()
 
         return results
 
@@ -272,52 +300,69 @@ class ClassificationAPI(object):
         return line
 
     def update_lines(self):
-        progress = ChargingBar('Calcul catégorisation', max=len(self.lines))
-        for i in range(len(self.lines)):
-            progress.next()
-            line = self.lines[i]
+        if self.column == "category":
+            progress = ChargingBar(
+                'Calcul catégorisation', max=len(self.lines))
+            for i in range(len(self.lines)):
+                progress.next()
+                line = self.lines[i]
 
-            if line['text'] != "":
-                self.lines[i] = self.check_categories(line)
+                if line['text'] != "":
+                    self.lines[i] = self.check_categories(line)
 
-        self.lines = self.compute_scores(self.lines)
+        if self.column == "feeling":
+            self.lines = self.compute_scores(self.lines)
 
     def transform_data(self):
 
         result = ""
 
-        print("\n******** Catégories trouvées *********\n")
+        if self.column == "feeling":
 
-        for line in self.lines:
-            l_categs = ""
-            c_categs = ""
+            print("Transformation ...")
+            for line in self.lines:
 
-            if 'prediction' in line.keys() and line['prediction']:
-                for i in range(0, len(line['prediction']['labels'])):
-                    if line['prediction']['scores'][i] >= 0.9:
-                        l_categs += f"{line['prediction']['labels'][i]}${str(line['prediction']['scores'][i])}|"
+                l = "&".join([str(line['id']), self.type, line['feeling'],
+                              str(line['score']), str(line['confidence'])])
+                result += l + "#"
 
-            if len(self.categories):
-                c_categs = "|".join(
-                    list(map(lambda x: x['category'], self.categories)))
+        if self.column == "category":
 
-            l_categs != "" and print(
-                f"- {l_categs.replace('|', ', ')} => {line['prediction']['sequence']}\n")
+            print("\n******** Catégories trouvées *********\n")
 
-            l = "&".join([str(line['id']), self.type, line['feeling'],
-                         str(line['score']), str(line['confidence']), l_categs, c_categs])
-            result += l + "#"
+            for line in self.lines:
+                l_categs = ""
+                c_categs = ""
 
-        print("\n**************************************\n")
+                if 'prediction' in line.keys() and line['prediction']:
+                    for i in range(0, len(line['prediction']['labels'])):
+                        if line['prediction']['scores'][i] >= 0.9 and len(f"{line['prediction']['sequence']}") > 30:
+                            l_categs += f"{line['prediction']['labels'][i]}${str(line['prediction']['scores'][i])}|"
+
+                if len(self.categories):
+                    c_categs = "|".join(
+                        list(map(lambda x: x['category'], self.categories)))
+
+                l_categs != "" and print(
+                    f"- {l_categs.replace('|', ', ')} => {line['prediction']['sequence']}\n")
+
+                l = "&".join([str(line['id']), self.type, l_categs, c_categs])
+                result += l + "#"
+
+            print("\n**************************************\n")
 
         return result
 
     def upload(self):
         try:
             data = self.transform_data()
+
+            print(data)
+
+            endpoint = "classification/multi" if self.column == "category" else "feeling/multi"
             # print(data)
             post_instance = ERApi(
-                method="postclassifications", entity=f"classification/multi", env=self.env, body={'data_content': data})
+                method="postclassifications", entity=endpoint, env=self.env, body={'data_content': data})
             return post_instance.execute()
         except Exception as e:
             print(e)
@@ -328,15 +373,23 @@ class ClassificationAPI(object):
                 print("============> Page ", self.page,
                       "sur ", self.pages, " <===============")
                 self.fetch_datas()
-                if len(self.categories):
+                if self.column == "category":
+                    if len(self.categories):
+                        self.update_lines()
+                        # res = self.transform_data()
+                        # print(res)
+
+                    else:
+                        print("!!!! Pas de catégories")
+                        break
+                else:
                     self.update_lines()
-                    # res = self.transform_data()
-                    # print(res)
+
+                if os.environ.get('ENV_TYPE') != 'local':
                     res = self.upload()
                     print(res)
-                else:
-                    print("!!!! Pas de catégories")
-                    break
+
+                print(len(self.lines))
 
                 if self.page > self.pages:
                     break
@@ -384,17 +437,21 @@ if __name__ == '__main__':
             all_establishments = get_instance.execute()
             todo = []
 
+            print("Initialement: ", len(all_establishments))
+
             if args.names:
                 todo = [item for item in all_establishments if item['name']
-                        in args.names.split(',')]
+                        in args.names.split(',') and item['customer_id']]
             else:
-                todo = all_establishments
+                todo = [item for item in all_establishments if item['customer_id']]
+
+            print("Après filtre: ", len(todo))
 
             for item in todo:
                 print("======> Etablissement: ",
                       item['name'], ' <========')
                 cl = ClassificationAPI(
-                    tag=item['tag'], type=args.type, limit=20, env=args.env)
+                    tag=item['tag'], type=args.type, limit=20, env=args.env, column=args.column)
                 cl.execute()
 
         except Exception as e:

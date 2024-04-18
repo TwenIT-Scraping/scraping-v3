@@ -2,7 +2,7 @@ import json
 import os
 from playwright.sync_api import sync_playwright
 from nested_lookup import nested_lookup
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 from scraping import Scraping
 import re
@@ -91,24 +91,35 @@ class InstagramProfileScraper(Scraping):
                     pass
 
     def open_posts(self):
+        # posts = self.page.locator(
+        #     "div._aabd._aa8k.x2pgyrj.xbkimgs.xfllauq.xh8taat.xo2y696 a.x1i10hfl.xjbqb8w.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz._a6hd").all()
         posts = self.page.locator(
-            "div._aabd._aa8k.x2pgyrj.xbkimgs.xfllauq.xh8taat.xo2y696 a.x1i10hfl.xjbqb8w.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz._a6hd").all()
+            "div._ac7v.xzboxd6.xras4av.xgc1b0m a.x1i10hfl.xjbqb8w.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz._a6hd").all()
 
-        posts[0].click()
+        # print("posts found: ", len(posts))
+
+        try:
+            posts[0].click()
+        except Exception as e:
+            print(e)
+            pass
+
         time.sleep(3)
-
-        btns = self.page.locator(
-            "div.x1n2onr6.xzkaem6").locator("button._abl-").all()
 
         p = 1
 
         while True:
-            print(p)
+
+            btns = self.page.locator(
+                "div.x1n2onr6.xzkaem6").locator("button._abl-").all()
+
+            # print("boutons: ", len(btns))
 
             for btn in btns:
                 if len(btn.locator('svg').all()) > 0:
+                    # print('Buttons found!!!')
                     for svg in btn.locator('svg').all():
-                        if svg.get_attribute('aria-label') == "Suivant":
+                        if svg.get_attribute('aria-label') == "Suivant" or svg.get_attribute('aria-label') == "Next":
                             btn.click()
                             time.sleep(3)
                             break
@@ -116,7 +127,7 @@ class InstagramProfileScraper(Scraping):
             self.page.wait_for_timeout(2000)
             p += 1
 
-            if p > len(self.xhr_posts) or p > 500:
+            if p > len(self.xhr_posts) or p > 100:
                 break
 
     def complete_source_data(self):
@@ -128,7 +139,7 @@ class InstagramProfileScraper(Scraping):
             try:
                 pk = coms[index]['caption']['pk']
 
-                print(pk)
+                # print(pk)
 
                 if pk != posts[index]['caption']['pk']:
                     for post in posts:
@@ -178,27 +189,32 @@ class InstagramProfileScraper(Scraping):
 
                 for cmt in comments:
                     try:
-                        comment_values.append({
-                            'comment': cmt["text"],
-                            'published_at': datetime.fromtimestamp(cmt["created_at"]).strftime("%d/%m/%Y"),
-                            'likes': cmt["comment_like_count"],
-                            'author': cmt["user"]["full_name"]
-                        })
+                        date = datetime.fromtimestamp(cmt["created_at"])
+                        if date >= datetime.now() + timedelta(days=-365):
+                            comment_values.append({
+                                'comment': cmt["text"],
+                                'published_at': date.strftime("%d/%m/%Y"),
+                                'likes': cmt["comment_like_count"],
+                                'author': cmt["user"]["full_name"]
+                            })
                     except Exception as e:
                         print(e)
                         pass
 
                 try:
-                    self.posts.append({
-                        "author": post["owner"]["full_name"],
-                        "publishedAt": datetime.fromtimestamp(post["comments"]["caption"]["created_at"]).strftime("%d/%m/%Y"),
-                        "description": post["caption"]["text"],
-                        "reaction": post["like_count"],
-                        "comments": len(comment_values),
-                        "shares": 0,
-                        "hashtag": "",
-                        "comment_values": comment_values
-                    })
+                    if 'caption' in post.keys() and 'comments' in post.keys() and 'caption' in post['comments'].keys():
+                        published_at = datetime.fromtimestamp(
+                            post["comments"]["caption"]["created_at"])
+                        published_at > (datetime.now() - timedelta(days=365)) and post["owner"]["full_name"] and post["caption"]["text"] and self.posts.append({
+                            "author": post["owner"]["full_name"],
+                            "publishedAt": published_at.strftime("%d/%m/%Y"),
+                            "description": post["caption"]["text"],
+                            "reaction": post["like_count"],
+                            "comments": len(comment_values),
+                            "shares": 0,
+                            "hashtag": "",
+                            "comment_values": comment_values
+                        })
 
                 except Exception as e:
                     print(e)

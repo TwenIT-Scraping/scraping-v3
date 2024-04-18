@@ -3,11 +3,12 @@ from booking import Booking
 from maeva import Maeva
 from campings import Campings
 from hotels import Hotels_FR, Hotels_EN
-from googles import Google
+from googles import Google, GoogleTravel
 from opentable import Opentable, Opentable_UK
 from trustpilot import Trustpilot
-from tripadvisor import Tripadvisor_UK, Tripadvisor_FR, Tripadvisor_ES
+from tripadvisor import Tripadvisor, Tripadvisor_UK, Tripadvisor_FR, Tripadvisor_ES
 from expedia import Expedia
+from yelp import Yelp
 from api import ERApi
 import random
 from changeip import refresh_connection
@@ -39,17 +40,19 @@ __class_name_v2__ = {
     'Hotels.com ES': Hotels_FR,
     'Google': Google,
     'Google hotel': Google,
-    'Google Travel': Google,
+    'Google Travel': GoogleTravel,
     'Opentable UK': Opentable_UK,
     'Opentable': Opentable,
     'Trustpilot': Trustpilot,
     'Tripadvisor FR': Tripadvisor_FR,
     'Tripadvisor UK': Tripadvisor_UK,
     'Tripadvisor ES': Tripadvisor_ES,
+    'Tripadvisor': Tripadvisor,
     'Expedia': Expedia,
     'Expedia FR': Expedia,
     'Expedia ES': Expedia,
     'Thefork': Thefork,
+    'Yelp': Yelp
 }
 
 
