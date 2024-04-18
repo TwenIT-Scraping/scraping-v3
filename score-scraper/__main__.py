@@ -40,11 +40,16 @@ def check_arguments(args, required):
 
 if __name__ == '__main__':
 
+    # Instanciation de la classe Log avec le paramètre env
+    log_instance = Log(env=args.env)
+
     dotenv.load_dotenv()
 
     history_filename = f'{os.environ.get("HISTORY_FOLDER")}/scores-scraping-log.txt'
 
     now = datetime.now()
+    start_time = now
+    event = "Process started at {{ date du debut du process}}"
     if os.path.exists(history_filename):
         with open(history_filename, 'a', encoding='utf-8') as file:
             file.write("Démarrage scrap scores: " +
@@ -71,8 +76,9 @@ if __name__ == '__main__':
 
             if args.type == 'all':
                 sc.init()
-                sc.start()
-
+                # Mettre à jour le compteur du nombre de lignes récupérées
+                lines_count =  sc.start()
+                
             if args.type == 'by-website':
                 miss = check_arguments(args, ['-s'])
                 if not len(miss):
@@ -81,7 +87,8 @@ if __name__ == '__main__':
 
                     for s in args.sites.split('|'):
                         sc.init(source=s)
-                        sc.start()
+                        lines_count += sc.start()  # Mettre à jour le compteur du nombre de lignes récupérées
+
                 else:
                     raise Exception(
                         f"Argument(s) manquant(s): {', '.join(miss)}")
@@ -94,7 +101,8 @@ if __name__ == '__main__':
 
                     for e in args.establishments.split('|'):
                         sc.init(ename=e)
-                        sc.start()
+                        lines_count += sc.start()  # Mettre à jour le compteur du nombre de lignes récupérées
+
                 else:
                     raise Exception(
                         f"Argument(s) manquant(s): {', '.join(miss)}")
@@ -106,15 +114,30 @@ if __name__ == '__main__':
                         file.write(f" ({args.establishments}: {args.sites}) ")
 
                     sc.init(source=args.sites, ename=args.establishments)
-                    sc.start()
+                    lines_count += sc.start()  # Mettre à jour le compteur du nombre de lignes récupérées
+
                 else:
                     raise Exception(
                         f"Argument(s) manquant(s): {', '.join(miss)}")
 
             now = datetime.now()
+
+            
+           # Calcul du nombre de lignes récupérées
+            end_time = now  # Capturer la date de fin du programme
+            process = data['providers']
+            event = f"Process started at {start_time.strftime('%d/%m/%Y %H:%M:%S')} and ended at {end_time.strftime('%d/%m/%Y %H:%M:%S')} with {lines_count} lines"
+            code = 1
+            
+            # Définition des résultats de log
+            log_instance.set_result(process, event, code)
+            # Envoi des résultats de log
+            log_instance.send_result()
+
             with open(history_filename, 'a', encoding='utf-8') as file:
                 file.write("  ===>  Fin scrap scores: " +
                            now.strftime("%d/%m/%Y %H:%M:%S") + '\n')
+
 
         else:
             raise Exception(f"Argument(s) manquant(s): {', '.join(miss)}")
@@ -123,3 +146,9 @@ if __name__ == '__main__':
         with open(history_filename, 'a', encoding='utf-8') as file:
             file.write("  ===>  Fin scrap scores WITH ERRORS: " +
                        now.strftime("%d/%m/%Y %H:%M:%S") + ':' + str(e) + '\n')
+         # En cas d'erreur
+        process = data['providers']
+        event = "Erreur durant le lancement scrap score"
+        code = 0
+        log_instance.set_result(process, event, code)
+        log_instance.send_result()
