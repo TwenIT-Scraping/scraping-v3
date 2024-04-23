@@ -197,6 +197,7 @@ class Tripadvisor_FR(Tripadvisor):
         time.sleep(30)
 
         try:
+            print(">>>>>>>> CAS 1 <<<<<<<<<< ")
             while True:
                 page = self.driver.page_source
 
@@ -206,13 +207,17 @@ class Tripadvisor_FR(Tripadvisor):
                     'div', {'data-test-target': 'reviews-tab'})
                 # print(review_tab)
 
+                force_end = False
+
                 try:
+
+                    print(">>>>>> CAS 1-1 <<<<<<<<")
 
                     reviews_card = soupe.find_all(
                         'div', {'data-test-target': "HR_CC_CARD"})
 
                     if len(reviews_card) > 0:
-                        print(len(reviews_card))
+                        print("reviews trouvés: ", len(reviews_card))
 
                         for item in reviews_card:
 
@@ -221,8 +226,8 @@ class Tripadvisor_FR(Tripadvisor):
                             title = item.find('div', {'data-test-target': 'review-title'}).text.strip(
                             ) if item.find('div', {'data-test-target': 'review-title'}) else ''
 
-                            detail = item.find('span', {'class': 'QewHA'}).find('span').text.strip(
-                            ).replace('\n', '') if item.find('span', {'class': 'QewHA'}) else ''
+                            detail = item.find('span', {'class': 'orRIx'}).find('span').text.strip(
+                            ).replace('\n', '') if item.find('span', {'class': 'orRIx'}) else ''
 
                             comment = f"{title}{': ' if title and detail else ''}{detail}"
 
@@ -236,8 +241,8 @@ class Tripadvisor_FR(Tripadvisor):
                             day = datetime.today().day
 
                             date_raw = item.find(
-                                'div', {'class': 'cRVSd'}).text.strip() if item.find(
-                                'div', {'class': 'cRVSd'}) else ''
+                                'div', {'class':'ScwkD _Z o S4 H3 Ci'}).text.strip() if item.find(
+                                'div', {'class': 'ScwkD _Z o S4 H3 Ci'}) else ''
 
                             if date_raw:
                                 date_raw_withp = date_raw.split()[-2:]
@@ -255,16 +260,26 @@ class Tripadvisor_FR(Tripadvisor):
                                     else:
                                         month = month_number(
                                             date_raw_withp[0][1:], 'fr', 'short')
-                                        year = date_raw_withp[1][:-1]
+                                        if len(date_raw_withp)>1:
+                                            year = date_raw_withp[1][:-1] 
+                            
+                                print(date_raw_withp)
+                            else:
+                                print("date non trouvée")
+                            print(f"{day}/{month}/{year}")
 
-                            author = item.find('a', class_='ui_header_link').text.strip(
-                            ) if item.find('a', class_='ui_header_link') else "",
+                            author = item.find('a', class_='MjDLG VKCbE').text.strip(
+                            ) if item.find('a', class_='MjDLG VKCbE') else "",
 
-                            to_save = date_raw != '' and author != ''
+                            rating = item.find('div',{'data-test-target': 'review-rating'}).find('title').text.strip() if item.find('div',{'data-test-target': 'review-rating'}) else ""
+
+                            rating = rating.split()[0].split(',')[0]+'/5' if rating else "0/5"
+
+                            to_save = author != '' and date_raw!= ''
 
                             review_data = {
                                 'comment': comment,
-                                'rating': str(int(item.find('span', class_='ui_bubble_rating')['class'][1].split('_')[1]) / 10) + "/5" if item.find('span', class_='ui_bubble_rating') else "0/5",
+                                'rating': rating,
                                 'language': lang,
                                 'source': urlparse(self.url).netloc.split('.')[1],
                                 'author': ''.join(author),
@@ -276,6 +291,15 @@ class Tripadvisor_FR(Tripadvisor):
                             }
 
                             to_save and reviews.append(review_data)
+                           # print(len(reviews))
+
+                            if datetime.strptime(review_data['date_review'], '%d/%m/%Y') < datetime.now()-timedelta(days=365):
+                                print("date dépassée!")
+                              # force_end = True
+                               # break
+                            else:
+                                print("date comprise")
+                           # print(review_data)
 
                     else:
                         print("Review card non trouvé, tenter autrement ...")
@@ -283,40 +307,54 @@ class Tripadvisor_FR(Tripadvisor):
 
                 except Exception as e:
                     print(e)
+
+                    print(">>>>>>>> CAS 1-2 <<<<<<<<<< ")
+                    
                     reviews_card = soupe.find_all(
-                        'div', {'class': "review-container"})
+                        'div', {'class': "_c", 'data-automation': 'reviewCard'})
+                    
+                    print("reviews trouvés: ", len(reviews_card))
 
                     for item in reviews_card:
                         to_save = True
 
-                        title = item.find('a', {'class': 'title'}).text.strip(
-                        ) if item.find('a', {'class': 'title'}) else ''
+                        title = item.find('a', {'class': 'BMQDV _F Gv wSSLS SwZTJ FGwzt ukgoS'}).find('span',{'class': 'yCeTE'}).text.strip(
+                        ) if item.find('a', {'class': 'BMQDV _F Gv wSSLS SwZTJ FGwzt ukgoS'}) and item.find('a', {'class': 'BMQDV _F Gv wSSLS SwZTJ FGwzt ukgoS'}).find('span',{'class': 'yCeTE'}) else ''
                         detail = item.find(
-                            'div', {'data-prwidget-name': 'reviews_text_summary_hsx'}).text.strip() if item.find(
-                            'div', {'data-prwidget-name': 'reviews_text_summary_hsx'}) else ''
+                            'div', {'class': 'biGQs _P pZUbB KxBGd'}).text.strip() if item.find(
+                            'div', {'class': 'biGQs _P pZUbB KxBGd'}) else ''
 
                         comment = f"{title}{': ' if title and detail else ''}{detail}"
+
+                       # print(comment)
 
                         try:
                             lang = detect(comment)
                         except:
                             lang = 'en'
 
-                        rating_bubble = item.find(
-                            'span', {'class': 'ui_bubble_rating'})['class'][1]
+                        rating = item.find('svg',{'class': 'UctUV d H0'}).find('title').text.strip() if item.find('svg',{'class': 'UctUV d H0'}) else ""
+                        rating = rating.split()[0].split(',')[0]+'/5' if rating else "0/5"
+                       # print(rating)
 
-                        rating = str(
-                            int(int(rating_bubble.split('_')[1])/10)) + '/5'
+                       # print("test: ",len(item.find_all(
+                       #     'div', {'class': 'RpeCd'})))
 
                         date_raw = item.find(
-                            'span', {'class': 'ratingDate'})['title']
+                            'div', {'class': 'RpeCd'}).text.strip() if item.find(
+                            'div', {'class': 'RpeCd'}) else ""
 
                         if date_raw != '':
                             date_rawt = date_raw.split()
-                            month = month_number(date_rawt[1], 'fr', '')
+                            month = month_number(date_rawt[0], 'fr', '')
+                            year = date_rawt[1] 
+                        
+                            print(month, year)
 
-                        author = item.find('div', {'onclick': "widgetEvCall('handlers.usernameClick', event, this);"}).text.strip(
-                        ) if item.find('div', {'onclick': "widgetEvCall('handlers.usernameClick', event, this);"}) else ""
+                        author = item.find('a', {'class': "BMQDV _F Gv wSSLS SwZTJ FGwzt ukgoS"}).text.strip(
+                        ) if item.find('a', {'class': "BMQDV _F Gv wSSLS SwZTJ FGwzt ukgoS"}) else ""
+
+                       # print("author: ",author)
 
                         to_save = date_raw != '' and author != ''
 
@@ -328,138 +366,162 @@ class Tripadvisor_FR(Tripadvisor):
                             'author': author,
                             'establishment': f'/api/establishments/{self.establishment}',
                             'settings': f'/api/settings/{self.settings}',
-                            'date_review': f"{date_rawt[0]}/{month}/{date_rawt[2]}",
-                            'date_visit': f"{date_rawt[0]}/{month}/{date_rawt[2]}",
+                           # 'date_review': f"{date_rawt[0]}/{month}/{date_rawt[2]}",
+                           # 'date_visit': f"{date_rawt[0]}/{month}/{date_rawt[2]}",
                             'novisitday': "1"
                         }
 
-                        to_save and reviews.append(review_data)
+                       # print(review_data)
+
+                       # to_save and reviews.append(review_data)
 
                 # if not self.check_date(reviews[-1]['date_review']):
                 #     break
 
+                if force_end:
+                    break
+
+                next_btn = None
+
                 try:
                     next_btn = self.driver.find_element(
                         By.CSS_SELECTOR, "a.nav.next")
-                    disable_btn = 'disabled' in next_btn.get_attribute(
-                        'class').split()
-                    if next_btn and not disable_btn:
+                except:
+                    try:
+                        next_btn = self.driver.find_element(
+                            By.XPATH,"//a[@data-smoke-attr='pagination-next-arrow']"
+                        )
+                    except Exception as e:
+                        print('end of the list')
+                       # print(e)
+                        break
+                    
+                if next_btn:
+                    disable_btn = 'disabled' in next_btn.get_attribute('class').split()
+                    if not disable_btn:
+                        print("click...")
                         self.driver.execute_script(
                             "arguments[0].click();", next_btn)
                         time.sleep(2)
+                    
                     else:
-                        break
-
-                except Exception as e:
-                    break
+                        print("button next not found!!!")
 
             self.data = reviews
+            #print(self.data)
 
         except Exception as e:
             print(e)
 
-            while True:
-                time.sleep(5)
-                page = self.driver.page_source
+            print(">>>>>>>> CAS 2 <<<<<<<<<< ")
 
-                soupe = BeautifulSoup(page, 'lxml')
+            try:
 
-                reviews_card = soupe.find_all(
-                    'div', {'data-automation': "reviewCard"})
+                while True:
+                    time.sleep(5)
+                    page = self.driver.page_source
 
-                if len(reviews_card):
+                    soupe = BeautifulSoup(page, 'lxml')
 
-                    for item in reviews_card:
+                    reviews_card = soupe.find_all(
+                        'div', {'data-automation': "reviewCard"})
 
-                        to_save = True
+                    if len(reviews_card):
 
-                        rating_bubble = item.find(
-                            'svg', {'class': 'UctUV d H0'})['aria-label']
-                        rating = str(
-                            int(rating_bubble.split(',')[0])) + '/5'
+                        for item in reviews_card:
 
-                        author = item.find(
-                            'a', {'class': 'BMQDV _F Gv wSSLS SwZTJ FGwzt ukgoS'}).text.strip() if item.find(
-                            'a', {'class': 'BMQDV _F Gv wSSLS SwZTJ FGwzt ukgoS'}) else ''
+                            to_save = True
 
-                        title = item.find(
-                            'div', {'class': 'biGQs _P fiohW qWPrE ncFvv fOtGX'}).text.strip() if item.find(
-                            'div', {'class': 'biGQs _P fiohW qWPrE ncFvv fOtGX'}) else ''
+                            rating_bubble = item.find(
+                                'svg', {'class': 'UctUV d H0'})['aria-label']
+                            rating = str(
+                                int(rating_bubble.split(',')[0])) + '/5'
 
-                        comment = item.find(
-                            'div', {'class': '_T FKffI'}).text.strip() if item.find(
-                            'div', {'class': '_T FKffI'}) else ''
+                            author = item.find(
+                                'a', {'class': 'BMQDV _F Gv wSSLS SwZTJ FGwzt ukgoS'}).text.strip() if item.find(
+                                'a', {'class': 'BMQDV _F Gv wSSLS SwZTJ FGwzt ukgoS'}) else ''
 
-                        comment = f"{title}{': ' if title and comment else ''}{comment}"
+                            title = item.find(
+                                'div', {'class': 'biGQs _P fiohW qWPrE ncFvv fOtGX'}).text.strip() if item.find(
+                                'div', {'class': 'biGQs _P fiohW qWPrE ncFvv fOtGX'}) else ''
 
-                        try:
-                            lang = detect(comment)
-                        except:
-                            lang = 'fr'
+                            comment = item.find(
+                                'div', {'class': '_T FKffI'}).text.strip() if item.find(
+                                'div', {'class': '_T FKffI'}) else ''
 
-                        year = datetime.today().year
-                        month = datetime.today().month
-                        day = datetime.today().day
+                            comment = f"{title}{': ' if title and comment else ''}{comment}"
 
-                        date_raw = item.find(
-                            'div', {'class': 'RpeCd'}).text.strip() if item.find(
-                            'div', {'class': 'RpeCd'}) else ''
+                            try:
+                                lang = detect(comment)
+                            except:
+                                lang = 'fr'
 
-                        if date_raw:
+                            year = datetime.today().year
+                            month = datetime.today().month
+                            day = datetime.today().day
 
-                            date_raw_withp = date_raw.split(' • ')[0].split()
+                            date_raw = item.find(
+                                'div', {'class': 'RpeCd'}).text.strip() if item.find(
+                                'div', {'class': 'RpeCd'}) else ''
 
-                            if date_raw_withp[1][0] == '(':
-                                if date_raw_withp[1] == "(Aujourd'hui)":
-                                    day = datetime.today().day
-                                elif date_raw_withp[1] == "(Hier)":
-                                    day = datetime.today().day - 1
-                            else:
-                                if date_raw_withp[0].isnumeric():
-                                    day = int(date_raw_withp[0])
-                                    month = month_number(
-                                        date_raw_withp[1], 'fr', 'short')
+                            if date_raw:
+
+                                date_raw_withp = date_raw.split(' • ')[0].split()
+
+                                if date_raw_withp[1][0] == '(':
+                                    if date_raw_withp[1] == "(Aujourd'hui)":
+                                        day = datetime.today().day
+                                    elif date_raw_withp[1] == "(Hier)":
+                                        day = datetime.today().day - 1
                                 else:
-                                    month = month_number(
-                                        date_raw_withp[0], 'fr', 'short')
-                                    year = date_raw_withp[1]
+                                    if date_raw_withp[0].isnumeric():
+                                        day = int(date_raw_withp[0])
+                                        month = month_number(
+                                            date_raw_withp[1], 'fr', 'short')
+                                    else:
+                                        month = month_number(
+                                            date_raw_withp[0], 'fr', 'short')
+                                        year = date_raw_withp[1]
 
-                        if author == '' or comment == '' or date_raw == '':
-                            to_save = False
+                            if author == '' or comment == '' or date_raw == '':
+                                to_save = False
 
-                        to_save and reviews.append({
-                            'comment': comment,
-                            'rating': rating,
-                            'language': lang,
-                            'source': urlparse(self.url).netloc.split('.')[1],
-                            'author': author,
-                            'establishment': f'/api/establishments/{self.establishment}',
-                            'settings': f'/api/settings/{self.settings}',
-                            'date_review': f"{day}/{month}/{year}",
-                            'date_visit': f"{day}/{month}/{year}",
-                            'novisitday': "1"
-                        })
+                            to_save and reviews.append({
+                                'comment': comment,
+                                'rating': rating,
+                                'language': lang,
+                                'source': urlparse(self.url).netloc.split('.')[1],
+                                'author': author,
+                                'establishment': f'/api/establishments/{self.establishment}',
+                                'settings': f'/api/settings/{self.settings}',
+                                'date_review': f"{day}/{month}/{year}",
+                                'date_visit': f"{day}/{month}/{year}",
+                                'novisitday': "1"
+                            })
 
-                else:
-                    print("Review card non trouvé, Arret !!!")
-                    break
-
-                # if len(reviews) and not self.check_date(reviews[-1]['date_review']):
-                #     break
-
-                try:
-                    next_btn = self.driver.find_element(
-                        By.XPATH, "//a[@data-smoke-attr='pagination-next-arrow']")
-
-                    if next_btn:
-                        self.driver.execute_script(
-                            "arguments[0].click();", next_btn)
-                        time.sleep(2)
                     else:
+                        print("Review card non trouvé, Arret !!!")
                         break
 
-                except Exception as e:
-                    break
+                    # if len(reviews) and not self.check_date(reviews[-1]['date_review']):
+                    #     break
+
+                    try:
+                        next_btn = self.driver.find_element(
+                            By.XPATH, "//a[@data-smoke-attr='pagination-next-arrow']")
+
+                        if next_btn:
+                            self.driver.execute_script(
+                                "arguments[0].click();", next_btn)
+                            time.sleep(2)
+                        else:
+                            break
+
+                    except Exception as e:
+                        break
+
+            except:
+                pass
 
             self.data = reviews
 
