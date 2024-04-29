@@ -37,27 +37,6 @@ class Tripadvisor(Scraping):
 
         #### End ####
 
-    def set_url(self, url):
-        super().set_url(url)
-        self.set_random_params()
-
-    def set_random_params(self):
-        random_params = ""
-        length = random.randint(1, 5)
-        param_characters = string.ascii_letters
-        value_characters = string.ascii_letters + string.digits
-
-        for i in range(length):
-            key_length = random.randint(1, 6)
-            value_length = random.randint(6, 20)
-            random_params += '&'+''.join(random.choices(param_characters, k=key_length)) \
-                + '='+''.join(random.choices(value_characters, k=value_length))
-
-        # https://www.tripadvisor.fr/Hotel_Review-g187140-d313054-Reviews-Hotel_du_Golfe-Ajaccio_Communaute_d_Agglomeration_du_Pays_Ajaccien_Corse_du_Sud_Corsica.html
-        self.url = self.url + '?' + \
-            random_params if self.url.endswith(
-                '.html') else self.url + random_params
-
     def extract(self):
         pass
 

@@ -18,6 +18,8 @@ from models import Review
 import dotenv
 import os
 from changeip import refresh_connection
+import random
+import string
 
 
 class Scraping(object):
@@ -28,7 +30,8 @@ class Scraping(object):
         self.chrome_options = webdriver.ChromeOptions()
         self.chrome_options.add_argument('--ignore-certificate-errors')
         self.chrome_options.add_argument('--disable-gpu')
-        self.chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+        self.chrome_options.add_argument(
+            '--disable-blink-features=AutomationControlled')
         in_background and self.chrome_options.add_argument('--headless')
         self.chrome_options.add_argument('--incognito')
 
@@ -37,7 +40,8 @@ class Scraping(object):
         self.firefox_options.add_argument('--ignore-certificate-errors')
         in_background and self.firefox_options.add_argument('--headless')
         self.firefox_options.add_argument('--incognito')
-        self.firefox_options.set_preference('intl.accept_languages', 'en-US, en')
+        self.firefox_options.set_preference(
+            'intl.accept_languages', 'en-US, en')
         self.force_refresh = force_refresh
 
         dotenv.load_dotenv()
@@ -62,6 +66,24 @@ class Scraping(object):
         self.env = env
         self.lang = 'en'
         self.setting_id = "-1"
+
+        self.set_random_params()
+
+    def set_random_params(self):
+        random_params = ""
+        length = random.randint(1, 5)
+        param_characters = string.ascii_letters
+        value_characters = string.ascii_letters + string.digits
+
+        for i in range(length):
+            key_length = random.randint(1, 6)
+            value_length = random.randint(2, 20)
+            random_params += '&'+''.join(random.choices(param_characters, k=key_length)) \
+                + '='+''.join(random.choices(value_characters, k=value_length))
+
+        self.url = self.url + '?' + \
+            random_params[1:] if self.url.endswith(
+                '.html') else self.url + random_params
 
     def set_setting_id(self, setting_id):
         self.setting_id = setting_id
