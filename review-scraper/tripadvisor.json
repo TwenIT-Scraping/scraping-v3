@@ -1,0 +1,23 @@
+{
+    "tag": {
+        "container": [
+            "div"
+        ],
+        "title": [],
+        "author": []
+    },
+    "value": {
+        "container": [
+            "reviews-tab"
+        ],
+        "title": [],
+        "author": []
+    },
+    "attr": {
+        "container": [
+            "data-test-target"
+        ],
+        "title": [],
+        "author": []
+    }
+}
