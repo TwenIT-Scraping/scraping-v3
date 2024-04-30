@@ -29,7 +29,7 @@ class BaseHotelsReviewScrap(Scraping):
         print(f"url: {self.url}")
         self.driver.get(self.url)
         WebDriverWait(self.driver, 10000)
-        time.sleep(randint(10, 30))
+        time.sleep(randint(30, 60))
         try:
             self.driver.find_element(By.ID, 'onetrust-accept-btn-handler').click()
             WebDriverWait(self.driver, 10000)
