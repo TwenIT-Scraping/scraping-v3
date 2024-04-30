@@ -144,8 +144,8 @@ class BaseHotelsReviewScrap(Scraping):
                 data['source'] = 'hotels'
                 data['date_visit'] = data['date_review']
                 data['novisitday'] = "0"
-
-                reviews.append(data)
+                if datetime.strptime(data['date_review'], "%d/%m/%Y") > (datetime.now() - timedelta(days=365)):
+                    reviews.append(data)
                 print(data)
             except Exception as e:
                 print(e)
