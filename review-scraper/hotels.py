@@ -179,6 +179,7 @@ class Hotels_EN(BaseHotelsReviewScrap):
 
     def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(url, establishment, settings, env)
+        self.lang = 'fr' 
 
     def format_date(self, date:str) -> str:
         date = date.split(' ')
@@ -188,10 +189,12 @@ class Hotels_ES(BaseHotelsReviewScrap):
 
     def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(url, establishment, settings, env)
+        self.lang = 'en' 
 
     def format_date(self, date:str) -> str:
         date = date.split(' ')
         return f"{date[0]}/{months_es[date[1]]}/{date[2]}"
+        self.lang = 'es' 
 
 
 
