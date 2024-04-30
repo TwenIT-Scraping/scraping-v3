@@ -493,5 +493,5 @@ class Hotels_ES_OLD(Hotels):
         self.data = reviews
 
 
-trp = Hotels_FR(url="https://fr.hotels.com/ho1568252032/hotel-dolce-notte-saint-florent-france/", establishment=33, settings=1, env='DEV')
-trp.execute()
+# trp = Hotels_FR(url="https://fr.hotels.com/ho1568252032/hotel-dolce-notte-saint-florent-france/", establishment=33, settings=1, env='DEV')
+# trp.execute()
