@@ -20,6 +20,7 @@ import os
 from changeip import refresh_connection
 import random
 import string
+from pathlib import Path
 
 
 class Scraping(object):
@@ -34,8 +35,8 @@ class Scraping(object):
             '--disable-blink-features=AutomationControlled')
         in_background and self.chrome_options.add_argument('--headless')
         self.chrome_options.add_argument('--incognito')
-        self.chrome_options.add_extension(f'{Path((str(Path.cwd()) + "/review-scraper/canvas_blocker_0_2_0_0.crx"))}')
-
+        self.chrome_options.add_extension(
+            f'{Path((str(Path.cwd()) + "/canvas_blocker_0_2_0_0.crx"))}')
 
         self.firefox_options = webdriver.FirefoxOptions()
         self.firefox_options.add_argument('--disable-gpu')
@@ -47,14 +48,13 @@ class Scraping(object):
         self.force_refresh = force_refresh
 
         dotenv.load_dotenv()
-        self.driver = webdriver.Chrome(options=self.chrome_options)
-        # if os.environ.get('SYSTEM') == 'linux':
-        #     self.driver = webdriver.Chrome(options=self.chrome_options) if os.environ.get(
-        #         'DRIVER') == 'chrome' else webdriver.Firefox(options=self.firefox_options)
-        # else:
-        #     self.driver = webdriver.Chrome(service=ChromeService(
-        #         ChromeDriverManager().install()), options=self.chrome_options) if os.environ.get('DRIVER') == 'chrome' else webdriver.Firefox(service=FirefoxService(
-        #             GeckoDriverManager().install()), options=self.firefox_options)
+
+        if os.environ.get('DRIVER') == 'chrome':
+            self.driver = webdriver.Chrome(options=self.chrome_options)
+        else:
+            self.driver = webdriver.Firefox(options=self.firefox_options)
+            self.driver.install_addon(
+                f'{Path((str(Path.cwd()) + "/canvasblocker-1.10.1.xpi"))}')
 
         self.driver.maximize_window()
 
