@@ -31,7 +31,8 @@ class Scraping(object):
         self.chrome_options.add_argument('--disable-blink-features=AutomationControlled')
         in_background and self.chrome_options.add_argument('--headless')
         self.chrome_options.add_argument('--incognito')
-        chrome_options.add_extension('canvas_blocker_0_2_0_0.crx')
+        self.chrome_options.add_extension(f'{Path((str(Path.cwd()) + "/review-scraper/canvas_blocker_0_2_0_0.crx"))}')
+
 
         self.firefox_options = webdriver.FirefoxOptions()
         self.firefox_options.add_argument('--disable-gpu')
