@@ -41,16 +41,21 @@ class Tripadvisor(Scraping):
         pass
 
     def find_element(self, soupe, key, type='all'):
-        # soupe.find_all('div', {'data-test-target': "HR_CC_CARD"})
         method = 'find_all' if type == 'all' else 'find'
         elements = []
         if key in self.selectors.keys():
+            print("ici")
             for t in self.selectors[key]["tag"]:
+                print("\t", t)
                 for a in self.selectors[key]["attr"]:
+                    print("\t\t", a)
                     for v in self.selectors[key]["value"]:
+                        print("\t\t\t", v)
                         try:
                             elements = setattr(soupe, method)(t, {a: v})
-                        except:
+                        except Exception as e:
+                            print(e)
+                            input()
                             pass
 
         return elements
