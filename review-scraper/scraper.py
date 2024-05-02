@@ -194,11 +194,16 @@ class ListScraperV2:
         print(
             list(map(lambda x: {'url': x['url'], 'settings': x['id']}, self.settings.items)))
 
-        for item in self.settings.items:
-            time.sleep(random.randint(1, 3))
+        order = random.sample(
+            range(len(self.settings.items)), len(self.settings.items))
+
+        # for item in self.settings.items:
+        for index in order:
+            time.sleep(random.randint(1, 5))
+            item = self.settings.items[index]
 
             print(
-                f"****** {item['establishment_name']} / {item['source']} ******")
+                f"******({index}) {item['establishment_name']} / {item['source']} ******")
 
             if item['source'] in __class_name_v2__.keys():
                 print("=> A scraper !!!")
@@ -210,7 +215,7 @@ class ListScraperV2:
                         item['language'])
                     instance.set_setting_id(item['id'])
 
-                    # instance.set_url(item['url'])
+                    instance.set_url(item['url'])
 
                     print('=> ', item['id'], ': ', item['url'])
 
