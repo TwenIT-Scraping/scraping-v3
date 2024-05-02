@@ -33,7 +33,8 @@
             "class"
         ],
         "value": [
-            "MjDLG VKCbE"
+            "MjDLG VKCbE",
+            "BMQDV _F Gv wSSLS SwZTJ FGwzt ukgoS"
         ]
     },
     "rating": {
@@ -41,10 +42,24 @@
             "svg"
         ],
         "attr": [
-            "data-test-target"
+            "data-test-target",
+            "class"
         ],
         "value": [
-            "review-rating"
+            "review-rating",
+            "UctUV d H0"
+        ]
+    },
+    "title": {
+        "tag": [
+            "span"
+        ],
+        "attr": [
+            "class"
+        ],
+        "value": [
+            "JbGkU Cj",
+            "yCeTE"
         ]
     }
 }
