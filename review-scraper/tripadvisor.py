@@ -53,6 +53,7 @@ class Tripadvisor(Scraping):
                         print("\t\t\t", v)
                         try:
                             elements = getattr(soupe, method)(t, {a: v})
+                            print(elements)
                         except Exception as e:
                             print(e)
                             input()
