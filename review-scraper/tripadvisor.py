@@ -269,13 +269,14 @@ class Tripadvisor_FR(Tripadvisor):
                             item, 'visit-date', False)
 
                         if author:
-                            print(author.text.strip())
+                            print("author: ", author.text.strip())
 
                         if rating:
-                            print(rating.find('title').text.strip())
+                            print("rating: ", rating.find(
+                                'title').text.strip())
 
                         if title:
-                            print(title.text.strip())
+                            print("title: ", title.text.strip())
 
                         print(detail)
 
@@ -283,10 +284,10 @@ class Tripadvisor_FR(Tripadvisor):
                             print(detail)
 
                         if review_date:
-                            print(review_date.text.strip())
+                            print("review date: ", review_date.text.strip())
 
                         if visit_date:
-                            print(visit_date.text.strip())
+                            print("visit date: ", visit_date.text.strip())
 
                 # try:
 
