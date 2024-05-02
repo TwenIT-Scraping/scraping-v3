@@ -16,11 +16,13 @@
         ],
         "attr": [
             "data-test-target",
-            "class"
+            "class",
+            "data-automation"
         ],
         "value": [
             "HR_CC_CARD",
-            "azLzJ MI R2 Gi z Z BB kYVoW tpnRZ"
+            "azLzJ MI R2 Gi z Z BB kYVoW tpnRZ",
+            "reviewCard"
         ]
     },
     "author": {
