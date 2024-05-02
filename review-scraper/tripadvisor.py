@@ -264,26 +264,26 @@ class Tripadvisor_FR(Tripadvisor):
                     author = self.find_element(
                         review_cards[0], 'author', False)
                     rating = self.find_element(
-                        review_cards[0], 'author', False)
+                        review_cards[0], 'rating', False)
                     title = self.find_element(review_cards[0], 'title', False)
 
                     if author and type(author) is not list:
                         print("=========== Auteur ===========")
-                        print(author)
+                        print(author.text.strip())
                     elif author and type(author) is list:
                         print("=========== Auteur ===========")
                         print(author)
 
                     if rating and type(rating) is not list:
                         print("=========== Rating ===========")
-                        print(rating)
+                        print(rating.find('title').text.strip())
                     elif rating and type(rating) is list:
                         print("=========== Rating ===========")
                         print(rating)
 
                     if title and type(title) is not list:
                         print("=========== Title ===========")
-                        print(title)
+                        print(title.text.strip())
                     elif title and type(title) is list:
                         print("=========== Title ===========")
                         print(title)
