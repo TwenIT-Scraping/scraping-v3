@@ -276,7 +276,7 @@ class Tripadvisor_FR(Tripadvisor):
                     'div', {'data-test-target': 'reviews-tab'})
                 # print(review_tab)
 
-                review_cards = self.find_element(soupe, 'card', True)
+                review_cards = self.find_soup_element(soupe, 'card', True)
 
                 if (len(review_cards)):
 
