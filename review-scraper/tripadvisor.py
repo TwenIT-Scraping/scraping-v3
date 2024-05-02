@@ -311,7 +311,7 @@ class Tripadvisor_FR(Tripadvisor):
                             print("visit date: ", visit_date.text.strip())
 
                 next_btn = self.find_driver_element(
-                    "next")
+                    "next", False)
 
                 if next_btn:
                     disable_btn = 'disabled' in next_btn.get_attribute(
