@@ -49,19 +49,13 @@ class Tripadvisor(Scraping):
                 if not loop:
                     break
 
-                print("\t", t)
-
                 for a in self.selectors[key]["attr"]:
                     if not loop:
                         break
 
-                    print("\t\t", a)
-
                     for v in self.selectors[key]["value"]:
                         if not loop:
                             break
-
-                        print("\t\t\t", v)
 
                         try:
                             elements = getattr(soupe, method)(t, {a: v})
@@ -73,7 +67,6 @@ class Tripadvisor(Scraping):
                                     loop = False
 
                         except Exception as e:
-                            print(e)
                             input()
                             pass
 
