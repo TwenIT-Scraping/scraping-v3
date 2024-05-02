@@ -43,17 +43,35 @@ class Tripadvisor(Scraping):
     def find_element(self, soupe, key, type='all'):
         method = 'find_all' if type == 'all' else 'find'
         elements = []
+        loop = True
         if key in self.selectors.keys():
-            print("ici")
             for t in self.selectors[key]["tag"]:
+                if not loop:
+                    break
+
                 print("\t", t)
+
                 for a in self.selectors[key]["attr"]:
+                    if not loop:
+                        break
+
                     print("\t\t", a)
+
                     for v in self.selectors[key]["value"]:
+                        if not loop:
+                            break
+
                         print("\t\t\t", v)
+
                         try:
                             elements = getattr(soupe, method)(t, {a: v})
-                            print(elements)
+
+                            if elements:
+                                if type(elements) is list and len(elements) > 0:
+                                    loop = False
+                                else:
+                                    loop = False
+
                         except Exception as e:
                             print(e)
                             input()
