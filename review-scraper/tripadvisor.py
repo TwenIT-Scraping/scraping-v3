@@ -40,8 +40,8 @@ class Tripadvisor(Scraping):
     def extract(self):
         pass
 
-    def find_element(self, soupe, key, type='all'):
-        method = 'find_all' if type == 'all' else 'find'
+    def find_element(self, soupe, key, all=True):
+        method = 'find_all' if all else 'find'
         elements = []
         loop = True
         if key in self.selectors.keys():
@@ -255,7 +255,7 @@ class Tripadvisor_FR(Tripadvisor):
                     'div', {'data-test-target': 'reviews-tab'})
                 # print(review_tab)
 
-                review_cards = self.find_element(soupe, 'card', 'all')
+                review_cards = self.find_element(soupe, 'card', True)
                 print("===========\n")
                 print("\t Trouvé: ", len(review_cards))
                 print("===========\n")
