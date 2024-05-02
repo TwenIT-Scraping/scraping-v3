@@ -44,13 +44,14 @@ class Tripadvisor(Scraping):
         # soupe.find_all('div', {'data-test-target': "HR_CC_CARD"})
         method = 'find_all' if type == 'all' else 'find'
         elements = []
-        for t in self.selectors.tag[key]:
-            for a in self.selectors.attr[key]:
-                for v in self.selectors.values[key]:
-                    try:
-                        elements = setattr(soupe, method)(t, {a: v})
-                    except:
-                        pass
+        if key in self.selectors.keys():
+            for t in self.selectors[key]["tag"]:
+                for a in self.selectors[key]["attr"]:
+                    for v in self.selectors[key]["value"]:
+                        try:
+                            elements = setattr(soupe, method)(t, {a: v})
+                        except:
+                            pass
 
         return elements
 
@@ -230,7 +231,7 @@ class Tripadvisor_FR(Tripadvisor):
                     'div', {'data-test-target': 'reviews-tab'})
                 # print(review_tab)
 
-                review_cards = self.find_element(soupe, 'container', 'all')
+                review_cards = self.find_element(soupe, 'card', 'all')
                 print("===========\n")
                 print("\t Trouvé: ", len(review_cards))
                 print("===========\n")

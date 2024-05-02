@@ -1,23 +1,48 @@
 {
-    "tag": {
-        "container": [
+    "container": {
+        "tag": [
             "div"
         ],
-        "title": [],
-        "author": []
-    },
-    "value": {
-        "container": [
-            "reviews-tab"
-        ],
-        "title": [],
-        "author": []
-    },
-    "attr": {
-        "container": [
+        "attr": [
             "data-test-target"
         ],
-        "title": [],
-        "author": []
+        "value": [
+            "reviews-tab"
+        ]
+    },
+    "card": {
+        "tag": [
+            "div"
+        ],
+        "attr": [
+            "data-test-target",
+            "class"
+        ],
+        "value": [
+            "HR_CC_CARD",
+            "azLzJ MI R2 Gi z Z BB kYVoW tpnRZ"
+        ]
+    },
+    "author": {
+        "tag": [
+            "a"
+        ],
+        "attr": [
+            "class"
+        ],
+        "value": [
+            "MjDLG VKCbE"
+        ]
+    },
+    "rating": {
+        "tag": [
+            "svg"
+        ],
+        "attr": [
+            "data-test-target"
+        ],
+        "value": [
+            "review-rating"
+        ]
     }
 }
