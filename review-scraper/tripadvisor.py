@@ -260,6 +260,33 @@ class Tripadvisor_FR(Tripadvisor):
                 print("\t Trouvé: ", len(review_cards))
                 print("===========\n")
 
+                if (len(review_cards)):
+                    author = self.find_element(
+                        review_cards[0], 'author', False)
+                    rating = self.find_element(
+                        review_cards[0], 'author', False)
+                    title = self.find_element(review_cards[0], 'title', False)
+
+                    if author and type(author) is not list:
+                        print("=========== Auteur ===========")
+                        print(author)
+                    elif author and type(author) is list:
+                        print("=========== Auteur ===========")
+                        print(author)
+
+                    if rating and type(rating) is not list:
+                        print("=========== Rating ===========")
+                        print(rating)
+                    elif rating and type(rating) is list:
+                        print("=========== Rating ===========")
+                        print(rating)
+
+                    if title and type(title) is not list:
+                        print("=========== Title ===========")
+                        print(title)
+                    elif title and type(title) is list:
+                        print("=========== Title ===========")
+                        print(title)
                 # try:
 
                 #     reviews_card = soupe.find_all(
