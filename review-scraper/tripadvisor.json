@@ -64,7 +64,8 @@
     },
     "detail": {
         "tag": [
-            "span"
+            "span",
+            "div"
         ],
         "attr": [
             "class"
