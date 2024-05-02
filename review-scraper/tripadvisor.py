@@ -256,17 +256,17 @@ class Tripadvisor_FR(Tripadvisor):
                     for item in review_cards:
                         print("\n--------------- xxx ---------------\n")
                         author = self.find_element(
-                            review_cards[0], 'author', False)
+                            item, 'author', False)
                         rating = self.find_element(
-                            review_cards[0], 'rating', False)
+                            item, 'rating', False)
                         title = self.find_element(
-                            review_cards[0], 'title', False)
+                            item, 'title', False)
                         detail = self.find_element(
-                            review_cards[0], 'detail', False)
+                            item, 'detail', False)
                         review_date = self.find_element(
-                            review_cards[0], 'review-date', False)
+                            item, 'review-date', False)
                         visit_date = self.find_element(
-                            review_cards[0], 'visit-date', False)
+                            item, 'visit-date', False)
 
                         if author:
                             print(author.text.strip())
