@@ -277,6 +277,8 @@ class Tripadvisor_FR(Tripadvisor):
                         if title:
                             print(title.text.strip())
 
+                        print(detail)
+
                         if detail:
                             print(detail)
 
