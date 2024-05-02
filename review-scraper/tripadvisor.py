@@ -52,7 +52,7 @@ class Tripadvisor(Scraping):
                     for v in self.selectors[key]["value"]:
                         print("\t\t\t", v)
                         try:
-                            elements = setattr(soupe, method)(t, {a: v})
+                            elements = getattr(soupe, method)(t, {a: v})
                         except Exception as e:
                             print(e)
                             input()
