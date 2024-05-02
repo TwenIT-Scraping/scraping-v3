@@ -99,5 +99,23 @@
             "RpeCd",
             "Szuxy"
         ]
-    }
+    },
+    "next": [
+        {
+            "type": "css",
+            "value": "a.nav.next"
+        },
+        {
+            "type": "css",
+            "value": "a.ui_button.nav.next.primary"
+        },
+        {
+            "type": "css",
+            "value": "a.BrOJk.u.j.z._F.wSSLS.tIqAi.unMkR"
+        },
+        {
+            "type": "xpath",
+            "value": "//a[@data-smoke-attr='pagination-next-arrow']"
+        }
+    ]
 }

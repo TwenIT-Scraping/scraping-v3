@@ -40,7 +40,7 @@ class Tripadvisor(Scraping):
     def extract(self):
         pass
 
-    def find_element(self, soupe, key, all=True):
+    def find_soup_element(self, soupe, key, all=True):
         elements = None
         element = None
         loop = True
@@ -70,6 +70,33 @@ class Tripadvisor(Scraping):
                         except Exception as e:
                             input()
                             pass
+
+        return elements if all else element
+
+    def find_driver_element(self, key, all=True):
+        elements = None
+        element = None
+        loop = True
+
+        if key in self.selectors.keys():
+            for t in self.selectors[key]:
+                method = By.CSS_SELECTOR if t['type'] == 'css' else By.XPATH
+                if not loop:
+                    break
+                try:
+                    if all:
+                        elements = self.driver.find_elements(
+                            method, t['value'])
+                        if elements and len(elements) > 0:
+                            loop = False
+                    else:
+                        element = self.driver.find_element(method, t['value'])
+                        if (element):
+                            loop = False
+
+                except Exception as e:
+                    input()
+                    pass
 
         return elements if all else element
 
@@ -255,17 +282,17 @@ class Tripadvisor_FR(Tripadvisor):
 
                     for item in review_cards:
                         print("\n--------------- xxx ---------------\n")
-                        author = self.find_element(
+                        author = self.find_soup_element(
                             item, 'author', False)
-                        rating = self.find_element(
+                        rating = self.find_soup_element(
                             item, 'rating', False)
-                        title = self.find_element(
+                        title = self.find_soup_element(
                             item, 'title', False)
-                        detail = self.find_element(
+                        detail = self.find_soup_element(
                             item, 'detail', False)
-                        review_date = self.find_element(
+                        review_date = self.find_soup_element(
                             item, 'review-date', False)
-                        visit_date = self.find_element(
+                        visit_date = self.find_soup_element(
                             item, 'visit-date', False)
 
                         if author:
@@ -420,8 +447,9 @@ class Tripadvisor_FR(Tripadvisor):
                 #     break
 
                 # try:
-                #     next_btn = self.driver.find_element(
-                #         By.CSS_SELECTOR, "a.nav.next")
+                    next_btn = self.find_driver_element(
+                        "next")
+                    print(next_btn)
                 #     disable_btn = 'disabled' in next_btn.get_attribute(
                 #         'class').split()
                 #     if next_btn and not disable_btn:
