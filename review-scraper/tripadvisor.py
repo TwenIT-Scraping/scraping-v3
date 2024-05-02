@@ -259,6 +259,12 @@ class Tripadvisor_FR(Tripadvisor):
                     rating = self.find_element(
                         review_cards[0], 'rating', False)
                     title = self.find_element(review_cards[0], 'title', False)
+                    detail = self.find_element(
+                        review_cards[0], 'detail', False)
+                    review_date = self.find_element(
+                        review_cards[0], 'review-date', False)
+                    visit_date = self.find_element(
+                        review_cards[0], 'visit-date', False)
 
                     if author and type(author) is not list:
                         print("=========== Auteur ===========")
@@ -280,6 +286,28 @@ class Tripadvisor_FR(Tripadvisor):
                     elif title and type(title) is list:
                         print("=========== Title ===========")
                         print(title)
+
+                    if detail and type(detail) is not list:
+                        print("=========== Detail ===========")
+                        print(detail.text.strip())
+                    elif detail and type(detail) is list:
+                        print("=========== Detail ===========")
+                        print(detail)
+
+                    if review_date and type(review_date) is not list:
+                        print("=========== review_date ===========")
+                        print(review_date.text.strip())
+                    elif review_date and type(review_date) is list:
+                        print("=========== review_date ===========")
+                        print(review_date)
+
+                    if visit_date and type(visit_date) is not list:
+                        print("=========== visit_date ===========")
+                        print(visit_date.text.strip())
+                    elif visit_date and type(visit_date) is list:
+                        print("=========== visit_date ===========")
+                        print(visit_date)
+
                 # try:
 
                 #     reviews_card = soupe.find_all(
