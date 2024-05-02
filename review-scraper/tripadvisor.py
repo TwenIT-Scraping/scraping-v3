@@ -272,10 +272,6 @@ class Tripadvisor_FR(Tripadvisor):
 
                 soupe = BeautifulSoup(page, 'lxml')
 
-                review_tab = soupe.find(
-                    'div', {'data-test-target': 'reviews-tab'})
-                # print(review_tab)
-
                 review_cards = self.find_soup_element(soupe, 'card', True)
 
                 if (len(review_cards)):
@@ -313,6 +309,25 @@ class Tripadvisor_FR(Tripadvisor):
 
                         if visit_date:
                             print("visit date: ", visit_date.text.strip())
+
+                next_btn = self.find_driver_element(
+                    "next")
+
+                if next_btn:
+                    disable_btn = 'disabled' in next_btn.get_attribute(
+                        'class').split()
+
+                    if not disable_btn:
+                        self.driver.execute_script(
+                            "arguments[0].click();", next_btn)
+
+                        time.sleep(random.randint(1, 20))
+
+                    else:
+                        break
+
+                else:
+                    break
 
                 # try:
 
@@ -447,20 +462,9 @@ class Tripadvisor_FR(Tripadvisor):
                 #     break
 
                 # try:
-                    next_btn = self.find_driver_element(
-                        "next")
-                    print(next_btn)
-                #     disable_btn = 'disabled' in next_btn.get_attribute(
-                #         'class').split()
-                #     if next_btn and not disable_btn:
-                #         self.driver.execute_script(
-                #             "arguments[0].click();", next_btn)
-                #         time.sleep(2)
-                #     else:
-                #         break
 
                 # except Exception as e:
-                break
+                # break
 
             self.data = reviews
 
