@@ -262,7 +262,7 @@ class Tripadvisor_FR(Tripadvisor):
                         title = self.find_element(
                             item, 'title', False)
                         detail = self.find_element(
-                            item, 'detail', True)
+                            item, 'detail', False)
                         review_date = self.find_element(
                             item, 'review-date', False)
                         visit_date = self.find_element(
@@ -278,10 +278,8 @@ class Tripadvisor_FR(Tripadvisor):
                         if title:
                             print("title: ", title.text.strip())
 
-                        print(detail)
-
                         if detail:
-                            print(detail)
+                            print("detail: ", detail)
 
                         if review_date:
                             print("review date: ", review_date.text.strip())
