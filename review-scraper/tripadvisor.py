@@ -312,12 +312,16 @@ class Tripadvisor_FR(Tripadvisor):
 
                 next_btn = self.find_driver_element(
                     "next", False)
+                
+                print(" next btn...")
+                print(next_btn)
 
                 if next_btn:
                     disable_btn = 'disabled' in next_btn.get_attribute(
                         'class').split()
 
                     if not disable_btn:
+                        print("navigate to next page...")
                         self.driver.execute_script(
                             "arguments[0].click();", next_btn)
 
