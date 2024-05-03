@@ -88,7 +88,7 @@ class Scraping(object):
             random_params[1:] if self.url.endswith(
                 '.html') else self.url + random_params
 
-    def detect(text: str) -> str:
+    def detect(self, text: str) -> str:
         if text:
             lang_code = {
                 'Language.ENGLISH': 'en',
