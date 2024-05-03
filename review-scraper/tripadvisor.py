@@ -263,8 +263,6 @@ class Tripadvisor_FR(Tripadvisor):
         reviews = []
         time.sleep(random.randint(5, 25))
 
-        # input("Continuer...")
-
         try:
             while True:
                 page = self.driver.page_source
@@ -276,6 +274,7 @@ class Tripadvisor_FR(Tripadvisor):
                 if (len(review_cards)):
 
                     for item in review_cards:
+
                         print("\n--------------- xxx ---------------\n")
                         author = self.find_soup_element(
                             item, 'author', False)
@@ -290,24 +289,42 @@ class Tripadvisor_FR(Tripadvisor):
                         visit_date = self.find_soup_element(
                             item, 'visit-date', False)
 
-                        if author:
-                            print("author: ", author.text.strip())
+                        # if author:
+                        #     print("author: ", author.text.strip())
 
-                        if rating:
-                            print("rating: ", rating.find(
-                                'title').text.strip())
+                        # if rating:
+                        #     print("rating: ", rating.find(
+                        #         'title').text.strip())
 
-                        if title:
-                            print("title: ", title.text.strip())
+                        # if title:
+                        #     print("title: ", title.text.strip())
 
-                        if detail:
-                            print("detail: ", detail)
+                        # if detail:
+                        #     print("detail: ", detail)
 
-                        if review_date:
-                            print("review date: ", review_date.text.strip())
+                        # if review_date:
+                        #     print("review date: ", review_date.text.strip())
 
-                        if visit_date:
-                            print("visit date: ", visit_date.text.strip())
+                        # if visit_date:
+                        #     print("visit date: ", visit_date.text.strip())
+
+                        comment = f"{title.text.strip() if title else ''}{': ' if title and detail else ''}{detail.text.strip() if detail else ''}"
+                        lang = self.detect(comment)
+
+                        review_data = {
+                            'comment': comment,
+                            'rating': rating,
+                            'language': lang,
+                            'source': urlparse(self.url).netloc.split('.')[1],
+                            'author': author.text.strip() if author else "",
+                            'establishment': f'/api/establishments/{self.establishment}',
+                            'settings': f'/api/settings/{self.settings}',
+                            # 'date_review': f"{date_rawt[0]}/{month}/{date_rawt[2]}",
+                            # 'date_visit': f"{date_rawt[0]}/{month}/{date_rawt[2]}",
+                            # 'novisitday': "1"
+                        }
+
+                        print(review_data)
 
                 next_btn = self.find_driver_element(
                     "next", False)

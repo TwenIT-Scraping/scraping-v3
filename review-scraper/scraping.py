@@ -21,6 +21,7 @@ from changeip import refresh_connection
 import random
 import string
 from pathlib import Path
+from lingua import Language, LanguageDetectorBuilder
 
 
 class Scraping(object):
@@ -86,6 +87,23 @@ class Scraping(object):
         self.url = self.url + '?' + \
             random_params[1:] if self.url.endswith(
                 '.html') else self.url + random_params
+
+    def detect(text: str) -> str:
+        if text:
+            lang_code = {
+                'Language.ENGLISH': 'en',
+                'Language.GERMAN': 'de',
+                'Language.SPANISH': 'es',
+                'Language.FRENCH': 'fr',
+            }
+
+        languages = [Language.ENGLISH, Language.FRENCH,
+                     Language.GERMAN, Language.SPANISH]
+        detector = LanguageDetectorBuilder.from_languages(*languages).build()
+        try:
+            return lang_code[f"{detector.detect_language_of(text)}"]
+        except:
+            return ''
 
     def set_setting_id(self, setting_id):
         self.setting_id = setting_id
