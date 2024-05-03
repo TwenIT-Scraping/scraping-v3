@@ -316,11 +316,15 @@ class Tripadvisor_FR(Tripadvisor):
                         'class').split()
 
                     if not disable_btn:
-                        print("navigate to next page...")
-                        self.driver.execute_script(
-                            "arguments[0].click();", next_btn)
+                        try:
+                            print("navigate to next page...")
+                            self.driver.execute_script(
+                                "arguments[0].click();", next_btn)
 
-                        time.sleep(random.randint(1, 20))
+                            time.sleep(random.randint(1, 20))
+                        except Exception as e:
+                            print(e)
+                            pass
 
                     else:
                         break
