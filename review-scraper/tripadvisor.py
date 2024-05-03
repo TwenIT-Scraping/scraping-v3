@@ -68,7 +68,6 @@ class Tripadvisor(Scraping):
                                     loop = False
 
                         except Exception as e:
-                            input()
                             pass
 
         return elements if all else element
@@ -95,7 +94,6 @@ class Tripadvisor(Scraping):
                             loop = False
 
                 except Exception as e:
-                    input()
                     pass
 
         return elements if all else element
@@ -312,9 +310,6 @@ class Tripadvisor_FR(Tripadvisor):
 
                 next_btn = self.find_driver_element(
                     "next", False)
-                
-                print(" next btn...")
-                print(next_btn)
 
                 if next_btn:
                     disable_btn = 'disabled' in next_btn.get_attribute(
