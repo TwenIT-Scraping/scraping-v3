@@ -26,7 +26,7 @@ import json
 
 class Tripadvisor(Scraping):
     def __init__(self, url: str, establishment: str, settings: str, env: str):
-        super().__init__(in_background=True, url=url,
+        super().__init__(in_background=False, url=url,
                          establishment=establishment, settings=settings, env=env, force_refresh=True)
 
         #### Load all selectors ####
@@ -261,7 +261,7 @@ class Tripadvisor_FR(Tripadvisor):
 
     def extract(self):
         reviews = []
-        time.sleep(random.randint(1, 15))
+        time.sleep(random.randint(5, 25))
 
         # input("Continuer...")
 
