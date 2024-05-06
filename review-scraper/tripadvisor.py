@@ -36,27 +36,27 @@ class Tripadvisor(Scraping):
             self.selectors = json.load(f)
 
         #### End ####
- 
+
     def format_date(self, text, lang, form=1):
         rawt_date = text.split()
         today = datetime.today()
 
         if lang == 'fr':
-            if form==1:
-                
+            if form == 1:
+
                 month = month_number(rawt_date[-2], lang, '')
                 return f"{rawt_date[-3]}/{month}/{rawt_date[-1]}"
-            if form==2:
+            if form == 2:
                 month = month_number(rawt_date[0], lang, 'short')
                 return f"{today.day}/{month}/{rawt_date[1]}"
         if lang == 'es':
-            if form==1:
+            if form == 1:
                 month = month_number(rawt_date[-2], lang, 'short')
                 return f"{rawt_date[-3]}/{month}/{rawt_date[-1]}"
-            if form==2:
+            if form == 2:
                 month = month_number(rawt_date[-3], lang, '')
                 return f"{today.day}/{month}/{rawt_date[-1]}"
-            
+
         return
 
     def extract(self):
@@ -319,7 +319,7 @@ class Tripadvisor_FR(Tripadvisor):
 
                             review_data = {
                                 'comment': comment.replace('\n', ' '),
-                                'rating': rating.find('title').text.strip().split()[0].replace(',','.')+"/5" if rating else "0/5",
+                                'rating': rating.find('title').text.strip().split()[0].replace(',', '.')+"/5" if rating else "0/5",
                                 'language': lang,
                                 'source': urlparse(self.url).netloc.split('.')[1],
                                 'author': author.text.strip() if author else "",
@@ -333,8 +333,8 @@ class Tripadvisor_FR(Tripadvisor):
                             to_save = review_date != '' and author != '' and visit_date != '' and lang == self.lang
 
                             to_save and reviews.append(review_data)
-                
-                if (datetime.strptime(reviews[-1], "%d/%m/%Y")<datetime.today-timedelta(days=365)):
+
+                if len(reviews) and (datetime.strptime(reviews[-1], "%d/%m/%Y") < datetime.today-timedelta(days=365)):
                     break
 
                 next_btn = self.find_driver_element(
