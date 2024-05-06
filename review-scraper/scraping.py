@@ -148,6 +148,7 @@ class Scraping(object):
             sys.exit("Arret")
 
     def scrap(self) -> None:
+        self.set_random_params()
         self.driver.get(self.url)
 
     def refresh(self) -> None:
