@@ -634,7 +634,3 @@ class Tripadvisor_ES(Tripadvisor):
         # févr. 2019 • En couple
         # Fecha de la estancia: octubre de 2023
         # Respondido el 4 mar 2024
-print(Tripadvisor.format_date("févr. 2019 • En couple", 'fr', 2))
-print(Tripadvisor.format_date("Écrit le 28 février 2019", 'fr', 1))
-print(Tripadvisor.format_date("Fecha de la estancia: octubre de 2023", 'es', 2))
-print(Tripadvisor.format_date("Respondido el 4 mar 2024", 'es', 1))
