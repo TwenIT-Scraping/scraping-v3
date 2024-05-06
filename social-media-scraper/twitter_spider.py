@@ -42,6 +42,7 @@ class BaseTwitterSrap(Scraping):
 
     def goto_login(self) -> None:
         self.page.goto("https://twitter.com/i/flow/login")
+        time.sleep(5)
         self.page.wait_for_timeout(30000)
 
     def fill_loginform(self) -> None:
@@ -53,6 +54,7 @@ class BaseTwitterSrap(Scraping):
                     "//input[@autocomplete='username']")
                 self.page.locator("//input[@autocomplete='username']").click()
                 time.sleep(randint(1, 3))
+                print(self.current_credential)
                 self.page.locator("//input[@autocomplete='username']").fill(self.current_credential['email'])
                 self.page.locator(
                     "//span[text()='Next' or text()='Suivant']").click()
@@ -84,8 +86,7 @@ class BaseTwitterSrap(Scraping):
                     "//input[@data-testid='ocfEnterTextTextInput']").click()
                 time.sleep(randint(1, 3))
                 self.page.locator("//input[@data-testid='ocfEnterTextTextInput']").fill(self.current_credential['username'])
-                self.page.locator(
-                    "//span[text()='Next' or text()='Suivant']").click()
+                self.page.locator("//span[text()='Next' or text()='Suivant']").click()
                 self.page.wait_for_timeout(10000)
                 time.sleep(randint(1, 3))
 
@@ -104,6 +105,16 @@ class BaseTwitterSrap(Scraping):
                 self.page.locator("//span[text()='Log in' or text()='Se connecter']").click()
                 self.page.wait_for_timeout(10000)
                 time.sleep(randint(1, 3))
+
+            case 'check your email':
+                print('code checking')
+                self.page.locator("//input[@data-testid='ocfEnterTextTextInput']").click()
+                code = input('code de confirmation: ')
+                self.page.locator("//input[@data-testid='ocfEnterTextTextInput']").fill(code)
+                self.page.wait_for_timeout(10000)
+                self.page.locator("//span[text()='Next' or text()='Suivant']").click()
+                time.sleep(randint(1, 3))
+
 
             case _:
                 print('none')
@@ -146,9 +157,10 @@ class BaseTwitterSrap(Scraping):
         return text
 
     def execute(self):
-        progress = ChargingBar('Preparing ', max=3)
+        # progress = ChargingBar('Preparing ', max=3)
         self.goto_login()
-        progress.next()
+        self.set_credentials('twitter')
+        # progress.next()
         print("==> filling login page")
         self.resolve_loginform()
 
@@ -162,9 +174,7 @@ class TwitterScraper(BaseTwitterSrap):
             'tweets': [],
             'tweets_detail':[]
         }
-        self.data = {
-            'posts': []
-        }
+
         self.detail_urls = []
 
     def intercept_page_response(self,response) -> None:
@@ -215,12 +225,6 @@ class TwitterScraper(BaseTwitterSrap):
             self.xhr_calls['tweets_detail'].clear()
             index += 1
 
-    def save(self) -> None:
-        print('saving ...')
-        with open(f'data.json', 'a') as openfile:
-            openfile.write(json.dumps(self.data))
-        self.data.clear()
-
     def get_last_date(self) -> str:
         try:
             date = nested_lookup(key='instructions', document=self.xhr_calls[-1])['created_at']
@@ -257,41 +261,43 @@ class TwitterScraper(BaseTwitterSrap):
                         print('No comment')
                         pass
             print(post)
-            if datetime.strptime(post['created_at'], "%d/%m/%Y") > (datetime.now() - timedelta(days=365)):
-                self.data['posts'].append(post)
+            if datetime.strptime(post['publishedAt'], "%d/%m/%Y") > (datetime.now() - timedelta(days=365)):
+                self.posts.append(post)
+            
 
     def extract_profile(self) -> None:
         profile_data_container = nested_lookup(key='legacy', document=self.xhr_calls['profile'])[0]
-        self.data['followers'] = profile_data_container['followers_count']
-        self.data['establishement'] = self.establishment
-        self.data['likes'] = profile_data_container['followers_count']
-        self.data['createdAt'] = self.format_date(profile_data_container['created_at'])
-        self.data['hasStat'] = "1"
+        self.page_data['followers'] = profile_data_container['followers_count']
+        self.page_data['establishement'] = self.establishment
+        self.page_data['likes'] = profile_data_container['followers_count']
+        self.page_data['createdAt'] = self.format_date(profile_data_container['created_at'])
+        self.page_data['hasStat'] = "1"
         self.name = profile_data_container['name']
+        print(self.page_data)
         
 
     def execute(self):
         super().execute()
         for item in self.items:
             try:
-                p_item = FillingCirclesBar(item['establishment_name'], max=4)
+                # p_item = FillingCirclesBar(item['establishment_name'], max=4)
                 self.set_item(item)
-                p_item.next()
+                # p_item.next()
                 print(" | Open page")
                 self.goto_tweet_page()
-                p_item.next()
+                # p_item.next()
                 print(" | Extracting")
                 self.extract_profile()
                 self.extract_tweet_detail_link()
                 time.sleep(4)
                 self.navigate_detail_page()
-                self.extract_data()
-                p_item.next()
+                # p_item.next()
                 print('posts extractions')
                 self.extract_posts()
                 print(" | Saving")
+                print(self.data)
                 self.save()
-                p_item.next()
+                # p_item.next()
                 print(" | Saved")
             except:
                 pass
