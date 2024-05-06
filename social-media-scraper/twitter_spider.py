@@ -3,7 +3,6 @@ from playwright.sync_api import sync_playwright
 from nested_lookup import nested_lookup
 from random import randint
 import time
-import json
 from datetime import datetime, timedelta
 from scraping import Scraping
 from progress.bar import ChargingBar, FillingCirclesBar
@@ -247,6 +246,7 @@ class TwitterScraper(BaseTwitterSrap):
                     post['publishedAt'] = self.format_date(comment_section['created_at']) 
                     post['comments'] = comment_section['reply_count']
                     post['hashtag'] = ''
+                    post['comment_values'] = []
                 
                 else:
                     try:
@@ -255,7 +255,7 @@ class TwitterScraper(BaseTwitterSrap):
                             'author': comment_section['core']['user_results']['result']['legacy']['name'],
                             'comment': self.format_text(comment_section['legacy']['full_text']),
                             'likes': comment_section['legacy']['favorite_count'],
-                            'created_at': self.format_date(comment_section['legacy']['created_at'])
+                            'published_at': self.format_date(comment_section['legacy']['created_at'])
                         })
                     except:
                         print('No comment')
@@ -272,12 +272,15 @@ class TwitterScraper(BaseTwitterSrap):
         self.page_data['likes'] = profile_data_container['followers_count']
         self.page_data['createdAt'] = self.format_date(profile_data_container['created_at'])
         self.page_data['hasStat'] = "1"
+       
+        self.page_data['name'] = f"twitter_{profile_data_container['name']}"
         self.name = profile_data_container['name']
         print(self.page_data)
         
 
     def execute(self):
         super().execute()
+        output_files = []
         for item in self.items:
             try:
                 # p_item = FillingCirclesBar(item['establishment_name'], max=4)
@@ -295,14 +298,16 @@ class TwitterScraper(BaseTwitterSrap):
                 print('posts extractions')
                 self.extract_posts()
                 print(" | Saving")
-                print(self.data)
-                self.save()
+                print(self.page_data)
+                output_files.append(self.save())
                 # p_item.next()
                 print(" | Saved")
             except:
                 pass
 
         self.stop()
+        return output_files
+
 
 class TwitterProfileScraper(Scraping):
 
@@ -470,6 +475,7 @@ class TwitterProfileScraper(Scraping):
         self.resolve_loginform()
         progress.next()
         print(" | Logged in!")
+        output_files = []
 
         for item in self.items:
             try:
@@ -485,6 +491,7 @@ class TwitterProfileScraper(Scraping):
                 print(" | Saving")
                 self.save()
                 p_item.next()
+                output_files.append(self.save())
                 print(" | Saved")
             except:
                 pass
