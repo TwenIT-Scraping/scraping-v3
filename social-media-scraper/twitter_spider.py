@@ -46,7 +46,8 @@ class BaseTwitterSrap(Scraping):
 
     def fill_loginform(self) -> None:
         time.sleep(5)
-        modal_header = self.page.locator("//h1[@id='modal-header']").text_content().lower()
+        modal_header = self.page.locator(
+            "//h1[@id='modal-header']").text_content().lower()
         match modal_header:
             case 'sign in to x':
                 self.page.wait_for_selector(
@@ -54,17 +55,20 @@ class BaseTwitterSrap(Scraping):
                 self.page.locator("//input[@autocomplete='username']").click()
                 time.sleep(randint(1, 3))
                 print(self.current_credential)
-                self.page.locator("//input[@autocomplete='username']").fill(self.current_credential['email'])
+                self.page.locator(
+                    "//input[@autocomplete='username']").fill(self.current_credential['email'])
                 self.page.locator(
                     "//span[text()='Next' or text()='Suivant']").click()
                 self.page.wait_for_timeout(10000)
                 time.sleep(randint(1, 3))
 
             case 'connectez‑vous à x':
-                self.page.wait_for_selector("//input[@autocomplete='username']", timeout=10000)
+                self.page.wait_for_selector(
+                    "//input[@autocomplete='username']", timeout=10000)
                 self.page.locator("//input[@autocomplete='username']").click()
                 time.sleep(randint(1, 3))
-                self.page.locator("//input[@autocomplete='username']").fill(self.current_credential['email'])
+                self.page.locator(
+                    "//input[@autocomplete='username']").fill(self.current_credential['email'])
                 self.page.locator(
                     "//span[text()='Next' or text()='Suivant']").click()
                 self.page.wait_for_timeout(10000)
@@ -74,7 +78,8 @@ class BaseTwitterSrap(Scraping):
                 self.page.locator(
                     "//input[@data-testid='ocfEnterTextTextInput']").click()
                 time.sleep(randint(1, 3))
-                self.page.locator("//input[@data-testid='ocfEnterTextTextInput']").fill(self.current_credential['username'])
+                self.page.locator(
+                    "//input[@data-testid='ocfEnterTextTextInput']").fill(self.current_credential['username'])
                 self.page.locator(
                     "//span[text()='Next' or text()='Suivant']").click()
                 self.page.wait_for_timeout(10000)
@@ -84,15 +89,18 @@ class BaseTwitterSrap(Scraping):
                 self.page.locator(
                     "//input[@data-testid='ocfEnterTextTextInput']").click()
                 time.sleep(randint(1, 3))
-                self.page.locator("//input[@data-testid='ocfEnterTextTextInput']").fill(self.current_credential['username'])
-                self.page.locator("//span[text()='Next' or text()='Suivant']").click()
+                self.page.locator(
+                    "//input[@data-testid='ocfEnterTextTextInput']").fill(self.current_credential['username'])
+                self.page.locator(
+                    "//span[text()='Next' or text()='Suivant']").click()
                 self.page.wait_for_timeout(10000)
                 time.sleep(randint(1, 3))
 
             case "enter your password":
                 self.page.locator("//input[@type='password']").click()
                 time.sleep(randint(1, 3))
-                self.page.locator("//input[@type='password']").fill(self.current_credential['password'])
+                self.page.locator(
+                    "//input[@type='password']").fill(self.current_credential['password'])
                 self.page.locator("//span[text()='Log in']").click()
                 self.page.wait_for_timeout(10000)
                 time.sleep(randint(1, 3))
@@ -100,20 +108,24 @@ class BaseTwitterSrap(Scraping):
             case "entrez votre mot de passe":
                 self.page.locator("//input[@type='password']").click()
                 time.sleep(randint(1, 3))
-                self.page.locator("//input[@type='password']").fill(self.current_credential['password'])
-                self.page.locator("//span[text()='Log in' or text()='Se connecter']").click()
+                self.page.locator(
+                    "//input[@type='password']").fill(self.current_credential['password'])
+                self.page.locator(
+                    "//span[text()='Log in' or text()='Se connecter']").click()
                 self.page.wait_for_timeout(10000)
                 time.sleep(randint(1, 3))
 
             case 'check your email':
                 print('code checking')
-                self.page.locator("//input[@data-testid='ocfEnterTextTextInput']").click()
+                self.page.locator(
+                    "//input[@data-testid='ocfEnterTextTextInput']").click()
                 code = input('code de confirmation: ')
-                self.page.locator("//input[@data-testid='ocfEnterTextTextInput']").fill(code)
+                self.page.locator(
+                    "//input[@data-testid='ocfEnterTextTextInput']").fill(code)
                 self.page.wait_for_timeout(10000)
-                self.page.locator("//span[text()='Next' or text()='Suivant']").click()
+                self.page.locator(
+                    "//span[text()='Next' or text()='Suivant']").click()
                 time.sleep(randint(1, 3))
-
 
             case _:
                 print('none')
@@ -128,11 +140,12 @@ class BaseTwitterSrap(Scraping):
         time.sleep(.5)
         self.page.locator("//span[text()='Log out']").click()
 
-    def scroll_page(self, max_scrolls:int=50) -> None:
+    def scroll_page(self, max_scrolls: int = 50) -> None:
         prev_height = -1
         scroll_count = 0
         while scroll_count < max_scrolls:
-            self.page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+            self.page.evaluate(
+                "window.scrollTo(0, document.body.scrollHeight)")
             new_height = self.page.evaluate("document.body.scrollHeight")
             if new_height == prev_height:
                 break
@@ -141,13 +154,14 @@ class BaseTwitterSrap(Scraping):
             time.sleep(3)
         time.sleep(3)
 
-    def format_date(self, time_str:str) -> str:
+    def format_date(self, time_str: str) -> str:
         input_format = "%a %b %d %H:%M:%S %z %Y"
         output_format = "%d/%m/%Y"
-        formatted_time = datetime.strptime(time_str, input_format).strftime(output_format)
+        formatted_time = datetime.strptime(
+            time_str, input_format).strftime(output_format)
         return formatted_time
 
-    def format_text(self, text:str) -> str:
+    def format_text(self, text: str) -> str:
         if text != '':
             text = text.split(' ')
             text = [x for x in text if not x.startswith('@')]
@@ -171,12 +185,12 @@ class TwitterScraper(BaseTwitterSrap):
         self.xhr_calls = {
             'profile': {},
             'tweets': [],
-            'tweets_detail':[]
+            'tweets_detail': []
         }
 
         self.detail_urls = []
 
-    def intercept_page_response(self,response) -> None:
+    def intercept_page_response(self, response) -> None:
         """capture all background requests and save them"""
         response_type = response.request.resource_type
         if response_type == "xhr":
@@ -185,7 +199,7 @@ class TwitterScraper(BaseTwitterSrap):
             if 'UserTweets' in response.url:
                 self.xhr_calls['tweets'].append(response.json())
 
-    def intercept_detail_page_response(self,response) -> None:
+    def intercept_detail_page_response(self, response) -> None:
         """capture all background requests and save them"""
         response_type = response.request.resource_type
         if response_type == "xhr":
@@ -198,7 +212,7 @@ class TwitterScraper(BaseTwitterSrap):
         self.page.wait_for_timeout(10000)
         time.sleep(4)
 
-    def goto_detail_pages(self, url:str) -> None:
+    def goto_detail_pages(self, url: str) -> None:
         print(url)
         self.page.on('response', self.intercept_detail_page_response)
         self.page.goto(url)
@@ -207,11 +221,13 @@ class TwitterScraper(BaseTwitterSrap):
         time.sleep(5)
 
     def extract_tweet_detail_link(self) -> None:
-        link_data = nested_lookup(key='expanded_url', document=self.xhr_calls['tweets'])
+        link_data = nested_lookup(
+            key='expanded_url', document=self.xhr_calls['tweets'])
         links = list(set(link_data))
         for link in links:
             if f"{self.page.url}/status/" in link:
-                self.detail_urls.append(link.replace('/photo/1', '').replace('/video/1', ''))
+                self.detail_urls.append(link.replace(
+                    '/photo/1', '').replace('/video/1', ''))
         self.detail_urls = list(set(self.detail_urls))
         print(self.detail_urls)
 
@@ -226,28 +242,32 @@ class TwitterScraper(BaseTwitterSrap):
 
     def get_last_date(self) -> str:
         try:
-            date = nested_lookup(key='instructions', document=self.xhr_calls[-1])['created_at']
+            date = nested_lookup(key='instructions',
+                                 document=self.xhr_calls[-1])['created_at']
         except KeyError:
             return ''
         return self.format_date(date)
-    
+
     def extract_posts(self) -> None:
         print('extract post')
-        tweet_data_container = nested_lookup(key='entries', document=self.xhr_calls['tweets_detail'])
+        tweet_data_container = nested_lookup(
+            key='entries', document=self.xhr_calls['tweets_detail'])
         for tweet in tweet_data_container:
-            post = {'comment_values':[]}
+            post = {'comment_values': []}
             for item in tweet:
                 if item['content']['__typename'] == 'TimelineTimelineItem':
                     comment_section = item['content']['itemContent']['tweet_results']['result']['legacy']
                     post['author'] = self.name
-                    post['description'] =  self.format_text(comment_section['full_text'])
+                    post['description'] = self.format_text(
+                        comment_section['full_text'])
                     post['reaction'] = comment_section['favorite_count']
                     post['shares'] = comment_section['retweet_count']
-                    post['publishedAt'] = self.format_date(comment_section['created_at']) 
+                    post['publishedAt'] = self.format_date(
+                        comment_section['created_at'])
                     post['comments'] = comment_section['reply_count']
                     post['hashtag'] = ''
                     post['comment_values'] = []
-                
+
                 else:
                     try:
                         comment_section = item['content']['itemContent']['tweet_results']['result']
@@ -263,20 +283,20 @@ class TwitterScraper(BaseTwitterSrap):
             print(post)
             if datetime.strptime(post['publishedAt'], "%d/%m/%Y") > (datetime.now() - timedelta(days=365)):
                 self.posts.append(post)
-            
 
     def extract_profile(self) -> None:
-        profile_data_container = nested_lookup(key='legacy', document=self.xhr_calls['profile'])[0]
+        profile_data_container = nested_lookup(
+            key='legacy', document=self.xhr_calls['profile'])[0]
         self.page_data['followers'] = profile_data_container['followers_count']
-        self.page_data['establishement'] = self.establishment
+        self.page_data['establishment'] = self.establishment
         self.page_data['likes'] = profile_data_container['followers_count']
-        self.page_data['createdAt'] = self.format_date(profile_data_container['created_at'])
+        self.page_data['createdAt'] = self.format_date(
+            profile_data_container['created_at'])
         self.page_data['hasStat'] = "1"
-       
+
         self.page_data['name'] = f"twitter_{profile_data_container['name']}"
         self.name = profile_data_container['name']
         print(self.page_data)
-        
 
     def execute(self):
         super().execute()

@@ -164,7 +164,7 @@ class ListScraper:
 
         result = post.execute()
 
-        print(result)
+        print(result.text)
 
     def upload_all_results(self):
         files = [pathlib.Path(f).stem for f in os.listdir(
