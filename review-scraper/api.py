@@ -89,7 +89,7 @@ class ERApi:
 
         elif self.method == 'postmulti':
 
-            url = f'{self.api_url}reviews/multi'
+            url = f'{self.api_url}review/multi'
             self.add_header({"Content-Type": "application/json"})
             headers = self.headers
 
@@ -98,6 +98,7 @@ class ERApi:
 
             if response:
                 print(response.json())
+                print(response.text)
 
                 return response
 
