@@ -333,6 +333,8 @@ class Tripadvisor_FR(Tripadvisor):
                                 'novisitday': "1"
                             }
 
+                            print(review_data)
+
                             to_save = review_date != '' and author != '' and visit_date != '' and lang == self.lang
 
                             if to_save:
