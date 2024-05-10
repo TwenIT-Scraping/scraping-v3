@@ -334,7 +334,7 @@ class Tripadvisor_FR(Tripadvisor):
 
                             to_save and reviews.append(review_data)
 
-                if len(reviews) and (datetime.strptime(reviews[-1]["date_review"], "%d/%m/%Y") < datetime.today-timedelta(days=365)):
+                if len(reviews) and (datetime.strptime(reviews[-1]["date_review"], "%d/%m/%Y") < datetime.today()-timedelta(days=365)):
                     break
 
                 next_btn = self.find_driver_element(
