@@ -318,7 +318,7 @@ class Tripadvisor_FR(Tripadvisor):
                         lang = self.detect(comment)
                         date_lang = self.detect(review_date.text.strip())
 
-                        if lang:
+                        if lang and date_lang == self.lang:
 
                             review_data = {
                                 'comment': comment.replace('\n', ' '),
@@ -345,10 +345,6 @@ class Tripadvisor_FR(Tripadvisor):
                                 print("\t", author, "\n")
                                 print("\t", visit_date, "\n")
                                 print("\t", lang, '|', self.lang, "\n")
-
-                        else:
-                            print(lang)
-                            print(comment)
 
                 if len(reviews) and (datetime.strptime(reviews[-1]["date_review"], "%d/%m/%Y") < datetime.today()-timedelta(days=365)):
                     break
