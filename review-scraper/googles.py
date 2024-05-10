@@ -44,6 +44,9 @@ class BaseGoogleScrap(Scraping):
             return lang_code[f"{detector.detect_language_of(text)}"]
         except:
             return ''
+
+    def is_handball(self) -> bool:
+        return True if '&topic=mid:/' in self.driver.current_url else False
     
     def is_travel(self) -> bool:
         return True if '/travel/' in self.driver.current_url else False
