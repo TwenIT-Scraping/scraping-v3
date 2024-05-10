@@ -59,6 +59,8 @@ class Tripadvisor(Scraping):
                     '(', '').replace(')', ''), lang, 'short')
                 return f"{today.day}/{month}/{rawt_date[-1].replace('(', '').replace(')', '')}"
         if lang == 'es':
+            if form == 1 and rawt_date[-3].isnumeric() == False:
+                form = 3
             if form == 1:
                 month = month_number(
                     rawt_date[-2].replace('(', '').replace(')', ''), lang, 'short')
@@ -67,7 +69,10 @@ class Tripadvisor(Scraping):
                 month = month_number(
                     rawt_date[-3].replace('(', '').replace(')', ''), lang, '')
                 return f"{today.day}/{month}/{rawt_date[-1].replace('(', '').replace(')', '')}"
-
+            if form == 3:
+                month = month_number(rawt_date[-2].replace(
+                    '(', '').replace(')', ''), lang, 'short')
+                return f"{today.day}/{month}/{rawt_date[-1].replace('(', '').replace(')', '')}"
         return
 
     def extract(self):

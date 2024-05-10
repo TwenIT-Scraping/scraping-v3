@@ -135,6 +135,12 @@ class InstagramProfileScraper(Scraping):
         posts = nested_lookup(key='node', document=self.xhr_posts)
         coms = self.xhr_comments
 
+        with open('post.json', 'w') as fp:
+            fp.write(json.dumps(posts))
+
+        with open('coms.json', 'w') as fc:
+            fc.write(json.dumps(coms))
+
         for index in range(len(coms)):
             try:
                 pk = coms[index]['caption']['pk']
