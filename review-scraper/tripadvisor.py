@@ -39,11 +39,11 @@ class Tripadvisor(Scraping):
 
     def format_date(self, text, lang, form=1):
         rawt_date = text.split()
+        print(rawt_date, lang, form)
         today = datetime.today()
 
         if lang == 'fr':
             if form == 1:
-
                 month = month_number(
                     rawt_date[-2].replace('(', '').replace(')', ''), lang, '')
                 return f"{rawt_date[-3]}/{month}/{rawt_date[-1]}"
