@@ -44,17 +44,21 @@ class Tripadvisor(Scraping):
         if lang == 'fr':
             if form == 1:
 
-                month = month_number(rawt_date[-2], lang, '')
+                month = month_number(
+                    rawt_date[-2].replace('(', '').replace(')', ''), lang, '')
                 return f"{rawt_date[-3]}/{month}/{rawt_date[-1]}"
             if form == 2:
-                month = month_number(rawt_date[0], lang, 'short')
+                month = month_number(rawt_date[0].replace(
+                    '(', '').replace(')', ''), lang, 'short')
                 return f"{today.day}/{month}/{rawt_date[1]}"
         if lang == 'es':
             if form == 1:
-                month = month_number(rawt_date[-2], lang, 'short')
+                month = month_number(
+                    rawt_date[-2].replace('(', '').replace(')', ''), lang, 'short')
                 return f"{rawt_date[-3]}/{month}/{rawt_date[-1]}"
             if form == 2:
-                month = month_number(rawt_date[-3], lang, '')
+                month = month_number(
+                    rawt_date[-3].replace('(', '').replace(')', ''), lang, '')
                 return f"{today.day}/{month}/{rawt_date[-1]}"
 
         return
@@ -297,7 +301,6 @@ class Tripadvisor_FR(Tripadvisor):
 
                     for item in review_cards:
 
-                        print("\n--------------- xxx ---------------\n")
                         author = self.find_soup_element(
                             item, 'author', False)
                         rating = self.find_soup_element(
