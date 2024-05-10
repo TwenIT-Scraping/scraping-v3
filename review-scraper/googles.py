@@ -44,12 +44,13 @@ class BaseGoogleScrap(Scraping):
             return lang_code[f"{detector.detect_language_of(text)}"]
         except:
             return ''
+    
+    def is_travel(self) -> bool:
+        return True if '/travel/' in self.driver.current_url else False
 
-    def is_handball(self) -> bool:
-        return True if '&topic=mid:/' in self.driver.current_url else False
 
     def load_reviews(self) -> None:
-        if self.is_handball():
+        if not self.is_travel():
             order_item = self.driver.find_elements(
                 By.XPATH, "//div[@jsname='XPtOyb']")[1]
             self.driver.execute_script("arguments[0].click();", order_item)
@@ -85,8 +86,8 @@ class BaseGoogleScrap(Scraping):
             print(self.data_loaded)
             self.driver.execute_script(
                 f"window.scrollTo({currentHeight}, {scrollHeight});")
-            time.sleep(0.2)
-            if not self.is_handball() and index == 10:
+            time.sleep(random.randint(1, 3))
+            if index == 20:
                 self.driver.find_element(
                     By.TAG_NAME, 'body').send_keys(Keys.PAGE_UP)
                 self.extract()
@@ -97,20 +98,20 @@ class BaseGoogleScrap(Scraping):
                 self.data_current_count = self.new_data_count
                 index = 0
 
-            else:
-                for i in range(3):
-                    print('scrolling')
-                    self.driver.find_element(
-                        By.XPATH, '//div[@jsaction="WFrRFb;keydown:uYT2Vb"]').send_keys(Keys.PAGE_DOWN)
-                if index == 10:
-                    self.extract()
-                    self.save_data()
-                    self.new_data_count = len(self.data)
-                    index = 0
-                    if self.new_data_count == self.data_current_count:
-                        print('breaked')
-                        break
-                    self.data_current_count = self.new_data_count
+            # else:
+            #     for i in range(3):
+            #         print('scrolling')
+            #         self.driver.find_element(
+            #             By.XPATH, '//div[@jsaction="WFrRFb;keydown:uYT2Vb"]').send_keys(Keys.PAGE_DOWN)
+            #     if index == 10:
+            #         self.extract()
+            #         self.save_data()
+            #         self.new_data_count = len(self.data)
+            #         index = 0
+            #         if self.new_data_count == self.data_current_count:
+            #             print('breaked')
+            #             break
+            #         self.data_current_count = self.new_data_count
 
             index += 1
             currentHeight = scrollHeight
@@ -148,7 +149,7 @@ class BaseGoogleScrap(Scraping):
             if self.check_page():
                 self.load_reviews()
                 time.sleep(2)
-                # self.save()
+                self.save()
             else:
                 print("!!!!!!!! Cette page n'existe pas !!!!!!!!")
             self.driver.quit()
@@ -280,10 +281,15 @@ class Google(BaseGoogleScrap):
             if self.is_handball():
                 container = soupe.find('div', {'class': 'aSzfg'})
                 cards = container.find_all('div', {'class': 'bwb7ce'})
-                print(f"{len(cards)} cards found")
+                print(f"{len(cards)} handball cards found")
+            elif self.is_travel():
+                container = soupe.find('div', {'jsname':'SvNErb'})
+                cards = container.find_all('div', {'class':'Svr5cf bKhjM'})
+                print(f"{len(cards)} google travel cards found")
             else:
                 container = soupe.find('div', {'jsname': 'SvNErb'})
                 cards = container.find_all('div', {'class': 'Svr5cf bKhjM'})
+                print(f"{len(cards)} simple google cards found")
 
             for card in cards:
 
@@ -293,7 +299,32 @@ class Google(BaseGoogleScrap):
                 rating = 0
                 date_review = ''
                 date_visit = ''
-                if self.is_handball():
+
+                if self.is_travel():
+                    author = card.find('a', {'class':'DHIhE QB2Jof'}).text.strip() if card.find('a', {'class':'DHIhE QB2Jof'}) else ""
+                    try:
+                        comment = card.find('div', {'class':'K7oBsc'}).find('span').text.replace('(Traducido por Google) ', '').replace('\xa0... Ver más', '').replace(" En savoir plus", "") \
+                        .replace('(Traduit par Google)', '').replace('(Traduce by Google)', '').lower().split('(original)')[-1] if card.find('div', {'class':'K7oBsc'}) else ""
+                        if comment and "avis d'origine" in comment:
+                            comment = comment.split("(avis d'origine)")[-1]
+                        if comment and "(original)" in comment:
+                            comment = comment.split("(original)")[-1]
+                    except:
+                        comment = ""
+
+                    rating = card.find('div', {'class': 'GDWaad'}).text.strip() if card.find('div', {'class': 'GDWaad'}) else rating
+                    date_raw = card.find('span', {'class': 'iUtr1 CQYfx'}).text.lower()
+
+                    if 'sur' in date_raw:
+                        date_raw = date_raw[:date_raw.index(' sur')]
+                    if 'on' in date_raw:
+                        date_raw = date_raw[:date_raw.index(' on')]
+                    if 'en' in date_raw:
+                        date_raw = date_raw[:date_raw.index(' en')]
+
+                    date_raw = date_raw.replace('il y a ', '').replace('\xa0', ' ').replace('hace ', '').replace('ago', '')
+
+                else:
                     author = card.find('div', {'class': 'Vpc5Fe'}).text.strip(
                     ) if card.find('div', {'class': 'Vpc5Fe'}) else ''
                     try:
@@ -310,33 +341,15 @@ class Google(BaseGoogleScrap):
                         'Note: ', '').replace(',', '.').split(' sur')) if card.find('div', {'class': 'dHX2k'}) else rating
                     date_raw = card.find(
                         'span', {'class': 'y3Ibjb'}).text.lower().replace('\xa0', ' ')
-                else:
-                    author = card.find('a', {'class': 'DHIhE QB2Jof'}).text.strip(
-                    ) if card.find('a', {'class': 'DHIhE QB2Jof'}) else ""
-                    try:
-                        comment = card.find('div', {'class': 'K7oBsc'}).find('span').text.replace('(Traducido por Google) ', '').replace('\xa0... Ver más', '').replace(" En savoir plus", "") \
-                            .replace('(Traduit par Google)', '').replace('(Traduce by Google)', '').lower() if card.find('div', {'class': 'K7oBsc'}) else ""
-                        if comment and "avis d'origine" in comment:
-                            comment = comment.split("(avis d'origine)")[-1]
-                        if comment and "(original)" in comment:
-                            comment = comment.split("(original)")[-1]
-                    except:
-                        comment = ""
-                    rating = card.find('div', {'class': 'GDWaad'}).text.strip().split(
-                        '/')[0] if card.find('div', {'class': 'GDWaad'}) else "0"
-                    date_raw = card.find(
-                        'span', {'class': 'iUtr1 CQYfx'}).text.lower()
-
+                    
+                    date_raw = date_raw.replace('il y a ', '').replace('\xa0', '').replace('hace ', '').replace('ago', '')
                 try:
                     lang = self.detect_lang(comment)
                 except:
                     lang = 'en'
   
-                date_raw = date_raw.replace('il y a ', '').replace('\xa0', '').replace('hace ', '').replace('ago', '')
-
                 date_review = self.formate_date(date_raw)
                 if date_review != "" and date_review is not None:
-                    print('pass here')
                     if (author or comment or rating != "0") and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365):
                         reviews.append({
                             'rating': rating,
@@ -365,7 +378,7 @@ class Google(BaseGoogleScrap):
             print(e)
             
 
-# trp = Google(url="https://www.google.com/search?sca_esv=0b15258b1181e5d8&tbm=lcl&sxsrf=ACQVn0-X3s5xjdWXYJedWsHmpWcYnqnJgw:1714407629850&q=Le+Phare+-+Grand+Chamb%C3%A9ry+Avis&rflfq=1&num=20&stick=H4sIAAAAAAAAAONgkxI2NbYwMTU3NDI2NzUxNzExsDQw2cDI-IpR3idVISAjsShVQVfBvSgxL0XBOSMxN-nwyqJKBceyzOJFrIRUAAAhPWekXgAAAA&rldimm=5384571237547440904&hl=fr-FR&sa=X&ved=2ahUKEwiB05uO6ueFAxUcUqQEHbpJDoYQ9fQKegQIKhAF#lkt=LocalPoiReviews&topic=mid:/m/03krj",
+# trp = Google(url="https://www.google.com/search?sca_esv=cd9a55a255ee4ca7&biw=1920&bih=927&tbm=lcl&sxsrf=ADLYWILRiVyqj3TFZjsMeIPm77of3r5guQ:1715336316458&q=Sport+2000+Chamb%C3%A9ry+Avis&rflfq=1&num=20&stick=H4sIAAAAAAAAAONgkxIxNLA0NbY0NjazNDAztTAzMDKyNNvAyPiKUTK4IL-oRMHIwMBAwTkjMTfp8MqiSgXHssziRay45QB7lzUBUwAAAA&rldimm=10953933690658602296&hl=fr-FR&sa=X&ved=2ahUKEwiVhMDe7YKGAxXrVKQEHZyHCoYQ9fQKegQINxAF#lkt=LocalPoiReviews",
 #                 establishment=3, settings=1, env="DEV")
 # trp.set_language('fr')
 # trp.execute()
