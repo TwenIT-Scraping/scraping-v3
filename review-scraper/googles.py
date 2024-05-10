@@ -158,32 +158,40 @@ class BaseGoogleScrap(Scraping):
             self.driver.quit()
             sys.exit("Arret")
 
+    def detect_date_lang(self, date:str) -> str:
+        if date in ['jour', 'jours', 'semaine', 'semaines', 'mois', 'an', 'ans']:
+            return 'fr'
+        elif date in ['days', 'week', 'weeks', 'month', 'months', 'year', 'years']:
+            return 'en'
+        elif date in ['día', 'días', 'semana', 'semanas', 'mes', 'año', 'año']:
+            return 'es'
+        return ''
+
+
     def formate_date(self, raw_date: str) -> str:
         split_date = raw_date.split(' ')
+        print(split_date)
         today = datetime.now()
-        language = self.detect_lang(raw_date)
-        if 'mes' in raw_date:
-            language = 'es'
+        language = self.detect_date_lang(split_date[1])
         match language:
             case "fr":
-
                 if split_date[1] == 'jour':
                     return datetime.strftime(today + timedelta(days=-1), '%d/%m/%Y')
                 elif split_date[1] == 'jours':
-                    return datetime.strftime(today + timedelta(days=-(int(split_date[3]))), '%d/%m/%Y')
+                    return datetime.strftime(today + timedelta(days=-(int(split_date[0]))), '%d/%m/%Y')
                 if split_date[1] == 'semaine':
                     return datetime.strftime(today + timedelta(days=-7), '%d/%m/%Y')
                 elif split_date[1] == 'semaines':
-                    return datetime.strftime(today + timedelta(days=-7*int(split_date[3])), '%d/%m/%Y')
+                    return datetime.strftime(today + timedelta(days=-7*int(split_date[0])), '%d/%m/%Y')
                 elif split_date[1] == 'mois':
                     if split_date[0] == 'un':
                         return datetime.strftime(today + timedelta(days=-31), '%d/%m/%Y')
                     else:
-                        return datetime.strftime(today + timedelta(days=-31*int(split_date[3])), '%d/%m/%Y')
+                        return datetime.strftime(today + timedelta(days=-31*int(split_date[0])), '%d/%m/%Y')
                 elif split_date[1] == 'an':
                     return datetime.strftime(today + timedelta(days=-365), '%d/%m/%Y')
                 elif split_date[1] == 'ans':
-                    return datetime.strftime(today + timedelta(days=-(int(split_date[3])*365)), '%d/%m/%Y')
+                    return datetime.strftime(today + timedelta(days=-(int(split_date[0])*365)), '%d/%m/%Y')
                 else:
                     return datetime.strftime(today, '%d/%m/%Y')
 
@@ -272,11 +280,13 @@ class Google(BaseGoogleScrap):
             if self.is_handball():
                 container = soupe.find('div', {'class': 'aSzfg'})
                 cards = container.find_all('div', {'class': 'bwb7ce'})
+                print(f"{len(cards)} cards found")
             else:
                 container = soupe.find('div', {'jsname': 'SvNErb'})
                 cards = container.find_all('div', {'class': 'Svr5cf bKhjM'})
 
             for card in cards:
+
                 author = ''
                 comment = ''
                 date_raw = ''
@@ -289,26 +299,26 @@ class Google(BaseGoogleScrap):
                     try:
                         comment = card.find('div', {'class': 'OA1nbd'}).text.strip().replace('(Traducido por Google) ', '').replace('\xa0... Ver más', '').replace(" En savoir plus", "") \
                             .replace('(Traduit par Google)', '').replace('(Traduce by Google)', '').lower() if card.find('div', {'class': 'OA1nbd'}) else ''
-                        if "avis d'origine" in comment:
+                        if comment and "avis d'origine" in comment:
                             comment = comment.split("(avis d'origine)")[-1]
-                        if "(original)" in comment:
+                        if comment and "(original)" in comment:
                             comment = comment.split("(original)")[-1]
                     except:
+                        print('Google handball comment exception')
                         pass
                     rating = '/'.join(card.find('div', {'class': 'dHX2k'})['aria-label'].replace('\xa0', '').replace(
                         'Note: ', '').replace(',', '.').split(' sur')) if card.find('div', {'class': 'dHX2k'}) else rating
                     date_raw = card.find(
                         'span', {'class': 'y3Ibjb'}).text.lower().replace('\xa0', ' ')
-
                 else:
                     author = card.find('a', {'class': 'DHIhE QB2Jof'}).text.strip(
                     ) if card.find('a', {'class': 'DHIhE QB2Jof'}) else ""
                     try:
                         comment = card.find('div', {'class': 'K7oBsc'}).find('span').text.replace('(Traducido por Google) ', '').replace('\xa0... Ver más', '').replace(" En savoir plus", "") \
                             .replace('(Traduit par Google)', '').replace('(Traduce by Google)', '').lower() if card.find('div', {'class': 'K7oBsc'}) else ""
-                        if "avis d'origine" in comment:
+                        if comment and "avis d'origine" in comment:
                             comment = comment.split("(avis d'origine)")[-1]
-                        if "(original)" in comment:
+                        if comment and "(original)" in comment:
                             comment = comment.split("(original)")[-1]
                     except:
                         comment = ""
@@ -321,21 +331,12 @@ class Google(BaseGoogleScrap):
                     lang = self.detect_lang(comment)
                 except:
                     lang = 'en'
+  
+                date_raw = date_raw.replace('il y a ', '').replace('\xa0', '').replace('hace ', '').replace('ago', '')
 
-                match(self.detect_lang(date_raw)):
-                    case 'fr':
-                        print(date_raw)
-                        date_raw = date_raw.replace(
-                            'il y a ', '').replace('\xa0', '').strip()
-                    case 'es':
-                        date_raw = date_raw.replace(
-                            'hace ', '').replace('\xa0', '').strip()
-                    case 'en':
-                        date_raw = date_raw.replace(
-                            'ago', '').replace('\xa0', '').strip()
-
-                date_review = self.formate_date(date_raw) if date_raw else ""
+                date_review = self.formate_date(date_raw)
                 if date_review != "" and date_review is not None:
+                    print('pass here')
                     if (author or comment or rating != "0") and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365):
                         reviews.append({
                             'rating': rating,
@@ -351,7 +352,7 @@ class Google(BaseGoogleScrap):
                         })
 
                     if datetime.strptime(date_review, '%d/%m/%Y') < (datetime.now() - timedelta(days=365)):
-                        print("houla" + date_review)
+                        print("houla")
                         self.data = reviews
                         self.data_loaded = True
                         return
@@ -360,8 +361,9 @@ class Google(BaseGoogleScrap):
                         return
             print(reviews)
             self.data = reviews
-        except:
-            pass
+        except Exception as e:
+            print(e)
+            
 
 # trp = Google(url="https://www.google.com/search?sca_esv=0b15258b1181e5d8&tbm=lcl&sxsrf=ACQVn0-X3s5xjdWXYJedWsHmpWcYnqnJgw:1714407629850&q=Le+Phare+-+Grand+Chamb%C3%A9ry+Avis&rflfq=1&num=20&stick=H4sIAAAAAAAAAONgkxI2NbYwMTU3NDI2NzUxNzExsDQw2cDI-IpR3idVISAjsShVQVfBvSgxL0XBOSMxN-nwyqJKBceyzOJFrIRUAAAhPWekXgAAAA&rldimm=5384571237547440904&hl=fr-FR&sa=X&ved=2ahUKEwiB05uO6ueFAxUcUqQEHbpJDoYQ9fQKegQIKhAF#lkt=LocalPoiReviews&topic=mid:/m/03krj",
 #                 establishment=3, settings=1, env="DEV")
