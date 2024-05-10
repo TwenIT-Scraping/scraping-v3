@@ -333,15 +333,21 @@ class Tripadvisor_FR(Tripadvisor):
                             to_save = review_date != '' and author != '' and visit_date != '' and lang == self.lang
 
                             if to_save:
+                                print("saved")
+                                print(review_data)
                                 reviews.append(review_data)
                             else:
-                                print("Checking:")
+                                print("not saved:")
                                 print("\t", review_date, "\n")
                                 print("\t", comment, "\n")
                                 print("\t", rating, "\n")
                                 print("\t", author, "\n")
                                 print("\t", visit_date, "\n")
                                 print("\t", lang, '|', self.lang, "\n")
+
+                        else:
+                            print(lang)
+                            print(comment)
 
                 if len(reviews) and (datetime.strptime(reviews[-1]["date_review"], "%d/%m/%Y") < datetime.today()-timedelta(days=365)):
                     break
