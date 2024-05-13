@@ -83,8 +83,9 @@ class ListScraperV2:
         self.last_date = date
 
     def start(self):
-        # print("Liste des urls à sraper:")
-        # print(list(map(lambda x: x['url'], self.settings.items)))
+        print("Liste des établissements à scraper:")
+        print(
+            list(map(lambda x: x['establishment_name'], self.settings.items)))
 
         for item in self.settings.items:
             time.sleep(random.randint(1, 3))
@@ -92,6 +93,8 @@ class ListScraperV2:
 
             print(
                 f"****** {item['establishment_name']} / {item['source']} ******")
+            print(
+                f"\t=> {item['url']}")
 
             if item['source'] in __class_name_v2__.keys():
                 print("=> A scraper !!!")

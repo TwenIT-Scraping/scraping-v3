@@ -190,9 +190,9 @@ class ListScraperV2:
         # refresh_connection()
 
         # counter = 0
-        print("Liste des urls à sraper:")
+        print("Liste des établissements à scraper:")
         print(
-            list(map(lambda x: {'url': x['url'], 'settings': x['id']}, self.settings.items)))
+            list(map(lambda x: x['establishment_name'], self.settings.items)))
 
         order = random.sample(
             range(len(self.settings.items)), len(self.settings.items))

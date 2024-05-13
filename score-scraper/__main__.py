@@ -138,6 +138,9 @@ if __name__ == '__main__':
             event = f"Process started at {start_time.strftime('%d/%m/%Y %H:%M:%S')} and ended at {end_time.strftime('%d/%m/%Y %H:%M:%S')} with {lines_count} lines"
             code = 1
 
+            if args.type == 'list':
+                process = "Consult the list of providers and establishment."
+
             # Définition des résultats de log
             log_instance.set_result(process, event, code)
             # Envoi des résultats de log

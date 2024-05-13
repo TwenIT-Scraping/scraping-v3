@@ -211,7 +211,7 @@ class MeteoLocalityScraper(MeteoAPI):
     def initialize(self):
         self.create_logfile()
         self.get_localities()
-        print("==> All establishement loaded ('_')")
+        print("==> All establishment loaded ('_')")
 
 
 class MeteoAPIScraper(MeteoAPI):
