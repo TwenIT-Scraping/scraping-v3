@@ -8,10 +8,20 @@ class Google(Scraping):
         super().__init__(in_background=True, url=defurl,
                          establishment=establishment, env=env)
 
-        self.attr = 'class'
-        self.balise = 'span'
-        self.css_selector = 'fzTgPe Aq14fc'
-        self.source = 'google'
+
+        if self.is_handball():
+            self.attr = 'class'
+            self.balise = 'span'
+            self.css_selector = 'yi40Hd YrbPuc'
+            self.source = 'google'
+        else:    
+            self.attr = 'class'
+            self.balise = 'span'
+            self.css_selector = 'fzTgPe Aq14fc'
+            self.source = 'google'
+
+    def is_handball(self) -> bool:
+        return True if '&topic=mid:/' in self.driver.current_url else False
 
 
 class GoogleTravel(Scraping):
