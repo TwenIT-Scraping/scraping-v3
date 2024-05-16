@@ -134,7 +134,7 @@ if __name__ == '__main__':
 
            # Calcul du nombre de lignes récupérées
             end_time = now  # Capturer la date de fin du programme
-            process = data['providers']
+            process = "Score: " + data['providers']
             event = f"Process started at {start_time.strftime('%d/%m/%Y %H:%M:%S')} and ended at {end_time.strftime('%d/%m/%Y %H:%M:%S')} with {lines_count} lines"
             code = 1
 

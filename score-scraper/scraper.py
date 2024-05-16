@@ -85,7 +85,7 @@ class ListScraperV2:
     def start(self):
         print("Liste des établissements à scraper:")
         print(
-            list(map(lambda x: x['establishment_name'], self.settings.items)))
+            list(map(lambda x: x, self.settings.items)))
 
         for item in self.settings.items:
             time.sleep(random.randint(1, 3))

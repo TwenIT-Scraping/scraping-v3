@@ -3,6 +3,9 @@ import time
 from selenium.webdriver.common.by import By
 import time
 from bs4 import BeautifulSoup
+import json
+from os import path
+import random
 
 
 class Tripadvisor(Scraping):
@@ -10,12 +13,10 @@ class Tripadvisor(Scraping):
         super().__init__(in_background=False, url=url,
                          establishment=establishment, env=env, force_refresh=True)
 
-        self.attr = 'data-automation'
-        self.balise = 'div'
-        self.css_selector = 'reviewBubbleScore'
         self.source = 'tripadvisor'
 
     def extract(self) -> None:
+        time.sleep(random.randint(5, 25))
         input("Entrer une touche pour continuer ...")
         return super().extract()
 
@@ -55,15 +56,18 @@ class Tripadvisor_FR(Scraping):
         super().__init__(in_background=False, url=url,
                          establishment=establishment, env=env, force_refresh=True)
 
-        self.attr = 'class'
-        self.balise = 'span'
-        self.css_selector = 'biGQs _P fiohW uuBRH'
+        # self.attr = 'class'
+        # self.balise = 'span'
+        # self.css_selector = 'kJyXc P'
+        # yyzcQ
         self.source = 'tripadvisor'
 
-    # def extract(self) -> None:
-    #     time.sleep(5)
+    def extract(self) -> None:
+        time.sleep(random.randint(5, 15))
 
-    #     input("Entrer une touche pour continuer ...")
+        input("Entrer une touche pour continuer ...")
+
+        return super().extract()
 
     #     if self.css_selector:
     #         while True:

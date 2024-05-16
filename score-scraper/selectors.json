@@ -1,0 +1,22 @@
+{
+    "tripadvisor": [
+        {
+            "type": "css",
+            "attr": "data-automation",
+            "tag": "div",
+            "value": "reviewBubbleScore"
+        },
+        {
+            "type": "css",
+            "attr": "class",
+            "tag": "span",
+            "value": "kJyXc P"
+        },
+        {
+            "type": "css",
+            "attr": "class",
+            "tag": "span",
+            "value": "yyzcQ"
+        }
+    ]
+}

@@ -13,11 +13,27 @@ import os
 from api import ERApi
 from changeip import refresh_connection
 from pathlib import Path
+import json
+from os import path
+import random
+from fake_useragent import UserAgent
+
+
+def isnumerics(item):
+    if item.text.strip().isnumeric():
+        return True
+    else:
+        return False
 
 
 class Scraping(object):
 
     def __init__(self, in_background: bool, url: str, establishment: str, env: str, force_refresh=False) -> None:
+
+        ua = UserAgent()
+        user_agent = ua.random
+
+        print(user_agent)
 
         # driver options
         self.chrome_options = webdriver.ChromeOptions()
@@ -29,6 +45,7 @@ class Scraping(object):
         self.chrome_options.add_argument('--incognito')
         self.chrome_options.add_extension(
             f'{Path((str(Path.cwd()) + "/canvas_blocker_0_2_0_0.crx"))}')
+        self.chrome_options.add_argument(f'user-agent={user_agent}')
 
         self.firefox_options = webdriver.FirefoxOptions()
         self.firefox_options.add_argument('--disable-gpu')
@@ -37,13 +54,17 @@ class Scraping(object):
         self.firefox_options.add_argument('--incognito')
         self.firefox_options.set_preference(
             'intl.accept_languages', 'en-US, en')
+        profile = webdriver.FirefoxProfile()
+        profile.set_preference("general.useragent.override", user_agent)
+        self.firefox_options.profile = profile
 
         dotenv.load_dotenv()
 
         if os.environ.get('DRIVER') == 'chrome':
             self.driver = webdriver.Chrome(options=self.chrome_options)
         else:
-            self.driver = webdriver.Firefox(options=self.firefox_options)
+            self.driver = webdriver.Firefox(
+                options=self.firefox_options)
             self.driver.install_addon(
                 f'{Path((str(Path.cwd()) + "/canvasblocker-1.10.1.xpi"))}')
 
@@ -67,20 +88,32 @@ class Scraping(object):
     def set_establishment(self, establishment):
         self.establishment = establishment
 
+    def prepare(self) -> None:
+        try:
+            selector_path = path.join(
+                path.dirname(__file__), 'selectors.json')
+            with open(selector_path, 'r') as f:
+                tmp = json.load(f)
+                self.selectors = tmp[self.source]
+        except Exception as e:
+            print(e)
+            pass
+
     def set_url(self, url: str) -> None:
         self.url = url
 
     def execute(self) -> None:
+        self.prepare()
         try:
             if self.force_refresh:
                 refresh_connection()
 
             self.scrap()
-            time.sleep(5)
-            WebDriverWait(self.driver, 10)
+            time.sleep(random.randint(5, 15))
+            WebDriverWait(self.driver, random.randint(10, 25))
             self.extract()
-            time.sleep(2)
-            self.save()
+            time.sleep(random.randint(5, 15))
+            # self.save()
             self.driver.quit()
         except Exception as e:
             print(e)
@@ -107,20 +140,80 @@ class Scraping(object):
                 method="post", entity="scores", env=self.env, body=data, params={})
             post_instance.execute()
 
+    def find_soup_element(self, soupe, all=True):
+        elements = None
+        element = None
+        loop = True
+
+        for t in self.selectors:
+            if not loop:
+                break
+
+            if t['type'] == 'css':
+                try:
+                    if all:
+                        elements = soupe.find_all(
+                            t['tag'], {t['attr']: t['value']})
+                        if elements and len(elements) > 0:
+                            loop = False
+                    else:
+                        element = soupe.find(t['tag'], {t['attr']: t['value']})
+                        if element and element.text.strip().isnumeric():
+                            loop = False
+
+                except Exception as e:
+                    pass
+
+        return filter(isnumerics, elements) if all else element
+
+    def find_driver_element(self, all=True):
+        elements = None
+        element = None
+        loop = True
+
+        for t in self.selectors:
+            if not loop:
+                break
+
+            if t['type'] == 'xpath':
+                try:
+                    if all:
+                        elements = self.driver.find_elements(
+                            By.XPATH, t['value'])
+                        if elements and len(elements) > 0:
+                            loop = False
+                    else:
+                        element = self.driver.find_element(
+                            By.XPATH, t['value'])
+                        if element and element.text.isnumeric():
+                            loop = False
+
+                except Exception as e:
+                    pass
+
+        return filter(isnumerics, elements) if all else element
+
     def extract(self) -> None:
-        time.sleep(2)
+        time.sleep(random.randint(2, 10))
 
-        if self.css_selector:
-            page = self.driver.page_source
-            soupe = BeautifulSoup(page, 'lxml')
+        page = self.driver.page_source
+        soupe = BeautifulSoup(page, 'lxml')
 
-            score = float(soupe.find(self.balise, {self.attr: self.css_selector}).text.strip(
-            ).replace(',', '.')) if soupe.find(self.balise, {self.attr: self.css_selector}) else 0
+        score = self.find_soup_element(soupe, False)
 
-            self.data = score / 2 if score > 5 else score
+        print(score)
 
-        if self.xpath_selector:
-            score = float(self.driver.find_element(By.XPATH, self.xpath_selector).text) \
-                if self.driver.find_element(By.XPATH, self.xpath_selector) else 0
+        # if self.css_selector:
+        #     page = self.driver.page_source
+        #     soupe = BeautifulSoup(page, 'lxml')
 
-            self.data = score / 2 if score > 5 else score
+        #     score = float(soupe.find(self.balise, {self.attr: self.css_selector}).text.strip(
+        #     ).replace(',', '.')) if soupe.find(self.balise, {self.attr: self.css_selector}) else 0
+
+        #     self.data = score / 2 if score > 5 else score
+
+        # if self.xpath_selector:
+        #     score = float(self.driver.find_element(By.XPATH, self.xpath_selector).text) \
+        #         if self.driver.find_element(By.XPATH, self.xpath_selector) else 0
+
+        #     self.data = score / 2 if score > 5 else score
