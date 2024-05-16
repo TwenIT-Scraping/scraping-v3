@@ -124,8 +124,8 @@ class LinkedInProfileScraper(Scraping):
 
         soupe = BeautifulSoup(self.page.content(), 'lxml')
 
-        followers = soupe.find('div', {'class': "org-top-card-summary-info-list"}).find_all(
-            'div', {'class': "org-top-card-summary-info-list__info-item"})[-1].text.strip()
+        followers = soupe.find('section', {'class': "org-company-info-module__container artdeco-card full-width"}).find(
+            'p', {'class': "t-14 t-normal text-align-center"}).text.strip().replace('\u202f', '').split('\xa0')[0]
         try:
             followers = convert_count(followers.split(' ')[0].lower())
         except Exception as e:
@@ -167,9 +167,11 @@ class LinkedInProfileScraper(Scraping):
                         published_at = format_linkedIn_date(comment.find(
                             'time', {'class': 'comments-comment-item__timestamp'}).text.strip()) if comment.find(
                             'time', {'class': 'comments-comment-item__timestamp'}) else ""
-                        clikes = int(comment.find(
-                            'button', {'class': 'comments-comment-social-bar__reactions-count'}).text.strip()) if comment.find(
-                            'button', {'class': 'comments-comment-social-bar__reactions-count'}) else 0
+                        clikes = comment.find('button', {'class': 'comments-comment-social-bar__reactions-count'}).text.strip()
+                        if clikes.isdigit() and clikes is not None and clikes != '':
+                            clikes = int(clikes)
+                        else:
+                            clikes = 0
                         comment_values.append({
                             'comment': comment_text,
                             'published_at': published_at,
