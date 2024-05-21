@@ -146,6 +146,7 @@ class Scraping(object):
         loop = True
 
         for t in self.selectors:
+            print(t)
             if not loop:
                 break
 
@@ -162,6 +163,7 @@ class Scraping(object):
                             loop = False
 
                 except Exception as e:
+                    print(e)
                     pass
 
         return filter(isnumerics, elements) if all else element
