@@ -179,6 +179,8 @@ def main_arguments() -> object:
                         help="Nom des établissements à traiter, séparé par des virgules.")
     parser.add_argument('--column', '-c', dest='column',
                         help="Option: feeling, category", default="category")
+    parser.add_argument('--results', '-r', dest='stat',
+                        default="N", help="Option: N ou Y")
     return parser.parse_args()
 
 
@@ -186,7 +188,8 @@ ARGS_INFO = {
     '-t': {'long': '--type', 'dest': 'type', 'help': "Options: comments, reviews, posts. reviews par défaut."},
     '-c': {'long': '--column', 'dest': 'column', 'help': "Options: feeling, category. category par défaut."},
     '-v': {'long': '--env', 'dest': 'env', 'help': "Optionnel: environnement de l'api. PROD par défaut"},
-    '-n': {'long': '--names', 'dest': 'names', 'help': "Nom des établissements à traiter, séparé par des virgules."}
+    '-n': {'long': '--names', 'dest': 'names', 'help': "Nom des établissements à traiter, séparé par des virgules."},
+    '-r': {'long': '--results', 'dest': 'stat', 'help': 'Option: N ou Y'}
 }
 
 
@@ -234,13 +237,84 @@ class ClassificationAPI(object):
         except Exception as e:
             print(e)
 
+    def check_results(self):
+        results = []
+        stats = {'categories': [], 'classification': {},
+                 'nocategorized': [], 'classified': 0}
+        page = 1
+
+        print("Fetching data ...")
+
+        while (True):
+            endpoint = f"review/by_establishment?tag={self.tag}&page={page}&limit=200&from=2023-09-01&to=2024-05-22"
+            try:
+                get_instance = ERApi(
+                    method="get", entity=endpoint, env=self.env, params={"all": "yes", "type": self.type, "page": self.page, 'limit': self.limit})
+                res = get_instance.execute()
+
+                if not res or not res['data'] or len(res['data']) == 0:
+                    break
+                else:
+                    results += res['data']
+
+                page += 1
+
+            except:
+                break
+
+        for line in results:
+            if line['category']:
+                categories = line['category'].split(';')
+
+                if len(categories):
+
+                    for categ in categories:
+                        if categ not in stats['categories']:
+                            stats['categories'].append(categ)
+
+                        if categ not in stats['classification'].keys():
+                            stats['classification'][categ] = []
+
+                        stats['classification'][categ].append({
+                            'id': line['id'],
+                            'type': 'review',
+                            'category_check': line['category_check'],
+                        })
+
+                        stats['classified'] = stats['classified'] + 1
+
+                else:
+                    stats['nocategorized'].append({
+                        'id': line['id'],
+                        'type': 'review',
+                        'category_check': line['category_check'],
+                    })
+            else:
+                stats['nocategorized'].append({
+                    'id': line['id'],
+                    'type': 'review',
+                    'category_check': line['category_check'],
+                })
+
+        print("\n================ RESULTATS ==================\n")
+        print("Nombre total reviews: ", len(results))
+        print("Catégories:", stats['categories'])
+        print("Nombre reviews classifiés: ", stats['classified'])
+        print("Nombre reviews non classifiés: ", len(stats['nocategorized']))
+        print("Reviews par catégorie: ")
+
+        for categ in stats['classification'].keys():
+            print("\t", categ, ":", len(stats['classification'][categ]))
+
+        print("\n=============================================\n")
+
     def compute_scores(self, comments):
 
         review_score = ReviewScore()
 
         def set_score(item):
             score_data = {}
-            
+
             if self.type == "comments":
                 score_data = review_score.compute_comment_score(item['text'])
             elif self.type == "posts":
@@ -259,7 +333,7 @@ class ClassificationAPI(object):
 
         progress = ChargingBar('Calcul scores: ', max=len(comments))
         for item in comments:
-            if item['text'] and len(item['text'])>0:
+            if item['text'] and len(item['text']) > 0:
                 results.append(set_score(item))
                 progress.next()
 
@@ -452,11 +526,18 @@ if __name__ == '__main__':
             print("Après filtre: ", len(todo))
 
             for item in todo:
-                print("======> Etablissement: ",
-                      item['name'], ' <========')
-                cl = ClassificationAPI(
-                    tag=item['tag'], type=args.type, limit=20, env=args.env, column=args.column)
-                cl.execute()
+                try:
+                    print("======> Etablissement: ",
+                          item['name'], ' <========')
+                    cl = ClassificationAPI(
+                        tag=item['tag'], type=args.type, limit=20, env=args.env, column=args.column)
+
+                    if args.stat == 'Y':
+                        cl.check_results()
+                    else:
+                        cl.execute()
+                except Exception as e:
+                    print(e)
 
         except Exception as e:
             now = datetime.now()
