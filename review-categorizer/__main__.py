@@ -350,26 +350,49 @@ class ClassificationAPI(object):
             }
         else:
             if len(self.categories):
+                # try:
+                #     classifier = pipeline(task="zero-shot-classification",
+                #                           device=-1, model="facebook/bart-large-mnli")
+
+                #     prediction = classifier(
+                #         line['text'], list(map(lambda x: x['category'], self.categories)), multi_label=False)
+
+                #     # prediction = {
+                #     #     # 'labels': ['travel', 'cooking', 'dancing'],
+                #     #     'labels': self.categories,
+                #     #     # 'scores': [random.uniform(0, 1) for i in range(3)],
+                #     #     'scores': [random.uniform(0, 1) for i in range(len(self.categories))],
+                #     #     'sequence': line['text']
+                #     # }
+
+                #     line['prediction'] = prediction
+
+                # except Exception as e:
+                #     print(e)
+                #     line['prediction'] = None
+
                 try:
+                    prediction = {
+                        'sequence': line['text'], 'labels': [], 'scores': []}
                     classifier = pipeline(task="zero-shot-classification",
                                           device=-1, model="facebook/bart-large-mnli")
 
-                    prediction = classifier(
-                        line['text'], list(map(lambda x: x['category'], self.categories)), multi_label=False)
+                    categs = list(
+                        map(lambda x: x['category'], self.categories))
 
-                    # prediction = {
-                    #     # 'labels': ['travel', 'cooking', 'dancing'],
-                    #     'labels': self.categories,
-                    #     # 'scores': [random.uniform(0, 1) for i in range(3)],
-                    #     'scores': [random.uniform(0, 1) for i in range(len(self.categories))],
-                    #     'sequence': line['text']
-                    # }
+                    for categ in categs:
+                        result = classifier(
+                            line['text'], categ, multi_label=False)
 
-                    line['prediction'] = prediction
+                        prediction['labels'].append(categ)
+                        prediction['scores'].append(result['scores'][0])
+
+                    print('\n', prediction)
 
                 except Exception as e:
                     print(e)
                     line['prediction'] = None
+                    pass
 
             else:
                 line['prediction'] = None
