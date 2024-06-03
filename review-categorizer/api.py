@@ -5,7 +5,9 @@ from datetime import datetime
 import shutil
 import dotenv
 import os
+import urllib3
 from urllib3 import encode_multipart_formdata
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class ERApi:
@@ -106,8 +108,8 @@ class ERApi:
                 data=json.dumps(self.body),
                 verify=False
             )
-            print(self.api_url, self.entity)
-            print(response)
+            # print(f"{self.api_url}{self.entity}")
+            # print(response)
 
         if response.status_code >= 400:
             response.raise_for_status()
