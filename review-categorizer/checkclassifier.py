@@ -28,7 +28,7 @@ def checkclassifier(categories, text):
         pass
 
 
-categs = ['Mobilier', 'Accueil', 'Ménage', 'Emplacement', 'Nourriture']
+categs = ['Furniture', 'Home', 'Housekeeping', 'Location', 'Food']
 texts = [
     'Very pleasant and welcoming staff. Complete apartment equipment. Accommodation a little aging however with some small improvement work to be planned but well equipped... We would nevertheless have liked to have a terrace on the sun side and a clear view but that was not possible...; too bad!',
     'We enjoyed our stay despite a few details which spoiled the weekend a little. The residence was found to be aging. It could do with a refresh. After a day of hiking we would have appreciated the swimming pool\xa0… Read more',
