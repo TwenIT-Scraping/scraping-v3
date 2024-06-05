@@ -372,22 +372,14 @@ class ClassificationAPI(object):
                 #     line['prediction'] = None
 
                 try:
-                    prediction = {
-                        'sequence': line['text'], 'labels': [], 'scores': []}
-                    classifier = pipeline(task="zero-shot-classification",
-                                          device=-1, model="facebook/bart-large-mnli")
+                    classifier = pipeline("zero-shot-classification",
+                                          device=-1, model="cross-encoder/nli-deberta-v3-base")
 
                     categs = list(
                         map(lambda x: x['category'], self.categories))
 
-                    for categ in categs:
-                        result = classifier(
-                            line['text'], categ, multi_label=False)
-
-                        prediction['labels'].append(categ)
-                        prediction['scores'].append(result['scores'][0])
-
-                    print('\n', prediction)
+                    prediction = classifier(
+                        line['text'], categs, multi_label=True)
 
                 except Exception as e:
                     print(e)
