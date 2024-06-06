@@ -19,6 +19,7 @@ class Scraping(object):
         self.log = ''
         self.errors = False
         self.establishment_name = ''
+        self.source = ''
 
     def set_environ(self, env):
         self.env = env
@@ -68,10 +69,7 @@ class Scraping(object):
                 self.page_data, separators=(',', ':'))
             self.add_logging(f"Data: {d}")
 
-            # e_name = re.sub(r'[^a-zA-Z0-9\s]+', '',
-            #                 page_data.pop('name')).replace(' ', '_')
-
-            output_file = f"{page_data['source']}_score_{self.env}_{self.establishment}_{self.establishment_name}_{datetime.now().strftime('%Y-%m-%d')}"
+            output_file = f"{self.source}_score_{self.env}_{self.establishment}_{self.establishment_name}_{datetime.now().strftime('%Y-%m-%d')}"
 
             with open(f"{environ.get('SOCIAL_FOLDER')}/{output_file}.json", 'w') as foutput:
                 json.dump(page_data, foutput, indent=4, sort_keys=True)

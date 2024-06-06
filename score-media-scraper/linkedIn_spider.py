@@ -24,6 +24,7 @@ class LinkedInProfileScraper(Scraping):
             headless=False, args=['--start-maximized'])
         self.context = self.browser.new_context(no_viewport=True)
         self.page = self.context.new_page()
+        self.source = "linkedin"
 
     def stop(self):
         self.context.close()

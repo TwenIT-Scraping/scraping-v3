@@ -9,7 +9,7 @@ from dateutil import parser
 from scraping import Scraping
 from progress.bar import ChargingBar, FillingCirclesBar
 
-__to_remove__ = ["j'aime", "followers", "likes", 'j’aime', ' ']
+__to_remove__ = ["j'aime", "followers", "likes", 'j’aime', 'suivi(e)s']
 
 
 class FacebookProfileScraper(Scraping):
@@ -26,6 +26,7 @@ class FacebookProfileScraper(Scraping):
             headless=False, args=['--start-maximized'])
         self.context = self.browser.new_context(no_viewport=True)
         self.page = self.context.new_page()
+        self.source = "facebook"
 
     def stop(self):
         self.context.close()
@@ -69,25 +70,53 @@ class FacebookProfileScraper(Scraping):
         pass
 
     def format_string_to_number(self, value: str) -> int | None:
+
+        def digit_only(text):
+            new_text = ""
+            for t in text:
+                if t.isdigit():
+                    new_text += t
+            return new_text
+
         text = value.lower()
 
         for t in __to_remove__:
             text = text.replace(t, '')
 
-        new_text = ""
-
-        numb = text.replace('K', "000").replace('k', "000").replace(
-            'M', '000000').replace('.', '').replace(',', '')
-
-        for t in numb:
-            if t.isdigit():
-                new_text += t
+        print(text)
 
         try:
-            numb = int(new_text)
-            return numb
-        except:
-            raise Exception(f" {numb} cannot be formated to int")
+
+            if "k" in text:
+                tmp = text.split(',')
+                if len(tmp) > 1:
+                    first = int(digit_only(tmp[0]))*1000
+                    second = int(digit_only(tmp[1]))*100
+                    return first+second
+
+                else:
+                    return int(digit_only(tmp[0]))*1000
+
+            if "m" in text:
+                tmp = text.split(',')
+                if len(tmp) > 1:
+                    first = int(digit_only(tmp[0]))*1000000
+                    second = int(digit_only(tmp[1]))*100000
+                    print(first, second, first+second)
+                    return first + second
+                else:
+                    return int(digit_only(tmp[0]))*1000000
+
+            else:
+                return int(digit_only(text))
+
+        except Exception as e:
+            print(e)
+
+        # numb = text.replace('K', "000").replace('k', "000").replace(
+        #     'M', '000000').replace('.', '').replace(',', '')
+
+        return 0
 
     def extract_data(self) -> None:
         soupe = BeautifulSoup(self.page.content(), 'lxml')

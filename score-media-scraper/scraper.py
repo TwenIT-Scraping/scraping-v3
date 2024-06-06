@@ -126,12 +126,14 @@ class ListScraper:
         data = {}
 
         try:
-
             with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.json", 'r') as dinput:
                 data = json.load(dinput)
 
         except Exception as e:
+            print(e)
             self.add_error(e)
+
+        self.add_logging(f"Post request ...")
 
         post = ERApi(method='post', entity='social_pages', env=self.env)
 
@@ -139,13 +141,18 @@ class ListScraper:
 
         result = post.execute()
 
-        self.add_logging(f"Request response: {json.dumps(result)}")
+        if result and hasattr(result, 'text'):
+            self.add_logging(
+                f"Request response (status {result.status_code}): {json.dumps(result.text)}")
+        else:
+            self.add_logging(f"Request response: {json.dumps(result)}")
 
     def upload_all_results(self):
         files = [pathlib.Path(f).stem for f in os.listdir(
             f"{os.environ.get('SOCIAL_FOLDER')}/uploads") if pathlib.Path(f).suffix == '.json']
         progress = ChargingBar('Processing ', max=len(files))
         for file in files:
+            print(file)
             self.upload_data(file)
             progress.next()
             print(" | ", file)
