@@ -39,8 +39,8 @@ class BaseFacebookScraper(Scraping):
         self.static_folder_path = f"{os.environ.get('STATIC_FOLDER')}/facebook"
         self.credentials = {
             "username": "",
-            "phone":"0345861628",
-            "password":"keller#pass4015"
+            "phone":"",
+            "password":""
         }
 
     def detect_lang(self, text: str) -> str:
