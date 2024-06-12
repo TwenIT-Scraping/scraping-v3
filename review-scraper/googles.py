@@ -363,6 +363,7 @@ class Google(BaseGoogleScrap):
                             'rating': rating,
                             'author': author,
                             'date_review': date_review,
+                            'url': self.driver.current_url,
                             'comment': comment,
                             'language': lang,
                             'source': urlparse(self.driver.current_url).netloc.split('.')[1],
