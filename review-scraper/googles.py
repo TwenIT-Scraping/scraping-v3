@@ -314,6 +314,11 @@ class Google(BaseGoogleScrap):
                             comment = comment.split("(original)")[-1]
                     except:
                         comment = ""
+                    url = ''
+                    try:
+                        url = card.find('a', {'class':'YhR3n'}, href=True)['href']
+                    except:
+                        url = self.driver.current_url
 
                     rating = card.find('div', {'class': 'GDWaad'}).text.strip() if card.find('div', {'class': 'GDWaad'}) else rating
                     date_raw = card.find('span', {'class': 'iUtr1 CQYfx'}).text.lower()
