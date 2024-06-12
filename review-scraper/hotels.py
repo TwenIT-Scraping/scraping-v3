@@ -29,7 +29,7 @@ class BaseHotelsReviewScrap(Scraping):
         print(f"url: {self.url}")
         self.driver.get(self.url)
         WebDriverWait(self.driver, 10000)
-        time.sleep(randint(10, 30))
+        time.sleep(randint(30, 60))
         try:
             self.driver.find_element(By.ID, 'onetrust-accept-btn-handler').click()
             WebDriverWait(self.driver, 10000)
@@ -145,8 +145,8 @@ class BaseHotelsReviewScrap(Scraping):
                 data['date_visit'] = data['date_review']
                 data['novisitday'] = "0"
 
-                reviews.append(data)
-                print(data)
+                if datetime.strptime(data['date_review'], "%d/%m/%Y") > (datetime.now() - timedelta(days=365)):
+                    print(data)
             except Exception as e:
                 print(e)
                 pass
@@ -169,7 +169,7 @@ class Hotels_FR(BaseHotelsReviewScrap):
 
     def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(url, establishment, settings, env)
-
+        self.lang = 'fr'
     def format_date(self, date:str) -> str:
         date = date.split(' ')
         return f"{date[0]}/{shortmonths_fr[date[1]]}/{date[2]}"
@@ -179,6 +179,7 @@ class Hotels_EN(BaseHotelsReviewScrap):
 
     def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(url, establishment, settings, env)
+        self.lang = 'en' 
 
     def format_date(self, date:str) -> str:
         date = date.split(' ')
@@ -188,10 +189,12 @@ class Hotels_ES(BaseHotelsReviewScrap):
 
     def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(url, establishment, settings, env)
+        self.lang = 'es' 
 
     def format_date(self, date:str) -> str:
         date = date.split(' ')
         return f"{date[0]}/{months_es[date[1]]}/{date[2]}"
+
 
 
 
@@ -489,6 +492,7 @@ class Hotels_ES_OLD(Hotels):
 
         self.data = reviews
 
+# trp = Hotels_FR(url="https://fr.hotels.com/ho1568252032/hotel-dolce-notte-saint-florent-france/", establishment=33, settings=1, env='DEV')
+# trp.execute()
 
-trp = Hotels_FR(url="https://fr.hotels.com/ho1568252032/hotel-dolce-notte-saint-florent-france/", establishment=33, settings=1, env='DEV')
-trp.execute()
+

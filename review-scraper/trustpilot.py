@@ -19,12 +19,27 @@ from langdetect import detect
 
 
 class Trustpilot(Scraping):
-    def __init__(self, url: str, establishment: str):
-        super().__init__(in_background=False, url=url, establishment=establishment)
+    def __init__(self, url: str, establishment: str, settings: str, env: str):
+        super().__init__(in_background=False, url=url,
+                         establishment=establishment, settings=settings, env=env)
 
     def extract(self):
 
         reviews = []
+
+        time.sleep(2)
+        sort_btn = self.driver.find_element(
+            By.XPATH, "//button[@name='sort' and @data-sort-button='true']")
+
+        try:
+            element = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable(
+                (By.XPATH, "//input[@value='recency']")))
+
+            element.click()
+        except Exception as e:
+            print(e)
+
+        time.sleep(5)
 
         while True:
 
@@ -32,44 +47,58 @@ class Trustpilot(Scraping):
 
             soupe = BeautifulSoup(page, 'lxml')
 
-            review_cards = soupe.find_all('article', {'data-service-review-card-paper': "true"})
-            
+            review_cards = soupe.find_all(
+                'article', {'data-service-review-card-paper': "true"})
+
             for card in review_cards:
-                title = card.find('a', {'data-review-title-typography': 'true'}).text.strip() if card.find('a', {'data-review-title-typography': 'true'}) else ""
-                detail = card.find('p', {'data-service-review-text-typography': 'true'}).text.strip() if card.find('p', {'data-service-review-text-typography': 'true'}) else ""
+                title = card.find('a', {'data-review-title-typography': 'true'}).text.strip(
+                ) if card.find('a', {'data-review-title-typography': 'true'}) else ""
+                detail = card.find('p', {'data-service-review-text-typography': 'true'}).text.strip(
+                ) if card.find('p', {'data-service-review-text-typography': 'true'}) else ""
                 comment = f"{title}{': ' if title and detail else ''}{detail}"
 
                 try:
                     lang = detect(comment)
-                except: 
+                except:
                     lang = 'en'
 
-                raw_date = card.find('time')['datetime'] if card.find('time') else ""
+                raw_date = card.find(
+                    'time')['datetime'] if card.find('time') else ""
                 if raw_date:
-                    date_review = '/'.join([raw_date[8:10], raw_date[5:7], raw_date[0:4]])
+                    date_review = '/'.join([raw_date[8:10],
+                                           raw_date[5:7], raw_date[0:4]])
                 else:
-                    date_review = "01/01/2020"
+                    date_review = "01/01/1999"
 
-                reviews.append({
+                date_review != "01/01/1999" and reviews.append({
                     'comment': comment,
                     'rating': card.find('div', {'data-service-review-rating': True})['data-service-review-rating'] if card.find('div', {'data-service-review-rating': True}) else "0",
                     'date_review': date_review,
                     'language': lang,
                     'source': urlparse(self.url).netloc.split('.')[1],
                     'author': card.find('span', {'data-consumer-name-typography': 'true'}).text.strip() if card.find('span', {'data-consumer-name-typography': 'true'}) else "",
-                    'establishment': f'/api/establishments/{self.establishment}'
+                    'establishment': f'/api/establishments/{self.establishment}',
+                    'settings': f'/api/settings/{self.settings}',
+                    'date_visit': date_review,
+                    'novisitday': "1"
                 })
 
+            if not self.check_date(reviews[-1]['date_review']):
+                break
+
             try:
-                next_btn = self.driver.find_element(By.NAME, 'pagination-button-next')
-                disabled_btn = True if next_btn.get_attribute('aria-disabled') else False
+                next_btn = self.driver.find_element(
+                    By.NAME, 'pagination-button-next')
+                disabled_btn = True if next_btn.get_attribute(
+                    'aria-disabled') else False
 
                 if next_btn and not disabled_btn:
-                    self.driver.execute_script("arguments[0].click();", next_btn)
+                    self.driver.execute_script(
+                        "arguments[0].click();", next_btn)
                     time.sleep(4)
                 else:
                     break
-                
+
             except Exception as e:
                 break
                 # print(e)

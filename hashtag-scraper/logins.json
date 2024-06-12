@@ -1,0 +1,47 @@
+{
+    "facebook": [
+        {
+            "email": "sonalimampiemo@gmail.com",
+            "password": "Kl#23pol106"
+        },
+        {
+            "email": "joharyandrianjafimanohisolo@gmail.com",
+            "password": "dsE&=9(xL"
+        }
+    ],
+    "twitter": [
+        {
+            "username": "@sonalimampiemo",
+            "email": "sonalimampiemo@gmail.com",
+            "password": "Kl#23pol106"
+        }
+    ],
+    "instagram": [
+        {
+            "username": "sonalimampiemo",
+            "email": "sonalimampiemo@gmail.com",
+            "password": "Kl#23pol106"
+        },
+        {
+            "username": "feno.fitia",
+            "email": "0340851090",
+            "password": "0gFGm!4ze"
+        }
+    ],
+    "youtube": [
+        {
+            "email": "sonalimampiemo@gmail.com",
+            "password": "Kl#23pol106"
+        }
+    ],
+    "linkedin": [
+        {
+            "email": "sonalimampiemo@gmail.com",
+            "password": "Kl#23pol106"
+        },
+        {
+            "email": "thierry0keller@gmail.com",
+            "password": "LinkedIn#pass4015"
+        }
+    ]
+}

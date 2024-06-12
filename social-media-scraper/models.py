@@ -1,85 +1,34 @@
+
 from api import ERApi
-import json
 
 
-class EReputationBase:
+class Settings:
+    def __init__(self, category=None, eid=None, source=None, ename=None, env="DEV"):
+        self.eid = eid
+        self.category = category
+        self.ename = ename
+        self.source = source
+        self.env = env
+        self.items = []
 
-    def __init__(self, rid:int=-1) -> None:
-        self.id = rid
-        self.entity = "establishments"
+    def prepare(self):
+        page = 0
+        try:
+            req = ERApi(method="get", entity="setting/list", env=self.env)
+        except Exception as e:
+            print(e)
 
-    def refresh(self) -> None:
-        req = ERApi(method="getone", entity=self.entity, id=self.id)
-        res = req.execute()
-        
-        for key, value in res.items():
-            setattr(self, key, value)
+        self.eid and req.add_params({'eid': self.eid})
+        self.category and req.add_params({'categ': self.category})
+        self.ename and req.add_params({'ename': self.ename})
+        self.source and req.add_params({'src': self.source})
 
-    def print(self) -> None:
-        for attribute, value in self.__dict__.items():
-            print(attribute,': ', value)
-
-    def save(self) -> bool:
-        data = self.__dict__
-        print(data)
-        if self.id != -1:
-            req = ERApi(method="put", entity=self.entity, id=self.id)
-            data.pop('id')
-            data.pop('entity')
-            req.set_body(data)
+        while True:
+            page += 1
+            req.add_params({'page': page})
             res = req.execute()
 
-        else:
-            data.pop('id')
-            entity = data.pop('entity')
-            req = ERApi(method="post", entity='social_pages')
-            req.set_body(data)
-            res = req.execute()
-        
-        return res
-
-    def extract_id(self, foreign_key: str) -> str:
-        return foreign_key.split('/')[2]
-
-    def get_elements(self, attribute: str) -> list:
-        if self.id != -1 and len(getattr(self, attribute, [])):
-
-            return getattr(self, attribute)
-        return []
-
-
-class SocialPage(EReputationBase):
-    def __init__(self, rid:int=-1) -> None:
-        super().__init__(rid)
-        self.source = ""
-        self.followers = 0
-        self.likes = 0
-        self.posts = 0
-        self.entity = "social_pages"
-
-
-class SocialPost(EReputationBase):
-    def __init__(self, rid:int=-1):
-        super().__init__(rid)
-        self.title = 0
-        self.likes = 0
-        self.comments = 0
-        self.share = 0
-        self.socialPage = ""
-        self.publishedAt = ""
-        self.entity = "social_posts"
-
-
-__class_name__ = {
-    'social_posts': SocialPost,
-    'social_pages': SocialPage
-}
-
-
-def create(entity:str="", data:dict={}):
-    instance = __class_name__[entity]()
-
-    for key in data.keys():
-        setattr(instance, key, data[key])
-    
-    return instance
+            if len(res) > 0:
+                self.items = self.items + res
+            else:
+                break

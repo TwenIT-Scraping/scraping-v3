@@ -10,21 +10,22 @@ from urllib3 import encode_multipart_formdata
 
 class ERApi:
 
-    def __init__(self, method="get", entity="", params={}, body={}, id=-1):
+    def __init__(self, env, method="get", entity="", params={}, body={}, id=-1):
         dotenv.load_dotenv()
 
         self.method = method
         self.entity = entity
-        token = os.environ.get('API_TOKEN')
+        print(env)
+        token = os.environ.get(f'API_TOKEN_{env.upper()}')
         self.headers = {'Accept': 'application/json', 'Authorization': token}
         self.params = params
         self.body = body
         self.id = id
-        self.api_url = os.environ.get("API_URL")
+        self.api_url = os.environ.get(f"API_URL_{env.upper()}")
         self.media_dir = os.environ.get("MEDIA_DIR")
 
     def set_id(self, id):
-        self.id =  id
+        self.id = id
 
     def set_body(self, body):
         self.body = body
@@ -42,7 +43,7 @@ class ERApi:
     def add_params(self, param):
         for key in param.keys():
             self.params[key] = param[key]
-    
+
     def execute(self):
         response = {}
         if self.method == 'delete':
@@ -54,20 +55,26 @@ class ERApi:
                 )
                 return response
             else:
-                messagebox.askyesno("Information", "Identifiant non spécifié!!!")
-            
+                messagebox.askyesno(
+                    "Information", "Identifiant non spécifié!!!")
+
         elif self.method == 'patch' or self.method == 'put':
             if self.id != -1:
-                self.add_header({"Content-Type": "application/json"})
-                response = getattr(requests, self.method)(
-                    f'{self.api_url}{self.entity}/{self.id}',
-                    params=self.params,
-                    headers=self.headers,
-                    data=json.dumps(self.body)
-                )
-                return response
+                self.add_header(
+                    {"Content-Type": "application/merge-patch+json"})
+                try:
+                    response = getattr(requests, self.method)(
+                        f'{self.api_url}{self.entity}/{self.id}',
+                        params=self.params,
+                        headers=self.headers,
+                        data=json.dumps(self.body)
+                    )
+                    return response
+                except Exception as e:
+                    print(e)
             else:
-                messagebox.askyesno("Information", "Identifiant non spécifié!!!")
+                messagebox.askyesno(
+                    "Information", "Identifiant non spécifié!!!")
 
         elif self.method == 'getone':
             if self.id != -1:
@@ -77,17 +84,36 @@ class ERApi:
                     headers=self.headers
                 )
             else:
-                messagebox.askyesno("Information", "Identifiant non spécifié!!!")
+                messagebox.askyesno(
+                    "Information", "Identifiant non spécifié!!!")
 
         elif self.method == 'postmulti':
 
-            url = f'{self.api_url}reviews/multi'
-            files=[]
+            url = f'{self.api_url}review/multi'
+            self.add_header({"Content-Type": "application/json"})
             headers = self.headers
 
-            response = requests.request("POST", url, headers=headers, data=self.body, files=files)
+            response = requests.request(
+                "POST", url, headers=headers, data=json.dumps(self.body), verify=False)
 
-            return response
+            if response:
+                print(response.json())
+                print(response.text)
+
+                return response
+
+        elif self.method == 'patchscores':
+            url = f'{self.api_url}review/update'
+            self.add_header({"Content-Type": "application/json"})
+            headers = self.headers
+
+            response = requests.request(
+                "PUT", url, headers=headers, data=json.dumps(self.body), verify=False)
+
+            if response:
+                print(response.json())
+
+                return response
 
         else:
             self.add_header({"Content-Type": "application/json"})
@@ -95,11 +121,14 @@ class ERApi:
                 f'{self.api_url}{self.entity}',
                 params=self.params,
                 headers=self.headers,
-                data=json.dumps(self.body)
+                data=json.dumps(self.body),
+                verify=False
             )
-        
-        # if response.status_code >= 400:
-        #     response.raise_for_status()
+
+            print(response.url)
+
+        if response.status_code >= 400:
+            response.raise_for_status()
 
         return response and response.json()
 
@@ -126,7 +155,7 @@ class ERApi:
 
     @staticmethod
     def delete_multi(entity, ids):
-        delete_instance = G2A("delete", entity)
+        delete_instance = ERApi("delete", entity)
         for item in ids:
             delete_instance.set_id(item)
             try:
@@ -147,13 +176,13 @@ class ERApi:
             page += 1
             if len(results) == 0:
                 break
-        
+
         return all_data
 
     @staticmethod
     def delete_all(entity):
-        all_ids = [item['id'] for item in G2A.get_all(entity)]
-        delete_req = G2A(method="delete", entity=entity)
+        all_ids = [item['id'] for item in ERApi.get_all(entity)]
+        delete_req = ERApi(method="delete", entity=entity)
         for item in all_ids:
             delete_req.set_id(item)
             delete_req.execute()
@@ -168,13 +197,13 @@ class ERApi:
     def save_media(filename, source):
         with open(filename, 'wb') as f:
             source.raw.decode_content = True
-            shutil.copyfileobj(source.raw, f) 
+            shutil.copyfileobj(source.raw, f)
             print('Image Downloaded Successfully')
             return filename
 
     @staticmethod
     def post_multi(entity, p_list, website):
-        post_instance = G2A("post", entity)
+        post_instance = ERApi("post", entity)
         post_instance.add_header({"Content-Type": "application/json"})
         for item in p_list:
             reviews = []
@@ -183,14 +212,14 @@ class ERApi:
 
             if 'images' in item.keys():
                 images = item.pop('images')
-            
+
             print("Ici")
 
             post_instance.set_body(item)
             r = post_instance.execute()
 
             if len(reviews) > 0:
-                post_child = G2A("post", 'reviews')
+                post_child = ERApi("post", 'reviews')
                 post_child.add_header({"Content-Type": "application/json"})
                 for v in reviews:
                     v[f'{entity[:-1]}'] = f"/api/{entity}/{r['id']}"
@@ -199,5 +228,5 @@ class ERApi:
                         post_child.execute()
                     except:
                         pass
-            
+
         return True

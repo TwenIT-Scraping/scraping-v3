@@ -1,107 +1,66 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import ElementNotVisibleException, ElementNotSelectableException
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.remote.command import Command
-from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.firefox import GeckoDriverManager
-from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.firefox.service import Service as FirefoxService
-from abc import abstractmethod
-import sys
-import time
-from datetime import datetime, timedelta
-from bs4 import BeautifulSoup
-from urllib.parse import urlparse, parse_qs
-# from models import Review
-# from tools import ReviewScore
+import json
+from os import path, environ
+import dotenv
+from datetime import datetime
+import re
+
+dotenv.load_dotenv()
 
 
 class Scraping(object):
+    def __init__(self, items: list) -> None:
+        self.posts = []
+        self.page_data = {}
+        self.items = items
+        self.establishment = ''
+        self.url = ''
+        self.current_credential = {}
+        self.env = 'DEV'
 
-    def __init__(self, in_background: bool, url: str = '', establishment: str = '3', site_url:str="") -> None:
+    def set_environ(self, env):
+        self.env = env
 
-        # driver options
-        self.chrome_options = webdriver.ChromeOptions()
-        self.chrome_options.add_argument('--ignore-certificate-errors')
-        self.chrome_options.add_argument('--disable-gpu')
-        self.chrome_options.add_argument(
-            '--disable-blink-features=AutomationControlled')
-        in_background and self.chrome_options.add_argument('--headless')
-        self.chrome_options.add_argument('--incognito')
+    def set_current_credential(self, index):
+        self.current_credential = self.credentials[index]
 
-        self.firefox_options = webdriver.FirefoxOptions()
-        self.firefox_options.add_argument('--disable-gpu')
-        self.firefox_options.add_argument('--ignore-certificate-errors')
-        in_background and self.firefox_options.add_argument('--headless')
-        self.firefox_options.add_argument('--incognito')
+    def set_credentials(self, source: str) -> None:
+        logins_path = path.join(path.dirname(__file__), 'logins.json')
+        with open(logins_path, 'r') as f:
+            data = json.load(f)
+            self.credentials = data[source]
 
-        self.driver = webdriver.Firefox(service=FirefoxService(
-                    GeckoDriverManager().install()), options=self.firefox_options)
+        if len(self.credentials):
+            self.set_current_credential(0)
 
-        # self.driver = webdriver.Chrome(executable_path="C:/Programs/chromedriver/chromedriver.exe", options=self.chrome_options)
+    def set_item(self, item):
+        self.establishment = item['establishment_id']
+        self.url = item['url']
 
-        self.driver.maximize_window()
+    def save(self):
 
-        self.data = {}
-        self.url = url
-
-        self.establishment = establishment
-        self.site_url = site_url
-
-    def set_establishment(self, establishment):
-        self.establishment = establishment
-
-    def set_url(self, url: str) -> None:
-        self.url = url
-
-    def execute(self) -> None:
         try:
-            self.login()
-            time.sleep(5)
-            self.scrap(self.url)
-            self.extract()
-            # time.sleep(2)
-            # self.save()
-            # self.driver.quit()
+            page_data = self.page_data
+            page_data['posts'] = self.posts
+            page_data['url'] = self.url
+            page_data['createdAt'] = datetime.now().strftime('%Y-%m-%d')
+            page_data['hasStat'] = "1"
+
+            e_name = re.sub(r'[^a-zA-Z0-9\s]+', '',
+                            page_data.pop('name')).replace(' ', '_')
+
+            output_file = f"{self.env}_{self.establishment}_{e_name}_{datetime.now().strftime('%Y-%m-%d')}"
+
+            with open(f"{environ.get('SOCIAL_FOLDER')}/{output_file}.json", 'w') as foutput:
+                json.dump(page_data, foutput, indent=4, sort_keys=True)
+
+            self.posts = []
+            self.page_data = {}
+
+            return output_file
+
         except Exception as e:
+            print("Erreur ici")
             print(e)
-            self.driver.quit()
-            sys.exit("Arret")
 
-    def scrap(self, url) -> None:
-        self.driver.get(url)
-
-    def refresh(self) -> None:
-        self.driver.refresh()
-
-    def exit(self) -> None:
-        self.driver.quit()
-        sys.exit("Arret")
-
-    def login(self) -> None:
-        pass
-
-    # def format(self) -> None:
-    #     result = ""
-    #     review_score = ReviewScore()
-
-    #     for item in self.data:
-    #         score_data = review_score.compute_score(item['comment'], item['language'])
-    #         result += '$'.join([item['author'], item['source'], item['language'], item['rating'], item['establishment'], item['date_review'], item['comment'], score_data['feeling'], score_data['score'], score_data['confidence']]) + "#"
-
-    #     self.formated_data = result
-
-    def save(self) -> None:
-
-        pass
-        
-        # self.format()
-        # Review.save_multi(self.formated_data)
-        # print(len(self.data), "reviews uploaded!")
-
-
-    @abstractmethod
-    def extract(self) -> None:
+    def stop(self):
         pass
