@@ -6,7 +6,7 @@ from hotels import Hotels_FR, Hotels_EN, Hotels_ES
 from googles import Google
 from opentable import Opentable, Opentable_UK
 from trustpilot import Trustpilot
-from tripadvisor import Tripadvisor_UK, Tripadvisor_FR, Tripadvisor_ES
+from tripadvisor import Tripadvisor_UK, Tripadvisor_FR, Tripadvisor_ES, Tripadvisor
 from expedia import Expedia
 from api import ERApi
 import random
@@ -44,6 +44,7 @@ __class_name_v2__ = {
     'Opentable UK': Opentable_UK,
     'Opentable': Opentable,
     'Trustpilot': Trustpilot,
+    'Tripadvisor': Tripadvisor,
     'Tripadvisor FR': Tripadvisor_FR,
     'Tripadvisor UK': Tripadvisor_FR,
     'Tripadvisor ES': Tripadvisor_FR,

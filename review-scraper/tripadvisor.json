@@ -113,5 +113,16 @@
             "type": "xpath",
             "value": "//a[@data-smoke-attr='pagination-next-arrow']"
         }
-    ]
+    ],
+    "url": {
+        "tag": [
+            "a"
+        ],
+        "attr": [
+            "class"
+        ],
+        "values": [
+            ""
+        ]
+    }
 }

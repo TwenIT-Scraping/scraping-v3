@@ -116,7 +116,7 @@ class Scraping(object):
 
     def set_url(self, url: str) -> None:
         self.url = url
-        self.set_random_params()
+        # self.set_random_params()
 
     def set_language(self, language: str) -> None:
         print("La langue du client: ", language.lower())
@@ -148,8 +148,9 @@ class Scraping(object):
             sys.exit("Arret")
 
     def scrap(self) -> None:
-        self.set_random_params()
+        # self.set_random_params()
         self.driver.get(self.url)
+        input('press enter')
 
     def refresh(self) -> None:
         self.driver.refresh()
