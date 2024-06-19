@@ -314,10 +314,8 @@ class Google(BaseGoogleScrap):
                     cards = container.find_all('div', {'class': 'Svr5cf bKhjM'})
                     print(f"{len(cards)} simple google cards found")
                 except:
-                    print('exception')
-                    container = soupe.find('div', {'jsname':'GmP9w'})
-                    cards = container.find_all('div', {'jsname':'ShBeI'})
-                    print(len(cards))
+                    cards = soupe.find_all('div', {'jsname':'ShBeI'})
+                    print(f"{len(cards)} simple google cards found")
 
             for card in cards:
 
