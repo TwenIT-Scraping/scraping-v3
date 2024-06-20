@@ -83,7 +83,7 @@ class Trustpilot(Scraping):
                     'rating': card.find('div', {'data-service-review-rating': True})['data-service-review-rating'] if card.find('div', {'data-service-review-rating': True}) else "0",
                     'date_review': date_review,
                     'language': lang,
-                    'url': url,
+                    'url': '',
                     'source': urlparse(self.url).netloc.split('.')[1],
                     'author': card.find('span', {'data-consumer-name-typography': 'true'}).text.strip() if card.find('span', {'data-consumer-name-typography': 'true'}) else "",
                     'establishment': f'/api/establishments/{self.establishment}',
@@ -118,3 +118,4 @@ class Trustpilot(Scraping):
 # trp = Trustpilot(url="https://fr.trustpilot.com/review/liberkeys.com")
 # trp.execute()
 # print(trp.data)
+

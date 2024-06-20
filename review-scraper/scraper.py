@@ -147,8 +147,8 @@ class ListScraperV2:
     def upload_feelings(self, comments):
         data = ""
         for item in comments:
-            line = '&'.join([str(item['id']), str(item['feeling']),
-                            str(item['score']), str(item['confidence'])]) + "#"
+            line = '&&&&&'.join([str(item['id']), str(item['feeling']),
+                            str(item['score']), str(item['confidence'])]) + "#####"
             if len(line.split('&')) == 4:
                 data += line
 

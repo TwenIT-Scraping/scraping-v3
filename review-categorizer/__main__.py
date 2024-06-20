@@ -68,17 +68,25 @@ class ReviewScore:
             rate = 0
             rating_info = rating_structure[source]
 
-            if rating_info[0] == 2:  # with /
-                rate_tmp = rating.split('/')
-                if rating_info[1] == 1:  # /5
-                    rate = float(rate_tmp[0].replace(',', '.'))*2
-                else:  # /10
-                    rate = float(rate_tmp[0].replace(',', '.'))
-            else:  # without /
-                if rating_info[1] == 1:  # /5
-                    rate = float(rating.replace(',', '.'))*2
-                else:  # /10
-                    rate = float(rating.replace(',', '.'))
+            try:
+                if rating_info[0] == 2:  # with /
+                    rate_tmp = rating.split('/')
+                    if rating_info[1] == 1:  # /5
+                        rate = float(rate_tmp[0].replace(',', '.'))*2
+                    else:  # /10
+                        rate = float(rate_tmp[0].replace(',', '.'))
+                else:  # without /
+                    if rating_info[1] == 1:  # /5
+                        rate = float(rating.replace(',', '.'))*2
+                    else:  # /10
+                        rate = float(rating.replace(',', '.'))
+            except:
+                if '/' in rating:
+                    rate_tmp = rating.split('/')
+                    if rate_tmp[1] == '5':  # /5
+                        rate = float(rate_tmp[0].replace(',', '.'))*2
+                    else:  # /10
+                        rate = float(rate_tmp[0].replace(',', '.'))
 
             return rate/10
 
@@ -539,6 +547,8 @@ if __name__ == '__main__':
                 todo = [item for item in all_establishments if item['customer_id']]
 
             print("Après filtre: ", len(todo))
+
+            [print(item['name'], item['tag']) for item in todo]
 
             for item in todo:
                 try:

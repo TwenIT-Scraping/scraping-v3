@@ -80,14 +80,33 @@ class BaseGoogleScrap(Scraping):
                 print("pass review order ...")
                 pass
 
+            try:
+                self.driver.find_elements(By.XPATH, '//div[@jsname="XPtOyb"]')[1].click()
+            except:
+                pass
+
         index = 0
         scrollHeight = 500
         currentHeight = 0
         self.data_current_count = len(self.data)
         time.sleep(random.randint(1, 3))
+        scroll_by_body = False
+        try:
+            center_element = self.driver.find_element(By.XPATH, '//div[@class="kp-header"]')
+
+            if center_element:
+                print('element found')
+                center_element.click()
+                scroll_by_body = True
+        except:
+            pass
         while not self.data_loaded:
-            print(self.data_loaded)
-            self.driver.execute_script(
+            if scroll_by_body:
+                for i in range(4):
+                    self.driver.find_element(
+                    By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
+            else:
+                self.driver.execute_script(
                 f"window.scrollTo({currentHeight}, {scrollHeight});")
             time.sleep(random.randint(1, 3))
             if index == 20:
@@ -290,9 +309,13 @@ class Google(BaseGoogleScrap):
                 cards = container.find_all('div', {'class':'Svr5cf bKhjM'})
                 print(f"{len(cards)} google travel cards found")
             else:
-                container = soupe.find('div', {'jsname': 'SvNErb'})
-                cards = container.find_all('div', {'class': 'Svr5cf bKhjM'})
-                print(f"{len(cards)} simple google cards found")
+                try:
+                    container = soupe.find('div', {'jsname': 'SvNErb'})
+                    cards = container.find_all('div', {'class': 'Svr5cf bKhjM'})
+                    print(f"{len(cards)} simple google cards found")
+                except:
+                    cards = soupe.find_all('div', {'jsname':'ShBeI'})
+                    print(f"{len(cards)} simple google cards found")
 
             for card in cards:
 
@@ -302,6 +325,7 @@ class Google(BaseGoogleScrap):
                 rating = 0
                 date_review = ''
                 date_visit = ''
+                url = self.driver.current_url
 
                 if self.is_travel():
                     author = card.find('a', {'class':'DHIhE QB2Jof'}).text.strip() if card.find('a', {'class':'DHIhE QB2Jof'}) else ""
@@ -314,6 +338,10 @@ class Google(BaseGoogleScrap):
                             comment = comment.split("(original)")[-1]
                     except:
                         comment = ""
+                    try:
+                        url = card.find('a', {'class':'YhR3n'}, href=True)['href']
+                    except:
+                        url = self.driver.current_url
 
                     rating = card.find('div', {'class': 'GDWaad'}).text.strip() if card.find('div', {'class': 'GDWaad'}) else rating
                     date_raw = card.find('span', {'class': 'iUtr1 CQYfx'}).text.lower()
@@ -359,6 +387,7 @@ class Google(BaseGoogleScrap):
                             'author': author,
                             'date_review': date_review,
                             'comment': comment,
+                            'url': url,
                             'language': lang,
                             'source': urlparse(self.driver.current_url).netloc.split('.')[1],
                             'date_visit': date_review,
@@ -381,8 +410,9 @@ class Google(BaseGoogleScrap):
             print(e)
             
 
-# trp = Google(url="https://www.google.com/search?sca_esv=cd9a55a255ee4ca7&biw=1920&bih=927&tbm=lcl&sxsrf=ADLYWILRiVyqj3TFZjsMeIPm77of3r5guQ:1715336316458&q=Sport+2000+Chamb%C3%A9ry+Avis&rflfq=1&num=20&stick=H4sIAAAAAAAAAONgkxIxNLA0NbY0NjazNDAztTAzMDKyNNvAyPiKUTK4IL-oRMHIwMBAwTkjMTfp8MqiSgXHssziRay45QB7lzUBUwAAAA&rldimm=10953933690658602296&hl=fr-FR&sa=X&ved=2ahUKEwiVhMDe7YKGAxXrVKQEHZyHCoYQ9fQKegQINxAF#lkt=LocalPoiReviews",
+# trp = Google(url="https://www.google.com/search?sa=X&sca_esv=631c077ebeab8f5b&tbm=lcl&sxsrf=ACQVn0-Vrn-6SBs84xf8oDcggXXtf0T_AQ:1711639111610&q=Le+Carre+d%27As+Avis&rflfq=1&num=20&stick=H4sIAAAAAAAAAONgkxIxNLG0tLSwtDQzNjM3sjQ2MbUwstzAyPiKUcgnVcE5sagoVSFF3bFYwbEss3gRKxZBANr-AYtFAAAA&rldimm=14999899636729345829&hl=fr-FR&ved=2ahUKEwj8hezJoJeFAxVyUqQEHbrzDs4Q9fQKegQIOxAF&biw=1920&bih=927&dpr=1#lkt=LocalPoiReviews",
 #                 establishment=3, settings=1, env="DEV")
 # trp.set_language('fr')
 # trp.execute()
 # print(trp.data)
+# input('press enter to exit')

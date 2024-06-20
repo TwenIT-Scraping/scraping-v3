@@ -40,6 +40,7 @@ class ERApi:
             self.params[key] = param[key]
 
     def execute(self):
+        response = None
 
         if self.method == 'postmulti':
 
@@ -69,6 +70,7 @@ class ERApi:
                     data=self.body,
                     verify=False
                 )
+                print(response.text)
             except Exception as e:
                 print(e)
 

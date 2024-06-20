@@ -15,39 +15,21 @@ class InstagramProfileScraper(Scraping):
         super().__init__(items)
         self.set_credentials('instagram')
 
-        self.hotel_page_urls = []
-        self.xhr_page = []
-        self.xhr_posts = []
-        self.xhr_comments = []
-        self.data = []
+        self.xhr_page = None
 
         self.playwright = sync_playwright().start()
         self.browser = self.playwright.chromium.launch(
             headless=False, args=['--start-maximized'])
         self.context = self.browser.new_context(no_viewport=True)
         self.page = self.context.new_page()
-        self.post_index = 0
-        self.open_post = False
+        self.source = "instagram"
 
     def clean_data(self):
-        self.xhr_page = []
-        self.xhr_posts = []
-        self.xhr_comments = []
-        self.data = []
-        self.posts = []
+        self.xhr_page = None
         self.page_data = {}
 
     def stop(self):
         self.context.close()
-
-    def create_logfile(self, logfile_name: str) -> None:
-        pass
-
-    def load_history(self) -> None:
-        pass
-
-    def set_history(self, key: str, value: any) -> None:
-        pass
 
     def resolve_loginform(self) -> None:
         self.fill_loginform()
@@ -76,174 +58,54 @@ class InstagramProfileScraper(Scraping):
         response_type = response.request.resource_type
 
         if response_type == "xhr":
-            if 'web_profile_info' in response.url:
-                self.xhr_page = response.json()['data']['user']
             if 'graphql' in response.url:
-                if 'xdt_api__v1__feed__user_timeline_graphql_connection' in response.json()['data']:
-                    [self.xhr_posts.append(item) for item in response.json(
-                    )['data']['xdt_api__v1__feed__user_timeline_graphql_connection']['edges']]
-
-            if 'comments/' in response.url:
-                try:
-                    self.xhr_comments.append(response.json())
-                except Exception as e:
-                    print(e)
-                    pass
-
-    def open_posts(self):
-        # posts = self.page.locator(
-        #     "div._aabd._aa8k.x2pgyrj.xbkimgs.xfllauq.xh8taat.xo2y696 a.x1i10hfl.xjbqb8w.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz._a6hd").all()
-        posts = self.page.locator(
-            "div._ac7v.xzboxd6.xras4av.xgc1b0m a.x1i10hfl.xjbqb8w.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz._a6hd").all()
-
-        # print("posts found: ", len(posts))
-
-        try:
-            posts[0].click()
-        except Exception as e:
-            print(e)
-            pass
-
-        time.sleep(3)
-
-        p = 1
-
-        while True:
-
-            btns = self.page.locator(
-                "div.x1n2onr6.xzkaem6").locator("button._abl-").all()
-
-            # print("boutons: ", len(btns))
-
-            for btn in btns:
-                if len(btn.locator('svg').all()) > 0:
-                    # print('Buttons found!!!')
-                    for svg in btn.locator('svg').all():
-                        if svg.get_attribute('aria-label') == "Suivant" or svg.get_attribute('aria-label') == "Next":
-                            btn.click()
-                            time.sleep(3)
-                            break
-
-            self.page.wait_for_timeout(2000)
-            p += 1
-
-            if p > len(self.xhr_posts) or p > 100:
-                break
-
-    def complete_source_data(self):
-
-        posts = nested_lookup(key='node', document=self.xhr_posts)
-        coms = self.xhr_comments
-
-        with open('post.json', 'w') as fp:
-            fp.write(json.dumps(posts))
-
-        with open('coms.json', 'w') as fc:
-            fc.write(json.dumps(coms))
-
-        for index in range(len(coms)):
-            try:
-                pk = coms[index]['caption']['pk']
-
-                # print(pk)
-
-                if pk != posts[index]['caption']['pk']:
-                    for post in posts:
-                        if "caption" in post.keys() and post["caption"]["pk"] == pk:
-                            post["comments"] = coms[index]
-                else:
-                    posts[index]["comments"] = coms[index]
-
-            except Exception as e:
-                print(e)
-                pass
-
-        self.xhr_posts = posts
+                res = response.json()
+                if 'data' in res.keys() and 'user' in res['data'].keys():
+                    self.xhr_page = res['data']['user']
 
     def goto_insta_page(self) -> None:
         self.page.on("response", self.intercept_response)
         self.page.goto(self.url, timeout=50000)
         self.page.wait_for_timeout(6000)
-        time.sleep(3)
-        # self.scroll_down_page()
-        self.open_posts()
-        self.complete_source_data()
-
-    def scroll_down_page(self) -> None:
-        for i in range(5):
-            self.page.evaluate(
-                "window.scrollTo(0, document.body.scrollHeight)")
-            self.page.wait_for_timeout(5000)
-            time.sleep(3)
-
-    def get_json_content(self, item: object, key: str) -> object:
-        try:
-            return item[key]
-        except KeyError:
-            return ''
 
     def extract_data(self) -> None:
+        followers = 0
+        name = ""
 
-        posts = self.xhr_posts
-
-        for post in posts:
-
-            if type(post["comments"]) != list:
-
-                comments = post["comments"]["comments"]
-                comment_values = []
-
-                for cmt in comments:
-                    try:
-                        date = datetime.fromtimestamp(cmt["created_at"])
-                        if date >= datetime.now() + timedelta(days=-365):
-                            comment_values.append({
-                                'comment': cmt["text"],
-                                'published_at': date.strftime("%d/%m/%Y"),
-                                'likes': cmt["comment_like_count"],
-                                'author': cmt["user"]["full_name"]
-                            })
-                    except Exception as e:
-                        print(e)
-                        pass
-
-                try:
-                    if 'caption' in post.keys() and 'comments' in post.keys() and 'caption' in post['comments'].keys():
-                        published_at = datetime.fromtimestamp(
-                            post["comments"]["caption"]["created_at"])
-                        published_at > (datetime.now() - timedelta(days=365)) and post["owner"]["full_name"] and post["caption"]["text"] and self.posts.append({
-                            "author": post["owner"]["full_name"],
-                            "publishedAt": published_at.strftime("%d/%m/%Y"),
-                            "description": post["caption"]["text"],
-                            "reaction": post["like_count"],
-                            "comments": len(comment_values),
-                            "shares": 0,
-                            "hashtag": "",
-                            "comment_values": comment_values
-                        })
-
-                except Exception as e:
-                    print(e)
-                    pass
-
-        print("posts traités: ", len(self.posts))
-
-        try:
-            self.page_data = {
-                'followers': nested_lookup(key='edge_followed_by', document=self.xhr_page)[0]["count"],
-                'likes': 0,
-                'source': "instagram",
-                'establishment': self.establishment,
-                'name': f"instagram_{nested_lookup(key='full_name', document=self.xhr_page)[0]}",
-                'posts': len(self.posts)
-            }
-
-        except Exception as e:
-            print(e)
+        if not self.xhr_page:
+            self.add_logging("Erreur extraction: GraphQL no trouvé!")
             pass
 
-    def switch_acount(self) -> None:
-        pass
+        else:
+
+            try:
+                followers = nested_lookup(
+                    key='follower_count', document=self.xhr_page)[0]
+            except Exception as e:
+                self.add_error(e)
+
+            try:
+                name = nested_lookup(
+                    key='full_name', document=self.xhr_page)[0]
+            except Exception as e:
+                self.add_error(e)
+
+            try:
+                if name == "" or followers == 0:
+                    raise ("Error on extraction: name or followers informations")
+
+                self.page_data = {
+                    'followers': followers,
+                    'likes': 0,
+                    'source': "instagram",
+                    'establishment': f"/api/establishments/{self.establishment}",
+                    'name': f"instagram_score_{name}",
+                    'posts': 0
+                }
+
+            except Exception as e:
+                self.add_error(e)
+                pass
 
     def execute(self) -> None:
         progress = ChargingBar('Preparing ', max=3)
@@ -260,6 +122,7 @@ class InstagramProfileScraper(Scraping):
         for item in self.items:
             p_item = FillingCirclesBar(item['establishment_name'], max=3)
             self.set_item(item)
+            self.add_logging(f"Open page: {item['establishment_name']}")
             self.clean_data()
             p_item.next()
             print(" | Open page")
@@ -267,11 +130,14 @@ class InstagramProfileScraper(Scraping):
             p_item.next()
             print(" | Extracting")
             self.extract_data()
+            self.add_logging(f"=> Data extracted !")
             p_item.next()
-            print(" | Saving")
-            output_files.append(self.save())
-            p_item.next()
-            print(" | Saved")
+            if not self.has_errors():
+                print(" | Saving")
+                output_files.append(self.save())
+                self.add_logging(f"=> Saved in local file !")
+                p_item.next()
+                print(" | Saved")
 
         self.stop()
 

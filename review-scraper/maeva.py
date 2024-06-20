@@ -116,7 +116,7 @@ class Maeva(Scraping):
                             'date_review': date_review,
                             'comment': comment,
                             'language': language,
-                            'url': self.driver.current_url,
+                            'url': '',
                             'source': source,
                             'date_visit': date_review,
                             'novisitday': "1",

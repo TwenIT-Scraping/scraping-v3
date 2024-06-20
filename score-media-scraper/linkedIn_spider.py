@@ -24,6 +24,7 @@ class LinkedInProfileScraper(Scraping):
             headless=False, args=['--start-maximized'])
         self.context = self.browser.new_context(no_viewport=True)
         self.page = self.context.new_page()
+        self.source = "linkedin"
 
     def stop(self):
         self.context.close()
@@ -68,15 +69,14 @@ class LinkedInProfileScraper(Scraping):
     def extract_data(self) -> None:
 
         def convert_count(value):
-            value = value.replace(',', '')
-            if 'k' in value:
-                tmp = value.split('k')
-                millier = int(tmp[0])
-                centaine = int(tmp[1]) if len(tmp) > 1 and tmp[1] != "" else 0
+            print(value)
 
-                return (millier*1000)+(centaine*100)
-            else:
-                return int(value)
+            new_text = ""
+            for t in value:
+                if t.isdigit():
+                    new_text += t
+
+            return int(new_text)
 
         soupe = BeautifulSoup(self.page.content(), 'lxml')
 

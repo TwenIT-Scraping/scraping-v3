@@ -19,6 +19,7 @@ class Scraping(object):
         self.log = ''
         self.errors = False
         self.establishment_name = ''
+        self.source = ''
 
     def set_environ(self, env):
         self.env = env
@@ -61,19 +62,14 @@ class Scraping(object):
 
         try:
             page_data = self.page_data
-            page_data['posts'] = []
-            page_data['url'] = self.url
+            page_data['posts'] = 0
             page_data['createdAt'] = datetime.now().strftime('%Y-%m-%d')
-            page_data['hasStat'] = "1"
 
             d = json.dumps(
                 self.page_data, separators=(',', ':'))
             self.add_logging(f"Data: {d}")
 
-            # e_name = re.sub(r'[^a-zA-Z0-9\s]+', '',
-            #                 page_data.pop('name')).replace(' ', '_')
-
-            output_file = f"linkedin_score_{self.env}_{self.establishment}_{self.establishment_name}_{datetime.now().strftime('%Y-%m-%d')}"
+            output_file = f"{self.source}_score_{self.env}_{self.establishment}_{self.establishment_name}_{datetime.now().strftime('%Y-%m-%d')}"
 
             with open(f"{environ.get('SOCIAL_FOLDER')}/{output_file}.json", 'w') as foutput:
                 json.dump(page_data, foutput, indent=4, sort_keys=True)
