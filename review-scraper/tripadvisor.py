@@ -547,7 +547,7 @@ class Tripadvisor_ES(Tripadvisor):
 
 
 # trp = Tripadvisor_FR(
-#     url="https://www.tripadvisor.fr/Attraction_Review-g3520917-d518281-Reviews-Courchevel-Saint_Bon_Tarentaise_Courchevel_Savoie_Auvergne_Rhone_Alpes.html", establishment=33, settings=1)
+#     url="https://www.tripadvisor.fr/Attraction_Review-g3520917-d518281-Reviews-Courchevel-Saint_Bon_Tarentaise_Courchevel_Savoie_Auvergne_Rhone_Alpes.html", establishment=33, settings=1, env='DEV')
 # trp.execute()
 # print(trp.data)
 
