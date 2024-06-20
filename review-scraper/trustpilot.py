@@ -46,9 +46,11 @@ class Trustpilot(Scraping):
             page = self.driver.page_source
 
             soupe = BeautifulSoup(page, 'lxml')
+            base_url = "https://fr.trustpilot.com"
 
             review_cards = soupe.find_all(
                 'article', {'data-service-review-card-paper': "true"})
+            
 
             for card in review_cards:
                 title = card.find('a', {'data-review-title-typography': 'true'}).text.strip(
@@ -70,11 +72,18 @@ class Trustpilot(Scraping):
                 else:
                     date_review = "01/01/1999"
 
+                url = ''
+                try:
+                    url = base_url + card.find('a', {'class':"link_internal__7XN06 typography_appearance-default__AAY17 typography_color-inherit__TlgPO link_link__IZzHN link_notUnderlined__szqki"},href=True)['href']
+                except:
+                    pass
+
                 date_review != "01/01/1999" and reviews.append({
                     'comment': comment,
                     'rating': card.find('div', {'data-service-review-rating': True})['data-service-review-rating'] if card.find('div', {'data-service-review-rating': True}) else "0",
                     'date_review': date_review,
                     'language': lang,
+                    'url': url,
                     'source': urlparse(self.url).netloc.split('.')[1],
                     'author': card.find('span', {'data-consumer-name-typography': 'true'}).text.strip() if card.find('span', {'data-consumer-name-typography': 'true'}) else "",
                     'establishment': f'/api/establishments/{self.establishment}',
