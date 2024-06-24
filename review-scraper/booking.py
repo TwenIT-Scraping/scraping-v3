@@ -119,7 +119,6 @@ class Booking(Scraping):
                                 if card.find('span', {'class': 'review-score-badge'}) else "0",
                                 'date_review': date_review,
                                 'language': self.lang,
-                                'url': '',
                                 'source': urlparse(self.url).netloc.split('.')[1],
                                 'author': card.find('p', {'class': 'reviewer_name'}).text.strip() if card.find('p', {'class': 'reviewer_name'}) else "",
                                 'establishment': f'/api/establishments/{self.establishment}',
@@ -165,4 +164,3 @@ class Booking_ES(Booking):
 # trp = Booking(url="https://www.booking.com/reviews/fr/hotel/la-belle-etoile-les-deux-alpes.fr.html")
 # trp.execute()
 # print(trp.data)
-
