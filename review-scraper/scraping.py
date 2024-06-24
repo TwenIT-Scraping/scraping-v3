@@ -178,8 +178,8 @@ class Scraping(object):
 
         for item in self.data:
             if check_value(item):
-                line = '$'.join([item['author'], item['source'], item['language'], item['rating'], item['establishment'], item['date_review'],
-                                item['comment'].replace('$', 'USD'), item['settings'], item['date_visit'], item['novisitday'], item['url'] if 'url' in item.keys() else 'non']) + "#"
+                line = '$$$$$'.join([item['author'], item['source'], item['language'], item['rating'], item['establishment'], item['date_review'],
+                                item['comment'].replace('$', 'USD'), item['settings'], item['date_visit'], item['novisitday'], item['url'] if 'url' in item.keys() else 'non']) + "#####"
 
                 result += line
 
