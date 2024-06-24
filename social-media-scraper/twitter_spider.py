@@ -29,7 +29,9 @@ class BaseTwitterSrap(Scraping):
         super().__init__(items)
         self.playwright = sync_playwright().start()
         self.browser = self.playwright.chromium.launch(
-            headless=False, args=['--start-maximized'])
+            headless=False, 
+            args=['--start-maximized'],
+            timeout=60000)
         self.context = self.browser.new_context(no_viewport=True)
         self.page = self.context.new_page()
 
@@ -37,12 +39,12 @@ class BaseTwitterSrap(Scraping):
         self.fill_loginform()
         while self.page.url != "https://twitter.com/home":
             self.fill_loginform()
-        self.page.wait_for_timeout(10000)
+        self.page.wait_for_timeout(60000)
 
     def goto_login(self) -> None:
-        self.page.goto("https://twitter.com/i/flow/login")
+        self.page.goto("https://twitter.com/i/flow/login", timeout=60000, wait_until='load')
         time.sleep(5)
-        self.page.wait_for_timeout(30000)
+        self.page.wait_for_timeout(60000)
 
     def fill_loginform(self) -> None:
         time.sleep(5)
@@ -379,7 +381,10 @@ class TwitterProfileScraper(Scraping):
 
         self.playwright = sync_playwright().start()
         self.browser = self.playwright.chromium.launch(
-            headless=False, args=['--start-maximized'])
+                        headless=False, 
+            args=['--start-maximized'],
+            timeout=60000
+        )
         self.context = self.browser.new_context(no_viewport=True)
         self.page = self.context.new_page()
 
@@ -399,11 +404,12 @@ class TwitterProfileScraper(Scraping):
         self.fill_loginform()
         while self.page.url != "https://twitter.com/home":
             self.fill_loginform()
-        self.page.wait_for_timeout(10000)
+        print(' ==> login done')
+        self.page.wait_for_timeout(60000)
 
     def goto_login(self) -> None:
-        self.page.goto("https://twitter.com/i/flow/login")
-        self.page.wait_for_timeout(30000)
+        self.page.goto("https://twitter.com/i/flow/login", timeout=60000, wait_until='load')
+        self.page.wait_for_timeout(60000)
 
     def log_out(self) -> None:
         self.page.locator(
@@ -458,7 +464,7 @@ class TwitterProfileScraper(Scraping):
                                self.current_credential['password'])
                 self.page.locator("//span[text()='Log in']").click()
                 self.page.wait_for_timeout(10000)
-                time.sleep(randint(1, 3))
+                time.sleep(randint(5))
 
             case _:
                 self.goto_login()

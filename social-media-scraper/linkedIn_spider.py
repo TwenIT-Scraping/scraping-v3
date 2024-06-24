@@ -176,7 +176,8 @@ class LinkedInProfileScraper(Scraping):
                             'comment': comment_text,
                             'published_at': published_at,
                             'likes': clikes,
-                            'author': author
+                            'author': author,
+                            "author_page_url": ""
                         })
 
                     # comments = int(''.join(filter(str.isdigit, post.find('li', {'class': "social-details-social-counts__comments"}).text.strip().split(' ')[0]))) if \
@@ -206,6 +207,7 @@ class LinkedInProfileScraper(Scraping):
 
                     if (date2):
                         self.posts.append({
+                            "post_url": "",
                             "author": post_author,
                             "description": title,
                             "reaction": likes,
