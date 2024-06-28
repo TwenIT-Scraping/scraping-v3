@@ -21,8 +21,8 @@ __class_name__ = {
     'Instagram': InstagramProfileScraper,
     'Linkedin': LinkedInProfileScraper,
     'facebook EN': FacebookProfileScraper,
-    'Twitter': TwitterProfileScraperFR,
-    'Twitter (X)': TwitterProfileScraperFR,
+    'Twitter': TwitterScraper,
+    'Twitter (X)': TwitterScraper,
     'Tiktok': TikTokProfileScraper,
     'Facebook': FacebookProfileScraper
 }

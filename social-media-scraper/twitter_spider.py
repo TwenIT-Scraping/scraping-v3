@@ -30,14 +30,14 @@ class BaseTwitterSrap(Scraping):
         self.playwright = sync_playwright().start()
         self.browser = self.playwright.chromium.launch(
             headless=False, 
-            args=['--start-maximized'],
-            timeout=60000)
+            args=['--start-maximized'])
         self.context = self.browser.new_context(no_viewport=True)
         self.page = self.context.new_page()
+        self.page.set_default_timeout(60000)
 
     def resolve_loginform(self) -> None:
         self.fill_loginform()
-        while self.page.url != "https://twitter.com/home":
+        while "/home" not in self.page.url:
             self.fill_loginform()
         self.page.wait_for_timeout(60000)
 
@@ -292,6 +292,7 @@ class TwitterScraper(BaseTwitterSrap):
             for item in tweet:
                 if item['content']['entryType'] == 'TimelineTimelineItem':
                     comment_section = item['content']['itemContent']['tweet_results']['result']['legacy']
+                    post['post_url'] = self.page.url
                     post['author'] = self.name
                     post['description'] =  self.format_text(comment_section['full_text'])
                     post['reaction'] = comment_section['favorite_count']
@@ -307,6 +308,7 @@ class TwitterScraper(BaseTwitterSrap):
                         print('passed')
                         post['comment_values'].append({
                             'author': comment_section['core']['user_results']['result']['legacy']['name'],
+                            'author_page_url': "https://x.com/" + comment_section['core']['user_results']['result']['legacy']['screen_name'],
                             'comment': self.format_text(comment_section['legacy']['full_text']),
                             'likes': comment_section['legacy']['favorite_count'],
                             'published_at': self.format_date(comment_section['legacy']['created_at'])
@@ -382,11 +384,12 @@ class TwitterProfileScraper(Scraping):
         self.playwright = sync_playwright().start()
         self.browser = self.playwright.chromium.launch(
                         headless=False, 
-            args=['--start-maximized'],
-            timeout=60000
+            args=['--start-maximized']
         )
         self.context = self.browser.new_context(no_viewport=True)
         self.page = self.context.new_page()
+        self.page.set_default_timeout(60000)
+
 
     def stop(self):
         self.context.close()
@@ -402,14 +405,13 @@ class TwitterProfileScraper(Scraping):
 
     def resolve_loginform(self) -> None:
         self.fill_loginform()
-        while self.page.url != "https://twitter.com/home":
+        while "/home" not in self.page.url :
             self.fill_loginform()
         print(' ==> login done')
         self.page.wait_for_timeout(60000)
 
     def goto_login(self) -> None:
-        self.page.goto("https://twitter.com/i/flow/login", timeout=60000, wait_until='load')
-        self.page.wait_for_timeout(60000)
+        self.page.goto("https://twitter.com/i/flow/login")
 
     def log_out(self) -> None:
         self.page.locator(
