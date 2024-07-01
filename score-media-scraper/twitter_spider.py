@@ -182,20 +182,6 @@ class TwitterScraper(BaseTwitterSrap):
         time.sleep(3)
 
 
-    def scroll_page(self, max_scrolls:int=50) -> None:
-        prev_height = -1
-        scroll_count = 0
-        while scroll_count < max_scrolls:
-            self.page.on("response", self.intercept_page_response)
-            self.page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-            new_height = self.page.evaluate("document.body.scrollHeight")
-            if new_height == prev_height:
-                break
-            prev_height = new_height
-            scroll_count += 1
-            time.sleep(3)
-        time.sleep(3)
-
     def intercept_page_response(self,response) -> None:
         """capture all background requests and save them"""
         response_type = response.request.resource_type
@@ -217,9 +203,9 @@ class TwitterScraper(BaseTwitterSrap):
         profile_data_container = nested_lookup(key='legacy', document=self.xhr_calls['profile'])[0]
         self.page_data['followers'] = profile_data_container['followers_count']
         self.page_data['establishement'] = self.establishment
-        self.page_data['likes'] = profile_data_container['favourites_count']
-        # self.page_data['createdAt'] = self.format_date(profile_data_container['created_at'])
-        # self.page_data['hasStat'] = "1"
+        self.page_data['likes'] = profile_data_container['followers_count']
+        self.page_data['createdAt'] = self.format_date(profile_data_container['created_at'])
+        self.page_data['hasStat'] = "1"
         self.page_data['source'] = "twitter"
         self.page_data['name'] = f"twitter_{profile_data_container['name']}"
         self.name = profile_data_container['name']
@@ -251,7 +237,7 @@ class TwitterScraper(BaseTwitterSrap):
             output_files.append(self.save())
             # p_item.next()
             print(" | Saved")
-            # self.save()
+            self.save()
             # except:
             #     pass
 
