@@ -80,12 +80,12 @@ class LinkedInProfileScraper(Scraping):
 
         soupe = BeautifulSoup(self.page.content(), 'lxml')
 
-        followers = soupe.find('section', {'class': 'artdeco-carousel'}).find('li', {'class': 'artdeco-carousel__item'}).find('span', {'class': 'update-components-actor__description'}).find('span', {'class': 'visually-hidden'}).text.strip() if \
-            soupe.find('section', {'class': 'artdeco-carousel'}) and soupe.find('section', {'class': 'artdeco-carousel'}).find('li', {'class': 'artdeco-carousel__item'}) and soupe.find('section', {'class': 'artdeco-carousel'}).find('li', {'class': 'artdeco-carousel__item'}).find('span', {'class': 'update-components-actor__description'}) and \
-            soupe.find('section', {'class': 'artdeco-carousel'}).find('li', {'class': 'artdeco-carousel__item'}).find('span', {'class': 'update-components-actor__description'}).find('span', {'class': 'visually-hidden'}) else ""
+        # followers = soupe.find('section', {'class': 'artdeco-carousel'}).find('li', {'class': 'artdeco-carousel__item'}).find('span', {'class': 'update-components-actor__description'}).find('span', {'class': 'visually-hidden'}).text.strip() if \
+        #     soupe.find('section', {'class': 'artdeco-carousel'}) and soupe.find('section', {'class': 'artdeco-carousel'}).find('li', {'class': 'artdeco-carousel__item'}) and soupe.find('section', {'class': 'artdeco-carousel'}).find('li', {'class': 'artdeco-carousel__item'}).find('span', {'class': 'update-components-actor__description'}) and \
+        #     soupe.find('section', {'class': 'artdeco-carousel'}).find('li', {'class': 'artdeco-carousel__item'}).find('span', {'class': 'update-components-actor__description'}).find('span', {'class': 'visually-hidden'}) else ""
 
-        # followers = soupe.find('section', {'class': "org-company-info-module__container artdeco-card full-width"}).find(
-        #     'p', {'class': "t-14 t-normal text-align-center"}).text.strip().replace('\u202f', '').split('\xa0')[0]
+        followers = soupe.find('section', {'class': "org-company-info-module__container artdeco-card full-width"}).find(
+            'p', {'class': "t-14 t-normal text-align-center"}).text.strip().replace('\u202f', '').split('\xa0')[0]
         try:
             followers = convert_count(followers.split(' ')[0].lower())
         except Exception as e:
@@ -100,6 +100,7 @@ class LinkedInProfileScraper(Scraping):
                 'name': f"linkedin",
                 'posts': 0
             }
+            print(self.page_data)
         else:
             pass
 
@@ -119,7 +120,7 @@ class LinkedInProfileScraper(Scraping):
                 self.add_logging(f"Open page: {item['establishment_name']}")
                 p_item.next()
                 print(" | Open page")
-                self.goto_page('/')
+                self.goto_page('/posts/?feedView=all')
                 p_item.next()
                 print(" | Extracting data")
                 self.extract_data()

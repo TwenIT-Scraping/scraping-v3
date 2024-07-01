@@ -103,6 +103,8 @@ class InstagramProfileScraper(Scraping):
                     'posts': 0
                 }
 
+                print(self.page_data)
+
             except Exception as e:
                 self.add_error(e)
                 pass

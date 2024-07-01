@@ -141,89 +141,97 @@ class LinkedInProfileScraper(Scraping):
                 'div', class_='scaffold-finite-scroll__content') else []
 
             total_comments = 0
-
-            for post in post_container:
-                try:
-                    comments_container = post.find(
-                        'li', {'class': "social-details-social-counts__comments"})
-
-                    comments = 0
-
-                    if comments_container:
-                        comments = int(
-                            ''.join(filter(str.isdigit, comments_container.text.strip().split(' ')[0])))
-                        # print(f"with {comments} comments")
-
-                    comment_list = post.find_all(
-                        'article', {'class': 'comments-comments-list__comment-item'})
-
-                    comment_values = []
-
-                    for comment in comment_list:
-                        author = comment.find('span', {'class': 'comments-post-meta__name-text'}).find('span', {'aria-hidden': "true"}).text.strip(
-                        ) if comment.find('span', {'class': 'comments-post-meta__name-text'}) and comment.find('span', {'class': 'comments-post-meta__name-text'}).find('span', {'aria-hidden': "true"}) else ""
-                        comment_text = comment.find('span', {'class': 'comments-comment-item__main-content'}).text.strip(
-                        ) if comment.find('span', {'class': 'comments-comment-item__main-content'}) else ""
-                        published_at = format_linkedIn_date(comment.find(
-                            'time', {'class': 'comments-comment-item__timestamp'}).text.strip()) if comment.find(
-                            'time', {'class': 'comments-comment-item__timestamp'}) else ""
-                        clikes = comment.find('button', {'class': 'comments-comment-social-bar__reactions-count'}).text.strip()
-                        if clikes.isdigit() and clikes is not None and clikes != '':
-                            clikes = int(clikes)
-                        else:
-                            clikes = 0
-                        comment_values.append({
-                            'comment': comment_text,
-                            'published_at': published_at,
-                            'likes': clikes,
-                            'author': author,
-                            "author_page_url": ""
-                        })
-
-                    # comments = int(''.join(filter(str.isdigit, post.find('li', {'class': "social-details-social-counts__comments"}).text.strip().split(' ')[0]))) if \
-                    #     post.find('li', {'class': "social-details-social-counts__item social-details-social-counts__comments social-details-social-counts__item--with-social-proof"}) else 0
+            if post_container:
+                print(f"{len(post_container)} posts found ")
+                for post in post_container:
                     try:
-                        post_author = post.find('span', class_="update-components-actor__name").find('span', class_="visually-hidden").text.strip(
-                        ) if post.find('span', class_="update-components-actor__name") and post.find('span', class_="update-components-actor__name").find('span', class_="visually-hidden") else ""
+                        comments_container = post.find(
+                            'li', {'class': "social-details-social-counts__comments"})
+                        comments = 0
+
+                        if comments_container:
+                            print('comment found')
+                            comments = int(
+                                ''.join(filter(str.isdigit, comments_container.text.strip().split(' ')[0])))
+                            # print(f"with {comments} comments")
+
+                        comment_list = post.find_all(
+                            'article', {'class': 'comments-comments-list__comment-item'})
+
+                        comment_values = []
+
+                        for comment in comment_list:
+                            author = comment.find('span', {'class': 'comments-post-meta__name-text'}).find('span', {'aria-hidden': "true"}).text.strip(
+                            ) if comment.find('span', {'class': 'comments-post-meta__name-text'}) and comment.find('span', {'class': 'comments-post-meta__name-text'}).find('span', {'aria-hidden': "true"}) else ""
+                            print(f"author {author}")
+                            comment_text = comment.find('span', {'class': 'comments-comment-item__main-content'}).text.strip(
+                            ) if comment.find('span', {'class': 'comments-comment-item__main-content'}) else ""
+                            print(f"author {comment_text}")
+                            published_at = format_linkedIn_date(comment.find(
+                                'time', {'class': 'comments-comment-item__timestamp'}).text.strip()) if comment.find(
+                                'time', {'class': 'comments-comment-item__timestamp'}) else ""
+                            print(f"published at {published_at}")
+                            clikes = comment.find('button', {'class': 'comments-comment-social-bar__reactions-count'}).text.strip()
+                            if clikes.isdigit() and clikes is not None and clikes != '':
+                                clikes = int(clikes)
+                            else:
+                                clikes = 0
+                            comment_values.append({
+                                'comment': comment_text,
+                                'published_at': published_at,
+                                'likes': clikes,
+                                'author': author,
+                                "author_page_url": ""
+                            })
+                            print(comment_values)
+                        # comments = int(''.join(filter(str.isdigit, post.find('li', {'class': "social-details-social-counts__comments"}).text.strip().split(' ')[0]))) if \
+                        #     post.find('li', {'class': "social-details-social-counts__item social-details-social-counts__comments social-details-social-counts__item--with-social-proof"}) else 0
+                        try:
+                            post_author = post.find('span', class_="update-components-actor__name").find('span', class_="visually-hidden").text.strip(
+                            ) if post.find('span', class_="update-components-actor__name") and post.find('span', class_="update-components-actor__name").find('span', class_="visually-hidden") else ""
+                            print(f"post author {post_author}")
+                        except Exception as e:
+                            print(e)
+
+                        shares = int(''.join(filter(str.isdigit, post.find('li', {'class': "social-details-social-counts__item social-details-social-counts__item--with-social-proof"}).text.strip().split(' ')[0][:-15]))) if \
+                            post.find('li', {'class': "social-details-social-counts__item social-details-social-counts__item--with-social-proof"}) else 0
+                        print(f"shares {shares}")
+                        title = post.find('span', {'class': "break-words"}).text.strip(
+                        ) if post.find('span', {'class': "break-words"}) else ""
+                        print(f"tittle {title}")
+                        likes = int(post.find('span', {'class': "social-details-social-counts__reactions-count"}).text.strip()) if \
+                            post.find('span', {'class': "social-details-social-counts__reactions-count"}) else 0
+                        print(f"likes {likes}")
+                        date = post.find(
+                            'span', {'class': "update-components-actor__sub-description"}).text.split() if post.find(
+                            'span', {'class': "update-components-actor__sub-description"}) else ""
+                        date2 = ""
+
+                        if date:
+                            date2 = post.find('span', {'class': "update-components-actor__sub-description"}).find(
+                                'span', {'class': "visually-hidden"}).text.strip() or ""
+                            date2 = format_linkedIn_date(date2)
+
+                        if (date2):
+                            self.posts.append({
+                                "post_url": "",
+                                "author": post_author,
+                                "description": title,
+                                "reaction": likes,
+                                "comments": comments,
+                                "shares": shares,
+                                "publishedAt": date2,
+                                'comment_values': comment_values,
+                                'hashtag': ""
+                            })
+
+                        total_comments += comments
                     except Exception as e:
+                        print("Exception interne")
                         print(e)
-
-                    shares = int(''.join(filter(str.isdigit, post.find('li', {'class': "social-details-social-counts__item social-details-social-counts__item--with-social-proof"}).text.strip().split(' ')[0][:-15]))) if \
-                        post.find('li', {'class': "social-details-social-counts__item social-details-social-counts__item--with-social-proof"}) else 0
-                    title = post.find('span', {'class': "break-words"}).text.strip(
-                    ) if post.find('span', {'class': "break-words"}) else ""
-                    likes = int(post.find('span', {'class': "social-details-social-counts__reactions-count"}).text.strip()) if \
-                        post.find('span', {'class': "social-details-social-counts__reactions-count"}) else 0
-
-                    date = post.find(
-                        'span', {'class': "update-components-actor__sub-description"}).text.split() if post.find(
-                        'span', {'class': "update-components-actor__sub-description"}) else ""
-                    date2 = ""
-
-                    if date:
-                        date2 = post.find('span', {'class': "update-components-actor__sub-description"}).find(
-                            'span', {'class': "visually-hidden"}).text.strip() or ""
-                        date2 = format_linkedIn_date(date2)
-
-                    if (date2):
-                        self.posts.append({
-                            "post_url": "",
-                            "author": post_author,
-                            "description": title,
-                            "reaction": likes,
-                            "comments": comments,
-                            "shares": shares,
-                            "publishedAt": date2,
-                            'comment_values': comment_values,
-                            'hashtag': ""
-                        })
-
-                    total_comments += comments
-
-                except Exception as e:
-                    print("Exception interne")
-                    print(e)
-                    pass
+                        pass
+            else:
+                print(f'No post found for {name}')
 
         except Exception as e:
             print("Exception externe")

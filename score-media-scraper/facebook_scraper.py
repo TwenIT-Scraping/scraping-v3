@@ -153,6 +153,9 @@ class FacebookProfileScraper(Scraping):
                 'establishment': f"/api/establishments/{self.establishment}",
                 'posts': 0
             }
+
+            print(self.page_data)
+            
         else:
             pass
 
