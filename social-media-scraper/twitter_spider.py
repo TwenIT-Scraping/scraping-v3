@@ -669,9 +669,15 @@ class X_scraper(BaseTwitterScrap):
 
     def goto_post(self, url:str) -> None:
         print(f" ==> { url }")
-        self.page.goto(url)
-        self.page.wait_for_selector("//article[@role='article']", timeout=20000)
-        self.page.wait_for_timeout(10000)
+        try:
+            self.page.goto(url)
+            self.page.wait_for_selector("//article[@role='article']", timeout=60000)
+            self.page.wait_for_timeout(10000)
+        except TimeoutError:
+            self.page.goto(url)
+            self.page.wait_for_selector("//article[@role='article']", timeout=60000)
+            self.page.wait_for_timeout(10000)
+            
 
     def format_date(self, time_str: str) -> datetime | None:
         with open('dates.json', 'a') as openfile:
@@ -769,7 +775,7 @@ class X_scraper(BaseTwitterScrap):
         art = articles[0]
         post['post_url'] = self.page.url
         post['author'] = art.find('a', {'class':'css-175oi2r r-1wbh5a2 r-dnmrzs r-1ny4l3l r-1loqt21', 'role':'link'}).text
-        post['description'] = art.find('div', {'data-testid':'tweetText'}).text
+        post['description'] = self.format_text(art.find('div', {'data-testid':'tweetText'}).text)
         post['publishedAt'] = self.format_date_from_iso(art.find('time')['datetime'])
         post['comments'] = self.parse_int(art.find('button', {'data-testid':'reply'}).text.strip())
         post['reaction'] = self.parse_int(art.find('button', {'data-testid':'like'}).text.lower())
@@ -778,7 +784,7 @@ class X_scraper(BaseTwitterScrap):
         for article in articles:
             comment = {}
             comment['author'] = article.find('a', {'class':'css-175oi2r r-1wbh5a2 r-dnmrzs r-1ny4l3l r-1loqt21', 'role':'link'}).text
-            comment['comment'] = article.find('div', {'data-testid':'tweetText'}).text
+            comment['comment'] = self.format_text(article.find('div', {'data-testid':'tweetText'}).text)
             comment['author_page_url'] = "https://x.com" + article.find('a', {'class':'css-175oi2r r-1wbh5a2 r-dnmrzs r-1ny4l3l r-1loqt21', 'role':'link'}, href=True)['href']
             comment['likes'] = article.find('button', {'data-testid':'like'}).text
             comment['published_at'] = self.format_date_from_iso(article.find('time')['datetime'])
