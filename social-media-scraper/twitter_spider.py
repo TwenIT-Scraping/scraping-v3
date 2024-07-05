@@ -6,6 +6,8 @@ import time
 from datetime import datetime, timedelta
 from scraping import Scraping
 from progress.bar import ChargingBar, FillingCirclesBar
+from bs4 import BeautifulSoup
+
 
 MONTHS = {
     'jan': '01',
@@ -23,7 +25,7 @@ MONTHS = {
 }
 
 
-class BaseTwitterSrap(Scraping):
+class BaseTwitterScrap(Scraping):
 
     def __init__(self, items: list) -> None:
         super().__init__(items)
@@ -154,7 +156,7 @@ class BaseTwitterSrap(Scraping):
         self.resolve_loginform()
 
 
-class TwitterScraper(BaseTwitterSrap):
+class TwitterScraper(BaseTwitterScrap):
 
     def __init__(self, items: list) -> None:
         super().__init__(items)
@@ -623,3 +625,184 @@ class TwitterProfileScraperFR(TwitterProfileScraper):
                 self.page.locator("//span[text()='Suivant']").click()
                 self.page.wait_for_timeout(10000)
                 time.sleep(randint(1, 3))
+
+
+class X_scraper(BaseTwitterScrap):
+
+    def __init__(self, items: list) -> None:
+        super().__init__(items)
+        self.post_data = []
+        self.xhr_calls = {}
+        self.last_date = datetime.now()
+
+    def print_in_file(self, obj) -> None:
+        with open('dates.json', 'a') as openfile:
+            openfile.write(f'"{obj}", \n')
+
+    def goto_x_page(self):
+        print(f" ==> { self.url }")
+        self.print_in_file(self.url)
+        self.page.on("response", self.intercept_response)
+        self.page.goto(self.url)
+        self.page.wait_for_selector("//article[@role='article']", timeout=20000)
+        self.page.wait_for_timeout(10000)
+
+    def intercept_response(self, response) -> None:
+        """capture all background requests and save them"""
+        response_type = response.request.resource_type
+        if response_type == "xhr":
+            if 'UserBy' in response.url:
+                self.xhr_calls['profile'] = response.json()
+            if 'UserTweets' in response.url:
+                self.xhr_calls['tweets'] = response.json()
+
+    def extract_page_data(self) -> None:
+        name = re.sub(r'[^\w]', ' ', nested_lookup(key='name', document=self.xhr_calls['profile'])[0])
+        self.page_data = {
+            'followers': nested_lookup(key='followers_count', document=self.xhr_calls['profile'])[0],
+            'likes': nested_lookup(key='favourites_count', document=self.xhr_calls['profile'])[0],
+            'source': "twitter",
+            'establishment': self.establishment,
+            'name': f"twitter_{name}",
+        }
+        print(self.page_data)
+
+    def goto_post(self, url:str) -> None:
+        print(f" ==> { url }")
+        self.page.goto(url)
+        self.page.wait_for_selector("//article[@role='article']", timeout=20000)
+        self.page.wait_for_timeout(10000)
+
+    def format_date(self, time_str: str) -> datetime | None:
+        with open('dates.json', 'a') as openfile:
+            openfile.write(f'"{time_str}",\n')
+        print(time_str)
+        time_str = time_str.strip().replace(',', '')
+        if len(time_str.split(' ')) == 2:
+            time_str += f' {datetime.now().year}'
+        date = datetime.strptime(time_str, "%b %d %Y")
+        print(date.strftime("%d/%m/%Y"))
+        return date
+    
+    def format_date_from_iso(self, time_str:str) -> str:
+        datetime_obj = datetime.fromisoformat(time_str.replace('Z', '+00:00'))
+        return datetime_obj.strftime('%d/%m/%Y')
+
+    def get_articles(self) -> object | None:
+        articles = self.page.query_selector_all("//article[@role='article']")
+        print(f"{len(articles)} articles found")
+        if articles:
+            return articles
+        return 
+    
+    def get_last_date(self) -> object | None:
+        articles = self.get_articles()
+        article = articles[-1]
+        date_link = self.extract_article(article)
+        print(date_link)
+        return self.format_date(date_link['date'])
+    
+    def extract_article(self, element:object) -> dict | None:
+        print('extraction')
+        soupe = BeautifulSoup(element.inner_html(), 'lxml')
+        date_link = soupe.find('a', {'class':'css-146c3p1 r-bcqeeo r-1ttztb7 r-qvutc0 r-37j5jr r-a023e6 r-rjixqe r-16dba41 r-xoduu5 r-1q142lx r-1w6e6rj r-9aw3ui r-3s2u2q r-1loqt21'}, href=True)
+        date = date_link['aria-label']
+        link = date_link['href']
+        if date and link:
+            return {'date':date, 'link': f'https://x.com{link}'}
+        else:
+            print('date and link not found')
+            return
+        
+    def load_more_articles(self) -> None:
+        print('scroolling')
+        for _ in range(3): 
+            self.page.evaluate('window.scrollBy(0, window.innerHeight);')
+            time.sleep(3)
+
+    def load_and_extract(self) -> None:
+        # article.evaluate('(element) => element.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })')
+        articles = self.get_articles()
+        if articles:
+            while True:
+                self.extract_post_link()
+                last_date = self.get_last_date()
+                print(last_date)
+                if last_date <= (datetime.now() - timedelta(days=30)):
+                    break
+                else:
+                    self.load_more_articles()
+        else:
+            print('No articles found')
+
+    def extract_post_link(self) -> None:
+        articles = self.get_articles()
+        for article in articles:
+            data = self.extract_article(article)
+            self.print_in_file(data)
+            if self.format_date(data['date']) <= (datetime.now() - timedelta(days=30)):
+                break
+            else:
+                self.post_data.append(data)
+
+    def load_comments(self) -> None:
+        current_articles = len(self.get_articles())
+        new_articles_count = current_articles
+        while True:
+            self.load_more_articles()
+            new_articles_count = len(self.get_articles())
+            if new_articles_count == current_articles:
+                break
+
+    def parse_int(self, text:str) -> int:
+        likes = text.lower()
+        if 'k' in likes:
+            likes = int(float(likes.replace('k', '')) * 1000)
+        if 'm' in likes:
+            likes = int(float(likes.replace('m', '')) * 1000000)
+        return likes
+
+    def extract_posts(self):
+        soupe = BeautifulSoup(self.page.content(), 'lxml')
+        post = {'comment_values':[]}
+        articles = soupe.find_all('article', {'data-testid':'tweet'})
+        art = articles[0]
+        post['post_url'] = self.page.url
+        post['author'] = art.find('a', {'class':'css-175oi2r r-1wbh5a2 r-dnmrzs r-1ny4l3l r-1loqt21', 'role':'link'}).text
+        post['description'] = art.find('div', {'data-testid':'tweetText'}).text
+        post['publishedAt'] = self.format_date_from_iso(art.find('time')['datetime'])
+        post['comments'] = self.parse_int(art.find('button', {'data-testid':'reply'}).text.strip())
+        post['reaction'] = self.parse_int(art.find('button', {'data-testid':'like'}).text.lower())
+        articles = articles[1:]
+        print(f"{len(articles)} comments found")
+        for article in articles:
+            comment = {}
+            comment['author'] = article.find('a', {'class':'css-175oi2r r-1wbh5a2 r-dnmrzs r-1ny4l3l r-1loqt21', 'role':'link'}).text
+            comment['comment'] = article.find('div', {'data-testid':'tweetText'}).text
+            comment['author_page_url'] = "https://x.com" + article.find('a', {'class':'css-175oi2r r-1wbh5a2 r-dnmrzs r-1ny4l3l r-1loqt21', 'role':'link'}, href=True)['href']
+            comment['likes'] = article.find('button', {'data-testid':'like'}).text
+            comment['published_at'] = self.format_date_from_iso(article.find('time')['datetime'])
+            post['comment_values'].append(comment)
+
+        print(post)
+        self.posts.append(post)
+
+        print('extraction done')
+
+    def execute(self):
+        super().execute()
+        output_files = []
+
+        for item in self.items:
+            self.set_item(item)
+            self.goto_x_page()
+            self.extract_page_data()
+            self.load_and_extract()
+
+            if self.post_data:
+                for data in self.post_data:
+                    self.goto_post(data['link'])
+                    self.load_comments()
+                    self.extract_posts()
+        self.save()
+        output_files.append(self.save())
