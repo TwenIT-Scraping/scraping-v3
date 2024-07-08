@@ -734,7 +734,7 @@ class X_scraper(BaseTwitterScrap):
                 self.extract_post_link()
                 last_date = self.get_last_date()
                 print(last_date)
-                if last_date <= (datetime.now() - timedelta(days=30)):
+                if last_date <= (datetime.now() - timedelta(days=10)):
                     break
                 else:
                     self.load_more_articles()
@@ -746,7 +746,7 @@ class X_scraper(BaseTwitterScrap):
         for article in articles:
             data = self.extract_article(article)
             self.print_in_file(data)
-            if self.format_date(data['date']) <= (datetime.now() - timedelta(days=30)):
+            if self.format_date(data['date']) <= (datetime.now() - timedelta(days=10)):
                 break
             else:
                 self.post_data.append(data)
@@ -761,7 +761,8 @@ class X_scraper(BaseTwitterScrap):
                 break
 
     def parse_int(self, text:str) -> int:
-        likes = text.lower()
+        print(text)
+        likes = text.lower().replace('.', '').replace(',', '').replace('\xa0', '')
         if 'k' in likes:
             likes = int(float(likes.replace('k', '')) * 1000)
         if 'm' in likes:
@@ -810,5 +811,8 @@ class X_scraper(BaseTwitterScrap):
                     self.goto_post(data['link'])
                     self.load_comments()
                     self.extract_posts()
-        self.save()
-        output_files.append(self.save())
+            print(self.page_data)
+            self.save()
+            output_files.append(self.save())
+        
+        return output_files
