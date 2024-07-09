@@ -787,8 +787,10 @@ class X_scraper(BaseTwitterScrap):
         except:
             post['description'] = ''
         post['publishedAt'] = self.format_date_from_iso(art.find('time')['datetime'])
-        post['comments'] = self.parse_int(art.find('button', {'data-testid':'reply'}).text.strip())
-        post['reaction'] = self.parse_int(art.find('button', {'data-testid':'like'}).text.lower())
+        try:
+            post['reaction'] = int(self.parse_int(art.find('button', {'data-testid':'like'}).text.lower()))
+        except:
+            post['reaction'] = 0
         articles = articles[1:]
         print(f"{len(articles)} comments found")
         for article in articles:
@@ -806,6 +808,7 @@ class X_scraper(BaseTwitterScrap):
             comment['published_at'] = self.format_date_from_iso(article.find('time')['datetime'])
             post['comment_values'].append(comment)
 
+        post['comments'] = len(post['comment_values'])
         self.posts.append(post)
         print(self.posts)
 
