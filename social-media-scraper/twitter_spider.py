@@ -740,7 +740,7 @@ class X_scraper(BaseTwitterScrap):
                 self.extract_post_link()
                 last_date = self.get_last_date()
                 print(last_date)
-                if last_date <= (datetime.now() - timedelta(days=60)):
+                if last_date <= (datetime.now() - timedelta(days=30)):
                     break
                 else:
                     self.load_more_articles()
@@ -752,7 +752,7 @@ class X_scraper(BaseTwitterScrap):
         for article in articles:
             data = self.extract_article(article)
             self.print_in_file(data)
-            if self.format_date(data['date']) <= (datetime.now() - timedelta(days=60)):
+            if self.format_date(data['date']) <= (datetime.now() - timedelta(days=30)):
                 break
             else:
                 self.post_data.append(data)
