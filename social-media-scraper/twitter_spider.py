@@ -682,15 +682,12 @@ class X_scraper(BaseTwitterScrap):
     def format_date(self, time_str: str) -> datetime | None:
         with open('dates.json', 'a') as openfile:
             openfile.write(f'"{time_str}",\n')
-        print(time_str)
-        if ',' in time_str and len(time_str.split(' ')  == 3):
+        if ',' in time_str and len(time_str.split(' ')) == 3:
             date = datetime.strptime(time_str, "%b %d, %Y")
-            print(date.strftime("%d/%m/%Y"))
             return date
         if len(time_str.split(' ')) == 2:
             time_str += f' {datetime.now().year}'
             date = datetime.strptime(time_str, "%b %d %Y")
-            print(date.strftime("%d/%m/%Y"))
             return date
         if 'hours ago' in time_str or 'minutes ago':
             return datetime.now()
@@ -715,7 +712,6 @@ class X_scraper(BaseTwitterScrap):
         return self.format_date(date_link['date'])
     
     def extract_article(self, element:object) -> dict | None:
-        print('extraction')
         soupe = BeautifulSoup(element.inner_html(), 'lxml')
         date_link = soupe.find('a', {'class':'css-146c3p1 r-bcqeeo r-1ttztb7 r-qvutc0 r-37j5jr r-a023e6 r-rjixqe r-16dba41 r-xoduu5 r-1q142lx r-1w6e6rj r-9aw3ui r-3s2u2q r-1loqt21'}, href=True)
         date = date_link['aria-label']
@@ -739,7 +735,6 @@ class X_scraper(BaseTwitterScrap):
             while True:
                 self.extract_post_link()
                 last_date = self.get_last_date()
-                print(last_date)
                 if last_date <= (datetime.now() - timedelta(days=30)):
                     break
                 else:
@@ -767,7 +762,6 @@ class X_scraper(BaseTwitterScrap):
                 break
 
     def parse_int(self, text:str) -> int:
-        print(text)
         likes = text.lower().replace('.', '').replace(',', '').replace('\xa0', '')
         if 'k' in likes:
             likes = int(float(likes.replace('k', '')) * 1000)
