@@ -740,7 +740,7 @@ class X_scraper(BaseTwitterScrap):
                 self.extract_post_link()
                 last_date = self.get_last_date()
                 print(last_date)
-                if last_date <= (datetime.now() - timedelta(days=10)):
+                if last_date <= (datetime.now() - timedelta(days=60)):
                     break
                 else:
                     self.load_more_articles()
@@ -752,7 +752,7 @@ class X_scraper(BaseTwitterScrap):
         for article in articles:
             data = self.extract_article(article)
             self.print_in_file(data)
-            if self.format_date(data['date']) <= (datetime.now() - timedelta(days=10)):
+            if self.format_date(data['date']) <= (datetime.now() - timedelta(days=60)):
                 break
             else:
                 self.post_data.append(data)
@@ -791,6 +791,12 @@ class X_scraper(BaseTwitterScrap):
             post['reaction'] = int(self.parse_int(art.find('button', {'data-testid':'like'}).text.lower()))
         except:
             post['reaction'] = 0
+        try:
+            post['shares'] = int(soupe.find('button', {'data-testid':'retweet'}).text)
+        except:
+            post['shares'] = 0
+        post['hashtag'] = ""
+        
         articles = articles[1:]
         print(f"{len(articles)} comments found")
         for article in articles:
@@ -810,7 +816,6 @@ class X_scraper(BaseTwitterScrap):
 
         post['comments'] = len(post['comment_values'])
         self.posts.append(post)
-        print(self.posts)
 
         print('extraction done')
 
@@ -829,8 +834,9 @@ class X_scraper(BaseTwitterScrap):
                     self.goto_post(data['link'])
                     self.load_comments()
                     self.extract_posts()
+
             print(self.page_data)
-            self.save()
+            print(self.posts)
             output_files.append(self.save())
         
         return output_files
