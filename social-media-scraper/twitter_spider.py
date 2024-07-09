@@ -663,7 +663,7 @@ class X_scraper(BaseTwitterScrap):
             'likes': nested_lookup(key='favourites_count', document=self.xhr_calls['profile'])[0],
             'source': "twitter",
             'establishment': self.establishment,
-            'name': f"twitter_{name}",
+            'name': f"twitter_{name.replace(' ', '_')}",
         }
         print(self.page_data)
 
@@ -686,6 +686,8 @@ class X_scraper(BaseTwitterScrap):
         time_str = time_str.strip().replace(',', '')
         if len(time_str.split(' ')) == 2:
             time_str += f' {datetime.now().year}'
+        if 'hours ago' in time_str or 'minutes ago':
+            return datetime.now()
         date = datetime.strptime(time_str, "%b %d %Y")
         print(date.strftime("%d/%m/%Y"))
         return date
@@ -734,7 +736,7 @@ class X_scraper(BaseTwitterScrap):
                 self.extract_post_link()
                 last_date = self.get_last_date()
                 print(last_date)
-                if last_date <= (datetime.now() - timedelta(days=10)):
+                if last_date >= (datetime.now() - timedelta(days=20)):
                     break
                 else:
                     self.load_more_articles()
@@ -746,7 +748,7 @@ class X_scraper(BaseTwitterScrap):
         for article in articles:
             data = self.extract_article(article)
             self.print_in_file(data)
-            if self.format_date(data['date']) <= (datetime.now() - timedelta(days=10)):
+            if self.format_date(data['date']) >= (datetime.now() - timedelta(days=20)):
                 break
             else:
                 self.post_data.append(data)
@@ -791,8 +793,8 @@ class X_scraper(BaseTwitterScrap):
             comment['published_at'] = self.format_date_from_iso(article.find('time')['datetime'])
             post['comment_values'].append(comment)
 
-        print(post)
         self.posts.append(post)
+        print(self.posts)
 
         print('extraction done')
 
