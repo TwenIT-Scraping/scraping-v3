@@ -201,7 +201,8 @@ class InstagramProfileScraper(Scraping):
                                 'comment': cmt["text"],
                                 'published_at': date.strftime("%d/%m/%Y"),
                                 'likes': cmt["comment_like_count"],
-                                'author': cmt["user"]["full_name"]
+                                'author': cmt["user"]["full_name"],
+                                'author_page_url': ''
                             })
                     except Exception as e:
                         print(e)
@@ -212,6 +213,7 @@ class InstagramProfileScraper(Scraping):
                         published_at = datetime.fromtimestamp(
                             post["comments"]["caption"]["created_at"])
                         published_at > (datetime.now() - timedelta(days=365)) and post["owner"]["full_name"] and post["caption"]["text"] and self.posts.append({
+                            "post_url": '',
                             "author": post["owner"]["full_name"],
                             "publishedAt": published_at.strftime("%d/%m/%Y"),
                             "description": post["caption"]["text"],

@@ -67,7 +67,7 @@ class Scraping(object):
 
         self.last_date = None
         self.env = env
-        self.lang = 'en'
+        self.lang = 'fr'
         self.setting_id = "-1"
 
         self.set_random_params()
@@ -177,6 +177,7 @@ class Scraping(object):
         result = ""
 
         for item in self.data:
+            print(item)
             if check_value(item):
                 line = '$$$$$'.join([item['author'], item['source'], item['language'], item['rating'], item['establishment'], item['date_review'],
                                 item['comment'].replace('$', 'USD'), item['settings'], item['date_visit'], item['novisitday'], item['url'] if 'url' in item.keys() else 'non']) + "#####"

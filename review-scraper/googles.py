@@ -376,11 +376,11 @@ class Google(BaseGoogleScrap):
                 try:
                     lang = self.detect_lang(comment)
                 except:
-                    lang = 'en'
+                    lang = self.lang
   
                 date_review = self.formate_date(date_raw)
                 if date_review != "" and date_review is not None:
-                    if (author or comment or rating != "0") and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365):
+                    if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365):
                         reviews.append({
                             'rating': rating,
                             'author': author,
@@ -396,13 +396,15 @@ class Google(BaseGoogleScrap):
                         })
 
                     if datetime.strptime(date_review, '%d/%m/%Y') < (datetime.now() - timedelta(days=365)):
-                        print("houla")
+                        print("last date valid reached")
                         self.data = reviews
                         self.data_loaded = True
-                        return
+
                     if self.data_loaded:
                         self.data = reviews
-                        return
+                        return self.data
+                else:
+                    print('date format incorrect')
             print(reviews)
             self.data = reviews
         except Exception as e:

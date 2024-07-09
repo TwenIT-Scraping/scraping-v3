@@ -36,9 +36,9 @@ class BaseFacebookScraper(Scraping):
         self.chrome_options = webdriver.ChromeOptions()
         self.chrome_options.add_argument('--ignore-certificate-errors')
         self.chrome_options.add_argument('--disable-gpu')
-        self.chrome_options.add_argument(
-            '--disable-blink-features=AutomationControlled')
+        self.chrome_options.add_argument('--disable-blink-features=AutomationControlled')
         self.chrome_options.add_argument('--incognito')
+        self.chrome_options.add_argument('--lang=en')
         self.driver = webdriver.Chrome(options=self.chrome_options)
         self.static_folder_path = f"{os.environ.get('STATIC_FOLDER')}/facebook"
 
@@ -237,7 +237,7 @@ class FacebookScraper(object):
     def resolve_login_forme(self) -> None:
         self.driver.find_element(By.XPATH, "//input[@data-testid='royal_email']").click()
         time.sleep(randint(1, 3))
-        self.driver.find_element(By.XPATH, "//input[@data-testid='royal_email']").send_keys(self.credentials['phone'])
+        self.driver.find_element(By.XPATH, "//input[@data-testid='royal_email']").send_keys(self.credentials['email'])
         time.sleep(randint(1, 3))
         self.driver.find_element(By.XPATH, "//input[@data-testid='royal_pass']").click()
         time.sleep(randint(1, 3))
@@ -250,12 +250,25 @@ class FacebookScraper(object):
         self.driver.get(self.items['page_url'])
         time.sleep(randint(5, 10))
 
+    def parse_int(self, text:str) -> int:
+        likes = text.strip().lower().replace('.', '').replace(',', '').replace('\xa0', '').replace(' likes', '').replace("j’aime", '').replace(' followers', '').replace("abonnées", '')
+        print(text)
+        if 'k' in likes:
+            likes = int(float(likes.replace('k', '')) * 1000)
+            return likes
+        if 'm' in likes:
+            likes = int(float(likes.replace('m', '')) * 1000000)
+            return likes
+        likes = int(float(likes))
+        return likes
+        
+
     def extract_page_data(self) -> None:
         soupe = BeautifulSoup(self.driver.page_source, 'lxml')
         header = soupe.find('div', {'class':'x78zum5 x15sbx0n x5oxk1f x1jxijyj xym1h4x xuy2c7u x1ltux0g xc9uqle'})
         followers_likes = header.find_all('a', {'class':'x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1sur9pj xkrqix3 xi81zsa x1s688f'})
-        likes = followers_likes[0].text.replace(' likes', '').replace('K', "000").replace('M', '000000').replace('.', '')
-        followers = followers_likes[1].text.replace(' followers', '').replace('K', "000").replace('M', '000000').replace('.', '')
+        likes = self.parse_int(followers_likes[0].text)
+        followers = self.parse_int(followers_likes[1].text)
         name = header.find('h1', {'class':'html-h1 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x1vvkbs x1heor9g x1qlqyl8 x1pd3egz x1a2a7pz'}).text.replace('\xa0', '')
 
         self.page_data = {
@@ -271,42 +284,57 @@ class FacebookScraper(object):
 
         print(self.page_data)
 
-    def fomate_date(self, date:str) -> str:
-        if ' at' in date:
-            date = date.split(' at')[0]
-        date = date.split('-')[0]
-        if date[-1] == ' ':
-            date = date[:-1]
-        i = 0
-        # for l in date:
-        #     if l > 3 and l.isdigit() and date[i - 1] != ' ':
-        #         date_list = list(date)
-        #         date_list.insert(i, ' ')
-        #         date = ''.join(date_list)
-        #         break
-        #     i += 1
-                
-        if len(date.split(' ')) <= 2:
-            date += f" {datetime.now().year}"
-            date = datetime.strptime(date, "%B %d %Y").strftime("%d/%m/%Y")
-            print(date)
-            return date
-        elif len(date.split(' ')) > 2 and ',' in date:
-            date = date[0: date.index(',') + 6].replace(',' , '')
-            print(date)
-            return datetime.strptime(date, "%B %d %Y").strftime("%d/%m/%Y")
-        else:
-            return date
+    def format_date_en(self, date_text:str) -> datetime | str:
+        date_text = date_text.split('-')[0].strip().lower().split('at')[0].strip()
+        print(date_text)
+        if date_text:
+            if date_text[0].isdigit() or 'ago' in date_text:
+                if len(date_text.split(' ')) == 1:
+                    if 's' in date_text or 'm' in date_text:
+                        return (datetime.now() - timedelta(seconds=int(date_text.split('s')[0].split('m')[0]))).strftime('%d/%m/%Y')
+                    if 'h' in date_text:
+                        return (datetime.now() - timedelta(hours=int(date_text.split('h')[0])))
+                else:
+                    if 'a day ago' in date_text:
+                        return (datetime.now() - timedelta(hours=24))
+                    if 'hours ago' in date_text:
+                        return (datetime.now() - timedelta(hours=int(date_text.split('hours ago')[0].strip())))
+                    if 'days ago' in date_text:
+                        return (datetime.now() - timedelta(days=int(date_text.split('days ago')[0].strip())))
+            else:
+                if 'yesterday' in date_text:
+                    return (datetime.now() - timedelta(days=1))
+                if any(chr.isdigit() for chr in date_text):
+                    date_non = ''
+                    for i in date_text:
+                        if i.isdigit():
+                            if date_text[date_text.index(i)-1] != ' ':
+                                date_text = list(date_text)
+                                print(date_text)
+                                date_text.insert(date_text.index(i), ' ')
+                                date_non = ''.join(date_text)
+                                break
+                            else:
+                                date_non = date_text
+                                break
+                    if len(date_non.split(' ')) == 2:
+                        date_non += f" {datetime.now().year}"
+                        return datetime.strptime(date_non, "%B %d %Y")  
+                    if len(date_non.split(' ')) > 2 and ',' in date_non:
+                        date = date_non[0: date_non.index(',') + 6].replace(',' , '')
+                        return datetime.strptime(date, "%B %d %Y")
 
     def get_post_date(self) -> object | None:
         try:
-            date_tag = self.driver.find_element(By.XPATH, "/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/div[1]/div/div/div/div/div/div/div/div/div/div/div/div/div/div[13]/div/div/div[2]/div/div[2]/div/div[2]/span/span")
+            date_tag = self.driver.find_element(By.CSS_SELECTOR, "div.html-div.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1q0g3np")
+            # date_tag = self.driver.find_element(By.XPATH, "/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/div[1]/div/div/div/div/div/div/div/div/div/div/div/div/div/div[13]/div/div/div[2]/div/div[2]/div/div[2]/span/span")
             date_tag.location_once_scrolled_into_view
             self.driver.execute_script("window.scrollBy(0, -150);")
             date = pytesseract.image_to_string(Image.open(io.BytesIO(date_tag.screenshot_as_png))).replace('\n', '')
             if date:
-                date = self.fomate_date(date)
-                print(date)
+                with open('dates.json', 'a') as openfile:
+                    openfile.write(f"{date} \n")
+                date = self.format_date(date)
                 return date
             else:
                 print(f"date format incorrect {date}")
@@ -314,12 +342,12 @@ class FacebookScraper(object):
             print('date tag not found')
 
     def load_comments(self) -> None:
-        like_icon = self.driver.find_element(By.CSS_SELECTOR, "span.x193iq5w.xeuugli.x13faqbe.x1vvkbs.x1xmvt09.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.xudqn12.x3x7a5m.x1f6kntn.xvq8zen.x1s688f.xi81zsa")
-        like_icon.location_once_scrolled_into_view
-        time.sleep(randint(1, 2))
-        self.driver.execute_script("window.scrollBy(0, -150);")
-        time.sleep(randint(1, 2))
         try:
+            like_icon = self.driver.find_element(By.CSS_SELECTOR, "span.x193iq5w.xeuugli.x13faqbe.x1vvkbs.x1xmvt09.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.xudqn12.x3x7a5m.x1f6kntn.xvq8zen.x1s688f.xi81zsa")
+            like_icon.location_once_scrolled_into_view
+            time.sleep(randint(1, 2))
+            self.driver.execute_script("window.scrollBy(0, -150);")
+            time.sleep(randint(1, 2))
             comment_list_filter = self.driver.find_element(By.CSS_SELECTOR, "div.x1i10hfl.xjbqb8w.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1o1ewxj.x3x9cwd.x1e5q0jg.x13rtm0m.x1n2onr6.x87ps6o.x1lku1pv.x1a2a7pz")
             comment_list_filter.click()
             time.sleep(randint(1, 3))
@@ -338,6 +366,7 @@ class FacebookScraper(object):
             pass
 
     def extract_post(self, date:str) -> None:
+        print('extraction')
         def format_comment_date(date:str) -> str | None:
             if 'd' in date:
                 date_str = date.replace('d', '')
@@ -430,9 +459,8 @@ class FacebookScraper(object):
             self.save_data()
 
 credentials = {
-    "username": "",
-    "phone":"",
-    "password":""
+    "email": "rakotonomenjanaharymario9@gmail.com",
+    "password": "_kreBY!u4&jxbiX"
 }
 
 f = FacebookScraper()

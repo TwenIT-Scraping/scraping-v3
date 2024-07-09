@@ -1,7 +1,7 @@
 from datetime import datetime
 import json
 import os
-from twitter_spider import TwitterProfileScraper, TwitterProfileScraperFR, TwitterScraper
+from twitter_spider import TwitterProfileScraper, TwitterProfileScraperFR, TwitterScraper, X_scraper
 from models import Settings
 from facebook_scraper import FacebookProfileScraper
 from instagram_scraper import InstagramProfileScraper
@@ -21,8 +21,8 @@ __class_name__ = {
     'Instagram': InstagramProfileScraper,
     'Linkedin': LinkedInProfileScraper,
     'facebook EN': FacebookProfileScraper,
-    'Twitter': TwitterScraper,
-    'Twitter (X)': TwitterScraper,
+    'Twitter': X_scraper,
+    'Twitter (X)': X_scraper,
     'Tiktok': TikTokProfileScraper,
     'Facebook': FacebookProfileScraper
 }

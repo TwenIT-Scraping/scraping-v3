@@ -34,13 +34,13 @@ class BaseFacebookScraper(Scraping):
         self.chrome_options.add_argument(
             '--disable-blink-features=AutomationControlled')
         self.chrome_options.add_argument('--incognito')
+        self.chrome_options.add_argument('--lang=en')
         self.driver = webdriver.Chrome(options=self.chrome_options)
         self.driver.maximize_window()
         self.static_folder_path = f"{os.environ.get('STATIC_FOLDER')}/facebook"
         self.credentials = {
-            "username": "",
-            "phone":"",
-            "password":""
+            "email": "rakotonomenjanaharymario9@gmail.com",
+            "password": "_kreBY!u4&jxbiX"
         }
 
     def detect_lang(self, text: str) -> str:
@@ -69,7 +69,7 @@ class BaseFacebookScraper(Scraping):
         print(" Login In")
         self.driver.find_element(By.XPATH, "//input[@data-testid='royal_email']").click()
         time.sleep(randint(1, 3))
-        self.driver.find_element(By.XPATH, "//input[@data-testid='royal_email']").send_keys(self.credentials['phone'])
+        self.driver.find_element(By.XPATH, "//input[@data-testid='royal_email']").send_keys(self.credentials['email'])
         time.sleep(randint(1, 3))
         self.driver.find_element(By.XPATH, "//input[@data-testid='royal_pass']").click()
         time.sleep(randint(1, 3))
@@ -247,15 +247,8 @@ class FacebookPostScraper(BaseFacebookScraper):
 
 if __name__ == '__main__':
     fb_page = [
-        {'id': 215, 'caption': None, 'section': 'FOLLOW US', 'establishment_name': 'Madame Vacances', 'establishment_id': 46, 'idprovider': 28, 'category': 'Hashtag', 'source': 'Facebook hashtag', 'url': 'https://www.facebook.com/hashtag/dlkhgsd', 'language': 'FR', 'last_review_date': None}, 
-        {'id': 213, 'caption': None, 'section': None, 'establishment_name': '28-50 Marylebone Lane', 'establishment_id': 45, 'idprovider': 28, 'category': 'Hashtag', 'source': 'Facebook hashtag', 'url': 'https://www.facebook.com/hashtag/dlkhgsd', 'language': 'FR', 'last_review_date': None}, 
-        {'id': 181, 'caption': None, 'section': None, 'establishment_name': 'Le Lido', 'establishment_id': 41, 'idprovider': 28, 'category': 'Hashtag', 'source': 'Facebook hashtag', 'url': 'https://www.facebook.com/hashtag/test01', 'language': 'FR', 'last_review_date': None}, 
-        {'id': 180, 'caption': None, 'section': None, 'establishment_name': 'Le Lido', 'establishment_id': 41, 'idprovider': 28, 'category': 'Hashtag', 'source': 'Facebook hashtag', 'url': 'https://www.facebook.com/hashtag/test', 'language': 'FR', 'last_review_date': None}, 
-        {'id': 154, 'caption': None, 'section': None, 'establishment_name': 'Le Lido', 'establishment_id': 41, 'idprovider': 28, 'category': 'Hashtag', 'source': 'Facebook hashtag', 'url': 'https://www.facebook.com/hashtag/test', 'language': 'FR', 'last_review_date': None}, 
         {'id': 149, 'caption': None, 'section': None, 'establishment_name': 'Madame Vacances', 'establishment_id': 46, 'idprovider': 28, 'category': 'Hashtag', 'source': 'Facebook hashtag', 'url': 'https://www.facebook.com/hashtag/madamevacances', 'language': 'FR', 'last_review_date': None}, 
         {'id': 148, 'caption': None, 'section': None, 'establishment_name': 'Les Chalets du Berger', 'establishment_id': 3, 'idprovider': 28, 'category': 'Hashtag', 'source': 'Facebook hashtag', 'url': 'https://www.facebook.com/hashtag/madamevacances', 'language': 'FR', 'last_review_date': None}, 
-        {'id': 146, 'caption': None, 'section': None, 'establishment_name': 'MV Transport', 'establishment_id': 47, 'idprovider': 28, 'category': 'Hashtag', 'source': 'Facebook hashtag', 'url': 'https://www.facebook.com/hashtag/work', 'language': 'FR', 'last_review_date': None}, 
-        {'id': 144, 'caption': None, 'section': None, 'establishment_name': 'MV Transport', 'establishment_id': 47, 'idprovider': 28, 'category': 'Hashtag', 'source': 'Facebook hashtag', 'url': 'https://www.facebook.com/hashtag/test', 'language': 'FR', 'last_review_date': None}, 
         {'id': 135, 'caption': None, 'section': None, 'establishment_name': 'Les Chalets du Berger', 'establishment_id': 3, 'idprovider': 28, 'category': 'Hashtag', 'source': 'Facebook hashtag', 'url': 'https://www.facebook.com/hashtag/leschaletsduberger', 'language': 'FR', 'last_review_date': None}, 
         {'id': 133, 'caption': None, 'section': None, 'establishment_name': 'Madame Vacances', 'establishment_id': 46, 'idprovider': 28, 'category': 'Hashtag', 'source': 'Facebook hashtag', 'url': 'https://www.facebook.com/hashtag/Madamevacances', 'language': 'FR', 'last_review_date': None}, 
         {'id': 123, 'caption': None, 'section': None, 'establishment_name': 'Madame Vacances', 'establishment_id': 46, 'idprovider': 28, 'category': 'Hashtag', 'source': 'Facebook hashtag', 'url': 'https://www.facebook.com/hashtag/madamevacances', 'language': 'FR', 'last_review_date': None}

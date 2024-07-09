@@ -26,7 +26,6 @@ MONTHS = {
 }
 
 extension_path = "C:/Users/Keller/Documents/Jobdev/scraping-v3/canvas_blocker_0_2_0_0.crx"
-print(extension_path)
 
 class BaseTwitterSrap(Scraping):
 
