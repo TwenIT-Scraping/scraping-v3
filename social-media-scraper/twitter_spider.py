@@ -657,7 +657,7 @@ class X_scraper(BaseTwitterScrap):
                 self.xhr_calls['tweets'] = response.json()
 
     def extract_page_data(self) -> None:
-        name = re.sub(r'[^\w]', ' ', nested_lookup(key='name', document=self.xhr_calls['profile'])[0])
+        name = re.sub(r'[^\w]', ' ', nested_lookup(key='name', document=self.xhr_calls['profile'])[0]).strip()
         self.page_data = {
             'followers': nested_lookup(key='followers_count', document=self.xhr_calls['profile'])[0],
             'likes': nested_lookup(key='favourites_count', document=self.xhr_calls['profile'])[0],
@@ -671,11 +671,11 @@ class X_scraper(BaseTwitterScrap):
         print(f" ==> { url }")
         try:
             self.page.goto(url)
-            self.page.wait_for_selector("//article[@role='article']", timeout=60000)
+            self.page.wait_for_selector("//article[@role='article']", timeout=10000)
             self.page.wait_for_timeout(10000)
         except TimeoutError:
             self.page.goto(url)
-            self.page.wait_for_selector("//article[@role='article']", timeout=60000)
+            self.page.wait_for_selector("//article[@role='article']", timeout=10000)
             self.page.wait_for_timeout(10000)
             
 
@@ -683,14 +683,18 @@ class X_scraper(BaseTwitterScrap):
         with open('dates.json', 'a') as openfile:
             openfile.write(f'"{time_str}",\n')
         print(time_str)
-        time_str = time_str.strip().replace(',', '')
+        if ',' in time_str and len(time_str.split(' ')  == 3):
+            date = datetime.strptime(time_str, "%b %d, %Y")
+            print(date.strftime("%d/%m/%Y"))
+            return date
         if len(time_str.split(' ')) == 2:
             time_str += f' {datetime.now().year}'
+            date = datetime.strptime(time_str, "%b %d %Y")
+            print(date.strftime("%d/%m/%Y"))
+            return date
         if 'hours ago' in time_str or 'minutes ago':
             return datetime.now()
-        date = datetime.strptime(time_str, "%b %d %Y")
-        print(date.strftime("%d/%m/%Y"))
-        return date
+        
     
     def format_date_from_iso(self, time_str:str) -> str:
         datetime_obj = datetime.fromisoformat(time_str.replace('Z', '+00:00'))
@@ -736,7 +740,7 @@ class X_scraper(BaseTwitterScrap):
                 self.extract_post_link()
                 last_date = self.get_last_date()
                 print(last_date)
-                if last_date >= (datetime.now() - timedelta(days=20)):
+                if last_date <= (datetime.now() - timedelta(days=10)):
                     break
                 else:
                     self.load_more_articles()
@@ -748,7 +752,7 @@ class X_scraper(BaseTwitterScrap):
         for article in articles:
             data = self.extract_article(article)
             self.print_in_file(data)
-            if self.format_date(data['date']) >= (datetime.now() - timedelta(days=20)):
+            if self.format_date(data['date']) <= (datetime.now() - timedelta(days=10)):
                 break
             else:
                 self.post_data.append(data)
@@ -778,7 +782,10 @@ class X_scraper(BaseTwitterScrap):
         art = articles[0]
         post['post_url'] = self.page.url
         post['author'] = art.find('a', {'class':'css-175oi2r r-1wbh5a2 r-dnmrzs r-1ny4l3l r-1loqt21', 'role':'link'}).text
-        post['description'] = self.format_text(art.find('div', {'data-testid':'tweetText'}).text)
+        try:
+            post['description'] = self.format_text(art.find('div', {'data-testid':'tweetText'}).text)
+        except:
+            post['description'] = ''
         post['publishedAt'] = self.format_date_from_iso(art.find('time')['datetime'])
         post['comments'] = self.parse_int(art.find('button', {'data-testid':'reply'}).text.strip())
         post['reaction'] = self.parse_int(art.find('button', {'data-testid':'like'}).text.lower())
@@ -787,9 +794,15 @@ class X_scraper(BaseTwitterScrap):
         for article in articles:
             comment = {}
             comment['author'] = article.find('a', {'class':'css-175oi2r r-1wbh5a2 r-dnmrzs r-1ny4l3l r-1loqt21', 'role':'link'}).text
-            comment['comment'] = self.format_text(article.find('div', {'data-testid':'tweetText'}).text)
+            try:
+                comment['comment'] = self.format_text(article.find('div', {'data-testid':'tweetText'}).text)
+            except:
+                comment['comment'] = ""
             comment['author_page_url'] = "https://x.com" + article.find('a', {'class':'css-175oi2r r-1wbh5a2 r-dnmrzs r-1ny4l3l r-1loqt21', 'role':'link'}, href=True)['href']
-            comment['likes'] = article.find('button', {'data-testid':'like'}).text
+            try:
+                comment['likes'] = article.find('button', {'data-testid':'like'}).text
+            except:
+                comment['likes'] = 0
             comment['published_at'] = self.format_date_from_iso(article.find('time')['datetime'])
             post['comment_values'].append(comment)
 

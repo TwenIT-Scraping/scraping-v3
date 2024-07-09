@@ -38,32 +38,36 @@ class Scraping(object):
 
     def save(self):
 
-        # try:
-        page_data = self.page_data
-        print(page_data['name'] + 'hehehe')
-        page_data['posts'] = self.posts
-        page_data['url'] = self.url
-        page_data['createdAt'] = datetime.now().strftime('%Y-%m-%d')
-        page_data['hasStat'] = "1"
-        
-        e_name = re.sub(r'[^a-zA-Z0-9\s_]+', '',
-                        page_data['name'])
-        page_data.pop('name')
-        print(f'e_name {e_name}')
+        try:
+            page_data = self.page_data
+            print(page_data['name'] + 'hehehe')
+            page_data['posts'] = self.posts
+            page_data['url'] = self.url
+            page_data['createdAt'] = datetime.now().strftime('%Y-%m-%d')
+            page_data['hasStat'] = "1"
+            
 
-        output_file = f"{self.env}_{self.establishment}_{e_name.replace('__', '_')}_{datetime.now().strftime('%Y-%m-%d')}"
+            # e_name = re.sub(r'[^a-zA-Z0-9\s]+', '',
+            #                     page_data.pop('name')).replace(' ', '_')
+            
 
-        with open(f"{environ.get('SOCIAL_FOLDER')}/{output_file}.json", 'w') as foutput:
-            json.dump(page_data, foutput, indent=4, sort_keys=True)
+            e_name = page_data['name']
+            # page_data.pop('name')
+            print(f'e_name {e_name}')
 
-            self.posts = []
-            self.page_data = {}
+            output_file = f"{self.env}_{self.establishment}_{e_name}_{datetime.now().strftime('%Y-%m-%d')}"
 
-            return output_file
+            with open(f"{environ.get('SOCIAL_FOLDER')}/{output_file}.json", 'w') as foutput:
+                json.dump(page_data, foutput, indent=4, sort_keys=True)
 
-        # except Exception as e:
-        #     print("Erreur ici")
-        #     print(e)
+                self.posts = []
+                self.page_data = {}
+
+                return output_file
+
+        except Exception as e:
+            print("Erreur ici")
+            print(e)
 
     def stop(self):
         pass

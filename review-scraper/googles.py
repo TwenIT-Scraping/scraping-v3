@@ -377,7 +377,7 @@ class Google(BaseGoogleScrap):
                 try:
                     lang = self.detect_lang(comment)
                 except:
-                    lang = 'en'
+                    lang = self.lang
   
                 date_review = self.formate_date(date_raw)
                 if date_review != "" and date_review is not None:
@@ -396,8 +396,8 @@ class Google(BaseGoogleScrap):
                             'novisitday': "1"
                         })
 
-                    if datetime.strptime(date_review, '%d/%m/%Y') < (datetime.now() - timedelta(days=365)):
-                        print("houla")
+                    if datetime.strptime(date_review, '%d/%m/%Y') < (datetime.now() - timedelta(days=2555)):
+                        print("last date valid reached")
                         self.data = reviews
                         self.data_loaded = True
                         return
