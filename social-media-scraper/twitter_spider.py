@@ -682,15 +682,12 @@ class X_scraper(BaseTwitterScrap):
     def format_date(self, time_str: str) -> datetime | None:
         with open('dates.json', 'a') as openfile:
             openfile.write(f'"{time_str}",\n')
-        print(time_str)
-        if ',' in time_str and len(time_str.split(' ')  == 3):
+        if ',' in time_str and len(time_str.split(' ')) == 3:
             date = datetime.strptime(time_str, "%b %d, %Y")
-            print(date.strftime("%d/%m/%Y"))
             return date
         if len(time_str.split(' ')) == 2:
             time_str += f' {datetime.now().year}'
             date = datetime.strptime(time_str, "%b %d %Y")
-            print(date.strftime("%d/%m/%Y"))
             return date
         if 'hours ago' in time_str or 'minutes ago':
             return datetime.now()
@@ -715,7 +712,6 @@ class X_scraper(BaseTwitterScrap):
         return self.format_date(date_link['date'])
     
     def extract_article(self, element:object) -> dict | None:
-        print('extraction')
         soupe = BeautifulSoup(element.inner_html(), 'lxml')
         date_link = soupe.find('a', {'class':'css-146c3p1 r-bcqeeo r-1ttztb7 r-qvutc0 r-37j5jr r-a023e6 r-rjixqe r-16dba41 r-xoduu5 r-1q142lx r-1w6e6rj r-9aw3ui r-3s2u2q r-1loqt21'}, href=True)
         date = date_link['aria-label']
@@ -739,8 +735,7 @@ class X_scraper(BaseTwitterScrap):
             while True:
                 self.extract_post_link()
                 last_date = self.get_last_date()
-                print(last_date)
-                if last_date <= (datetime.now() - timedelta(days=10)):
+                if last_date <= (datetime.now() - timedelta(days=30)):
                     break
                 else:
                     self.load_more_articles()
@@ -752,7 +747,7 @@ class X_scraper(BaseTwitterScrap):
         for article in articles:
             data = self.extract_article(article)
             self.print_in_file(data)
-            if self.format_date(data['date']) <= (datetime.now() - timedelta(days=10)):
+            if self.format_date(data['date']) <= (datetime.now() - timedelta(days=30)):
                 break
             else:
                 self.post_data.append(data)
@@ -767,7 +762,6 @@ class X_scraper(BaseTwitterScrap):
                 break
 
     def parse_int(self, text:str) -> int:
-        print(text)
         likes = text.lower().replace('.', '').replace(',', '').replace('\xa0', '')
         if 'k' in likes:
             likes = int(float(likes.replace('k', '')) * 1000)
@@ -787,8 +781,16 @@ class X_scraper(BaseTwitterScrap):
         except:
             post['description'] = ''
         post['publishedAt'] = self.format_date_from_iso(art.find('time')['datetime'])
-        post['comments'] = self.parse_int(art.find('button', {'data-testid':'reply'}).text.strip())
-        post['reaction'] = self.parse_int(art.find('button', {'data-testid':'like'}).text.lower())
+        try:
+            post['reaction'] = int(self.parse_int(art.find('button', {'data-testid':'like'}).text.lower()))
+        except:
+            post['reaction'] = 0
+        try:
+            post['shares'] = int(soupe.find('button', {'data-testid':'retweet'}).text)
+        except:
+            post['shares'] = 0
+        post['hashtag'] = ""
+        
         articles = articles[1:]
         print(f"{len(articles)} comments found")
         for article in articles:
@@ -806,8 +808,8 @@ class X_scraper(BaseTwitterScrap):
             comment['published_at'] = self.format_date_from_iso(article.find('time')['datetime'])
             post['comment_values'].append(comment)
 
+        post['comments'] = len(post['comment_values'])
         self.posts.append(post)
-        print(self.posts)
 
         print('extraction done')
 
@@ -826,8 +828,9 @@ class X_scraper(BaseTwitterScrap):
                     self.goto_post(data['link'])
                     self.load_comments()
                     self.extract_posts()
+
             print(self.page_data)
-            self.save()
+            print(self.posts)
             output_files.append(self.save())
         
         return output_files

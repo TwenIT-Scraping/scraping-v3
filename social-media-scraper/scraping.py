@@ -35,6 +35,7 @@ class Scraping(object):
     def set_item(self, item):
         self.establishment = item['establishment_id']
         self.url = item['url']
+        self.etab_name = item['establishment_name']
 
     def save(self):
 
