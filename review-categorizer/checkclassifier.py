@@ -1,5 +1,5 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
-from functools import reduce
+from progress.bar import ChargingBar
 
 
 def splittext(text, maxlen=512):
@@ -25,7 +25,7 @@ def splittext(text, maxlen=512):
                     paragraph) >= 30 and text_list.add(paragraph)
                 paragraph = ""
 
-        if len(words) > 0 and last_index == 0: 
+        if len(words) > 0 and last_index == 0:
             last_index = len(words)-1
 
         paragraph != "" and len(
@@ -70,6 +70,8 @@ def classifytext(categories, text):
 
     # Catégoriser chaque texte
 
+    progress = ChargingBar('Loading ', max=len(texts))
+
     for id, val in enumerate(texts):
         res = checkclassifier(categories, val)
         ####### format résultat ########
@@ -87,6 +89,8 @@ def classifytext(categories, text):
                 results[res['labels'][i]] = [res['scores'][i]]
             else:
                 results[res['labels'][i]].append(res['scores'][i])
+
+        progress.next()
 
     # Pour chaque label trouvé, calculer la moyenne des scores enregistrés dans l'objet results
 
