@@ -17,6 +17,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipe
 from api import ERApi
 from progress.bar import ChargingBar
 from progress.spinner import Spinner
+from checkclassifier import classifytext
 
 dotenv.load_dotenv()
 
@@ -358,41 +359,11 @@ class ClassificationAPI(object):
             }
         else:
             if len(self.categories):
-                # try:
-                #     classifier = pipeline(task="zero-shot-classification",
-                #                           device=-1, model="facebook/bart-large-mnli")
 
-                #     prediction = classifier(
-                #         line['text'], list(map(lambda x: x['category'], self.categories)), multi_label=False)
+                categs = list(
+                    map(lambda x: x['category'], self.categories))
 
-                #     # prediction = {
-                #     #     # 'labels': ['travel', 'cooking', 'dancing'],
-                #     #     'labels': self.categories,
-                #     #     # 'scores': [random.uniform(0, 1) for i in range(3)],
-                #     #     'scores': [random.uniform(0, 1) for i in range(len(self.categories))],
-                #     #     'sequence': line['text']
-                #     # }
-
-                #     line['prediction'] = prediction
-
-                # except Exception as e:
-                #     print(e)
-                #     line['prediction'] = None
-
-                try:
-                    classifier = pipeline("zero-shot-classification",
-                                          device=-1, model="cross-encoder/nli-deberta-v3-base")
-
-                    categs = list(
-                        map(lambda x: x['category'], self.categories))
-
-                    prediction = classifier(
-                        line['text'], categs, multi_label=True)
-
-                except Exception as e:
-                    print(e)
-                    line['prediction'] = None
-                    pass
+                line['prediction'] = classifytext(categs, line['text'])
 
             else:
                 line['prediction'] = None
