@@ -36,6 +36,22 @@ def splittext(text, maxlen=50):
     return text_list
 
 
+def checkclassifier(categories, text):
+    try:
+        classifier = pipeline("zero-shot-classification",
+                              device=-1, model="cross-encoder/nli-deberta-v3-base")
+
+        # categs = list(
+        #     map(lambda x: x['category'], categories))
+
+        return classifier(
+            text, categories, multi_label=True)
+
+    except Exception as e:
+        print(e)
+        return None
+
+
 def classifytext(categories, text):
     results = {}
 
@@ -50,8 +66,9 @@ def classifytext(categories, text):
 
     # Catégoriser chaque texte
 
-    for t in texts:
-        res = checkclassifier(categories, t)
+    for id, val in enumerate(texts):
+        res = checkclassifier(categories, val)
+        print(res)
         ####### format résultat ########
         # {
         #         'labels': ['travel', 'cooking', 'dancing'],
@@ -71,37 +88,24 @@ def classifytext(categories, text):
     # Pour chaque label trouvé, calculer la moyenne des scores enregistrés dans l'objet results
 
     for label in results.keys():
-        total = reduce(lambda a, b: a+b, results[label])
-        avg = total/len(results[label])
 
-        ####### format à retourner ########
-        # {
-        #         'labels': ['travel', 'cooking', 'dancing'],
-        #         'scores': [0.444, 0.0111, 0.963],
-        #         'sequence': line['text']
-        #     }
-        ################################
+        for score in results[label]:
 
-        result['labels'].append(label)
-        result['scores'].append(avg)
+            # On enregistre seulement les labels ayant comme score supérieur ou égale à 0.9 
+            if score >= 0.9:
+                ####### format à retourner ########
+                # {
+                #         'labels': ['travel', 'cooking', 'dancing'],
+                #         'scores': [0.444, 0.0111, 0.963],
+                #         'sequence': line['text']
+                #     }
+                ################################
+
+                result['labels'].append(label)
+                result['scores'].append(score)
+                break
 
     return result
-
-
-def checkclassifier(categories, text):
-    try:
-        classifier = pipeline("zero-shot-classification",
-                              device=-1, model="cross-encoder/nli-deberta-v3-base")
-
-        categs = list(
-            map(lambda x: x['category'], categories))
-
-        return classifier(
-            text, categs, multi_label=True)
-
-    except Exception as e:
-        print(e)
-        return None
 
 
 categs = ['Furniture', 'Home', 'Housekeeping', 'Location', 'Food', 'Driving']
