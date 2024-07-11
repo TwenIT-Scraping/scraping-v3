@@ -1,5 +1,5 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
-from progress.bar import ChargingBar
+from progress.bar import FillingCirclesBar
 
 
 def splittext(text, maxlen=512):
@@ -9,20 +9,22 @@ def splittext(text, maxlen=512):
 
     last_index = 0
 
+    print("\n======== Texte initiale ========")
+    print(text)
+    print("=================================\n")
+
     while True:
 
         for i in range(last_index, len(words)):
             if len(paragraph) <= maxlen:
                 paragraph = " ".join([paragraph, words[i]])
+                last_index = i
             else:
                 last_index = i
 
                 paragraph != "" and len(
                     paragraph) >= 30 and text_list.add(paragraph)
                 paragraph = ""
-
-        if len(words) > 0 and last_index == 0:
-            last_index = len(words)-1
 
         paragraph != "" and len(
             paragraph) >= 30 and text_list.add(paragraph)
@@ -65,10 +67,14 @@ def classifytext(categories, text):
 
     # Catégoriser chaque texte
 
-    progress = ChargingBar('Loading ', max=len(texts))
+    progress = FillingCirclesBar('Loading ', max=len(texts))
+
+    print("\n---------------- par extrait --------------")
 
     for id, val in enumerate(texts):
         res = checkclassifier(categories, val)
+
+        print(res)
         ####### format résultat ########
         # {
         #         'labels': ['travel', 'cooking', 'dancing'],
@@ -86,6 +92,8 @@ def classifytext(categories, text):
                 results[res['labels'][i]].append(res['scores'][i])
 
         progress.next()
+
+    print("\n----------------------------------------\n")
 
     # Pour chaque label trouvé, calculer la moyenne des scores enregistrés dans l'objet results
 
@@ -106,6 +114,10 @@ def classifytext(categories, text):
                 result['labels'].append(label)
                 result['scores'].append(score)
                 break
+        
+    print("\n****************** Résultat classification *************")
+    print(result)
+    print("*************************************************\n")
 
     return result
 
