@@ -72,7 +72,6 @@ def classifytext(categories, text):
 
     for id, val in enumerate(texts):
         res = checkclassifier(categories, val)
-        print(res)
         ####### format résultat ########
         # {
         #         'labels': ['travel', 'cooking', 'dancing'],
