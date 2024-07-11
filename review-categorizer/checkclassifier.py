@@ -2,7 +2,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipe
 from functools import reduce
 
 
-def splittext(text, maxlen=500):
+def splittext(text, maxlen=512):
     text_list = set()
     words = text.split(' ')
     paragraph = ""
@@ -20,9 +20,13 @@ def splittext(text, maxlen=500):
                 paragraph = " ".join([paragraph, words[i]])
             else:
                 last_index = i
+
                 paragraph != "" and len(
                     paragraph) >= 30 and text_list.add(paragraph)
                 paragraph = ""
+
+        if len(words) > 0 and last_index == 0: 
+            last_index = len(words)-1
 
         paragraph != "" and len(
             paragraph) >= 30 and text_list.add(paragraph)
