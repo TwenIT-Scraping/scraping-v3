@@ -7,15 +7,11 @@ def splittext(text, maxlen=512):
     words = text.split(' ')
     paragraph = ""
 
-    index = 0
     last_index = 0
 
     while True:
 
-        if (index == len(words)):
-            break
-
-        for i in range(index, len(words)):
+        for i in range(last_index, len(words)):
             if len(paragraph) <= maxlen:
                 paragraph = " ".join([paragraph, words[i]])
             else:
@@ -32,7 +28,6 @@ def splittext(text, maxlen=512):
             paragraph) >= 30 and text_list.add(paragraph)
 
         paragraph = ""
-        index += 1
 
         if last_index == len(words)-1:
             break
