@@ -2,7 +2,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipe
 from functools import reduce
 
 
-def splittext(text, maxlen=50):
+def splittext(text, maxlen=500):
     text_list = set()
     words = text.split(' ')
     paragraph = ""
