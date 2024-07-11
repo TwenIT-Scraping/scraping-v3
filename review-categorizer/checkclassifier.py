@@ -21,11 +21,11 @@ def splittext(text, maxlen=50):
             else:
                 last_index = i
                 paragraph != "" and len(
-                    paragraph) >= 25 and text_list.add(paragraph)
+                    paragraph) >= 30 and text_list.add(paragraph)
                 paragraph = ""
 
         paragraph != "" and len(
-            paragraph) >= 25 and text_list.add(paragraph)
+            paragraph) >= 30 and text_list.add(paragraph)
 
         paragraph = ""
         index += 1
