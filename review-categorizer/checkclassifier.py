@@ -1,35 +1,107 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
+from functools import reduce
+
+
+def splittext(text, maxlen=50):
+    text_list = set()
+    words = text.split(' ')
+    paragraph = ""
+
+    index = 0
+    last_index = 0
+
+    while True:
+
+        if (index == len(words)):
+            break
+
+        for i in range(index, len(words)):
+            if len(paragraph) <= maxlen:
+                paragraph = " ".join([paragraph, words[i]])
+            else:
+                last_index = i
+                paragraph != "" and len(
+                    paragraph) >= 25 and text_list.add(paragraph)
+                paragraph = ""
+
+        paragraph != "" and len(
+            paragraph) >= 25 and text_list.add(paragraph)
+
+        paragraph = ""
+        index += 1
+
+        if last_index == len(words)-1:
+            break
+
+    return text_list
+
+
+def classifytext(categories, text):
+    results = {}
+
+    result = {
+        "labels": [],
+        "scores": [],
+        "sequence": text
+    }
+
+    # Découper le long texte en plusieurs textes dont la longueur maximale est inférieure ou égale à la limite définie par le modèle IA: 512 caractères
+    texts = splittext(text)
+
+    # Catégoriser chaque texte
+
+    for t in texts:
+        res = checkclassifier(categories, t)
+        ####### format résultat ########
+        # {
+        #         'labels': ['travel', 'cooking', 'dancing'],
+        #         'scores': [0.444, 0.0111, 0.963],
+        #         'sequence': line['text']
+        #     }
+        ################################
+
+        # Pour chaque label trouvé, ajouter le score correspondant en utilisation le label comme clé de l'objet results.
+
+        for i in range(0, len(res['labels'])):
+            if not res['labels'][i] in results.keys():
+                results[res['labels'][i]] = [res['scores'][i]]
+            else:
+                results[res['labels'][i]].append(res['scores'][i])
+
+    # Pour chaque label trouvé, calculer la moyenne des scores enregistrés dans l'objet results
+
+    for label in results.keys():
+        total = reduce(lambda a, b: a+b, results[label])
+        avg = total/len(results[label])
+
+        ####### format à retourner ########
+        # {
+        #         'labels': ['travel', 'cooking', 'dancing'],
+        #         'scores': [0.444, 0.0111, 0.963],
+        #         'sequence': line['text']
+        #     }
+        ################################
+
+        result['labels'].append(label)
+        result['scores'].append(avg)
+
+    return result
 
 
 def checkclassifier(categories, text):
     try:
-        prediction = {'séquence': text, 'labels': [], 'scores': []}
-        # classifier = pipeline(task="zero-shot-classification",
-        #                       device=-1, model="facebook/bart-large-mnli")
         classifier = pipeline("zero-shot-classification",
                               device=-1, model="cross-encoder/nli-deberta-v3-base")
 
-        # categs = list(map(lambda x: x['category'], categories))
-        categs = categories
+        categs = list(
+            map(lambda x: x['category'], categories))
 
-        prediction = classifier(text, categs, multi_label=True)
-
-        # for categ in categs:
-        #     result = classifier(text, categ, multi_label=False)
-
-        #     # print(result)
-        #     prediction['labels'].append(categ)
-        #     prediction['scores'].append(result['scores'][0])
-
-        # prediction = classifier(
-        # text, list(map(lambda x: x['category'], categories)), multi_label=False)
-        # text, categories, multi_label=True)
-
-        print('\n', prediction)
+        return classifier(
+            text, categs, multi_label=True)
 
     except Exception as e:
         print(e)
-        pass
+        return None
 
 
 categs = ['Furniture', 'Home', 'Housekeeping', 'Location', 'Food', 'Driving']
@@ -61,5 +133,14 @@ texts = [
     'Can’t fault them!!: Found MV Transport to be one of the cheapest quotes, fraction of the price I was going to pay another company for multi drop transfer, MV could do a private one! Extremely efficient, waiting for us outside arrivals and smooth journey to our destination in the mountains. Then again on our return transfer, on time and another smooth journey!'
 ]
 
-for t in texts:
-    checkclassifier(categs, t)
+
+res = classifytext(categs, texts[6])
+print(texts[6])
+print("======>")
+print(res)
+print("<======")
+
+# for t in texts:
+#     # checkclassifier(categs, t)
+#     res = classifytext(categs, t)
+#     # print(res)
