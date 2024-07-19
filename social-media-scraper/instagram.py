@@ -213,8 +213,8 @@ if __name__ == '__main__':
 
     i = InstagramProfileScraper(items=[data[2]])
     i.credentials = {
-        "email": "0348485370",
-        "password": "just focus on what you want to be",
+        "email": "",
+        "password": "",
         "username": "domoina.sarobidy"
     }
     i.execute()
