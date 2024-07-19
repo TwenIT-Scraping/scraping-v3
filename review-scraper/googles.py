@@ -93,7 +93,6 @@ class BaseGoogleScrap(Scraping):
         scroll_by_body = False
         try:
             center_element = self.driver.find_element(By.XPATH, '//div[@class="kp-header"]')
-
             if center_element:
                 print('element found')
                 center_element.click()
