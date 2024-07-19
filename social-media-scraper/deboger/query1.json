@@ -1,0 +1,119 @@
+{
+    "errors": [
+        {
+            "message": "execution error",
+            "severity": "ERROR",
+            "extensions": {
+                "field_oncall": "igwb_connections_safety"
+            },
+            "path": [
+                "user",
+                "is_regulated_c18"
+            ]
+        }
+    ],
+    "data": {
+        "user": {
+            "friendship_status": {
+                "following": false,
+                "blocking": false,
+                "is_feed_favorite": false,
+                "outgoing_request": false,
+                "followed_by": false,
+                "incoming_request": false,
+                "is_restricted": false,
+                "is_bestie": false,
+                "muting": false,
+                "is_muting_reel": false
+            },
+            "full_name": "Aix Maurienne Savoie Basket",
+            "gating": null,
+            "is_memorialized": false,
+            "is_private": false,
+            "has_story_archive": null,
+            "username": "amsbofficiel",
+            "supervision_info": null,
+            "is_regulated_c18": null,
+            "regulated_news_in_locations": [],
+            "text_post_app_badge_label": "amsbofficiel",
+            "show_text_post_app_badge": true,
+            "text_post_new_post_count": null,
+            "pk": "1143064877",
+            "live_broadcast_visibility": null,
+            "live_broadcast_id": null,
+            "profile_pic_url": "https://instagram.ftnr2-2.fna.fbcdn.net/v/t51.2885-19/412590529_699113522311122_1947648327544534510_n.jpg?stp=dst-jpg_s150x150\u0026_nc_ht=instagram.ftnr2-2.fna.fbcdn.net\u0026_nc_cat=106\u0026_nc_ohc=pRVwUnmk-3YQ7kNvgGoKkuS\u0026edm=APHcPcMBAAAA\u0026ccb=7-5\u0026oh=00_AYBYPkcQQQfrXxgEkKROiAi5y5RavkRc2J7g6yBlWlt23Q\u0026oe=669ED373\u0026_nc_sid=bef7bc",
+            "hd_profile_pic_url_info": {
+                "url": "https://instagram.ftnr2-2.fna.fbcdn.net/v/t51.2885-19/412590529_699113522311122_1947648327544534510_n.jpg?_nc_ht=instagram.ftnr2-2.fna.fbcdn.net\u0026_nc_cat=106\u0026_nc_ohc=pRVwUnmk-3YQ7kNvgGoKkuS\u0026edm=APHcPcMBAAAA\u0026ccb=7-5\u0026oh=00_AYAqcbqzujQv7lPnkQvCdhPbOOP9GQFyCfY1xKp7jbp74A\u0026oe=669ED373\u0026_nc_sid=bef7bc"
+            },
+            "is_unpublished": false,
+            "latest_reel_media": 0,
+            "has_profile_pic": null,
+            "account_type": 3,
+            "follower_count": 6797,
+            "is_verified": true,
+            "mutual_followers_count": 0,
+            "profile_context_links_with_user_ids": [],
+            "address_street": "",
+            "city_name": "",
+            "is_business": false,
+            "zip": "",
+            "biography_with_entities": {
+                "entities": [
+                    {
+                        "hashtag": null,
+                        "user": {
+                            "username": "amsbasso",
+                            "id": "25984793881"
+                        }
+                    }
+                ]
+            },
+            "category": "Équipe sportive professionnelle",
+            "should_show_category": true,
+            "account_badges": [],
+            "ai_agent_type": null,
+            "bio_links": [
+                {
+                    "link_type": "external",
+                    "lynx_url": "https://l.instagram.com/?u=https%3A%2F%2Fwww.amsb.pro%2F\u0026e=AT23aTz2YpORw9rsbJAleYeGfkjuZPdb3t1mFnyUKLLlgs_Wmeki_tqXh_84hntFjilHl7NmrALnaRocIDcnLjeV_ofx443RVePzyNA",
+                    "title": "Site internet 📲",
+                    "url": "https://www.amsb.pro"
+                }
+            ],
+            "fb_profile_bio_link_web": {
+                "title": "Théo Sanz",
+                "url": "https://www.facebook.com/profile.php?id=100013764554988"
+            },
+            "external_lynx_url": "https://l.instagram.com/?u=https%3A%2F%2Fwww.amsb.pro%2F\u0026e=AT23aTz2YpORw9rsbJAleYeGfkjuZPdb3t1mFnyUKLLlgs_Wmeki_tqXh_84hntFjilHl7NmrALnaRocIDcnLjeV_ofx443RVePzyNA",
+            "external_url": "https://www.amsb.pro",
+            "pronouns": [],
+            "biography": "📱Compte officiel d'AMSB\n🏆 1x Champion de France Pro B\n🏀 Pro B l Espoir Pro B l U18 France\n👨‍👩‍👧‍👦 Association : @amsbasso",
+            "transparency_label": null,
+            "transparency_product": null,
+            "has_chaining": true,
+            "remove_message_entrypoint": false,
+            "fbid_v2": "17841400746327860",
+            "interop_messaging_user_fbid": "121451605910449",
+            "show_account_transparency_details": true,
+            "is_embeds_disabled": false,
+            "is_professional_account": null,
+            "following_count": 370,
+            "media_count": 1574,
+            "total_clips_count": 1,
+            "latest_besties_reel_media": 0,
+            "reel_media_seen_timestamp": null,
+            "id": "1143064877"
+        },
+        "viewer": {
+            "user": {
+                "pk": "65249212964",
+                "id": "65249212964",
+                "can_see_organic_insights": false
+            }
+        }
+    },
+    "extensions": {
+        "is_final": true
+    },
+    "status": "ok"
+}

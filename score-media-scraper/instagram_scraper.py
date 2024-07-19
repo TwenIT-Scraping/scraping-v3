@@ -111,7 +111,7 @@ class InstagramProfileScraper(Scraping):
 
     def execute(self) -> None:
         progress = ChargingBar('Preparing ', max=3)
-        self.set_current_credential(1)
+        self.set_current_credential(0)
         progress.next()
         print(" | Open login page")
         self.goto_login()
