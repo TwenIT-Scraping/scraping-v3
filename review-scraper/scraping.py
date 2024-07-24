@@ -21,13 +21,13 @@ from lingua import Language, LanguageDetectorBuilder
 class Scraping(object):
 
     def __init__(self, in_background: bool, url: str, establishment: str, settings: str, env: str, force_refresh=False) -> None:
-
         # driver options
         self.chrome_options = webdriver.ChromeOptions()
         self.chrome_options.add_argument('--ignore-certificate-errors')
         self.chrome_options.add_argument('--disable-gpu')
-        self.chrome_options.add_argument(
-            '--disable-blink-features=AutomationControlled')
+        self.chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+        # self.chrome_options.add_experimental_option('excludeSwitch',['enable-logging']) 
+        self.chrome_options.add_argument('--log-level=3') 
         in_background and self.chrome_options.add_argument('--headless')
         self.chrome_options.add_argument('--incognito')
 
@@ -39,6 +39,7 @@ class Scraping(object):
         self.firefox_options.set_preference(
             'intl.accept_languages', 'en-US, en')
         self.force_refresh = force_refresh
+
 
         dotenv.load_dotenv()
 
@@ -121,11 +122,12 @@ class Scraping(object):
         return current_date >= (current_date - timedelta(days=365))
 
     def execute(self):
+        print("executing scrap")
         try:
 
             if self.force_refresh:
                 refresh_connection()
-
+            print("here we go")
             self.scrap()
             time.sleep(5)
             WebDriverWait(self.driver, 10)
@@ -143,8 +145,8 @@ class Scraping(object):
 
     def scrap(self) -> None:
         # self.set_random_params()
-        self.driver.get(self.url)
         input('press enter')
+        self.driver.get(self.url)
 
     def refresh(self) -> None:
         self.driver.refresh()

@@ -36,6 +36,7 @@ class ListScraper:
 
     def init(self, eid=None, ename=None, categ='Social', source=None):
         self.settings = Settings(categ, eid, source, ename, env=self.env)
+        print("preparation")
         self.settings.prepare()
 
     def set_auto_save(self):
@@ -59,6 +60,7 @@ class ListScraper:
         counter = 0
         by_source = {}
 
+        print("pass here")
         print(self.settings.items)
 
         for source in __class_name__.keys():
@@ -66,6 +68,7 @@ class ListScraper:
                 item for item in self.settings.items if item['source'] == source]
 
         for item_key in by_source.keys():
+            print(f"Item key {item_key}")
             time.sleep(random.randint(1, 3))
             if item_key in __class_name__.keys() and len(by_source[item_key]):
                 try:

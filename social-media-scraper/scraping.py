@@ -3,6 +3,8 @@ from os import path, environ
 import dotenv
 from datetime import datetime
 import re
+import unicodedata
+
 
 dotenv.load_dotenv()
 
@@ -36,6 +38,28 @@ class Scraping(object):
         self.establishment = item['establishment_id']
         self.url = item['url']
         self.etab_name = item['establishment_name']
+
+
+    def remove_non_utf8_characters(self, text:str):
+        # Create an empty list to store valid characters
+        text = text.replace("\n", "")
+        encoded_string = r"{}".format(text)
+        decoded_string = bytes(encoded_string, 'utf-8').decode('unicode-escape')
+        valid_chars = []
+        # Iterate through each character in the input string
+        for char in decoded_string:
+            try:
+                # Check if the character can be normalized to NFKC form
+                normalized_char = unicodedata.normalize('NFKC', char)
+                # Encode the normalized character to utf-8 to check if it's valid
+                normalized_char.encode('utf-8')
+                # If successful, add it to the list of valid characters
+                valid_chars.append(char)
+            except UnicodeEncodeError:
+                # If encoding to utf-8 fails, skip the character
+                pass
+        # Join the list of valid characters into a string and return it
+        return ''.join(valid_chars)
 
     def save(self):
 

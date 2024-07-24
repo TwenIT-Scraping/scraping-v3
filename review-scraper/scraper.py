@@ -31,6 +31,7 @@ __class_name__ = {
 
 __class_name_v2__ = {
     'Booking': Booking,
+    'Booking MU': Booking,
     'Booking ES': Booking_ES,
     'Maeva': Maeva,
     'Maeva ES': Maeva,

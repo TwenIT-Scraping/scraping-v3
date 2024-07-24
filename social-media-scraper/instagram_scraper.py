@@ -202,7 +202,7 @@ class OldInstagramProfileScraper(Scraping):
                         date = datetime.fromtimestamp(cmt["created_at"])
                         if date >= datetime.now() + timedelta(days=-365):
                             comment_values.append({
-                                'comment': cmt["text"],
+                                'comment': self.remove_non_utf8_characters(cmt["text"]),
                                 'published_at': date.strftime("%d/%m/%Y"),
                                 'likes': cmt["comment_like_count"],
                                 'author': cmt["user"]["full_name"],
@@ -220,7 +220,7 @@ class OldInstagramProfileScraper(Scraping):
                             "post_url": '',
                             "author": post["owner"]["full_name"],
                             "publishedAt": published_at.strftime("%d/%m/%Y"),
-                            "description": post["caption"]["text"],
+                            "description": self.remove_non_utf8_characters(post["caption"]["text"]),
                             "reaction": post["like_count"],
                             "comments": len(comment_values),
                             "shares": 0,
@@ -369,7 +369,7 @@ class InstagramProfileScraper(Scraping):
         try:
             like = article.locator("span.html-span.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1hl2dhg.x16tdsg8.x1vvkbs").inner_text()
             print(f"like {like}")
-            return like
+            return int(like)
         except:
             return 0
     
@@ -410,31 +410,33 @@ class InstagramProfileScraper(Scraping):
         print("\t ==> extracting post")
         if self.xhr_comments:
             post = {}
-            post_data = self.xhr_comments['caption']
-            comments = self.xhr_comments['comments']
-            post['post_url'] = self.page.url
-            post['author'] = post_data['user']['full_name']
-            post['description'] = post_data['text']
-            post['publishedAt'] = datetime.fromtimestamp(post_data['created_at']).strftime("%d/%m/%Y")
-            post['reaction'] = self.get_likes_of_current_article()
-            post["shares"] = 0
-            post["hashtag"] = ""
-            post["comment_values"] = []
+            try:
+                post_data = self.xhr_comments['caption']
+                comments = self.xhr_comments['comments']
+                post['post_url'] = self.page.url
+                post['author'] = post_data['user']['full_name']
+                post['description'] = post_data['text']
+                post['publishedAt'] = datetime.fromtimestamp(post_data['created_at']).strftime("%d/%m/%Y")
+                post['reaction'] = self.get_likes_of_current_article()
+                post["shares"] = 0
+                post["hashtag"] = ""
+                post["comment_values"] = []
 
-            for comment in comments:
-                post["comment_values"].append({
-                    "author": comment['user']['full_name'],
-                    "comment": comment['text'],
-                    "author_page_url": f"https://www.instagram.com/{comment['user']['username']}/",
-                    "likes": comment['comment_like_count'],
-                    "published_at": datetime.fromtimestamp(comment['created_at']).strftime('%d/%m/%Y')
-                })
+                for comment in comments:
+                    post["comment_values"].append({
+                        "author": comment['user']['full_name'],
+                        "comment": comment['text'],
+                        "author_page_url": f"https://www.instagram.com/{comment['user']['username']}/",
+                        "likes": comment['comment_like_count'],
+                        "published_at": datetime.fromtimestamp(comment['created_at']).strftime('%d/%m/%Y')
+                    })
 
-            post['comments'] = len(post['comment_values'])
-            self.last_date = datetime.fromtimestamp(post_data['created_at'])
-            print(post)
-            return post
-        return {}
+                post['comments'] = len(post['comment_values'])
+                self.last_date = datetime.fromtimestamp(post_data['created_at'])
+                print(post)
+                return post
+            except:
+                return {}
     
     def check_page_data(self) -> None:
         while True:
@@ -459,7 +461,7 @@ class InstagramProfileScraper(Scraping):
             post = self.extract_current_article_data()
             if post:
                 self.posts.append(post)
-            if self.last_date < (datetime.now() - timedelta(days=30)):
+            if self.last_date < (datetime.now() - timedelta(days=60)):
                 break
             self.go_next()
 

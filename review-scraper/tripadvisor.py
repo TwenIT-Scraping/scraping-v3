@@ -26,14 +26,16 @@ import json
 
 class Tripadvisor(Scraping):
     def __init__(self, url: str, establishment: str, settings: str, env: str):
-        super().__init__(in_background=False, url=url,
-                         establishment=establishment, settings=settings, env=env, force_refresh=True)
+        super().__init__(in_background=False, url=url, establishment=establishment, settings=settings, env=env, force_refresh=True)
 
         #### Load all selectors ####
+        print("class init start")
 
         selector_path = path.join(path.dirname(__file__), 'tripadvisor.json')
         with open(selector_path, 'r') as f:
             self.selectors = json.load(f)
+
+        print("class init end")
 
         #### End ####
 

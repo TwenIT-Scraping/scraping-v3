@@ -136,11 +136,11 @@ if __name__ == '__main__':
                         f"Argument(s) manquant(s): {', '.join(miss)}")
 
             if args.type == 'specified':
+                print(args)
                 miss = check_arguments(args, ['-s', '-e'])
                 if not len(miss):
                     with open(history_filename, 'a', encoding='utf-8') as file:
                         file.write(f" ({args.establishments}: {args.sites}) ")
-
                     sc.init(source=args.sites, ename=args.establishments)
                     sc.start()
                 else:
