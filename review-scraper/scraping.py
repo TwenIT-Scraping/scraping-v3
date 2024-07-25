@@ -46,6 +46,8 @@ class Scraping(object):
         if os.environ.get('DRIVER') == 'chrome':
             self.chrome_options.add_extension(
                 f'{Path((str(Path.cwd()) + "/canvas_blocker_0_2_0_0.crx"))}')
+            self.chrome_options.add_extension(
+                f'{Path((str(Path.cwd()) + "/captcha_solver.crx"))}')
             self.driver = webdriver.Chrome(options=self.chrome_options)
         else:
             self.driver = webdriver.Firefox(options=self.firefox_options)
@@ -145,8 +147,8 @@ class Scraping(object):
 
     def scrap(self) -> None:
         # self.set_random_params()
-        input('press enter')
         self.driver.get(self.url)
+        input('enter yes: ')
 
     def refresh(self) -> None:
         self.driver.refresh()

@@ -88,11 +88,11 @@ class ListScraper:
                     print(e)
 
     def transform_all_data(self):
-
-        files = [pathlib.Path(f).stem for f in os.listdir(os.environ.get(
-            'SOCIAL_FOLDER')) if pathlib.Path(f).suffix == '.json']
-        for file in files:
-            self.transform_data(file)
+        pass
+        # files = [pathlib.Path(f).stem for f in os.listdir(os.environ.get(
+        #     'SOCIAL_FOLDER')) if pathlib.Path(f).suffix == '.json']
+        # for file in files:
+        #     self.transform_data(file)
 
     def transform_data(self, filename):
         results = ""
@@ -154,10 +154,11 @@ class ListScraper:
             data = json.load(dinput)
             data['posts'] = len(data['posts'])
             del data['url']
+            del data['name']
 
-        with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.txt", 'r', encoding='utf-8') as pinput:
-            for line in pinput.readlines():
-                posts += " " + line.strip()
+        # with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.txt", 'r', encoding='utf-8') as pinput:
+        #     for line in pinput.readlines():
+        #         posts += " " + line.strip()
 
         data['post_items'] = posts
 
