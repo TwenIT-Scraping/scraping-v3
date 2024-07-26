@@ -27,8 +27,13 @@ class Scraping(object):
             '--disable-blink-features=AutomationControlled')
         in_background and self.chrome_options.add_argument('--headless')
         self.chrome_options.add_argument('--incognito')
+        self.chrome_options.add_extension(f'{Path((str(Path.cwd()) + "/canvas_blocker_0_2_0_0.crx"))}')
         self.chrome_options.add_extension(
-            f'{Path((str(Path.cwd()) + "/canvas_blocker_0_2_0_0.crx"))}')
+            f'{Path((str(Path.cwd()) + "/captcha_solver.crx"))}')
+        self.chrome_options.add_extension(
+            f'{Path((str(Path.cwd()) + "/user_agent_1.crx"))}')
+        self.chrome_options.add_extension(
+            f'{Path((str(Path.cwd()) + "/user_agent_2.crx"))}')
 
         self.firefox_options = webdriver.FirefoxOptions()
         self.firefox_options.add_argument('--disable-gpu')
