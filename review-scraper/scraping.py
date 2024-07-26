@@ -42,7 +42,7 @@ class Scraping(object):
         self.chrome_options.add_argument('--disable-blink-features=AutomationControlled')
         # self.chrome_options.add_experimental_option('excludeSwitch',['enable-logging']) 
         self.chrome_options.add_argument('--log-level=3') 
-        self.chrome_options.add_argument(f"user-agent={user_agents}")
+        self.chrome_options.add_argument(f"user-agent={random.choice(user_agents)}")
         in_background and self.chrome_options.add_argument('--headless')
         self.chrome_options.add_argument('--incognito')
 
