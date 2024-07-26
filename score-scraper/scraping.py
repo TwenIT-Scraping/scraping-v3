@@ -27,13 +27,13 @@ class Scraping(object):
             '--disable-blink-features=AutomationControlled')
         in_background and self.chrome_options.add_argument('--headless')
         self.chrome_options.add_argument('--incognito')
-        self.chrome_options.add_extension(f'{Path((str(Path.cwd()) + "/canvas_blocker_0_2_0_0.crx"))}')
-        self.chrome_options.add_extension(
-            f'{Path((str(Path.cwd()) + "/captcha_solver.crx"))}')
-        self.chrome_options.add_extension(
-            f'{Path((str(Path.cwd()) + "/user_agent_1.crx"))}')
-        self.chrome_options.add_extension(
-            f'{Path((str(Path.cwd()) + "/user_agent_2.crx"))}')
+        # self.chrome_options.add_extension(f'{Path((str(Path.cwd()) + "/canvas_blocker_0_2_0_0.crx"))}')
+        # self.chrome_options.add_extension(
+        #     f'{Path((str(Path.cwd()) + "/captcha_solver.crx"))}')
+        # self.chrome_options.add_extension(
+        #     f'{Path((str(Path.cwd()) + "/user_agent_1.crx"))}')
+        # self.chrome_options.add_extension(
+        #     f'{Path((str(Path.cwd()) + "/user_agent_2.crx"))}')
 
         self.firefox_options = webdriver.FirefoxOptions()
         self.firefox_options.add_argument('--disable-gpu')
@@ -46,6 +46,14 @@ class Scraping(object):
         dotenv.load_dotenv()
 
         if os.environ.get('DRIVER') == 'chrome':
+            self.chrome_options.add_extension(f'{Path.cwd().joinpath("extensions/canvas_blocker_0_2_0_0.crx")}')
+            # self.chrome_options.add_extension(
+            #     f'{Path.cwd().joinpath("extensions/captcha_solver.crx")}')
+            self.chrome_options.add_extension(
+                f'{Path.cwd().joinpath("extensions/user_agent_1.crx")}')
+            self.chrome_options.add_extension(
+                f'{Path.cwd().joinpath("extensions/user_agent_2.crx")}')
+            self.driver = webdriver.Chrome(options=self.chrome_options)
             self.driver = webdriver.Chrome(options=self.chrome_options)
         else:
             self.driver = webdriver.Firefox(options=self.firefox_options)
