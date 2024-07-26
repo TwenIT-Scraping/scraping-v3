@@ -35,7 +35,9 @@ class Tripadvisor(Scraping):
         with open(selector_path, 'r') as f:
             self.selectors = json.load(f)
 
-        print("class init end")
+
+    # def navigate_random_page(self):
+    #     self.driver.get("")
 
         #### End ####
 

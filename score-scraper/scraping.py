@@ -58,7 +58,7 @@ class Scraping(object):
         else:
             self.driver = webdriver.Firefox(options=self.firefox_options)
             self.driver.install_addon(
-                f'{Path((str(Path.cwd()) + "extensions/canvasblocker-1.10.1.xpi"))}')
+                f'{Path.cwd().joinpath("extensions/canvasblocker-1.10.1.xpi")}')
 
         self.driver.maximize_window()
 
