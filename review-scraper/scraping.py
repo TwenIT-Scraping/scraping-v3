@@ -38,10 +38,11 @@ class Scraping(object):
             ]
         
         self.chrome_options = webdriver.ChromeOptions()
-        self.chrome_options.add_experimental_option("prefs", {"profile.default_content_setting_values.geolocation": 2 })
+        self.chrome_options.add_argument("--disable-geolocation")
         self.chrome_options.add_argument('--ignore-certificate-errors')
-        self.chrome_options.add_argument('--disable-gpu')
+        self.chrome_options.add_argument('--disable-fingerprinting')
         self.chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+        self.chrome_options.add_argument('--disable-gpu')
         # self.chrome_options.add_experimental_option('excludeSwitch',['enable-logging']) 
         self.chrome_options.add_argument('--log-level=3') 
         self.chrome_options.add_argument(f"user-agent={random.choice(user_agents)}")
@@ -50,11 +51,11 @@ class Scraping(object):
 
         self.firefox_options = webdriver.FirefoxOptions()
         self.firefox_options.add_argument('--disable-gpu')
+        self.firefox_options.add_argument('--disable-blink-features=AutomationControlled')
         self.firefox_options.add_argument('--ignore-certificate-errors')
         in_background and self.firefox_options.add_argument('--headless')
         self.firefox_options.add_argument('--incognito')
-        self.firefox_options.set_preference(
-            'intl.accept_languages', 'en-US, en')
+        self.firefox_options.set_preference('intl.accept_languages', 'en-US, en')
         self.force_refresh = force_refresh
 
 
@@ -63,6 +64,7 @@ class Scraping(object):
 
         if os.environ.get('DRIVER') == 'chrome':
             self.chrome_options.add_extension(f'{Path.cwd().joinpath("extensions/canvas_blocker_0_2_0_0.crx")}')
+            self.chrome_options.add_extension(f'{Path.cwd().joinpath("extensions/browser_fingerprint_protector.crx")}')
             # self.chrome_options.add_extension(
             #     f'{Path.cwd().joinpath("extensions/captcha_solver.crx")}')
             self.chrome_options.add_extension(
