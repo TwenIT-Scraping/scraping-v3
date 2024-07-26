@@ -36,7 +36,9 @@ class Scraping(object):
             'Mozilla/5.0 (Linux; Android 10; Pixel 3 XL Build/QP1A.190711.020) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Mobile Safari/537.36',
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36 OPR/79.0.4143.66'
             ]
+        
         self.chrome_options = webdriver.ChromeOptions()
+        self.chrome_options.add_experimental_option("prefs", {"profile.default_content_setting_values.geolocation": 2 })
         self.chrome_options.add_argument('--ignore-certificate-errors')
         self.chrome_options.add_argument('--disable-gpu')
         self.chrome_options.add_argument('--disable-blink-features=AutomationControlled')
