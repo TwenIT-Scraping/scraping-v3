@@ -211,8 +211,12 @@ class ListScraperV2:
                 print("=> A scraper !!!")
                 try:
                     print(item)
-                    instance = __class_name_v2__[item['source']](
-                        url=item['url'], establishment=item['establishment_id'], settings=item['id'], env=self.env)
+                    if 'Tripadvisor' in item['source']:
+                        instance = __class_name_v2__[item['source']](
+                            url=item['url'], establishment=item['establishment_id'], settings=item['id'],name=item['establishment_name'], env=self.env)
+                    else:
+                        instance = __class_name_v2__[item['source']](
+                            url=item['url'], establishment=item['establishment_id'], settings=item['id'], env=self.env)
                     item['language'] and instance.set_language(
                         item['language'])
                     instance.set_setting_id(item['id'])
