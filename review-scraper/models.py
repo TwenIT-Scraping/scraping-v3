@@ -124,7 +124,7 @@ class Review(EReputationBase):
 
     @staticmethod
     def save_multi(data_content, env):
-        req = ERApi(method="postmulti", entity=f"reviews/multi", env=env)
+        req = ERApi(method="postmulti", entity=f"review/multi", env=env)
         req.set_body({'data_content': data_content})
         res = req.execute()
         print(res.status_code)

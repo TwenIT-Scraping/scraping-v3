@@ -272,8 +272,8 @@ class Google(BaseGoogleScrap):
     def __init__(self, url: str, establishment: str, settings: str, env: str):
         super().__init__(url=url, establishment=establishment, settings=settings, env=env)
 
-        self.chrome_options.add_argument(f'--lang={self.lang}')
-        self.chrome_options.add_argument('--disable-translate')
+        # self.chrome_options.add_argument(f'--lang={self.lang}')
+        # self.chrome_options.add_argument('--disable-translate')
         self.data_loaded = False
         # self.driver = webdriver.Chrome(options=self.chrome_options)
 

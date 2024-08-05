@@ -307,6 +307,7 @@ class InstagramProfileScraper(Scraping):
         self.xhr_page = {}
         self.xhr_comments = {}
         self.last_date = datetime.now()
+        self.name = ""
 
         self.playwright = sync_playwright().start()
         self.browser = self.playwright.chromium.launch(
@@ -372,6 +373,13 @@ class InstagramProfileScraper(Scraping):
             return int(like)
         except:
             return 0
+        
+    def get_date_of_current_article(self) -> str:
+        try:
+            date = datetime.fromisoformat(self.driver.find_element(By.XPATH, "//time[@class='x1p4m5qa']").get_attribute('datetime')).strftime("%Y-%m-%d")
+            return date
+        except:
+            print(f"Failed to transform date")
     
     def open_post(self) -> None:
         print("\t ==> opening post")
@@ -394,13 +402,16 @@ class InstagramProfileScraper(Scraping):
     
     def extract_page_profile(self) -> None:
         print("\t ==> extracting profile data")
+
+        self.name = nested_lookup(key='full_name', document=self.xhr_page)[0]
+        name = re.sub(r'[^a-zA-Z0-9\s]', '', self.name).replace(' ', '_')
         try:
             self.page_data = {
             "followers": nested_lookup(key='follower_count', document=self.xhr_page)[0],
             "likes": 0,
             "source": "instagram",
             "establishment": self.establishment,
-            "name": f"instagram_{nested_lookup(key='full_name', document=self.xhr_page)[0].replace(' ', '_')}",
+            "name": f"instagram_{name}",
             }
         except:
             pass
@@ -411,12 +422,22 @@ class InstagramProfileScraper(Scraping):
         if self.xhr_comments:
             post = {}
             try:
-                post_data = self.xhr_comments['caption']
+                post_data = []
+                try:
+                    post_data = self.xhr_comments['caption']
+                except:
+                    print("no post data item")
                 comments = self.xhr_comments['comments']
                 post['post_url'] = self.page.url
-                post['author'] = post_data['user']['full_name']
-                post['description'] = post_data['text']
-                post['publishedAt'] = datetime.fromtimestamp(post_data['created_at']).strftime("%d/%m/%Y")
+                if post_data:
+                    post['author'] = post_data['user']['full_name']
+                    post['description'] = post_data['text']
+                    # post['publishedAt'] = datetime.fromtimestamp(post_data['created_at']).strftime("%d/%m/%Y")
+                    post['publishedAt'] = datetime.fromtimestamp(post_data['created_at']).strftime("%Y-%m-%d")
+                else:
+                    post['author'] = self.name
+                    post['description'] = ""
+                    post['publishedAt'] = self.get_date_of_current_article()
                 post['reaction'] = self.get_likes_of_current_article()
                 post["shares"] = 0
                 post["hashtag"] = ""
@@ -428,7 +449,8 @@ class InstagramProfileScraper(Scraping):
                         "comment": comment['text'],
                         "author_page_url": f"https://www.instagram.com/{comment['user']['username']}/",
                         "likes": comment['comment_like_count'],
-                        "published_at": datetime.fromtimestamp(comment['created_at']).strftime('%d/%m/%Y')
+                        # "published_at": datetime.fromtimestamp(comment['created_at']).strftime('%d/%m/%Y')
+                        "published_at": datetime.fromtimestamp(comment['created_at']).strftime('%Y-%m-%d')
                     })
 
                 post['comments'] = len(post['comment_values'])

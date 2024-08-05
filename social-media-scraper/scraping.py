@@ -65,7 +65,6 @@ class Scraping(object):
 
         try:
             page_data = self.page_data
-            print(page_data['name'] + 'hehehe')
             page_data['posts'] = self.posts
             page_data['url'] = self.url
             page_data['createdAt'] = datetime.now().strftime('%Y-%m-%d')
