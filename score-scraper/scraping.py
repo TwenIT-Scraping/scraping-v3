@@ -88,6 +88,7 @@ class Scraping(object):
 
     def scrap(self) -> None:
         self.driver.get(self.url)
+        input("press enter: ")
 
     def exit(self) -> None:
         self.driver.quit()
