@@ -25,15 +25,23 @@ import json
 
 
 class Tripadvisor(Scraping):
-    def __init__(self, url: str, establishment: str, settings: str, env: str):
-        super().__init__(in_background=False, url=url,
-                         establishment=establishment, settings=settings, env=env, force_refresh=True)
+    def __init__(self, url: str, establishment: str, settings: str, name:str, env: str):
+        super().__init__(in_background=False, url=url, establishment=establishment, settings=settings, env=env, force_refresh=True)
 
         #### Load all selectors ####
-
+        print("class init start")
+        self.name = name
+        print(f"name get {self.name}")
+        
         selector_path = path.join(path.dirname(__file__), 'tripadvisor.json')
         with open(selector_path, 'r') as f:
             self.selectors = json.load(f)
+
+
+    # def navigate_random_page(self):
+    #     self.driver.get("")
+
+    """Simulation des recherches"""
 
         #### End ####
 

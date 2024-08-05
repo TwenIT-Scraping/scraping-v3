@@ -144,7 +144,6 @@ class BaseTwitterScrap(Scraping):
             text = text.split(' ')
             text = [x for x in text if not x.startswith('@')]
             text = ' '.join(text)
-            text = text.replace('\n', ' ')
         return text
 
     def execute(self):
@@ -296,7 +295,7 @@ class TwitterScraper(BaseTwitterScrap):
                     comment_section = item['content']['itemContent']['tweet_results']['result']['legacy']
                     post['post_url'] = self.page.url
                     post['author'] = self.name
-                    post['description'] =  self.format_text(comment_section['full_text'])
+                    post['description'] =  self.remove_non_utf8_characters(self.format_text(comment_section['full_text']))
                     post['reaction'] = comment_section['favorite_count']
                     post['shares'] = comment_section['retweet_count']
                     post['publishedAt'] = self.format_date(comment_section['created_at']) 
@@ -311,7 +310,7 @@ class TwitterScraper(BaseTwitterScrap):
                         post['comment_values'].append({
                             'author': comment_section['core']['user_results']['result']['legacy']['name'],
                             'author_page_url': "https://x.com/" + comment_section['core']['user_results']['result']['legacy']['screen_name'],
-                            'comment': self.format_text(comment_section['legacy']['full_text']),
+                            'comment': self.remove_non_utf8_characters(self.format_text(comment_section['legacy']['full_text'])),
                             'likes': comment_section['legacy']['favorite_count'],
                             'published_at': self.format_date(comment_section['legacy']['created_at'])
                         })
@@ -735,7 +734,7 @@ class X_scraper(BaseTwitterScrap):
             while True:
                 self.extract_post_link()
                 last_date = self.get_last_date()
-                if last_date <= (datetime.now() - timedelta(days=30)):
+                if last_date <= (datetime.now() - timedelta(days=40)):
                     break
                 else:
                     self.load_more_articles()
@@ -747,7 +746,7 @@ class X_scraper(BaseTwitterScrap):
         for article in articles:
             data = self.extract_article(article)
             self.print_in_file(data)
-            if self.format_date(data['date']) <= (datetime.now() - timedelta(days=30)):
+            if self.format_date(data['date']) <= (datetime.now() - timedelta(days=40)):
                 break
             else:
                 self.post_data.append(data)

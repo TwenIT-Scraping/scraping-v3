@@ -134,7 +134,7 @@ if __name__ == '__main__':
 
                     if args.auto_save == "1":
                         sc.set_auto_save()
-
+                    print(args)
                     sc.init(source=args.sites, ename=args.establishments)
                     sc.start()
                 else:

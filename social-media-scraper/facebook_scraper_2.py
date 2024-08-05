@@ -328,8 +328,10 @@ class FacebookScraper(object):
         try:
             date_tag = self.driver.find_element(By.CSS_SELECTOR, "div.html-div.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1q0g3np")
             # date_tag = self.driver.find_element(By.XPATH, "/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/div[1]/div/div/div/div/div/div/div/div/div/div/div/div/div/div[13]/div/div/div[2]/div/div[2]/div/div[2]/span/span")
+            date_tag = date_tag.find_element(By.TAG_NAME, 'b')
             date_tag.location_once_scrolled_into_view
             self.driver.execute_script("window.scrollBy(0, -150);")
+            date_tag.screenshot(f'./dates/{datetime.now().strftime("%d%m%Y%H%M%S")}.png')
             date = pytesseract.image_to_string(Image.open(io.BytesIO(date_tag.screenshot_as_png))).replace('\n', '')
             if date:
                 with open('dates.json', 'a') as openfile:

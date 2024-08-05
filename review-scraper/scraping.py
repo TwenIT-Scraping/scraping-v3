@@ -21,35 +21,61 @@ from lingua import Language, LanguageDetectorBuilder
 class Scraping(object):
 
     def __init__(self, in_background: bool, url: str, establishment: str, settings: str, env: str, force_refresh=False) -> None:
-
         # driver options
+        user_agents = [
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Firefox/89.0',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/91.0.864.70',
+            'Mozilla/5.0 (Linux; Android 11; SM-G991U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Mobile Safari/537.36',
+            'Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.6 Mobile/15E148 Safari/604.1',
+            'Mozilla/5.0 (Windows NT 7.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Version/11.0 Safari/537.36',
+            'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:89.0) Gecko/20100101 Firefox/89.0',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36',
+            'Mozilla/5.0 (Linux; Android 10; Pixel 3 XL Build/QP1A.190711.020) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Mobile Safari/537.36',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36 OPR/79.0.4143.66'
+            ]
+        
         self.chrome_options = webdriver.ChromeOptions()
+        self.chrome_options.add_argument("--disable-geolocation")
         self.chrome_options.add_argument('--ignore-certificate-errors')
+        self.chrome_options.add_argument('--disable-fingerprinting')
+        self.chrome_options.add_argument('--disable-blink-features=AutomationControlled')
         self.chrome_options.add_argument('--disable-gpu')
-        self.chrome_options.add_argument(
-            '--disable-blink-features=AutomationControlled')
+        # self.chrome_options.add_experimental_option('excludeSwitch',['enable-logging']) 
+        self.chrome_options.add_argument('--log-level=3') 
+        self.chrome_options.add_argument(f"user-agent={random.choice(user_agents)}")
         in_background and self.chrome_options.add_argument('--headless')
         self.chrome_options.add_argument('--incognito')
 
         self.firefox_options = webdriver.FirefoxOptions()
         self.firefox_options.add_argument('--disable-gpu')
+        self.firefox_options.add_argument('--disable-blink-features=AutomationControlled')
         self.firefox_options.add_argument('--ignore-certificate-errors')
         in_background and self.firefox_options.add_argument('--headless')
         self.firefox_options.add_argument('--incognito')
-        self.firefox_options.set_preference(
-            'intl.accept_languages', 'en-US, en')
+        self.firefox_options.set_preference('intl.accept_languages', 'en-US, en')
         self.force_refresh = force_refresh
+
+
 
         dotenv.load_dotenv()
 
         if os.environ.get('DRIVER') == 'chrome':
+            self.chrome_options.add_extension(f'{Path.cwd().joinpath("extensions/canvas_blocker_0_2_0_0.crx")}')
+            self.chrome_options.add_extension(f'{Path.cwd().joinpath("extensions/browser_fingerprint_protector.crx")}')
+            # self.chrome_options.add_extension(
+            #     f'{Path.cwd().joinpath("extensions/captcha_solver.crx")}')
             self.chrome_options.add_extension(
-                f'{Path((str(Path.cwd()) + "/canvas_blocker_0_2_0_0.crx"))}')
+                f'{Path.cwd().joinpath("extensions/user_agent_1.crx")}')
+            self.chrome_options.add_extension(
+                f'{Path.cwd().joinpath("extensions/user_agent_2.crx")}')
             self.driver = webdriver.Chrome(options=self.chrome_options)
         else:
             self.driver = webdriver.Firefox(options=self.firefox_options)
             self.driver.install_addon(
-                f'{Path((str(Path.cwd()) + "/canvasblocker-1.10.1.xpi"))}')
+                f'{Path.cwd().joinpath("extensions/canvasblocker-1.10.1.xpi")}')
 
         self.driver.maximize_window()
 
@@ -121,11 +147,12 @@ class Scraping(object):
         return current_date >= (current_date - timedelta(days=365))
 
     def execute(self):
+        print("executing scrap")
         try:
 
             if self.force_refresh:
                 refresh_connection()
-
+            print("here we go")
             self.scrap()
             time.sleep(5)
             WebDriverWait(self.driver, 10)
@@ -144,7 +171,7 @@ class Scraping(object):
     def scrap(self) -> None:
         # self.set_random_params()
         self.driver.get(self.url)
-        input('press enter')
+        input('enter yes: ')
 
     def refresh(self) -> None:
         self.driver.refresh()
@@ -175,7 +202,6 @@ class Scraping(object):
             if check_value(item):
                 line = '$$$$$'.join([item['author'], item['source'], item['language'], item['rating'], item['establishment'], item['date_review'],
                                 item['comment'].replace('$', 'USD'), item['settings'], item['date_visit'], item['novisitday'], item['url'] if 'url' in item.keys() else 'non']) + "#####"
-
                 result += line
 
         self.formated_data = result

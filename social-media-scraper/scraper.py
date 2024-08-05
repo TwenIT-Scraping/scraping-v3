@@ -36,6 +36,7 @@ class ListScraper:
 
     def init(self, eid=None, ename=None, categ='Social', source=None):
         self.settings = Settings(categ, eid, source, ename, env=self.env)
+        print("preparation")
         self.settings.prepare()
 
     def set_auto_save(self):
@@ -59,6 +60,7 @@ class ListScraper:
         counter = 0
         by_source = {}
 
+        print("pass here")
         print(self.settings.items)
 
         for source in __class_name__.keys():
@@ -66,6 +68,7 @@ class ListScraper:
                 item for item in self.settings.items if item['source'] == source]
 
         for item_key in by_source.keys():
+            print(f"Item key {item_key}")
             time.sleep(random.randint(1, 3))
             if item_key in __class_name__.keys() and len(by_source[item_key]):
                 try:
@@ -85,11 +88,11 @@ class ListScraper:
                     print(e)
 
     def transform_all_data(self):
-
-        files = [pathlib.Path(f).stem for f in os.listdir(os.environ.get(
-            'SOCIAL_FOLDER')) if pathlib.Path(f).suffix == '.json']
-        for file in files:
-            self.transform_data(file)
+        pass
+        # files = [pathlib.Path(f).stem for f in os.listdir(os.environ.get(
+        #     'SOCIAL_FOLDER')) if pathlib.Path(f).suffix == '.json']
+        # for file in files:
+        #     self.transform_data(file)
 
     def transform_data(self, filename):
         results = ""
@@ -151,10 +154,11 @@ class ListScraper:
             data = json.load(dinput)
             data['posts'] = len(data['posts'])
             del data['url']
+            del data['name']
 
-        with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.txt", 'r', encoding='utf-8') as pinput:
-            for line in pinput.readlines():
-                posts += " " + line.strip()
+        # with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.txt", 'r', encoding='utf-8') as pinput:
+        #     for line in pinput.readlines():
+        #         posts += " " + line.strip()
 
         data['post_items'] = posts
 
