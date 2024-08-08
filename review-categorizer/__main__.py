@@ -18,6 +18,7 @@ from api import ERApi
 from progress.bar import ChargingBar
 from progress.spinner import Spinner
 from checkclassifier import classifytext
+import spacy
 
 dotenv.load_dotenv()
 
@@ -203,6 +204,273 @@ ARGS_INFO = {
 
 
 class ClassificationAPI(object):
+
+    def __init__(self, env='dev', type='reviews', tag='', limit=5, column="category") -> None:
+        self.type = type
+        self.establishment = None
+        self.categories = []
+        self.tag = tag
+        self.lines = []
+        self.env = env
+        self.limit = limit
+        self.page = 1
+        self.pages = 1
+        self.column = column
+
+    def fetch_datas(self):
+        endpoint = f"establishment/{self.tag}/reviews_to_classify" if self.column == "category" else f"establishment/{self.tag}/reviews_to_score"
+
+        try:
+            get_instance = ERApi(
+                method="get", entity=endpoint, env=self.env, params={"all": "yes", "type": self.type, "page": self.page, 'limit': self.limit})
+            res = get_instance.execute()
+
+            if (res):
+                print("Etablissement traité: ", res['establishment']['name'])
+
+                if self.column == "category":
+                    print("Liste des catégories disponibles: ",
+                          res['categories'])
+                    self.categories = res['categories']
+
+                self.establishment = res['establishment']
+                self.pages = res['pages']
+                self.lines = res['reviews']
+
+                print(
+                    f"Lignes traitées: {(self.page-1)*self.limit}/{res['count']}")
+
+            self.page += 1
+
+            print("Lignes récupérées: ", len(self.lines))
+
+        except Exception as e:
+            print(e)
+
+    def check_results(self):
+        results = []
+        stats = {'categories': [], 'classification': {},
+                 'nocategorized': [], 'classified': 0}
+        page = 1
+
+        print("Fetching data ...")
+
+        while (True):
+            endpoint = f"review/by_establishment?tag={self.tag}&page={page}&limit=200&from=2023-09-01&to=2024-05-22"
+            try:
+                get_instance = ERApi(
+                    method="get", entity=endpoint, env=self.env, params={"all": "yes", "type": self.type, "page": self.page, 'limit': self.limit})
+                res = get_instance.execute()
+
+                if not res or not res['data'] or len(res['data']) == 0:
+                    break
+                else:
+                    results += res['data']
+
+                page += 1
+
+            except:
+                break
+
+        for line in results:
+            if line['category']:
+                categories = line['category'].split(';')
+
+                if len(categories):
+
+                    for categ in categories:
+                        if categ not in stats['categories']:
+                            stats['categories'].append(categ)
+
+                        if categ not in stats['classification'].keys():
+                            stats['classification'][categ] = []
+
+                        stats['classification'][categ].append({
+                            'id': line['id'],
+                            'type': 'review',
+                            'category_check': line['category_check'],
+                        })
+
+                        stats['classified'] = stats['classified'] + 1
+
+                else:
+                    stats['nocategorized'].append({
+                        'id': line['id'],
+                        'type': 'review',
+                        'category_check': line['category_check'],
+                    })
+            else:
+                stats['nocategorized'].append({
+                    'id': line['id'],
+                    'type': 'review',
+                    'category_check': line['category_check'],
+                })
+
+        print("\n================ RESULTATS ==================\n")
+        print("Nombre total reviews: ", len(results))
+        print("Catégories:", stats['categories'])
+        print("Nombre reviews classifiés: ", stats['classified'])
+        print("Nombre reviews non classifiés: ", len(stats['nocategorized']))
+        print("Reviews par catégorie: ")
+
+        for categ in stats['classification'].keys():
+            print("\t", categ, ":", len(stats['classification'][categ]))
+
+        print("\n=============================================\n")
+
+    def compute_scores(self, comments):
+
+        review_score = ReviewScore()
+
+        def set_score(item):
+            score_data = {}
+
+            if self.type == "comments":
+                score_data = review_score.compute_comment_score(item['text'])
+            elif self.type == "posts":
+                score_data = review_score.compute_comment_score(item['text'])
+            else:
+                score_data = review_score.compute_review_score(
+                    item['text'], item['language'], item['rating'], item['source'])
+
+            item['feeling'] = score_data['feeling']
+            item['score'] = score_data['score']
+            item['confidence'] = score_data['confidence']
+
+            return item
+
+        results = []
+
+        progress = ChargingBar('Calcul scores: ', max=len(comments))
+        for item in comments:
+            if item['text'] and len(item['text']) > 0:
+                results.append(set_score(item))
+                progress.next()
+
+        return results
+
+    def check_categories(self, line):
+        if os.environ.get('ENV_TYPE') == 'local':
+            line['prediction'] = {
+                # 'labels': ['travel', 'cooking', 'dancing'],
+                'labels': self.categories,
+                # 'scores': [random.uniform(0, 1) for i in range(3)],
+                'scores': [random.uniform(0, 1) for i in range(len(self.categories))],
+                'sequence': line['text']
+            }
+        else:
+            if len(self.categories):
+
+                categs = list(
+                    map(lambda x: x['category'], self.categories))
+
+                line['prediction'] = classifytext(categs, line['text'])
+
+            else:
+                line['prediction'] = None
+
+        return line
+
+    def update_lines(self):
+        if self.column == "category":
+            progress = ChargingBar(
+                'Calcul catégorisation', max=len(self.lines))
+            for i in range(len(self.lines)):
+                progress.next()
+                line = self.lines[i]
+
+                if line['text'] != "" and len(line['text']) >= 25:
+                    self.lines[i] = self.check_categories(line)
+
+        if self.column == "feeling":
+            self.lines = self.compute_scores(self.lines)
+
+    def transform_data(self):
+
+        result = ""
+
+        if self.column == "feeling":
+
+            print("Transformation ...")
+
+            for line in self.lines:
+
+                l = "&".join([str(line['id']), self.type, line['feeling'],
+                              str(line['score']), str(line['confidence'])])
+                result += l + "#"
+
+        if self.column == "category":
+
+            print("\n******** Catégories trouvées *********\n")
+
+            for line in self.lines:
+                l_categs = ""
+                c_categs = ""
+
+                if 'prediction' in line.keys() and line['prediction']:
+                    for i in range(0, len(line['prediction']['labels'])):
+                        if line['prediction']['scores'][i] >= 0.8 and len(f"{line['prediction']['sequence']}") > 30:
+                            l_categs += f"{line['prediction']['labels'][i]}${str(line['prediction']['scores'][i])}|"
+
+                if len(self.categories):
+                    c_categs = "|".join(
+                        list(map(lambda x: x['category'], self.categories)))
+
+                l_categs != "" and print(
+                    f"- {l_categs.replace('|', ', ')} => {line['prediction']['sequence']}\n")
+
+                l = "&".join([str(line['id']), self.type, l_categs, c_categs])
+                result += l + "#"
+
+            print("\n**************************************\n")
+
+        return result
+
+    def upload(self):
+        try:
+            data = self.transform_data()
+
+            print(data)
+
+            endpoint = "classification/multi" if self.column == "category" else "feeling/multi"
+            # print(data)
+            post_instance = ERApi(
+                method="postclassifications", entity=endpoint, env=self.env, body={'data_content': data})
+            return post_instance.execute()
+        except Exception as e:
+            print(e)
+
+    def execute(self):
+        try:
+            while (True):
+                print("============> Page ", self.page,
+                      "sur ", self.pages, " <===============")
+                self.fetch_datas()
+                if self.column == "category":
+                    if len(self.categories):
+                        self.update_lines()
+                        # res = self.transform_data()
+                        # print(res)
+
+                    else:
+                        print("!!!! Pas de catégories")
+                        break
+                else:
+                    self.update_lines()
+
+                if os.environ.get('ENV_TYPE') != 'local':
+                    res = self.upload()
+                    print(res)
+
+                print(len(self.lines))
+
+                if self.page > self.pages:
+                    break
+        except Exception as e:
+            print(e)
+
+
+class ClassificationAPIV2(object):
 
     def __init__(self, env='dev', type='reviews', tag='', limit=5, column="category") -> None:
         self.type = type
