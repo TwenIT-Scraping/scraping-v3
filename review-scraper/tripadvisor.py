@@ -10,6 +10,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.firefox.service import Service as FirefoxService
+from selenium.webdriver.common.keys import Keys
 from abc import abstractmethod
 import sys
 import time
@@ -28,21 +29,50 @@ class Tripadvisor(Scraping):
     def __init__(self, url: str, establishment: str, settings: str, name:str, env: str):
         super().__init__(in_background=False, url=url, establishment=establishment, settings=settings, env=env, force_refresh=True)
 
-        #### Load all selectors ####
-        print("class init start")
         self.name = name
         print(f"name get {self.name}")
         
         selector_path = path.join(path.dirname(__file__), 'tripadvisor.json')
         with open(selector_path, 'r') as f:
             self.selectors = json.load(f)
+        
+        self.make_search(netloc='tripadvisor')
 
 
     # def navigate_random_page(self):
     #     self.driver.get("")
 
     """Simulation des recherches"""
-
+    def make_search(self, netloc:str) -> None:
+        self.driver.get("https://google.com")
+        time.sleep(2)
+        search_key = f"{self.name} tripadvisor"
+        time.sleep(2)
+        search_input = self.driver.find_element(By.XPATH, "//textarea[@title='Rechercher']")
+        search_input.click()
+        time.sleep(1)
+        search_key = "LUX Grand Gaube Tripadvisor".split(' ')
+        for key in search_key:
+            search_input.send_keys(f"{key} ")
+            time.sleep(.5)
+        search_input.send_keys(Keys.RETURN)
+        links = self.driver.find_elements(By.CSS_SELECTOR, "div.srKDX.cvP2Ce")
+        for i in range(len(links)):
+            tag_a = BeautifulSoup(links[i].get_attribute('innerHTML'), 'lxml').find_all('a', href=True)
+            for a in tag_a:
+                try:
+                    if netloc in a['href']:
+                        find = 0
+                        for item in self.name.split(' '):
+                            if item.lower() in a['href'].lower():
+                                find += 1
+                        print(f"{int(find / len(self.name.split(' '))) * 100 } %")
+                        if (find / len(self.name.split(' '))) == 0.8 and a['href'] == self.url:
+                            print(a['href'])
+                            links[i].click()
+                            break
+                except:
+                    pass
         #### End ####
 
     def format_date(self, text, lang, form=1):
@@ -146,8 +176,8 @@ class Tripadvisor(Scraping):
 
 
 class Tripadvisor_UK(Tripadvisor):
-    def __init__(self, url: str, establishment: str, settings: str, env: str):
-        super().__init__(url=url, establishment=establishment, settings=settings, env=env)
+    def __init__(self, url: str, establishment: str, settings: str, name: str, env: str):
+        super().__init__(url, establishment, settings, name, env)
 
     def extract(self):
         reviews = []
@@ -302,8 +332,8 @@ class Tripadvisor_UK(Tripadvisor):
 
 
 class Tripadvisor_FR(Tripadvisor):
-    def __init__(self, url: str, establishment: str, settings: str, env: str):
-        super().__init__(url=url, establishment=establishment, settings=settings, env=env)
+    def __init__(self, url: str, establishment: str, settings: str, name: str, env: str):
+        super().__init__(url, establishment, settings, name, env)
 
     def extract(self):
         reviews = []
@@ -553,9 +583,9 @@ class Tripadvisor_ES(Tripadvisor):
 
         self.data = reviews
 
-
 # trp = Tripadvisor_FR(
-#     url="https://www.tripadvisor.fr/Attraction_Review-g3520917-d518281-Reviews-Courchevel-Saint_Bon_Tarentaise_Courchevel_Savoie_Auvergne_Rhone_Alpes.html", establishment=33, settings=1, env='DEV')
+#     url="https://www.tripadvisor.fr/Attraction_Review-g3520917-d518281-Reviews-Courchevel-Saint_Bon_Tarentaise_Courchevel_Savoie_Auvergne_Rhone_Alpes.html", 
+#     establishment=33, settings=1,name='Courchevel Savoie Auvergne', env='DEV')
 # trp.execute()
 # print(trp.data)
 

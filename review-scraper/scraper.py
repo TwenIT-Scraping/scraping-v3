@@ -211,7 +211,7 @@ class ListScraperV2:
                 print("=> A scraper !!!")
                 try:
                     print(item)
-                    if 'Tripadvisor' in item['source']:
+                    if 'tripadvisor' in item['source'].lower():
                         instance = __class_name_v2__[item['source']](
                             url=item['url'], establishment=item['establishment_id'], settings=item['id'],name=item['establishment_name'], env=self.env)
                     else:

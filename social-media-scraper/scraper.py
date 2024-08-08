@@ -68,7 +68,6 @@ class ListScraper:
                 item for item in self.settings.items if item['source'] == source]
 
         for item_key in by_source.keys():
-            print(f"Item key {item_key}")
             time.sleep(random.randint(1, 3))
             if item_key in __class_name__.keys() and len(by_source[item_key]):
                 try:
@@ -81,7 +80,7 @@ class ListScraper:
                     if self.auto_save:
                         print("Transform and upload ...")
                         for f in files:
-                            self.transform_data(filename=f)
+                            # self.transform_data(filename=f)
                             self.upload_data(file=f)
 
                 except Exception as e:
@@ -147,28 +146,29 @@ class ListScraper:
             print(filename)
 
     def upload_data(self, file):
-        data = {}
-        posts = ""
+        pass
+        # data = {}
+        # posts = ""
 
-        with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.json", 'r') as dinput:
-            data = json.load(dinput)
-            data['posts'] = len(data['posts'])
-            del data['url']
-            del data['name']
+        # with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.json", 'r') as dinput:
+        #     data = json.load(dinput)
+        #     data['posts'] = len(data['posts'])
+        #     del data['url']
+        #     del data['name']
 
-        # with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.txt", 'r', encoding='utf-8') as pinput:
-        #     for line in pinput.readlines():
-        #         posts += " " + line.strip()
+        # # with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.txt", 'r', encoding='utf-8') as pinput:
+        # #     for line in pinput.readlines():
+        # #         posts += " " + line.strip()
 
-        data['post_items'] = posts
+        # data['post_items'] = data['posts']
 
-        post = ERApi(method='postmulti', env=self.env)
+        # post = ERApi(method='postmulti', env=self.env)
 
-        post.set_body(data)
+        # post.set_body(data)
 
-        result = post.execute()
+        # result = post.execute()
 
-        print(result.text)
+        # print(result.text)
 
     def upload_all_results(self):
         files = [pathlib.Path(f).stem for f in os.listdir(
