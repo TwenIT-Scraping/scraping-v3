@@ -1,3 +1,4 @@
+# from seleniumwire import webdriver
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -16,7 +17,21 @@ import random
 import string
 from pathlib import Path
 from lingua import Language, LanguageDetectorBuilder
+import requests
 
+TOR_PROXY = "socks5://127.0.0.1:9150"
+
+def get_ip(use_tor:bool) -> None:
+    print("getting IP")
+    global TOR_PROXY
+    session = requests.session()
+    if(use_tor):
+      session.proxies = {'http': TOR_PROXY, 'https': TOR_PROXY}
+    try:
+        response = session.get('http://httpbin.org/ip')
+        print(f"Ip used befor tor connexion : {response.json()}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error: {e}")
 
 class Scraping(object):
 
@@ -39,15 +54,16 @@ class Scraping(object):
         
         self.chrome_options = webdriver.ChromeOptions()
         self.chrome_options.add_argument("--disable-geolocation")
-        self.chrome_options.add_argument('--ignore-certificate-errors')
+        # self.chrome_options.add_argument('--ignore-certificate-errors')
         self.chrome_options.add_argument('--disable-fingerprinting')
-        self.chrome_options.add_argument('--disable-blink-features=AutomationControlled')
-        self.chrome_options.add_argument('--disable-gpu')
+        # self.chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+        # self.chrome_options.add_argument('--disable-gpu')
         # self.chrome_options.add_experimental_option('excludeSwitch',['enable-logging']) 
-        self.chrome_options.add_argument('--log-level=3') 
+        self.chrome_options.add_argument("--enable-javascript")
         self.chrome_options.add_argument(f"user-agent={random.choice(user_agents)}")
-        in_background and self.chrome_options.add_argument('--headless')
-        self.chrome_options.add_argument('--incognito')
+        self.chrome_options.add_argument('--log-level=3') 
+        # in_background and self.chrome_options.add_argument('--headless')
+        # self.chrome_options.add_argument('--incognito')
 
         self.firefox_options = webdriver.FirefoxOptions()
         self.firefox_options.add_argument('--disable-gpu')
@@ -58,27 +74,31 @@ class Scraping(object):
         self.firefox_options.set_preference('intl.accept_languages', 'en-US, en')
         self.force_refresh = force_refresh
 
-
-
         dotenv.load_dotenv()
-
+        # get_ip(False)
         if os.environ.get('DRIVER') == 'chrome':
+            global TOR_PROXY
             self.chrome_options.add_extension(f'{Path.cwd().joinpath("extensions/canvas_blocker_0_2_0_0.crx")}')
             self.chrome_options.add_extension(f'{Path.cwd().joinpath("extensions/browser_fingerprint_protector.crx")}')
-            # self.chrome_options.add_extension(
-            #     f'{Path.cwd().joinpath("extensions/captcha_solver.crx")}')
             self.chrome_options.add_extension(
                 f'{Path.cwd().joinpath("extensions/user_agent_1.crx")}')
             self.chrome_options.add_extension(
                 f'{Path.cwd().joinpath("extensions/user_agent_2.crx")}')
+            # self.chrome_options.add_argument(f"--proxy-server={TOR_PROXY}")
+            # seleniumwireoptions = {
+            #     "proxy": {
+            #         "http": TOR_PROXY,
+            #         "https": TOR_PROXY
+            #     }
+            # }
+            # self.driver = webdriver.Chrome(options=self.chrome_options, seleniumwire_options=seleniumwireoptions)
             self.driver = webdriver.Chrome(options=self.chrome_options)
         else:
             self.driver = webdriver.Firefox(options=self.firefox_options)
-            self.driver.install_addon(
-                f'{Path.cwd().joinpath("extensions/canvasblocker-1.10.1.xpi")}')
-
+            # self.driver.install_addon(
+            #     f'{Path.cwd().joinpath("extensions/canvasblocker-1.10.1.xpi")}')
         self.driver.maximize_window()
-
+        # get_ip(True)
         self.data = {}
         self.url = url
 
@@ -195,14 +215,21 @@ class Scraping(object):
                     return False
             return True
 
-        result = ""
+        result = []
 
         for item in self.data:
-            print(item)
             if check_value(item):
-                line = '$$$$$'.join([item['author'], item['source'], item['language'], item['rating'], item['establishment'], item['date_review'],
-                                item['comment'].replace('$', 'USD'), item['settings'], item['date_visit'], item['novisitday'], item['url'] if 'url' in item.keys() else 'non']) + "#####"
-                result += line
+                # line = '$$$$$'.join([item['author'], item['source'], item['language'], item['rating'], item['establishment'], item['date_review'],
+                #                 item['comment'].replace('$', 'USD'), item['settings'], item['date_visit'], item['novisitday'], item['url'] if 'url' in item.keys() else 'non']) + "#####"
+                # result += line
+                item['comment'] = item['comment'].replace('$', 'USD')
+                item['settings'] = item['settings'].split('/')[-1]
+                item['establishment'] = item['establishment'].split('/')[-1]
+                if 'url' in item.keys():
+                    item['url'] = item['url']
+                else:
+                    item['url'] = ''
+                result.append(item)
 
         self.formated_data = result
 
