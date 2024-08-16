@@ -19,7 +19,6 @@ def segment_text(text):
     excepted_token = ["AND", "ET", "THAT"]
 
     for token in doc:
-        # print(token.text, " => ", token.pos_)
 
         if (token.pos_ in ["PUNCT", "CCONJ", "ADV"] and token.text.upper() not in excepted_token) or token.text == "|":
 
@@ -122,8 +121,6 @@ def detect_aspect_category(text, candidate_labels, score_min=.8, full_text=False
         top_categories = get_labels(result, score_min)
         sentence_categories.append((term, top_categories))
 
-    # categories.append(sentence_categories)
-
     return sentence_categories
 
 #######################################################
@@ -185,15 +182,8 @@ def concat_sequences_by_label(categories, score_min=0.8):
 
     return label_sequences
 
-# Example usage:
-# candidate_labels = ['Emplacement', 'Accueil', 'Ménage', 'Mobilier']
-# text = "« Repos et nature, les Alpes en face au petit déjeuner sur le balcon. »: Le lieu, en plein causse des Bauges. Les balades proches. Les lieux touristiques: Aix les Bains 30 min, Annecy 50 min. | Le nettoyage. Certains chalets devraient être réservés aux voyageurs possédant des animaux. Notamment pour les personnes ayant des allergies."
-# categories = get_categories(text, candidate_labels)
-# concatenated_sequences = concat_sequences_by_label(categories, 0.8)
-# print(concatenated_sequences)
 
-
-def transform_to_json(concatenated_sequences):
+def transform_to_json(concatenated_sequences, line_id, column_name):
     """
     Transforms the result of concat_sequences_by_label to a JSON object.
 
@@ -209,17 +199,20 @@ def transform_to_json(concatenated_sequences):
     for category, (sequence, score) in concatenated_sequences.items():
         json_result.append({
             "category": category,
-            "sequence": sequence,
-            "score": score
+            "section": sequence,
+            "confidence": score,
+            f"${column_name}": line_id
         })
 
     return json_result
 
-# Example usage:
-# candidate_labels = ['Emplacement', 'Accueil', 'Ménage', 'Mobilier']
-# text = "« Repos et nature, les Alpes en face au petit déjeuner sur le balcon. »: Le lieu, en plein causse des Bauges. Les balades proches. Les lieux touristiques: Aix les Bains 30 min, Annecy 50 min. | Le nettoyage. Certains chalets devraient être réservés aux voyageurs possédant des animaux. Notamment pour les personnes ayant des allergies."
-# categories = get_categories(text, candidate_labels)
-# concatenated_sequences = concat_sequences_by_label(categories, 0.8)
-# print(concatenated_sequences)
-# json_output = transform_to_json(concatenated_sequences)
-# print(json_output)
+#######################################################
+# Main categorization #
+# Expected results : [{"category": "...", "sequence": ..., "score": ...}, ...] #
+#######################################################
+
+
+def ia_categorize(line, column, labels):
+    categories = get_categories(line['text'], labels)
+    concatenated_sequences = concat_sequences_by_label(categories, 0.8)
+    return transform_to_json(concatenated_sequences, line[id], column)

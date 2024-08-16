@@ -17,8 +17,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipe
 from api import ERApi
 from progress.bar import ChargingBar
 from progress.spinner import Spinner
-from checkclassifier import classifytext
-import spacy
+from checkclassifier import ia_categorize
 
 dotenv.load_dotenv()
 
@@ -485,7 +484,7 @@ class ClassificationAPIV2(object):
         self.column = column
 
     def fetch_datas(self):
-        endpoint = f"establishment/{self.tag}/reviews_to_classify" if self.column == "category" else f"establishment/{self.tag}/reviews_to_score"
+        endpoint = f"establishment/{self.tag}/reviews_to_classify"
 
         try:
             get_instance = ERApi(
@@ -495,10 +494,9 @@ class ClassificationAPIV2(object):
             if (res):
                 print("Etablissement traité: ", res['establishment']['name'])
 
-                if self.column == "category":
-                    print("Liste des catégories disponibles: ",
-                          res['categories'])
-                    self.categories = res['categories']
+                print("Liste des catégories disponibles: ",
+                      res['categories'])
+                self.categories = res['categories']
 
                 self.establishment = res['establishment']
                 self.pages = res['pages']
@@ -585,113 +583,72 @@ class ClassificationAPIV2(object):
 
         print("\n=============================================\n")
 
-    def compute_scores(self, comments):
+    # def check_categories(self, line):
+    #     if os.environ.get('ENV_TYPE') == 'local':
+    #         line['prediction'] = {
+    #             # 'labels': ['travel', 'cooking', 'dancing'],
+    #             'labels': self.categories,
+    #             # 'scores': [random.uniform(0, 1) for i in range(3)],
+    #             'scores': [random.uniform(0, 1) for i in range(len(self.categories))],
+    #             'sequence': line['text']
+    #         }
+    #     else:
+    #         # if len(self.categories):
 
-        review_score = ReviewScore()
+    #         #     categs = list(
+    #         #         map(lambda x: x['category'], self.categories))
 
-        def set_score(item):
-            score_data = {}
+    #         #     line['prediction'] = classifytext(categs, line['text'])
 
-            if self.type == "comments":
-                score_data = review_score.compute_comment_score(item['text'])
-            elif self.type == "posts":
-                score_data = review_score.compute_comment_score(item['text'])
-            else:
-                score_data = review_score.compute_review_score(
-                    item['text'], item['language'], item['rating'], item['source'])
+    #         # else:
+    #         #     line['prediction'] = None
 
-            item['feeling'] = score_data['feeling']
-            item['score'] = score_data['score']
-            item['confidence'] = score_data['confidence']
+    #     return line
 
-            return item
-
+    def compute_lines_classifications(self):
         results = []
+        progress = ChargingBar(
+            'Calcul classification', max=len(self.lines))
+        for i in range(len(self.lines)):
+            progress.next()
+            line = self.lines[i]
 
-        progress = ChargingBar('Calcul scores: ', max=len(comments))
-        for item in comments:
-            if item['text'] and len(item['text']) > 0:
-                results.append(set_score(item))
-                progress.next()
+            if line['text'] != "" and len(line['text']) >= 25:
+                results += ia_categorize(line, 'review', list(
+                    map(lambda x: x['category'], self.categories)))
 
         return results
 
-    def check_categories(self, line):
-        if os.environ.get('ENV_TYPE') == 'local':
-            line['prediction'] = {
-                # 'labels': ['travel', 'cooking', 'dancing'],
-                'labels': self.categories,
-                # 'scores': [random.uniform(0, 1) for i in range(3)],
-                'scores': [random.uniform(0, 1) for i in range(len(self.categories))],
-                'sequence': line['text']
-            }
-        else:
-            if len(self.categories):
+    # def transform_data(self):
 
-                categs = list(
-                    map(lambda x: x['category'], self.categories))
+    #     result = ""
 
-                line['prediction'] = classifytext(categs, line['text'])
+    #     if self.column == "category":
 
-            else:
-                line['prediction'] = None
+    #         print("\n******** Catégories trouvées *********\n")
 
-        return line
+    #         for line in self.lines:
+    #             l_categs = ""
+    #             c_categs = ""
 
-    def update_lines(self):
-        if self.column == "category":
-            progress = ChargingBar(
-                'Calcul catégorisation', max=len(self.lines))
-            for i in range(len(self.lines)):
-                progress.next()
-                line = self.lines[i]
+    #             if 'prediction' in line.keys() and line['prediction']:
+    #                 for i in range(0, len(line['prediction']['labels'])):
+    #                     if line['prediction']['scores'][i] >= 0.8 and len(f"{line['prediction']['sequence']}") > 30:
+    #                         l_categs += f"{line['prediction']['labels'][i]}${str(line['prediction']['scores'][i])}|"
 
-                if line['text'] != "" and len(line['text']) >= 25:
-                    self.lines[i] = self.check_categories(line)
+    #             if len(self.categories):
+    #                 c_categs = "|".join(
+    #                     list(map(lambda x: x['category'], self.categories)))
 
-        if self.column == "feeling":
-            self.lines = self.compute_scores(self.lines)
+    #             l_categs != "" and print(
+    #                 f"- {l_categs.replace('|', ', ')} => {line['prediction']['sequence']}\n")
 
-    def transform_data(self):
+    #             l = "&".join([str(line['id']), self.type, l_categs, c_categs])
+    #             result += l + "#"
 
-        result = ""
+    #         print("\n**************************************\n")
 
-        if self.column == "feeling":
-
-            print("Transformation ...")
-
-            for line in self.lines:
-
-                l = "&".join([str(line['id']), self.type, line['feeling'],
-                              str(line['score']), str(line['confidence'])])
-                result += l + "#"
-
-        if self.column == "category":
-
-            print("\n******** Catégories trouvées *********\n")
-
-            for line in self.lines:
-                l_categs = ""
-                c_categs = ""
-
-                if 'prediction' in line.keys() and line['prediction']:
-                    for i in range(0, len(line['prediction']['labels'])):
-                        if line['prediction']['scores'][i] >= 0.8 and len(f"{line['prediction']['sequence']}") > 30:
-                            l_categs += f"{line['prediction']['labels'][i]}${str(line['prediction']['scores'][i])}|"
-
-                if len(self.categories):
-                    c_categs = "|".join(
-                        list(map(lambda x: x['category'], self.categories)))
-
-                l_categs != "" and print(
-                    f"- {l_categs.replace('|', ', ')} => {line['prediction']['sequence']}\n")
-
-                l = "&".join([str(line['id']), self.type, l_categs, c_categs])
-                result += l + "#"
-
-            print("\n**************************************\n")
-
-        return result
+    #     return result
 
     def upload(self):
         try:
@@ -713,23 +670,23 @@ class ClassificationAPIV2(object):
                 print("============> Page ", self.page,
                       "sur ", self.pages, " <===============")
                 self.fetch_datas()
-                if self.column == "category":
-                    if len(self.categories):
-                        self.update_lines()
-                        # res = self.transform_data()
-                        # print(res)
 
-                    else:
-                        print("!!!! Pas de catégories")
-                        break
-                else:
-                    self.update_lines()
-
-                if os.environ.get('ENV_TYPE') != 'local':
-                    res = self.upload()
+                print("\n -------- Original -----------")
+                print(self.lines)
+                if len(self.categories):
+                    res = self.compute_lines_classifications()
+                    print("\n -------- Après traitement -----------")
                     print(res)
 
-                print(len(self.lines))
+                    # else:
+                    #     print("!!!! Pas de catégories")
+                    #     break
+
+                    # if os.environ.get('ENV_TYPE') != 'local':
+                    #     res = self.upload()
+                    #     print(res)
+
+                    # print(len(self.lines))
 
                 if self.page > self.pages:
                     break
@@ -793,7 +750,7 @@ if __name__ == '__main__':
                 try:
                     print("======> Etablissement: ",
                           item['name'], ' <========')
-                    cl = ClassificationAPI(
+                    cl = ClassificationAPIV2(
                         tag=item['tag'], type=args.type, limit=20, env=args.env, column=args.column)
 
                     if args.stat == 'Y':
