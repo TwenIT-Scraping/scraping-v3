@@ -694,7 +694,7 @@ class X_scraper(BaseTwitterScrap):
     
     def format_date_from_iso(self, time_str:str) -> str:
         datetime_obj = datetime.fromisoformat(time_str.replace('Z', '+00:00'))
-        return datetime_obj.strftime('%d/%m/%Y')
+        return datetime_obj.strftime("%d/%m/%Y")
 
     def get_articles(self) -> object | None:
         articles = self.page.query_selector_all("//article[@role='article']")
@@ -803,7 +803,7 @@ class X_scraper(BaseTwitterScrap):
             try:
                 comment['likes'] = int(article.find('button', {'data-testid':'like'}).text)
             except:
-                comment['likes'] = 0
+                comment['likes'] = int(0)
             comment['published_at'] = self.format_date_from_iso(article.find('time')['datetime'])
             post['comment_values'].append(comment)
 
