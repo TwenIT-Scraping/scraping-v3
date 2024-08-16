@@ -128,6 +128,18 @@ class ListScraper:
                     comments += '|cc|'.join(
                         [com['comment'], com['author'], str(com['likes']), datetime.strptime(
                             com['published_at'], '%d/%m/%Y').strftime('%Y-%m-%d')]) + "|cl|"
+                    
+                    if "published_at" in com.keys():
+                        com['published_at'] = com['published_at']
+                        try:
+                            com['published_at'] = datetime.strptime(
+                                com['published_at'], '%d/%m/%Y').strftime('%Y-%m-%d')
+                        except Exception as e:
+                            try:
+                                com['published_at'] = datetime.strptime(
+                                    com['published_at'], '%d-%m-%Y').strftime('%Y-%m-%d')
+                            except:
+                                pass
 
                 line = '|&|'.join([item['author'], item['title'], item['uploadAt'],
                                    str(item['likes']), str(item['share']), str(item['comments']), item['hashtag'], comments]) + "|*|"
