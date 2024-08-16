@@ -801,7 +801,7 @@ class X_scraper(BaseTwitterScrap):
                 comment['comment'] = ""
             comment['author_page_url'] = "https://x.com" + article.find('a', {'class':'css-175oi2r r-1wbh5a2 r-dnmrzs r-1ny4l3l r-1loqt21', 'role':'link'}, href=True)['href']
             try:
-                comment['likes'] = article.find('button', {'data-testid':'like'}).text
+                comment['likes'] = int(article.find('button', {'data-testid':'like'}).text)
             except:
                 comment['likes'] = 0
             comment['published_at'] = self.format_date_from_iso(article.find('time')['datetime'])
