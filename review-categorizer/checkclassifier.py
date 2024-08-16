@@ -88,8 +88,10 @@ def detect_aspect_category(text, candidate_labels, score_min=.8, full_text=False
         return filtered_labels
 
     categories = []
+    # classifier = pipeline('zero-shot-classification',
+    #                       model='facebook/bart-large-mnli')
     classifier = pipeline('zero-shot-classification',
-                          model='facebook/bart-large-mnli')
+                          device=-1, model='cross-encoder/nli-deberta-v3-base')
 
     aspect_terms = []
 
@@ -105,7 +107,7 @@ def detect_aspect_category(text, candidate_labels, score_min=.8, full_text=False
     sentence_categories = []
 
     for term in aspect_terms:
-        result = classifier(term, candidate_labels)
+        result = classifier(term, candidate_labels, multi_label=True)
 
         ####### result format ########
         # {
