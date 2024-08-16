@@ -614,8 +614,10 @@ class ClassificationAPIV2(object):
             line = self.lines[i]
 
             if line['text'] != "" and len(line['text']) >= 25:
-                results += ia_categorize(line, 'review', list(
-                    map(lambda x: x['category'], self.categories)))
+                # results += ia_categorize(line, 'review', list(
+                #     map(lambda x: x['category'], self.categories)))
+                results += ia_categorize(line, 'review',
+                                         ['Ménage', 'Accueil', 'Mobilier', 'Emplacement'])
 
         return results
 
@@ -673,20 +675,20 @@ class ClassificationAPIV2(object):
 
                 print("\n -------- Original -----------")
                 print(self.lines)
-                if len(self.categories):
-                    res = self.compute_lines_classifications()
-                    print("\n -------- Après traitement -----------")
-                    print(res)
+                # if len(self.categories):
+                res = self.compute_lines_classifications()
+                print("\n -------- Après traitement -----------")
+                print(res)
 
-                    # else:
-                    #     print("!!!! Pas de catégories")
-                    #     break
+                # else:
+                #     print("!!!! Pas de catégories")
+                #     break
 
-                    # if os.environ.get('ENV_TYPE') != 'local':
-                    #     res = self.upload()
-                    #     print(res)
+                # if os.environ.get('ENV_TYPE') != 'local':
+                #     res = self.upload()
+                #     print(res)
 
-                    # print(len(self.lines))
+                # print(len(self.lines))
 
                 if self.page > self.pages:
                     break
