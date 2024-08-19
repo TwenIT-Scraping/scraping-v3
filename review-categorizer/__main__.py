@@ -178,14 +178,14 @@ class ReviewScore:
 
 
 def main_arguments() -> object:
-    parser = argparse.ArgumentParser(description="Programme catégorisation",
+    parser = argparse.ArgumentParser(description="Programme cat�gorisation",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--type', '-t', dest='type', default='reviews',
                         help="""Options: comments, reviews""")
     parser.add_argument('--env', '-v', dest='env', default="DEV",
-                        help="Optionnel: environnement de l'api. DEV par défaut")
+                        help="Optionnel: environnement de l'api. DEV par d�faut")
     parser.add_argument('--names', '-n', dest='names',
-                        help="Nom des établissements à traiter, séparé par des virgules.")
+                        help="Nom des �tablissements � traiter, s�par� par des virgules.")
     parser.add_argument('--column', '-c', dest='column',
                         help="Option: feeling, category", default="category")
     parser.add_argument('--results', '-r', dest='stat',
@@ -194,10 +194,10 @@ def main_arguments() -> object:
 
 
 ARGS_INFO = {
-    '-t': {'long': '--type', 'dest': 'type', 'help': "Options: comments, reviews, posts. reviews par défaut."},
-    '-c': {'long': '--column', 'dest': 'column', 'help': "Options: feeling, category. category par défaut."},
-    '-v': {'long': '--env', 'dest': 'env', 'help': "Optionnel: environnement de l'api. PROD par défaut"},
-    '-n': {'long': '--names', 'dest': 'names', 'help': "Nom des établissements à traiter, séparé par des virgules."},
+    '-t': {'long': '--type', 'dest': 'type', 'help': "Options: comments, reviews, posts. reviews par d�faut."},
+    '-c': {'long': '--column', 'dest': 'column', 'help': "Options: feeling, category. category par d�faut."},
+    '-v': {'long': '--env', 'dest': 'env', 'help': "Optionnel: environnement de l'api. PROD par d�faut"},
+    '-n': {'long': '--names', 'dest': 'names', 'help': "Nom des �tablissements � traiter, s�par� par des virgules."},
     '-r': {'long': '--results', 'dest': 'stat', 'help': 'Option: N ou Y'}
 }
 
@@ -225,10 +225,10 @@ class ClassificationAPI(object):
             res = get_instance.execute()
 
             if (res):
-                print("Etablissement traité: ", res['establishment']['name'])
+                print("Etablissement trait�: ", res['establishment']['name'])
 
                 if self.column == "category":
-                    print("Liste des catégories disponibles: ",
+                    print("Liste des cat�gories disponibles: ",
                           res['categories'])
                     self.categories = res['categories']
 
@@ -237,11 +237,11 @@ class ClassificationAPI(object):
                 self.lines = res['reviews']
 
                 print(
-                    f"Lignes traitées: {(self.page-1)*self.limit}/{res['count']}")
+                    f"Lignes trait�es: {(self.page-1)*self.limit}/{res['count']}")
 
             self.page += 1
 
-            print("Lignes récupérées: ", len(self.lines))
+            print("Lignes r�cup�r�es: ", len(self.lines))
 
         except Exception as e:
             print(e)
@@ -307,10 +307,10 @@ class ClassificationAPI(object):
 
         print("\n================ RESULTATS ==================\n")
         print("Nombre total reviews: ", len(results))
-        print("Catégories:", stats['categories'])
-        print("Nombre reviews classifiés: ", stats['classified'])
-        print("Nombre reviews non classifiés: ", len(stats['nocategorized']))
-        print("Reviews par catégorie: ")
+        print("Cat�gories:", stats['categories'])
+        print("Nombre reviews classifi�s: ", stats['classified'])
+        print("Nombre reviews non classifi�s: ", len(stats['nocategorized']))
+        print("Reviews par cat�gorie: ")
 
         for categ in stats['classification'].keys():
             print("\t", categ, ":", len(stats['classification'][categ]))
@@ -373,7 +373,7 @@ class ClassificationAPI(object):
     def update_lines(self):
         if self.column == "category":
             progress = ChargingBar(
-                'Calcul catégorisation', max=len(self.lines))
+                'Calcul cat�gorisation', max=len(self.lines))
             for i in range(len(self.lines)):
                 progress.next()
                 line = self.lines[i]
@@ -400,7 +400,7 @@ class ClassificationAPI(object):
 
         if self.column == "category":
 
-            print("\n******** Catégories trouvées *********\n")
+            print("\n******** Cat�gories trouv�es *********\n")
 
             for line in self.lines:
                 l_categs = ""
@@ -452,7 +452,7 @@ class ClassificationAPI(object):
                         # print(res)
 
                     else:
-                        print("!!!! Pas de catégories")
+                        print("!!!! Pas de cat�gories")
                         break
                 else:
                     self.update_lines()
@@ -492,9 +492,9 @@ class ClassificationAPIV2(object):
             res = get_instance.execute()
 
             if (res):
-                print("Etablissement traité: ", res['establishment']['name'])
+                print("Etablissement trait�: ", res['establishment']['name'])
 
-                print("Liste des catégories disponibles: ",
+                print("Liste des cat�gories disponibles: ",
                       res['categories'])
                 self.categories = res['categories']
 
@@ -503,11 +503,11 @@ class ClassificationAPIV2(object):
                 self.lines = res['reviews']
 
                 print(
-                    f"Lignes traitées: {(self.page-1)*self.limit}/{res['count']}")
+                    f"Lignes trait�es: {(self.page-1)*self.limit}/{res['count']}")
 
             self.page += 1
 
-            print("Lignes récupérées: ", len(self.lines))
+            print("Lignes r�cup�r�es: ", len(self.lines))
 
         except Exception as e:
             print(e)
@@ -573,10 +573,10 @@ class ClassificationAPIV2(object):
 
         print("\n================ RESULTATS ==================\n")
         print("Nombre total reviews: ", len(results))
-        print("Catégories:", stats['categories'])
-        print("Nombre reviews classifiés: ", stats['classified'])
-        print("Nombre reviews non classifiés: ", len(stats['nocategorized']))
-        print("Reviews par catégorie: ")
+        print("Cat�gories:", stats['categories'])
+        print("Nombre reviews classifi�s: ", stats['classified'])
+        print("Nombre reviews non classifi�s: ", len(stats['nocategorized']))
+        print("Reviews par cat�gorie: ")
 
         for categ in stats['classification'].keys():
             print("\t", categ, ":", len(stats['classification'][categ]))
@@ -612,12 +612,15 @@ class ClassificationAPIV2(object):
         for i in range(len(self.lines)):
             progress.next()
             line = self.lines[i]
+            print("\n ==== Line to classify ==== ")
+            print(line)
+            print("================================\n")
 
             if line['text'] != "" and len(line['text']) >= 25:
                 # results += ia_categorize(line, 'review', list(
                 #     map(lambda x: x['category'], self.categories)))
                 results += ia_categorize(line, 'review',
-                                         ['Ménage', 'Accueil', 'Mobilier', 'Emplacement'])
+                                         ['M�nage', 'Accueil', 'Mobilier', 'Emplacement'])
 
         return results
 
@@ -627,7 +630,7 @@ class ClassificationAPIV2(object):
 
     #     if self.column == "category":
 
-    #         print("\n******** Catégories trouvées *********\n")
+    #         print("\n******** Cat�gories trouv�es *********\n")
 
     #         for line in self.lines:
     #             l_categs = ""
@@ -677,11 +680,11 @@ class ClassificationAPIV2(object):
                 print(self.lines)
                 # if len(self.categories):
                 res = self.compute_lines_classifications()
-                print("\n -------- Après traitement -----------")
+                print("\n -------- Apr�s traitement -----------")
                 print(res)
 
                 # else:
-                #     print("!!!! Pas de catégories")
+                #     print("!!!! Pas de cat�gories")
                 #     break
 
                 # if os.environ.get('ENV_TYPE') != 'local':
@@ -715,11 +718,11 @@ if __name__ == '__main__':
     now = datetime.now()
     if os.path.exists(history_filename):
         with open(history_filename, 'a', encoding='utf-8') as file:
-            file.write("Démarrage catégorisation: " +
+            file.write("D�marrage cat�gorisation: " +
                        now.strftime("%d/%m/%Y %H:%M:%S"))
     else:
         with open(history_filename, 'w', encoding='utf-8') as file:
-            file.write("Démarrage catégorisation: " +
+            file.write("D�marrage cat�gorisation: " +
                        now.strftime("%d/%m/%Y %H:%M:%S"))
 
     args = main_arguments()
@@ -744,7 +747,7 @@ if __name__ == '__main__':
             else:
                 todo = [item for item in all_establishments if item['customer_id']]
 
-            print("Après filtre: ", len(todo))
+            print("Apr�s filtre: ", len(todo))
 
             [print(item['name'], item['tag']) for item in todo]
 
@@ -765,17 +768,17 @@ if __name__ == '__main__':
         except Exception as e:
             now = datetime.now()
             with open(history_filename, 'a', encoding='utf-8') as file:
-                file.write("  ===>  Fin catégorisation AVEC ERREURS: " +
+                file.write("  ===>  Fin cat�gorisation AVEC ERREURS: " +
                            now.strftime("%d/%m/%Y %H:%M:%S") + ':' + str(e) + '\n')
 
         now = datetime.now()
 
         with open(history_filename, 'a', encoding='utf-8') as file:
-            file.write("  ===>  Fin catégorisation: " +
+            file.write("  ===>  Fin cat�gorisation: " +
                        now.strftime("%d/%m/%Y %H:%M:%S") + '\n')
 
     else:
         now = datetime.now()
         with open(history_filename, 'a', encoding='utf-8') as file:
-            file.write("  ===>  Fin catégorisation AVEC ERREURS: " +
+            file.write("  ===>  Fin cat�gorisation AVEC ERREURS: " +
                        now.strftime("%d/%m/%Y %H:%M:%S") + ':' + f"Argument(s) manquant(s): {', '.join(miss)}" + '\n')

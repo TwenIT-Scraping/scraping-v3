@@ -85,13 +85,14 @@ def detect_aspect_category(text, candidate_labels, score_min=.8, full_text=False
                            score in labels_with_score if score >= score_min]
         return filtered_labels
 
-    categories = []
     # classifier = pipeline('zero-shot-classification',
     #                       model='facebook/bart-large-mnli')
     classifier = pipeline('zero-shot-classification',
                           device=-1, model='cross-encoder/nli-deberta-v3-base')
 
     aspect_terms = []
+
+    print("\t\t- segmentation step")
 
     # omit the segmentation if full_text is True
     if full_text:
@@ -101,8 +102,12 @@ def detect_aspect_category(text, candidate_labels, score_min=.8, full_text=False
     else:
         aspect_terms = segment_text(text)
 
+    print("\t\t Results: ", aspect_terms)
+
     # get the categories for each aspect term
     sentence_categories = []
+
+    print("\t\t- Classification step with the categories: ", candidate_labels)
 
     for term in aspect_terms:
         result = classifier(term, candidate_labels, multi_label=True)
@@ -121,6 +126,8 @@ def detect_aspect_category(text, candidate_labels, score_min=.8, full_text=False
         top_categories = get_labels(result, score_min)
         sentence_categories.append((term, top_categories))
 
+    print("\t\t Results: ", sentence_categories)
+
     return sentence_categories
 
 #######################################################
@@ -130,20 +137,30 @@ def detect_aspect_category(text, candidate_labels, score_min=.8, full_text=False
 
 
 def get_categories(text, labels):
+    print("\n\t1- Compute global categories")
+    print("\t\ta- Detect aspect categories")
     global_aspect_categories = detect_aspect_category(
         text, labels, 0.6, True)
+    print("\t\t => ", global_aspect_categories)
     global_categories = []
+
+    print("\t\tb- Compute global categories")
 
     for aspect_category in global_aspect_categories:
         for category in aspect_category[1]:
             if category[0] not in global_categories:
                 global_categories.append(category[0])
 
+    print("\t\t => ", global_aspect_categories)
+
     if len(global_categories) == 0:
         return []
 
+    print("\n\t2- Compute sections categories")
     aspect_categories = detect_aspect_category(
         text, global_categories, 0.8, False)
+
+    print("\t\t => ", aspect_categories)
 
     return aspect_categories
 
@@ -213,6 +230,18 @@ def transform_to_json(concatenated_sequences, line_id, column_name):
 
 
 def ia_categorize(line, column, labels):
+    print("\n ==== Get categories ====")
     categories = get_categories(line['text'], labels)
+    print("==== Results ====")
+    print(categories)
+    print("===========================\n")
+    print("\n==== concat sequences ====")
     concatenated_sequences = concat_sequences_by_label(categories, 0.8)
-    return transform_to_json(concatenated_sequences, line[id], column)
+    print("==== results ====")
+    print("============================\n")
+    print("\n==== transform to json ====")
+    result = transform_to_json(concatenated_sequences, line[id], column)
+    print("\n==== results ====")
+    print(result)
+    print("================================\n")
+    return result
