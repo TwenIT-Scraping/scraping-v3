@@ -612,6 +612,9 @@ class ClassificationAPIV2(object):
         for i in range(len(self.lines)):
             progress.next()
             line = self.lines[i]
+            print("\n ==== Line to classify ==== ")
+            print(line)
+            print("================================\n")
 
             if line['text'] != "" and len(line['text']) >= 25:
                 # results += ia_categorize(line, 'review', list(
