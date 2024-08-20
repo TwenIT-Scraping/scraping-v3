@@ -44,9 +44,12 @@ class BaseTwitterScrap(Scraping):
         self.page.wait_for_timeout(60000)
 
     def goto_login(self) -> None:
-        self.page.goto("https://x.com/i/flow/login", timeout=60000, wait_until='load')
-        time.sleep(5)
-        self.page.wait_for_timeout(60000)
+        try:
+            self.page.goto("https://x.com/i/flow/login", timeout=120000, wait_until='load')
+            time.sleep(5)
+            self.page.wait_for_timeout(60000)
+        except TimeoutError:
+            self.goto_login()
 
     def fill_loginform(self) -> None:
         time.sleep(5)

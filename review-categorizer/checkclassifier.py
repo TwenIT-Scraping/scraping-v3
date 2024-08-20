@@ -71,6 +71,7 @@ def segment_by_length(text, max_length=512):
         segments.append(line.strip())
 
     return segments
+
 ###################################################
 # Segment the text and categorize each part #
 # Expected result: [(term, [category1, category2, ...]), ...] #

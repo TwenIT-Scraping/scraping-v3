@@ -67,7 +67,8 @@ class ERApi:
                     params=self.params,
                     headers=self.headers,
                     data=self.body,
-                    verify=False
+                    verify=False,
+                    timeout=60
                 )
             except Exception as e:
                 print(e)
