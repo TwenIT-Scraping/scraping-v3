@@ -644,7 +644,7 @@ class X_scraper(BaseTwitterScrap):
         self.page.on("response", self.intercept_response)
         self.page.goto(self.url)
         self.page.wait_for_selector("//article[@role='article']", timeout=20000)
-        self.page.wait_for_timeout(10000)
+        self.page.wait_for_timeout(20000)
 
     def intercept_response(self, response) -> None:
         """capture all background requests and save them"""
