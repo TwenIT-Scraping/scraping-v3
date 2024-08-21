@@ -1,6 +1,21 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 import spacy
 
+# Function to classify text using a zero-shot classification model
+# This function takes a list of categories and a text as input
+# It returns the result of the classification
+def classify_text(categories, text):
+    # Initialize the zero-shot classification pipeline with the specified model
+    # The device is set to -1 to use the CPU
+    classifier = pipeline('zero-shot-classification', device=-1, model='cross-encoder/nli-deberta-v3-base')
+
+    # Classify the text using the provided categories
+    # The multi_labels parameter is set to True to allow multiple categories for a single text
+    result = classifier(text, categories, multi_labels=True)
+
+    # Return the result of the classification
+    return result
+
 ###################################################
 # Ségmentation de texte utilisant la librairie spacy qui consiste à découper
 # le texte lorsqu'on croire les adverbes, poctuations et conjonctions #
@@ -92,7 +107,7 @@ def detect_aspect_category(text, candidate_labels, score_min=.8, full_text=False
 
     aspect_terms = []
 
-    print("\t\t- segmentation step")
+    # print("\t\t- segmentation step")
 
     # omit the segmentation if full_text is True
     if full_text:
@@ -102,12 +117,12 @@ def detect_aspect_category(text, candidate_labels, score_min=.8, full_text=False
     else:
         aspect_terms = segment_text(text)
 
-    print("\t\t Results: ", aspect_terms)
+    # print("\t\t Results: ", aspect_terms)
 
     # get the categories for each aspect term
     sentence_categories = []
 
-    print("\t\t- Classification step with the categories: ", candidate_labels)
+    # print("\t\t- Classification step with the categories: ", candidate_labels)
 
     for term in aspect_terms:
         result = classifier(term, candidate_labels, multi_label=True)
@@ -126,7 +141,7 @@ def detect_aspect_category(text, candidate_labels, score_min=.8, full_text=False
         top_categories = get_labels(result, score_min)
         sentence_categories.append((term, top_categories))
 
-    print("\t\t Results: ", sentence_categories)
+    # print("\t\t Results: ", sentence_categories)
 
     return sentence_categories
 
@@ -137,75 +152,39 @@ def detect_aspect_category(text, candidate_labels, score_min=.8, full_text=False
 
 
 def get_categories(text, labels):
-    print("\n\t1- Compute global categories")
-    print("\t\ta- Detect aspect categories")
+    # print("\n\t1- Compute global categories")
+    # print("\t\ta- Detect aspect categories")
     global_aspect_categories = detect_aspect_category(
-        text, labels, 0.6, True)
-    print("\t\t => ", global_aspect_categories)
+        text, labels, 0.9, True)
+    # print("\t\t => ", global_aspect_categories)
     global_categories = []
 
-    print("\t\tb- Compute global categories")
+    # print("\t\tb- Compute global categories")
 
     for aspect_category in global_aspect_categories:
         for category in aspect_category[1]:
             if category[0] not in global_categories:
                 global_categories.append(category[0])
 
-    print("\t\t => ", global_aspect_categories)
+    # print("\t\t => ", global_aspect_categories)
 
     if len(global_categories) == 0:
         return []
 
-    print("\n\t2- Compute sections categories")
+    # print("\n\t2- Compute sections categories")
     aspect_categories = detect_aspect_category(
-        text, global_categories, 0.8, False)
+        text, global_categories, 0.9, False)
 
-    print("\t\t => ", aspect_categories)
+    # print("\t\t => ", aspect_categories)
 
     return aspect_categories
 
-
-def concat_sequences_by_label(categories, score_min=0.8):
+def transform_to_json(sections, line_id, column_name, labels, score_min=0.8):
     """
-    Concatenates sequences for each label with a score greater than 0.8.
+    Transforms the sections to a JSON object.
 
     Args:
-      categories: A list of tuples, where each tuple contains a sequence and a list of (label, score) pairs.
-
-    Returns:
-      A dictionary mapping labels to concatenated sequences.
-    """
-
-    label_sequences = {}
-
-    for sequence, label_scores in categories:
-        for label, score in label_scores:
-            if score >= score_min:
-                if label not in label_sequences:
-                    label_sequences[label] = []
-                    label_sequences[label].append((sequence, score))
-                else:
-                    label_sequences[label].append((sequence, score))
-
-    for label, sequences in label_sequences.items():
-        score_avg = 0
-
-        for sequence, score in sequences:
-            score_avg += score
-        score_avg /= len(sequences)
-
-        label_sequences[label] = (" | ".join([seq[0]
-                                  for seq in sequences]), score_avg)
-
-    return label_sequences
-
-
-def transform_to_json(concatenated_sequences, line_id, column_name):
-    """
-    Transforms the result of concat_sequences_by_label to a JSON object.
-
-    Args:
-      concatenated_sequences: A dictionary mapping labels to concatenated sequences and their average scores.
+      sections: A list tuple with this form [(text,[(category, score), (category2, score2), ...], ...)] .
 
     Returns:
       A list of dictionaries, where each dictionary represents a category with its sequence and score.
@@ -213,13 +192,29 @@ def transform_to_json(concatenated_sequences, line_id, column_name):
 
     json_result = []
 
-    for category, (sequence, score) in concatenated_sequences.items():
-        json_result.append({
-            "category": category,
-            "section": sequence,
-            "confidence": score,
-            f"${column_name}": line_id
-        })
+    for text, categories in sections:
+        if len(text.split()) >= 3:
+            for label, score in categories:
+                if score >= score_min:
+                    line = {
+                        "category": label,
+                        "section": text,
+                        "confidence": score,
+                        f"{column_name}": str(line_id),
+                        "checked": labels
+                    }
+
+                    ### Complete missing keys with socialPost, socialComment and review
+                    if 'review' not in line.keys():
+                        line["review"] = ""
+
+                    if 'socialPost' not in line.keys():
+                        line["socialPost"] = ""
+
+                    if 'socialComment' not in line.keys():
+                        line["socialComment"] = ""
+
+                    json_result.append(line)
 
     return json_result
 
@@ -230,18 +225,14 @@ def transform_to_json(concatenated_sequences, line_id, column_name):
 
 
 def ia_categorize(line, column, labels):
-    print("\n ==== Get categories ====")
+    # print("\n ==== Get categories ====")
     categories = get_categories(line['text'], labels)
-    print("==== Results ====")
+    # print("==== Results ====")
     print(categories)
-    print("===========================\n")
-    print("\n==== concat sequences ====")
-    concatenated_sequences = concat_sequences_by_label(categories, 0.8)
-    print("==== results ====")
-    print("============================\n")
+    # print("===========================\n")
     print("\n==== transform to json ====")
-    result = transform_to_json(concatenated_sequences, line[id], column)
-    print("\n==== results ====")
-    print(result)
+    result = transform_to_json(categories, line['id'], column, labels, 0.9)
+    # print("\n==== results ====")
+    # print(result)
     print("================================\n")
     return result

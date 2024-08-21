@@ -17,7 +17,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipe
 from api import ERApi
 from progress.bar import ChargingBar
 from progress.spinner import Spinner
-from checkclassifier import ia_categorize
+from checkclassifier import ia_categorize, classify_text
 
 dotenv.load_dotenv()
 
@@ -33,6 +33,12 @@ rating_structure = {
     'opentable': [2, 1],
     'App (Private)': [1, 1]
 }
+
+type_dict = {
+    'reviews': 'review',
+    'posts': 'socialPost',
+    'comments': 'socialComment'
+} 
 
 
 class ReviewScore:
@@ -530,7 +536,7 @@ class ClassificationAPIV2(object):
                 if not res or not res['data'] or len(res['data']) == 0:
                     break
                 else:
-                    results += res['data']
+                    results.extend(res['data'])
 
                 page += 1
 
@@ -612,15 +618,16 @@ class ClassificationAPIV2(object):
         for i in range(len(self.lines)):
             progress.next()
             line = self.lines[i]
-            print("\n ==== Line to classify ==== ")
-            print(line)
-            print("================================\n")
+            # print("\n ==== Line to classify ==== ")
+            # print(line)
+            # print("================================\n")
 
             if line['text'] != "" and len(line['text']) >= 25:
                 # results += ia_categorize(line, 'review', list(
                 #     map(lambda x: x['category'], self.categories)))
-                results += ia_categorize(line, 'review',
-                                         ['M�nage', 'Accueil', 'Mobilier', 'Emplacement'])
+                # results += ia_categorize(line, type_dict[self.type], self.categories)
+                # results.extend(ia_categorize(line, type_dict[self.type],["Mobilier", "Accueil", "Ménage", "Nourriture", "Emplacement", "Confort", "Commodités", "Ambiance", "Restauration", "Sécurité", "Accès", "Transport"] ))
+                results.extend(ia_categorize(line, type_dict[self.type],["Furniture", "Welcome", "Housekeeping", "Food", "Location", "Comfort", "Amenities", "Atmosphere", "Catering", "Safety", "Access", "Transportation"]))
 
         return results
 
@@ -670,6 +677,7 @@ class ClassificationAPIV2(object):
             print(e)
 
     def execute(self):
+        results = [] 
         try:
             while (True):
                 print("============> Page ", self.page,
@@ -683,6 +691,25 @@ class ClassificationAPIV2(object):
                 print("\n -------- Apr�s traitement -----------")
                 print(res)
 
+                all_results = [] 
+
+                if os.path.isfile('Sample.json') and os.access("Sample.json", os.R_OK):
+                    # checks if file exists
+                    all_results = json.load(open("Sample.json"))
+
+                all_results.extend(res)
+
+                json_object = json.dumps(all_results, indent=4)
+
+                print("**** Saving in file ...")
+
+                with open("Sample.json", "w") as outfile:
+                    outfile.write(json_object)
+                
+                print("**** Saved")
+
+                results.extend(res)
+
                 # else:
                 #     print("!!!! Pas de cat�gories")
                 #     break
@@ -695,8 +722,11 @@ class ClassificationAPIV2(object):
 
                 if self.page > self.pages:
                     break
+
         except Exception as e:
             print(e)
+
+        return results
 
 
 def check_arguments(args):
@@ -751,20 +781,22 @@ if __name__ == '__main__':
 
             [print(item['name'], item['tag']) for item in todo]
 
+            all_results = [] 
+
             for item in todo:
                 try:
                     print("======> Etablissement: ",
                           item['name'], ' <========')
-                    cl = ClassificationAPIV2(
+                    cl = ClassificationAPI(
                         tag=item['tag'], type=args.type, limit=20, env=args.env, column=args.column)
 
                     if args.stat == 'Y':
                         cl.check_results()
-                    else:
-                        cl.execute()
+                    # else:
+                    #     all_results.extend(cl.execute())
                 except Exception as e:
                     print(e)
-
+            
         except Exception as e:
             now = datetime.now()
             with open(history_filename, 'a', encoding='utf-8') as file:
