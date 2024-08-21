@@ -14,6 +14,7 @@ import time
 import pathlib
 from api import ERApi
 from progress.bar import ChargingBar
+import requests
 
 __class_name__ = {
     # 'Facebook': FacebookProfileScraper,
@@ -157,40 +158,41 @@ class ListScraper:
             print(e)
             print(filename)
 
-    def upload_data(self, file):
-        pass
-        # data = {}
-        # posts = ""
+    def upload_data(self, file_path):
+        api_url_prod = os.environ.get('API_URL_PROD')
+        endpoint = api_url_prod + "social/multi"
 
-        # with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.json", 'r') as dinput:
-        #     data = json.load(dinput)
-        #     data['posts'] = len(data['posts'])
-        #     del data['url']
-        #     del data['name']
+        api_token_prod = os.environ.get('API_TOKEN_PROD')
 
-        # # with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file}.txt", 'r', encoding='utf-8') as pinput:
-        # #     for line in pinput.readlines():
-        # #         posts += " " + line.strip()
+        try:
+            with open(f"{os.environ.get('SOCIAL_FOLDER')}/uploads/{file_path}.json", 'r') as file:
+                data = json.load(file)
+        
+            encode_data = json.dumps(data)
 
-        # data['post_items'] = data['posts']
+            response = requests.post(
+                url = endpoint,
+                headers = {
+                    "Content-Type": "application/json",
+                    "Authorization" : api_token_prod
+                },
+                data = encode_data,
+                verify = False,
+                timeout = 60
+            )
 
-        # post = ERApi(method='postmulti', env=self.env)
+            print(f"Server response {response.status_code}")
+            print(response.json())
 
-        # post.set_body(data)
-
-        # result = post.execute()
-
-        # print(result.text)
+        except Exception as e:
+            print(e)
 
     def upload_all_results(self):
         files = [pathlib.Path(f).stem for f in os.listdir(
             f"{os.environ.get('SOCIAL_FOLDER')}/uploads") if pathlib.Path(f).suffix == '.json']
         progress = ChargingBar('Processing ', max=len(files))
         for file in files:
+            print(file)
             self.upload_data(file)
             progress.next()
             print(" | ", file)
-
-
-# scraper = ListScraper()
-# scraper.upload_all_results()

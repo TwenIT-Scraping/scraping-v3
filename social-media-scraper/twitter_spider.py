@@ -44,9 +44,12 @@ class BaseTwitterScrap(Scraping):
         self.page.wait_for_timeout(60000)
 
     def goto_login(self) -> None:
-        self.page.goto("https://x.com/i/flow/login", timeout=60000, wait_until='load')
-        time.sleep(5)
-        self.page.wait_for_timeout(60000)
+        try:
+            self.page.goto("https://x.com/i/flow/login", timeout=120000, wait_until='load')
+            time.sleep(5)
+            self.page.wait_for_timeout(60000)
+        except TimeoutError:
+            self.goto_login()
 
     def fill_loginform(self) -> None:
         time.sleep(5)
@@ -644,7 +647,7 @@ class X_scraper(BaseTwitterScrap):
         self.page.on("response", self.intercept_response)
         self.page.goto(self.url)
         self.page.wait_for_selector("//article[@role='article']", timeout=20000)
-        self.page.wait_for_timeout(10000)
+        self.page.wait_for_timeout(20000)
 
     def intercept_response(self, response) -> None:
         """capture all background requests and save them"""
