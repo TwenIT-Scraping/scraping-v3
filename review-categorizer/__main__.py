@@ -793,8 +793,8 @@ if __name__ == '__main__':
 
                     if args.stat == 'Y':
                         cl.check_results()
-                    # else:
-                    #     all_results.extend(cl.execute())
+                    else:
+                        cl.execute()
                 except Exception as e:
                     print(e)
 
