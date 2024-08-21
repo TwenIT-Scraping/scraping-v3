@@ -44,9 +44,12 @@ class BaseTwitterScrap(Scraping):
         self.page.wait_for_timeout(60000)
 
     def goto_login(self) -> None:
-        self.page.goto("https://x.com/i/flow/login", timeout=60000, wait_until='load')
-        time.sleep(5)
-        self.page.wait_for_timeout(60000)
+        try:
+            self.page.goto("https://x.com/i/flow/login", timeout=120000, wait_until='load')
+            time.sleep(5)
+            self.page.wait_for_timeout(60000)
+        except TimeoutError:
+            self.goto_login()
 
     def fill_loginform(self) -> None:
         time.sleep(5)
@@ -644,7 +647,7 @@ class X_scraper(BaseTwitterScrap):
         self.page.on("response", self.intercept_response)
         self.page.goto(self.url)
         self.page.wait_for_selector("//article[@role='article']", timeout=20000)
-        self.page.wait_for_timeout(10000)
+        self.page.wait_for_timeout(20000)
 
     def intercept_response(self, response) -> None:
         """capture all background requests and save them"""
@@ -694,7 +697,7 @@ class X_scraper(BaseTwitterScrap):
     
     def format_date_from_iso(self, time_str:str) -> str:
         datetime_obj = datetime.fromisoformat(time_str.replace('Z', '+00:00'))
-        return datetime_obj.strftime('%d/%m/%Y')
+        return datetime_obj.strftime("%d/%m/%Y")
 
     def get_articles(self) -> object | None:
         articles = self.page.query_selector_all("//article[@role='article']")
@@ -803,7 +806,7 @@ class X_scraper(BaseTwitterScrap):
             try:
                 comment['likes'] = int(article.find('button', {'data-testid':'like'}).text)
             except:
-                comment['likes'] = 0
+                comment['likes'] = int(0)
             comment['published_at'] = self.format_date_from_iso(article.find('time')['datetime'])
             post['comment_values'].append(comment)
 
