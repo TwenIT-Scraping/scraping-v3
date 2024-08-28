@@ -23,7 +23,6 @@ def set_global_config(url, token):
     api_url = url
     api_token = token
 
-
 def english_segmentation(text):
     """
     This function segments a given English text into sentences based on certain conditions.
@@ -284,7 +283,12 @@ def analyse_text(review_item, labels, entity='review', min_score=0.8, language='
     # If the review text exists and is longer than 25 characters, it is segmented into sentences and analyzed.
     if review_item['text'] and len(review_item['text']) > 25:
         sentences = segment_text(review_item["text"], language)
-        return [format_results(sentence_analyse(sentence), review_item, entity, categories=labels) for sentence in sentences]
+        res = []
+        
+        for sentence in sentences:
+            res.extend(format_results(sentence_analyse(sentence), review_item, entity, categories=labels))
+        
+        return res
 
     return []
 
@@ -302,7 +306,7 @@ def get_data_from_api(url, bearer_token, params=None):
       The response object from the API call.
     """
     headers = {
-        "Authorization": f"Bearer {bearer_token}"
+        "Authorization": f"{bearer_token}"
     }
 
     response = None
@@ -321,7 +325,7 @@ def get_data_from_api(url, bearer_token, params=None):
 
 def post_data_to_api(url, bearer_token, data):
     headers = {
-        "Authorization": f"Bearer {bearer_token}"
+        "Authorization": f"{bearer_token}"
     }
 
     response = None
@@ -390,7 +394,7 @@ def fetch_page(tag, entity='reviews', page=1, limit=10):
       The JSON response from the API call.
     """
     # Define the establishment tag
-    tag = "652d515ba431b"  # 28-50
+    # tag = "652d515ba431b"  # 28-50
     # tag = "645de52f135e8" # Chalets du berger
     # tag = "66a21d3f105b8" # Hotel Lux Grand Gaube
 
@@ -405,7 +409,7 @@ def fetch_page(tag, entity='reviews', page=1, limit=10):
 
     if response.status_code == 200:
         data = response.json()
-        print(data)
+        # print(data)
         return data
 
     else:
@@ -433,17 +437,20 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
     print(f"\n====== Retrieving page {page} ======\n")
     data = fetch_page(tag=tag, entity=entity, page=page)
 
+    # print(data)
+
     if data:
         # Define the labels for text classification
         labels = [item['category'] for item in data['categories']]
 
         if len(labels):
-            if data['pages'] >= page:
+            if page >= data['pages']:
+                print("Last page !!!")
                 return True
 
             for review in data['reviews']:
                 # Check if the review language is English
-                if review['language'] and review['language'] == 'en':
+                if review['language'] and review['language'] == language:
                     print(f"\nText => {review['text']}:\n")
                     # Analyze the text and classify it into categories
                     result = analyse_text(
@@ -458,9 +465,11 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
             return False
 
         else:
+            print("Empty labels !!!")
             return True
 
     else:
+        print("None data !!!")
         return True
 
 
@@ -619,9 +628,10 @@ def get_all_sections():
         data = get_sections(page=page)
 
         # Print the data for debugging purposes
-        print(data)
+        # print(data)
         # If there is no data or we've reached the last page, break the loop
         if not data or data['last_pages'] < page:
+            print("Last page !!!")
             break
 
         # Process the data for the current page

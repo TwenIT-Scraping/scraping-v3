@@ -688,8 +688,8 @@ class ClassificationAPIV2(object):
 
         try:
             while (True):
-                print("============> Page ", self.page,
-                      "sur ", self.pages, " <===============")
+                # print("============> Page ", self.page,
+                #       "sur ", self.pages, " <===============")
 
                 if self.column == "category":
                     is_done = ia_categorize_v2(
@@ -805,7 +805,7 @@ if __name__ == '__main__':
                 try:
                     print("======> Etablissement: ",
                           item['name'], ' <========')
-                    cl = ClassificationAPI(
+                    cl = ClassificationAPIV2(
                         tag=item['tag'], type=args.type, limit=20, env=args.env, column=args.column)
 
                     if args.stat == 'Y':
