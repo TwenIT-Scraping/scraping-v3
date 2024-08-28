@@ -39,9 +39,19 @@ class BaseTwitterScrap(Scraping):
 
     def resolve_loginform(self) -> None:
         self.fill_loginform()
+        self.normal_login_step = 0
         while "/home" not in self.page.url:
+            if self.normal_login_step == 2:
+
             self.fill_loginform()
         self.page.wait_for_timeout(60000)
+
+    def login_with_google_account(self) -> None:
+        pass
+
+    def login_with_apple_account(self) -> None:
+        pass
+
 
     def goto_login(self) -> None:
         try:
@@ -111,6 +121,7 @@ class BaseTwitterScrap(Scraping):
                 self.page.locator("//span[text()='Log in' or text()='Se connecter']").click()
                 self.page.wait_for_timeout(10000)
                 time.sleep(randint(1, 3))
+                self.normal_login_step += 1
 
             case 'check your email':
                 print('code checking')
