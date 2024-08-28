@@ -417,7 +417,7 @@ def get_all_reviews():
         else:
             break
 
-# get_all_reviews()
+get_all_reviews()
 
 # tab = [{"section": "Had a great meal with friends celebrating a birthday", "category": "Food", "confidence": 0.9611726999282837, "checked": ["Fourniture", "Food", "Location", "Welcome", "Confort", "Service"], "review": "47018", "socialPost": "", "socialComment": ""}, {"section": "Food , service was", "category": "Food", "confidence": 0.9846404194831848, "checked": ["Fourniture", "Food", "Location", "Welcome", "Confort", "Service"], "review": "47018", "socialPost": "", "socialComment": ""}]
 # new_tab = json.dumps(tab)
