@@ -12,6 +12,17 @@ import json
 import traceback
 import nltk
 
+api_token = ""
+api_url = ""
+
+
+def set_global_config(url, token):
+    global api_url
+    global api_token
+
+    api_url = url
+    api_token = token
+
 
 def english_segmentation(text):
     """
@@ -327,6 +338,10 @@ def post_data_to_api(url, bearer_token, data):
 
 
 def post_classifications(datas):
+
+    global api_url
+    global api_token
+
     """
     This function uploads the classifications to the API.
 
@@ -341,12 +356,11 @@ def post_classifications(datas):
     print("Uploading classifications ...")
 
     # Define the API endpoint URL
-    url = f"https://api-dev.nexties.fr/api/classification/upload"
+    url = f"{api_url}classification/upload"
     # Define the bearer token for authentication
-    bearer_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTY4OTAxNjAsImV4cCI6MzI3MjA5MDE2MCwicm9sZXMiOlsiUk9MRV9FUkVQIiwiUk9MRV9DVVNUT01FUiIsIlJPTEVfUEFSVE5FUiIsIlJPTEVfVVNFUiJdLCJ1c2VybmFtZSI6ImxhdXJlbnppb3NhbWJhbnlAZ21haWwuY29tIn0.AfCjRneev40fepe1YuPdI22BoHQznaYkAGyee19dxiYhBWR8YAr15HbhL4ewNyyoglazQTVaW4HmI5AmUIKG7L8_PhzJkso0F4o6W5Tpf8T-xvhv_eB1STM39DEmFx3DPDDxABdbm7Xxc1BE5trSBQ_mIz1d-Rcebkej7Rg4SCGHL0Wv6GJlhFH3RVB87y49ETQDWCK4icU4UKlo-q6CW2HzAEct3cXk6vWhU93sw8y_iqFmlvCKU_cMdb1BTqsqohZYQ1Nt2k8xNRiNBcl4yazWrI-2qJS33e9IUkjib5jWfnsvMuA8BzntozZk2ieD-K5MfavT1nyuRij5BI018w"
 
     # Send a POST request to the API endpoint with the data and bearer token
-    response = post_data_to_api(url, bearer_token, data={
+    response = post_data_to_api(url, api_token, data={
                                 "data_content": datas})
 
     # If the request was successful, print a success message and return the JSON response
@@ -360,7 +374,11 @@ def post_classifications(datas):
         return None
 
 
-def get_reviews(page=1, limit=10):
+def fetch_page(tag, entity='reviews', page=1, limit=10):
+
+    global api_url
+    global api_token
+
     """
     Fetches reviews from the API for a specific establishment.
 
@@ -377,16 +395,13 @@ def get_reviews(page=1, limit=10):
     # tag = "66a21d3f105b8" # Hotel Lux Grand Gaube
 
     # Define the API endpoint URL
-    url = f"https://api-dev.nexties.fr/api/establishment/{tag}/reviews_to_classify"
-
-    # Define the bearer token for authentication
-    bearer_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTY4OTAxNjAsImV4cCI6MzI3MjA5MDE2MCwicm9sZXMiOlsiUk9MRV9FUkVQIiwiUk9MRV9DVVNUT01FUiIsIlJPTEVfUEFSVE5FUiIsIlJPTEVfVVNFUiJdLCJ1c2VybmFtZSI6ImxhdXJlbnppb3NhbWJhbnlAZ21haWwuY29tIn0.AfCjRneev40fepe1YuPdI22BoHQznaYkAGyee19dxiYhBWR8YAr15HbhL4ewNyyoglazQTVaW4HmI5AmUIKG7L8_PhzJkso0F4o6W5Tpf8T-xvhv_eB1STM39DEmFx3DPDDxABdbm7Xxc1BE5trSBQ_mIz1d-Rcebkej7Rg4SCGHL0Wv6GJlhFH3RVB87y49ETQDWCK4icU4UKlo-q6CW2HzAEct3cXk6vWhU93sw8y_iqFmlvCKU_cMdb1BTqsqohZYQ1Nt2k8xNRiNBcl4yazWrI-2qJS33e9IUkjib5jWfnsvMuA8BzntozZk2ieD-K5MfavT1nyuRij5BI018w"
+    url = f"{api_url}establishment/{tag}/reviews_to_classify"
 
     # Define the query parameters
-    params = {"all": "yes", "type": "reviews", "page": page, 'limit': limit}
+    params = {"all": "yes", "type": entity, "page": page, 'limit': limit}
 
     # Send a GET request to the API endpoint with the parameters and bearer token
-    response = get_data_from_api(url, bearer_token, params)
+    response = get_data_from_api(url, api_token, params)
 
     if response.status_code == 200:
         data = response.json()
@@ -406,25 +421,33 @@ def get_reviews(page=1, limit=10):
         return None
 
 
-def get_all_reviews():
+def ia_categorize_v2(tag, entity, language='en', page=1):
     results = []
 
-    # Define the labels for text classification
-    labels = ["Fourniture", "Food", "Location",
-              "Welcome", "Confort", "Service"]
-    page = 1
-    while True:
-        print(f"\n====== Retrieving page {page} ======\n")
-        data = get_reviews(page=page)
+    entity_dict = {
+        'reviews': 'review',
+        'posts': 'socialPost',
+        'comments': 'socialComment'
+    }
 
-        if data:
+    print(f"\n====== Retrieving page {page} ======\n")
+    data = fetch_page(tag=tag, entity=entity, page=page)
+
+    if data:
+        # Define the labels for text classification
+        labels = [item['category'] for item in data['categories']]
+
+        if len(labels):
+            if data['pages'] >= page:
+                return True
+
             for review in data['reviews']:
                 # Check if the review language is English
                 if review['language'] and review['language'] == 'en':
                     print(f"\nText => {review['text']}:\n")
                     # Analyze the text and classify it into categories
                     result = analyse_text(
-                        review, labels, entity='review', min_score=0.7, language='en')
+                        review, labels, entity=entity_dict[entity], min_score=0.7, language=language)
                     print(f"\nResult => {result}\n")
                     results.extend(result)
 
@@ -432,13 +455,14 @@ def get_all_reviews():
             if len(results):
                 post_classifications(results)
 
-            # Reset the results list for the next page
-            results = []
+            return False
 
-            # Increment the page number for the next iteration
-            page += 1
         else:
-            break
+            return True
+
+    else:
+        return True
+
 
 # Add comments to explain the purpose and functionality of the code
 # This function retrieves reviews from the API, analyzes the text of each review,
