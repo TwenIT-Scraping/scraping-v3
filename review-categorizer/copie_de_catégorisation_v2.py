@@ -7,20 +7,25 @@ Original file is located at
     https://colab.research.google.com/drive/1mHjUmCvtdHw5ozdwspZ7GETls8JxiSoB
 """
 
-!pip install spacy
-!python -m spacy download fr_core_news_sm
-!python -m spacy download es_core_news_sm
-!python -m spacy download en_core_web_sm
-!pip install transformers
-!pip install sentencepiece
+# !pip install spacy
+# !python -m spacy download fr_core_news_sm
+# !python -m spacy download es_core_news_sm
+# !python -m spacy download en_core_web_sm
+# !pip install transformers
+# !pip install sentencepiece
 
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 import spacy
+import requests
+import json
+import traceback
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 
 ###################################################
 # Ségmentation de texte utilisant la librairie spacy qui consiste à découper
 # le texte lorsqu'on croire les adverbes, poctuations et conjonctions #
 ###################################################
+
 
 def english_segmentation(text):
     nlp = spacy.load("en_core_web_sm")
@@ -71,6 +76,7 @@ def english_segmentation(text):
 
     return [sentence.strip() for sentence in result if sentence.strip()]
 
+
 def spanish_segmentation(text):
     nlp = spacy.load("es_core_web_sm")
     doc = nlp(text)
@@ -117,8 +123,10 @@ def spanish_segmentation(text):
 
     return [sentence.strip() for sentence in result if sentence.strip()]
 
+
 def french_segmentation(text):
     return [sentence.strip() for sentence in text.split('.') if sentence.strip()]
+
 
 def segment_text(text, language):
 
@@ -131,6 +139,7 @@ def segment_text(text, language):
         return spanish_segmentation(text)
     else:
         return []
+
 
 def classify_text(categories, text):
     # Initialize the zero-shot classification pipeline with the specified model
@@ -149,6 +158,7 @@ def classify_text(categories, text):
     # Return the result of the classification
     return result
 
+
 def analyse_text(review_item, labels, entity='review', min_score=0.8, language='fr'):
     def filter_labels(prediction, min_score=0.8):
         filtered_labels = []
@@ -163,10 +173,10 @@ def analyse_text(review_item, labels, entity='review', min_score=0.8, language='
         max_item = None
 
         if len(prediction['labels']):
-          max_item = (prediction['labels'][0], prediction['scores'][0])
-          for label, score in zip(prediction['labels'], prediction['scores']):
-              if score > max_item[1]:
-                  max_item = (label, score)
+            max_item = (prediction['labels'][0], prediction['scores'][0])
+            for label, score in zip(prediction['labels'], prediction['scores']):
+                if score > max_item[1]:
+                    max_item = (label, score)
 
         return max_item
 
@@ -252,7 +262,7 @@ def analyse_text(review_item, labels, entity='review', min_score=0.8, language='
         if len(results) == 0:
             max_category = max_label(classifications)
             if max_category:
-              results.append((current_sentence.strip(), max_category))
+                results.append((current_sentence.strip(), max_category))
 
         return results
 
@@ -260,262 +270,270 @@ def analyse_text(review_item, labels, entity='review', min_score=0.8, language='
 
     if review_item['text'] != "" and len(review_item['text']) > 25:
 
-      sentences = segment_text(review_item["text"], language)
+        sentences = segment_text(review_item["text"], language)
 
-      # print("\n######################\n")
-      # print("text => ", text)
-      print(sentences)
+        # print("\n######################\n")
+        # print("text => ", text)
+        print(sentences)
 
+        # results.extend(sentence_analyse(text))
 
-      # results.extend(sentence_analyse(text))
-
-      for sentence in sentences:
-          classifications = sentence_analyse(sentence)
-          results.extend(format_results(classifications, review_item, entity, categories=labels))
+        for sentence in sentences:
+            classifications = sentence_analyse(sentence)
+            results.extend(format_results(classifications,
+                           review_item, entity, categories=labels))
 
     return results
 
-import requests
-import json
-import traceback
 
 def get_data_from_api(url, bearer_token, params=None):
-  """
-  Fetches data from an API with a bearer token and optional parameters.
+    """
+    Fetches data from an API with a bearer token and optional parameters.
 
-  Args:
-    url: The API endpoint URL.
-    bearer_token: The bearer token for authentication.
-    params: A dictionary of query parameters.
+    Args:
+      url: The API endpoint URL.
+      bearer_token: The bearer token for authentication.
+      params: A dictionary of query parameters.
 
-  Returns:
-    The response object from the API call.
-  """
-  headers = {
-      "Authorization": f"Bearer {bearer_token}"
-  }
+    Returns:
+      The response object from the API call.
+    """
+    headers = {
+        "Authorization": f"Bearer {bearer_token}"
+    }
 
-  print("Preparing request ...")
+    print("Preparing request ...")
 
-  response = None
+    response = None
 
-  try:
-    response = requests.get(url, headers=headers, params=params)
-    response.raise_for_status()  # Raise an exception if the request was unsuccessful
+    try:
+        response = requests.get(url, headers=headers, params=params)
+        response.raise_for_status()  # Raise an exception if the request was unsuccessful
 
-  except requests.exceptions.RequestException as err:
-    print("An error occurred:")
-    print(err)
-    print(traceback.format_exc())
+    except requests.exceptions.RequestException as err:
+        print("An error occurred:")
+        print(err)
+        print(traceback.format_exc())
 
-  print("Request sent !")
-  return response
+    print("Request sent !")
+    return response
+
 
 def post_data_to_api(url, bearer_token, data):
-  headers = {
-      "Authorization": f"Bearer {bearer_token}"
-  }
+    headers = {
+        "Authorization": f"Bearer {bearer_token}"
+    }
 
-  response = None
+    response = None
 
-  try:
-    response = requests.post(url, headers=headers, data=json.dumps(data))
-    response.raise_for_status()  # Raise an exception if the request was unsuccessful
-    # print(response.text)
-  except requests.exceptions.RequestException as err:
-    print("An error occurred:")
-    print(traceback.format_exc())
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(data))
+        response.raise_for_status()  # Raise an exception if the request was unsuccessful
+        # print(response.text)
+    except requests.exceptions.RequestException as err:
+        print("An error occurred:")
+        print(traceback.format_exc())
 
-  return response
+    return response
+
 
 def post_classifications(datas):
-  print("\n Datas: ", datas, '\n')
-  print("Uploading classifications ...")
+    print("\n Datas: ", datas, '\n')
+    print("Uploading classifications ...")
 
-  url = f"https://api-dev.nexties.fr/api/classification/upload"
-  bearer_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTY4OTAxNjAsImV4cCI6MzI3MjA5MDE2MCwicm9sZXMiOlsiUk9MRV9FUkVQIiwiUk9MRV9DVVNUT01FUiIsIlJPTEVfUEFSVE5FUiIsIlJPTEVfVVNFUiJdLCJ1c2VybmFtZSI6ImxhdXJlbnppb3NhbWJhbnlAZ21haWwuY29tIn0.AfCjRneev40fepe1YuPdI22BoHQznaYkAGyee19dxiYhBWR8YAr15HbhL4ewNyyoglazQTVaW4HmI5AmUIKG7L8_PhzJkso0F4o6W5Tpf8T-xvhv_eB1STM39DEmFx3DPDDxABdbm7Xxc1BE5trSBQ_mIz1d-Rcebkej7Rg4SCGHL0Wv6GJlhFH3RVB87y49ETQDWCK4icU4UKlo-q6CW2HzAEct3cXk6vWhU93sw8y_iqFmlvCKU_cMdb1BTqsqohZYQ1Nt2k8xNRiNBcl4yazWrI-2qJS33e9IUkjib5jWfnsvMuA8BzntozZk2ieD-K5MfavT1nyuRij5BI018w"
+    url = f"https://api-dev.nexties.fr/api/classification/upload"
+    bearer_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTY4OTAxNjAsImV4cCI6MzI3MjA5MDE2MCwicm9sZXMiOlsiUk9MRV9FUkVQIiwiUk9MRV9DVVNUT01FUiIsIlJPTEVfUEFSVE5FUiIsIlJPTEVfVVNFUiJdLCJ1c2VybmFtZSI6ImxhdXJlbnppb3NhbWJhbnlAZ21haWwuY29tIn0.AfCjRneev40fepe1YuPdI22BoHQznaYkAGyee19dxiYhBWR8YAr15HbhL4ewNyyoglazQTVaW4HmI5AmUIKG7L8_PhzJkso0F4o6W5Tpf8T-xvhv_eB1STM39DEmFx3DPDDxABdbm7Xxc1BE5trSBQ_mIz1d-Rcebkej7Rg4SCGHL0Wv6GJlhFH3RVB87y49ETQDWCK4icU4UKlo-q6CW2HzAEct3cXk6vWhU93sw8y_iqFmlvCKU_cMdb1BTqsqohZYQ1Nt2k8xNRiNBcl4yazWrI-2qJS33e9IUkjib5jWfnsvMuA8BzntozZk2ieD-K5MfavT1nyuRij5BI018w"
 
-  response = post_data_to_api(url, bearer_token, data={"data_content": datas})
+    response = post_data_to_api(url, bearer_token, data={
+                                "data_content": datas})
 
-  if response.status_code == 200:
-    data = response.json()
-    print(data)
-    print("Uploaded successfully !")
-    return data
+    if response.status_code == 200:
+        data = response.json()
+        print(data)
+        print("Uploaded successfully !")
+        return data
 
-  else:
-    print(f"Error: {response.status_code}")
-    return None
+    else:
+        print(f"Error: {response.status_code}")
+        return None
 
 # Example usage:
 
+
 def get_reviews(page=1, limit=10):
 
-  tag = "652d515ba431b" # 28-50
-  # tag = "645de52f135e8" # Chalets du berger
-  # tag = "66a21d3f105b8" # Hotel Lux Grand Gaube
-  url = f"https://api-dev.nexties.fr/api/establishment/{tag}/reviews_to_classify"
-  bearer_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTY4OTAxNjAsImV4cCI6MzI3MjA5MDE2MCwicm9sZXMiOlsiUk9MRV9FUkVQIiwiUk9MRV9DVVNUT01FUiIsIlJPTEVfUEFSVE5FUiIsIlJPTEVfVVNFUiJdLCJ1c2VybmFtZSI6ImxhdXJlbnppb3NhbWJhbnlAZ21haWwuY29tIn0.AfCjRneev40fepe1YuPdI22BoHQznaYkAGyee19dxiYhBWR8YAr15HbhL4ewNyyoglazQTVaW4HmI5AmUIKG7L8_PhzJkso0F4o6W5Tpf8T-xvhv_eB1STM39DEmFx3DPDDxABdbm7Xxc1BE5trSBQ_mIz1d-Rcebkej7Rg4SCGHL0Wv6GJlhFH3RVB87y49ETQDWCK4icU4UKlo-q6CW2HzAEct3cXk6vWhU93sw8y_iqFmlvCKU_cMdb1BTqsqohZYQ1Nt2k8xNRiNBcl4yazWrI-2qJS33e9IUkjib5jWfnsvMuA8BzntozZk2ieD-K5MfavT1nyuRij5BI018w"
-  params = {"all": "yes", "type": "reviews", "page": page, 'limit': limit}
+    tag = "652d515ba431b"  # 28-50
+    # tag = "645de52f135e8" # Chalets du berger
+    # tag = "66a21d3f105b8" # Hotel Lux Grand Gaube
+    url = f"https://api-dev.nexties.fr/api/establishment/{tag}/reviews_to_classify"
+    bearer_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTY4OTAxNjAsImV4cCI6MzI3MjA5MDE2MCwicm9sZXMiOlsiUk9MRV9FUkVQIiwiUk9MRV9DVVNUT01FUiIsIlJPTEVfUEFSVE5FUiIsIlJPTEVfVVNFUiJdLCJ1c2VybmFtZSI6ImxhdXJlbnppb3NhbWJhbnlAZ21haWwuY29tIn0.AfCjRneev40fepe1YuPdI22BoHQznaYkAGyee19dxiYhBWR8YAr15HbhL4ewNyyoglazQTVaW4HmI5AmUIKG7L8_PhzJkso0F4o6W5Tpf8T-xvhv_eB1STM39DEmFx3DPDDxABdbm7Xxc1BE5trSBQ_mIz1d-Rcebkej7Rg4SCGHL0Wv6GJlhFH3RVB87y49ETQDWCK4icU4UKlo-q6CW2HzAEct3cXk6vWhU93sw8y_iqFmlvCKU_cMdb1BTqsqohZYQ1Nt2k8xNRiNBcl4yazWrI-2qJS33e9IUkjib5jWfnsvMuA8BzntozZk2ieD-K5MfavT1nyuRij5BI018w"
+    params = {"all": "yes", "type": "reviews", "page": page, 'limit': limit}
 
-  response = get_data_from_api(url, bearer_token, params)
+    response = get_data_from_api(url, bearer_token, params)
 
-  if response.status_code == 200:
-    data = response.json()
-    print(data)
-    return data
+    if response.status_code == 200:
+        data = response.json()
+        print(data)
+        return data
 
-  else:
-    print(f"Error: {response.status_code}")
-    return None
+    else:
+        print(f"Error: {response.status_code}")
+        return None
+
 
 def get_all_reviews():
-  results = []
+    results = []
 
-  labels = ["Fourniture", "Food", "Location", "Welcome", "Confort", "Service"]
+    labels = ["Fourniture", "Food", "Location",
+              "Welcome", "Confort", "Service"]
 
-  page = 1
-  while True:
-    print("\n====== Récupération page ", page, " ======\n")
-    data = get_reviews(page=page)
+    page = 1
+    while True:
+        print("\n====== Récupération page ", page, " ======\n")
+        data = get_reviews(page=page)
 
-    # print(data)
-    if data:
-      for review in data['reviews']:
-        # results = analyse_text(text, labels, language='fr')
-        # print("\n############ final results:#############\nresult = ", results, "\n")
+        # print(data)
+        if data:
+            for review in data['reviews']:
+                # results = analyse_text(text, labels, language='fr')
+                # print("\n############ final results:#############\nresult = ", results, "\n")
 
-    # print("\n############ TEXTES ANGLAIS #############\n")
+                # print("\n############ TEXTES ANGLAIS #############\n")
 
-    # for text in texts2:
-        if review['language'] and review['language'] == 'en':
-          print("\ntext => ",review['text'], ':\n')
-          result = analyse_text(review, labels, entity='review', min_score=0.7, language='en')
-          print("\nresult => ", result, "\n")
-          results.extend(result)
+                # for text in texts2:
+                if review['language'] and review['language'] == 'en':
+                    print("\ntext => ", review['text'], ':\n')
+                    result = analyse_text(
+                        review, labels, entity='review', min_score=0.7, language='en')
+                    print("\nresult => ", result, "\n")
+                    results.extend(result)
 
-      if len(results):
-        post_classifications(results)
+            if len(results):
+                post_classifications(results)
 
-      results = []
+            results = []
 
-      page += 1
-    else:
-        break
+            page += 1
+        else:
+            break
 
-get_all_reviews()
+# get_all_reviews()
 
 # tab = [{"section": "Had a great meal with friends celebrating a birthday", "category": "Food", "confidence": 0.9611726999282837, "checked": ["Fourniture", "Food", "Location", "Welcome", "Confort", "Service"], "review": "47018", "socialPost": "", "socialComment": ""}, {"section": "Food , service was", "category": "Food", "confidence": 0.9846404194831848, "checked": ["Fourniture", "Food", "Location", "Welcome", "Confort", "Service"], "review": "47018", "socialPost": "", "socialComment": ""}]
 # new_tab = json.dumps(tab)
 # print(type(tab))
 # print(type(new_tab))
 
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 
 def get_score(classifier, text):
-  try:
-      return classifier(text.replace('\"', "\'"))
-  except Exception as e:
-      print(e)
-      return False
+    try:
+        return classifier(text.replace('\"', "\'"))
+    except Exception as e:
+        print(e)
+        return False
+
 
 def compute_sentiment(text):
-  model_name = "nlptown/bert-base-multilingual-uncased-sentiment"
-  model = AutoModelForSequenceClassification.from_pretrained(model_name)
-  tokenizer = AutoTokenizer.from_pretrained(model_name)
-  classifier = pipeline(
-                'sentiment-analysis', model=model, tokenizer=tokenizer, device=-1)
+    model_name = "nlptown/bert-base-multilingual-uncased-sentiment"
+    model = AutoModelForSequenceClassification.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    classifier = pipeline(
+        'sentiment-analysis', model=model, tokenizer=tokenizer, device=-1)
 
-  score_data = get_score(classifier, text)
+    score_data = get_score(classifier, text)
 
-  if score_data:
-      confidence = score_data[0]['score']
-      score_label = score_data[0]['label']
+    if score_data:
+        confidence = score_data[0]['score']
+        score_label = score_data[0]['label']
 
-      score_stars = int(score_label.split()[0])
-      feeling = "negative" if score_stars < 3 else (
-          "positive" if score_stars > 3 else "neutre")
+        score_stars = int(score_label.split()[0])
+        feeling = "negative" if score_stars < 3 else (
+            "positive" if score_stars > 3 else "neutre")
 
-      return {'confidence': confidence, 'feeling': feeling}
+        return {'confidence': confidence, 'feeling': feeling}
 
-  return False
+    return False
+
 
 def post_sentiments(datas):
-  print("\n Datas: ", datas, '\n')
-  print("Uploading sentiments ...")
+    print("\n Datas: ", datas, '\n')
+    print("Uploading sentiments ...")
 
-  url = f"https://api-dev.nexties.fr/api/classification/feeling/categorization"
-  bearer_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTY4OTAxNjAsImV4cCI6MzI3MjA5MDE2MCwicm9sZXMiOlsiUk9MRV9FUkVQIiwiUk9MRV9DVVNUT01FUiIsIlJPTEVfUEFSVE5FUiIsIlJPTEVfVVNFUiJdLCJ1c2VybmFtZSI6ImxhdXJlbnppb3NhbWJhbnlAZ21haWwuY29tIn0.AfCjRneev40fepe1YuPdI22BoHQznaYkAGyee19dxiYhBWR8YAr15HbhL4ewNyyoglazQTVaW4HmI5AmUIKG7L8_PhzJkso0F4o6W5Tpf8T-xvhv_eB1STM39DEmFx3DPDDxABdbm7Xxc1BE5trSBQ_mIz1d-Rcebkej7Rg4SCGHL0Wv6GJlhFH3RVB87y49ETQDWCK4icU4UKlo-q6CW2HzAEct3cXk6vWhU93sw8y_iqFmlvCKU_cMdb1BTqsqohZYQ1Nt2k8xNRiNBcl4yazWrI-2qJS33e9IUkjib5jWfnsvMuA8BzntozZk2ieD-K5MfavT1nyuRij5BI018w"
+    url = f"https://api-dev.nexties.fr/api/classification/feeling/categorization"
+    bearer_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTY4OTAxNjAsImV4cCI6MzI3MjA5MDE2MCwicm9sZXMiOlsiUk9MRV9FUkVQIiwiUk9MRV9DVVNUT01FUiIsIlJPTEVfUEFSVE5FUiIsIlJPTEVfVVNFUiJdLCJ1c2VybmFtZSI6ImxhdXJlbnppb3NhbWJhbnlAZ21haWwuY29tIn0.AfCjRneev40fepe1YuPdI22BoHQznaYkAGyee19dxiYhBWR8YAr15HbhL4ewNyyoglazQTVaW4HmI5AmUIKG7L8_PhzJkso0F4o6W5Tpf8T-xvhv_eB1STM39DEmFx3DPDDxABdbm7Xxc1BE5trSBQ_mIz1d-Rcebkej7Rg4SCGHL0Wv6GJlhFH3RVB87y49ETQDWCK4icU4UKlo-q6CW2HzAEct3cXk6vWhU93sw8y_iqFmlvCKU_cMdb1BTqsqohZYQ1Nt2k8xNRiNBcl4yazWrI-2qJS33e9IUkjib5jWfnsvMuA8BzntozZk2ieD-K5MfavT1nyuRij5BI018w"
 
-  response = post_data_to_api(url, bearer_token, data={'data_content': datas})
+    response = post_data_to_api(url, bearer_token, data={
+                                'data_content': datas})
 
-  if response.status_code == 200:
-    data = response.json()
-    print(data)
-    print("Uploaded successfully !")
-    return data
+    if response.status_code == 200:
+        data = response.json()
+        print(data)
+        print("Uploaded successfully !")
+        return data
 
-  else:
-    print(f"Error: {response.status_code}")
-    return None
+    else:
+        print(f"Error: {response.status_code}")
+        return None
 
 # Example usage:
 
+
 def get_sections(page=1, limit=10):
 
-  tag = "652d515ba431b" # 28-50
-  # tag = "645de52f135e8" # Chalets du berger
-  # tag = "66a21d3f105b8" # Hotel Lux Grand Gaube
-  url = f"https://api-dev.nexties.fr/api/customer/classifications"
-  bearer_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTY4OTAxNjAsImV4cCI6MzI3MjA5MDE2MCwicm9sZXMiOlsiUk9MRV9FUkVQIiwiUk9MRV9DVVNUT01FUiIsIlJPTEVfUEFSVE5FUiIsIlJPTEVfVVNFUiJdLCJ1c2VybmFtZSI6ImxhdXJlbnppb3NhbWJhbnlAZ21haWwuY29tIn0.AfCjRneev40fepe1YuPdI22BoHQznaYkAGyee19dxiYhBWR8YAr15HbhL4ewNyyoglazQTVaW4HmI5AmUIKG7L8_PhzJkso0F4o6W5Tpf8T-xvhv_eB1STM39DEmFx3DPDDxABdbm7Xxc1BE5trSBQ_mIz1d-Rcebkej7Rg4SCGHL0Wv6GJlhFH3RVB87y49ETQDWCK4icU4UKlo-q6CW2HzAEct3cXk6vWhU93sw8y_iqFmlvCKU_cMdb1BTqsqohZYQ1Nt2k8xNRiNBcl4yazWrI-2qJS33e9IUkjib5jWfnsvMuA8BzntozZk2ieD-K5MfavT1nyuRij5BI018w"
-  params = {"page": page, 'limit': limit}
+    tag = "652d515ba431b"  # 28-50
+    # tag = "645de52f135e8" # Chalets du berger
+    # tag = "66a21d3f105b8" # Hotel Lux Grand Gaube
+    url = f"https://api-dev.nexties.fr/api/customer/classifications"
+    bearer_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTY4OTAxNjAsImV4cCI6MzI3MjA5MDE2MCwicm9sZXMiOlsiUk9MRV9FUkVQIiwiUk9MRV9DVVNUT01FUiIsIlJPTEVfUEFSVE5FUiIsIlJPTEVfVVNFUiJdLCJ1c2VybmFtZSI6ImxhdXJlbnppb3NhbWJhbnlAZ21haWwuY29tIn0.AfCjRneev40fepe1YuPdI22BoHQznaYkAGyee19dxiYhBWR8YAr15HbhL4ewNyyoglazQTVaW4HmI5AmUIKG7L8_PhzJkso0F4o6W5Tpf8T-xvhv_eB1STM39DEmFx3DPDDxABdbm7Xxc1BE5trSBQ_mIz1d-Rcebkej7Rg4SCGHL0Wv6GJlhFH3RVB87y49ETQDWCK4icU4UKlo-q6CW2HzAEct3cXk6vWhU93sw8y_iqFmlvCKU_cMdb1BTqsqohZYQ1Nt2k8xNRiNBcl4yazWrI-2qJS33e9IUkjib5jWfnsvMuA8BzntozZk2ieD-K5MfavT1nyuRij5BI018w"
+    params = {"page": page, 'limit': limit}
 
-  response = get_data_from_api(url, bearer_token, params)
+    response = get_data_from_api(url, bearer_token, params)
 
-  if response.status_code == 200:
-    data = response.json()
-    # print(data)
-    return data
+    if response.status_code == 200:
+        data = response.json()
+        # print(data)
+        return data
 
-  else:
-    print(f"Error: {response.status_code}")
-    return None
+    else:
+        print(f"Error: {response.status_code}")
+        return None
+
 
 def get_all_sections():
-  results = []
+    results = []
 
-  page = 1
+    page = 1
 
-  while True:
-    print("\n====== Récupération page ", page, " ======\n")
-    data = get_sections(page=page)
+    while True:
+        print("\n====== Récupération page ", page, " ======\n")
+        data = get_sections(page=page)
 
-    print(data)
-    if data and data['last_pages'] >= page:
-      for line in data['items']:
-        if line['section'] and len(line['section'].split())>1:
-          score = compute_sentiment(line['section'])
-          if score:
-            results.append({
-                'id': line['id'],
-                'feeling': score['feeling'],
-                'confidence_feeling': str(score['confidence'])
-            })
+        print(data)
+        if data and data['last_pages'] >= page:
+            for line in data['items']:
+                if line['section'] and len(line['section'].split()) > 1:
+                    score = compute_sentiment(line['section'])
+                    if score:
+                        results.append({
+                            'id': line['id'],
+                            'feeling': score['feeling'],
+                            'confidence_feeling': str(score['confidence'])
+                        })
 
-      if len(results):
-        post_sentiments(results)
+            if len(results):
+                post_sentiments(results)
 
-      results = []
+            results = []
 
-      page += 1
-    else:
-        break
+            page += 1
+        else:
+            break
 
-get_all_sections()
+# get_all_sections()
 
-import socket
+# import socket
 
-hostname = socket.gethostname()
-ip_address = socket.gethostbyname(hostname)
+# hostname = socket.gethostname()
+# ip_address = socket.gethostbyname(hostname)
 
-print(f"The IP address of this machine is {ip_address}")
+# print(f"The IP address of this machine is {ip_address}")
