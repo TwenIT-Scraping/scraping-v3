@@ -184,31 +184,6 @@ class ReviewScore:
                 return {'score': None, 'confidence': None, 'feeling': None}
 
 
-def main_arguments() -> object:
-    parser = argparse.ArgumentParser(description="Programme cat�gorisation",
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--type', '-t', dest='type', default='reviews',
-                        help="""Options: comments, reviews""")
-    parser.add_argument('--env', '-v', dest='env', default="DEV",
-                        help="Optionnel: environnement de l'api. DEV par d�faut")
-    parser.add_argument('--names', '-n', dest='names',
-                        help="Nom des �tablissements � traiter, s�par� par des virgules.")
-    parser.add_argument('--column', '-c', dest='column',
-                        help="Option: feeling, category", default="category")
-    parser.add_argument('--results', '-r', dest='stat',
-                        default="N", help="Option: N ou Y")
-    return parser.parse_args()
-
-
-ARGS_INFO = {
-    '-t': {'long': '--type', 'dest': 'type', 'help': "Options: comments, reviews, posts. reviews par d�faut."},
-    '-c': {'long': '--column', 'dest': 'column', 'help': "Options: feeling, category. category par d�faut."},
-    '-v': {'long': '--env', 'dest': 'env', 'help': "Optionnel: environnement de l'api. PROD par d�faut"},
-    '-n': {'long': '--names', 'dest': 'names', 'help': "Nom des �tablissements � traiter, s�par� par des virgules."},
-    '-r': {'long': '--results', 'dest': 'stat', 'help': 'Option: N ou Y'}
-}
-
-
 class ClassificationAPI(object):
 
     def __init__(self, env='dev', type='reviews', tag='', limit=5, column="category") -> None:
@@ -747,6 +722,34 @@ class ClassificationAPIV2(object):
         return results
 
 
+def main_arguments() -> object:
+    parser = argparse.ArgumentParser(description="Programme cat�gorisation",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--type', '-t', dest='type', default='reviews',
+                        help="""Options: comments, reviews""")
+    parser.add_argument('--env', '-v', dest='env', default="DEV",
+                        help="Optionnel: environnement de l'api. DEV par d�faut")
+    parser.add_argument('--names', '-n', dest='names',
+                        help="Nom des �tablissements � traiter, s�par� par des virgules.")
+    parser.add_argument('--column', '-c', dest='column',
+                        help="Option: feeling, category", default="category")
+    parser.add_argument('--language', '-l', dest='language',
+                        help="Option: en, fr, es", default="fr")
+    parser.add_argument('--results', '-r', dest='stat',
+                        default="N", help="Option: N ou Y")
+    return parser.parse_args()
+
+
+ARGS_INFO = {
+    '-t': {'long': '--type', 'dest': 'type', 'help': "Options: comments, reviews, posts. reviews par d�faut."},
+    '-c': {'long': '--column', 'dest': 'column', 'help': "Options: feeling, category. category par d�faut."},
+    '-v': {'long': '--env', 'dest': 'env', 'help': "Optionnel: environnement de l'api. PROD par d�faut"},
+    '-n': {'long': '--names', 'dest': 'names', 'help': "Nom des �tablissements � traiter, s�par� par des virgules."},
+    '-r': {'long': '--results', 'dest': 'stat', 'help': 'Option: N ou Y'},
+    '-l': {'long': '--language', 'dest': 'language', 'help': 'Option: en, fr ou es'}
+}
+
+
 def check_arguments(args):
     miss = []
     if not getattr(args, ARGS_INFO['-t']['dest']):
@@ -806,7 +809,7 @@ if __name__ == '__main__':
                     print("======> Etablissement: ",
                           item['name'], ' <========')
                     cl = ClassificationAPIV2(
-                        tag=item['tag'], type=args.type, limit=20, env=args.env, column=args.column)
+                        tag=item['tag'], type=args.type, limit=20, env=args.env, column=args.column, language=args.language)
 
                     if args.stat == 'Y':
                         cl.check_results()
