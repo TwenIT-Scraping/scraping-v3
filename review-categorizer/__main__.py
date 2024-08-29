@@ -18,6 +18,7 @@ from api import ERApi
 from progress.bar import ChargingBar
 from progress.spinner import Spinner
 from checkclassifier import ia_categorize, classify_text
+from checkclassifier_v2 import ia_categorize_v2, set_global_config
 
 dotenv.load_dotenv()
 
@@ -477,7 +478,7 @@ class ClassificationAPI(object):
 
 class ClassificationAPIV2(object):
 
-    def __init__(self, env='dev', type='reviews', tag='', limit=5, column="category") -> None:
+    def __init__(self, env='dev', type='reviews', tag='', limit=5, column="category", language='en') -> None:
         self.type = type
         self.establishment = None
         self.categories = []
@@ -488,35 +489,39 @@ class ClassificationAPIV2(object):
         self.page = 1
         self.pages = 1
         self.column = column
+        self.language = language
 
-    def fetch_datas(self):
-        endpoint = f"establishment/{self.tag}/reviews_to_classify"
+        set_global_config(os.environ.get(
+            f"API_URL_{env.upper()}"), os.environ.get(f'API_TOKEN_{env.upper()}'))
 
-        try:
-            get_instance = ERApi(
-                method="get", entity=endpoint, env=self.env, params={"all": "yes", "type": self.type, "page": self.page, 'limit': self.limit})
-            res = get_instance.execute()
+    # def fetch_datas(self):
+    #     endpoint = f"establishment/{self.tag}/reviews_to_classify"
 
-            if (res):
-                print("Etablissement trait�: ", res['establishment']['name'])
+    #     try:
+    #         get_instance = ERApi(
+    #             method="get", entity=endpoint, env=self.env, params={"all": "yes", "type": self.type, "page": self.page, 'limit': self.limit})
+    #         res = get_instance.execute()
 
-                print("Liste des cat�gories disponibles: ",
-                      res['categories'])
-                self.categories = res['categories']
+    #         if (res):
+    #             print("Etablissement trait�: ", res['establishment']['name'])
 
-                self.establishment = res['establishment']
-                self.pages = res['pages']
-                self.lines = res['reviews']
+    #             print("Liste des cat�gories disponibles: ",
+    #                   res['categories'])
+    #             self.categories = res['categories']
 
-                print(
-                    f"Lignes trait�es: {(self.page-1)*self.limit}/{res['count']}")
+    #             self.establishment = res['establishment']
+    #             self.pages = res['pages']
+    #             self.lines = res['reviews']
 
-            self.page += 1
+    #             print(
+    #                 f"Lignes trait�es: {(self.page-1)*self.limit}/{res['count']}")
 
-            print("Lignes r�cup�r�es: ", len(self.lines))
+    #         self.page += 1
 
-        except Exception as e:
-            print(e)
+    #         print("Lignes r�cup�r�es: ", len(self.lines))
+
+    #     except Exception as e:
+    #         print(e)
 
     def check_results(self):
         results = []
@@ -611,26 +616,26 @@ class ClassificationAPIV2(object):
 
     #     return line
 
-    def compute_lines_classifications(self):
-        results = []
-        progress = ChargingBar(
-            'Calcul classification', max=len(self.lines))
-        for i in range(len(self.lines)):
-            progress.next()
-            line = self.lines[i]
-            # print("\n ==== Line to classify ==== ")
-            # print(line)
-            # print("================================\n")
+    # def compute_lines_classifications(self):
+    #     results = []
+    #     progress = ChargingBar(
+    #         'Calcul classification', max=len(self.lines))
+    #     for i in range(len(self.lines)):
+    #         progress.next()
+    #         line = self.lines[i]
+    #         # print("\n ==== Line to classify ==== ")
+    #         # print(line)
+    #         # print("================================\n")
 
-            if line['text'] != "" and len(line['text']) >= 25:
-                # results += ia_categorize(line, 'review', list(
-                #     map(lambda x: x['category'], self.categories)))
-                # results += ia_categorize(line, type_dict[self.type], self.categories)
-                # results.extend(ia_categorize(line, type_dict[self.type],["Mobilier", "Accueil", "Ménage", "Nourriture", "Emplacement", "Confort", "Commodités", "Ambiance", "Restauration", "Sécurité", "Accès", "Transport"] ))
-                results.extend(ia_categorize(line, type_dict[self.type], ["Furniture", "Welcome", "Housekeeping", "Food",
-                               "Location", "Comfort", "Amenities", "Atmosphere", "Catering", "Safety", "Access", "Transportation"]))
+    #         if line['text'] != "" and len(line['text']) >= 25:
+    #             # results += ia_categorize(line, 'review', list(
+    #             #     map(lambda x: x['category'], self.categories)))
+    #             # results += ia_categorize(line, type_dict[self.type], self.categories)
+    #             # results.extend(ia_categorize(line, type_dict[self.type],["Mobilier", "Accueil", "Ménage", "Nourriture", "Emplacement", "Confort", "Commodités", "Ambiance", "Restauration", "Sécurité", "Accès", "Transport"] ))
+    #             results.extend(ia_categorize(line, type_dict[self.type], ["Furniture", "Welcome", "Housekeeping", "Food",
+    #                            "Location", "Comfort", "Amenities", "Atmosphere", "Catering", "Safety", "Access", "Transportation"]))
 
-        return results
+    #     return results
 
     # def transform_data(self):
 
@@ -663,53 +668,65 @@ class ClassificationAPIV2(object):
 
     #     return result
 
-    def upload(self):
-        try:
-            data = self.transform_data()
+    # def upload(self):
+    #     try:
+    #         data = self.transform_data()
 
-            print(data)
+    #         print(data)
 
-            endpoint = "classification/multi" if self.column == "category" else "feeling/multi"
-            # print(data)
-            post_instance = ERApi(
-                method="postclassifications", entity=endpoint, env=self.env, body={'data_content': data})
-            return post_instance.execute()
-        except Exception as e:
-            print(e)
+    #         endpoint = "classification/multi" if self.column == "category" else "feeling/multi"
+    #         # print(data)
+    #         post_instance = ERApi(
+    #             method="postclassifications", entity=endpoint, env=self.env, body={'data_content': data})
+    #         return post_instance.execute()
+    #     except Exception as e:
+    #         print(e)
 
     def execute(self):
         results = []
+        is_done = False
+
         try:
             while (True):
-                print("============> Page ", self.page,
-                      "sur ", self.pages, " <===============")
-                self.fetch_datas()
+                # print("============> Page ", self.page,
+                #       "sur ", self.pages, " <===============")
 
-                print("\n -------- Original -----------")
-                print(self.lines)
-                # if len(self.categories):
-                res = self.compute_lines_classifications()
-                print("\n -------- Apr�s traitement -----------")
-                print(res)
+                if self.column == "category":
+                    is_done = ia_categorize_v2(
+                        self.tag, self.type, self.language, self.page)
+                else:
+                    break
 
-                all_results = []
+                if is_done:
+                    break
+                else:
+                    self.page += 1
 
-                if os.path.isfile('Sample.json') and os.access("Sample.json", os.R_OK):
-                    # checks if file exists
-                    all_results = json.load(open("Sample.json"))
+                # print("\n -------- Original -----------")
+                # print(self.lines)
+                # # if len(self.categories):
+                # res = self.compute_lines_classifications()
+                # print("\n -------- Apr�s traitement -----------")
+                # print(res)
 
-                all_results.extend(res)
+                # all_results = []
 
-                json_object = json.dumps(all_results, indent=4)
+                # if os.path.isfile('Sample.json') and os.access("Sample.json", os.R_OK):
+                #     # checks if file exists
+                #     all_results = json.load(open("Sample.json"))
 
-                print("**** Saving in file ...")
+                # all_results.extend(res)
 
-                with open("Sample.json", "w") as outfile:
-                    outfile.write(json_object)
+                # json_object = json.dumps(all_results, indent=4)
 
-                print("**** Saved")
+                # print("**** Saving in file ...")
 
-                results.extend(res)
+                # with open("Sample.json", "w") as outfile:
+                #     outfile.write(json_object)
+
+                # print("**** Saved")
+
+                # results.extend(res)
 
                 # else:
                 #     print("!!!! Pas de cat�gories")
@@ -721,8 +738,8 @@ class ClassificationAPIV2(object):
 
                 # print(len(self.lines))
 
-                if self.page > self.pages:
-                    break
+                # if self.page > self.pages:
+                #     break
 
         except Exception as e:
             print(e)
@@ -788,7 +805,7 @@ if __name__ == '__main__':
                 try:
                     print("======> Etablissement: ",
                           item['name'], ' <========')
-                    cl = ClassificationAPI(
+                    cl = ClassificationAPIV2(
                         tag=item['tag'], type=args.type, limit=20, env=args.env, column=args.column)
 
                     if args.stat == 'Y':
