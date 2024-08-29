@@ -1,0 +1,508 @@
+{
+    "captcha": [
+        {
+            "by_tag_only": false,
+            "tag": "div",
+            "attr_key": "id",
+            "attr_value": "captcha__frame"
+        }
+    ],
+    "hotel_feature": {
+        "has_pagination": true,
+        "pagination_type": "button",
+        "optional_fields": ["url"],
+        "paginator_locator": [
+            {
+                "by_tag_only":false,
+                "tag": "button",
+                "attr_key": "aria-label",
+                "attr_value": "Page suivante"
+            }
+        ],
+        "container_locator": [
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "class",
+                "attr_value": "uqMDf z BGJxv xOykd jFVeD"
+            },
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "class",
+                "attr_value": "ui_column is-12 is-8-desktop"
+            }
+        ],
+        "reviews": [
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "data-test-target",
+                "attr_value":"HR_CC_CARD"
+            },
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "class",
+                "attr_value":"sGBap _f"
+            }
+        ],
+        "review": {
+            "author": [
+                {
+                    "by_tag_only": false,
+                    "tag": "a",
+                    "attr_key": "class",
+                    "attr_value": "blnum BDpWK",
+                    "target": "text"
+                },
+                {
+                    "by_tag_only": false,
+                    "tag": "a",
+                    "attr_key": "class",
+                    "attr_value": "ui_header_link uyyBf",
+                    "target": "text"
+                },
+                {
+                    "by_tag_only": false,
+                    "tag": "a",
+                    "attr_key": "class",
+                    "attr_value": "blnum BDpWK",
+                    "target": "text"
+                }
+            ],
+            "comment": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "fIrGe _T",
+                    "target": "text"
+                }
+            ],
+            "url": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "data-test-target",
+                    "attr_value": "review-title",
+                    "target":"child",
+                    "child":{
+                        "by_tag_only": true,
+                        "tag":"a",
+                        "target":"attribute",
+                        "value_attr":"href"
+                    }
+                }
+            ],
+            "rating": [
+                {
+                    "by_tag_only": true,
+                    "tag": "title",
+                    "target":"text"
+                },
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "data-test-target",
+                    "attr_value": "review-rating",
+                    "target":"child",
+                    "child":{
+                        "by_tag_only": true,
+                        "tag":"span",
+                        "target":"attribute",
+                        "value_attr":"class"
+                    }
+                }
+            ],
+            "date_review": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "tVWyV _Z o S4 H3 Ci",
+                    "target":"text"
+                },
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "cRVSd",
+                    "target":"text"
+                }
+            ],
+            "date_visit": [
+                {
+                    "by_tag_only": false,
+                    "tag": "span",
+                    "attr_key": "class",
+                    "attr_value": "iSNGb _R Me S4 H3 Cj",
+                    "target": "text"
+                },
+                {
+                    "by_tag_only": false,
+                    "tag": "span",
+                    "attr_key": "class",
+                    "attr_value": "teHYY _R Me S4 H3",
+                    "target": "text"
+                }
+            ]
+        }
+    },
+    "hotel": {
+        "has_pagination": true,
+        "pagination_type": "button",
+        "optional_fileds": ["url"],
+        "paginator_locator": [
+            {
+                "by_tag_only":false,
+                "tag": "a",
+                "attr_key": "data-smoke-attr",
+                "attr_value": "pagination-next-arrow"
+            }
+        ],
+        "container_locator": [
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "data-test-target",
+                "attr_value": "reviews-tab"
+            }
+        ],
+        "reviews": [
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "data-test-target",
+                "attr_value":"HR_CC_CARD"
+            }
+        ],
+        "review": {
+            "author": [
+                {
+                    "by_tag_only": false,
+                    "tag": "a",
+                    "attr_key": "class",
+                    "attr_value": "blnum BDpWK",
+                    "target": "text"
+                }
+            ],
+            "comment": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "_T FKffI bmUTE",
+                    "target": "text"
+                }
+            ],
+            "url": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "data-test-target",
+                    "attr_value": "review-title",
+                    "target":"child",
+                    "child":{
+                        "by_tag_only": true,
+                        "tag":"a",
+                        "target":"attribute",
+                        "value_attr":"href"
+                    }
+                }
+            ],
+            "rating": [
+                {
+                    "by_tag_only": true,
+                    "tag": "title",
+                    "target":"text"
+                }
+            ],
+            "date_review": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "tVWyV _Z o S4 H3 Ci",
+                    "target":"text"
+                }
+            ],
+            "date_visit": [
+                {
+                    "by_tag_only": false,
+                    "tag": "span",
+                    "attr_key": "class",
+                    "attr_value": "iSNGb _R Me S4 H3 Cj",
+                    "target": "text"
+                }
+            ]
+        }
+    },
+    "attraction": {
+        "has_pagination": true,
+        "pagination_type": "button",
+        "optional_fileds": ["url"],
+        "paginator_locator": [
+            {
+                "by_tag_only":false,
+                "tag": "a",
+                "attr_key": "data-smoke-attr",
+                "attr_value": "pagination-next-arrow"
+            }
+        ],
+        "container_locator": [
+            {
+                "by_tag_only": false,
+                "tag": "section",
+                "attr_key": "id",
+                "attr_value": "REVIEWS"
+            }
+        ],
+        "reviews": [
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "data-automation",
+                "attr_value":"reviewCard"
+            }
+        ],
+        "review": {
+            "author": [
+                {
+                    "by_tag_only": false,
+                    "tag": "a",
+                    "attr_key": "class",
+                    "attr_value": "BMQDV _F Gv wSSLS SwZTJ FGwzt ukgoS",
+                    "target": "text"
+                }
+            ],
+            "comment": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "biGQs _P pZUbB KxBGd",
+                    "target": "text"
+                }
+            ],
+            "url": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "biGQs _P fiohW qWPrE ncFvv fOtGX",
+                    "target":"child",
+                    "child":{
+                        "by_tag_only": true,
+                        "tag":"a",
+                        "target":"attribute",
+                        "value_attr":"href"
+                    }
+                }
+            ],
+            "rating": [
+                {
+                    "by_tag_only": true,
+                    "tag": "title",
+                    "target":"text"
+                }
+            ],
+            "date_review": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "biGQs _P pZUbB ncFvv osNWb",
+                    "target":"text"
+                }
+            ],
+            "date_visit": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "RpeCd",
+                    "target": "text"
+                }
+            ]
+        }
+    },
+    "restaurant": {
+        "has_pagination": true,
+        "pagination_type": "button",
+        "optional_fileds": ["url"],
+        "paginator_locator": [
+            {
+                "by_tag_only":false,
+                "tag": "a",
+                "attr_key": "data-smoke-attr",
+                "attr_value": "pagination-next-arrow"
+            }
+        ],
+        "container_locator": [
+            {
+                "by_tag_only": false,
+                "tag": "section",
+                "attr_key": "id",
+                "attr_value": "REVIEWS"
+            }
+        ],
+        "reviews": [
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "data-automation",
+                "attr_value":"reviewCard"
+            }
+        ],
+        "review": {
+            "author": [
+                {
+                    "by_tag_only": false,
+                    "tag": "a",
+                    "attr_key": "class",
+                    "attr_value": "BMQDV _F Gv wSSLS SwZTJ FGwzt ukgoS",
+                    "target": "text"
+                }
+            ],
+            "comment": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "biGQs _P pZUbB KxBGd",
+                    "target": "text"
+                }
+            ],
+            "url": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "biGQs _P fiohW qWPrE ncFvv fOtGX",
+                    "target":"child",
+                    "child":{
+                        "by_tag_only": true,
+                        "tag":"a",
+                        "target":"attribute",
+                        "value_attr":"href"
+                    }
+                }
+            ],
+            "rating": [
+                {
+                    "by_tag_only": true,
+                    "tag": "title",
+                    "target":"text"
+                }
+            ],
+            "date_review": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "biGQs _P pZUbB ncFvv osNWb",
+                    "target":"text"
+                }
+            ],
+            "date_visit": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "Szuxy",
+                    "target": "text"
+                }
+            ]
+        }
+    },
+    "vacation": {
+        "has_pagination": true,
+        "pagination_type": "button",
+        "optional_fileds": ["url"],
+        "paginator_locator": [
+            {
+                "by_tag_only":false,
+                "tag": "a",
+                "attr_key": "data-smoke-attr",
+                "attr_value": "pagination-next-arrow"
+            }
+        ],
+        "container_locator": [
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "class",
+                "attr_value": "ESkHu f Fo N G Q1"
+            }
+        ],
+        "reviews": [
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "class",
+                "attr_value":"_c"
+            }
+        ],
+        "review": {
+            "author": [
+                {
+                    "by_tag_only": false,
+                    "tag": "a",
+                    "attr_key": "class",
+                    "attr_value": "BMQDV _F Gv wSSLS SwZTJ FGwzt ukgoS",
+                    "target": "text"
+                }
+            ],
+            "comment": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "biGQs _P pZUbB KxBGd",
+                    "target": "text"
+                }
+            ],
+            "url": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "data-test-target",
+                    "attr_value": "review-title",
+                    "target":"child",
+                    "child":{
+                        "by_tag_only": true,
+                        "tag":"a",
+                        "target":"attribute",
+                        "value_attr":"href"
+                    }
+                }
+            ],
+            "rating": [
+                {
+                    "by_tag_only": true,
+                    "tag": "title",
+                    "target":"text"
+                }
+            ],
+            "date_review": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "biGQs _P pZUbB ncFvv osNWb",
+                    "target":"text"
+                }
+            ],
+            "date_visit": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "biGQs _P pZUbB hmDzD",
+                    "target": "text"
+                }
+            ]
+        }
+    }
+}
