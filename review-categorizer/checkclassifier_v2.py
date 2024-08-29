@@ -15,6 +15,8 @@ import nltk
 api_token = ""
 api_url = ""
 
+nltk.download('punkt')
+
 
 def set_global_config(url, token):
     global api_url
@@ -22,6 +24,7 @@ def set_global_config(url, token):
 
     api_url = url
     api_token = token
+
 
 def english_segmentation(text):
     """
@@ -90,58 +93,64 @@ def spanish_segmentation(text):
     The function considers certain parts of speech and punctuation marks to determine sentence breaks.
     """
 
+    # Tokenize the text into sentences
+    sentences = nltk.sent_tokenize(text, language='spanish')
+
     # Load the Spanish language model in spaCy
     nlp = spacy.load("es_core_web_sm")
 
-    # Process the text with spaCy
-    doc = nlp(text)
+    for item in sentences:
 
-    # Initialize an empty string to store the current sentence and a counter for word count
-    sentence = ""
-    word_count = 0
+        # Process the text with spaCy
+        doc = nlp(item)
 
-    # Initialize an empty list to store the segmented sentences
-    result = []
+        # Initialize an empty string to store the current sentence and a counter for word count
+        sentence = ""
+        word_count = 0
 
-    # Iterate over each token in the processed text
-    for token in doc:
+        # Initialize an empty list to store the segmented sentences
+        result = []
 
-        # Check if the token is a coordinating conjunction, adverb, or a pipe character
-        if token.pos_ in ["CCONJ", "ADV"] or token.text == "|":
+        # Iterate over each token in the processed text
+        for token in doc:
 
-            # If the current sentence is not empty
-            if sentence != "":
-                # Check if the token is a comma or a pipe and the word count is greater than 3
-                if (token.text == "," or token.text == "|") and word_count > 3:
-                    # Add the current sentence to the result list and reset the sentence and word count
-                    result.append(sentence)
-                    sentence = ""
-                    word_count = 0
-                # If the token is a comma and the word count is less than or equal to 3
-                elif token.text == "," and word_count <= 3:
-                    # Add the token to the current sentence and increment the word count
+            # Check if the token is a coordinating conjunction, adverb, or a pipe character
+            if token.pos_ in ["CCONJ", "ADV"] or token.text == "|":
+
+                # If the current sentence is not empty
+                if sentence != "":
+                    # Check if the token is a comma or a pipe and the word count is greater than 3
+                    if (token.text == "," or token.text == "|") and word_count > 3:
+                        # Add the current sentence to the result list and reset the sentence and word count
+                        result.append(sentence)
+                        sentence = ""
+                        word_count = 0
+                    # If the token is a comma and the word count is less than or equal to 3
+                    elif token.text == "," and word_count <= 3:
+                        # Add the token to the current sentence and increment the word count
+                        sentence = "".join([sentence, token.text])
+                        word_count += 1
+                    else:
+                        # Add the current sentence to the result list and start a new sentence with the token
+                        result.append(sentence)
+                        sentence = token.text
+                        word_count = 1
+                else:
+                    # If the current sentence is empty, add the token to the sentence and increment the word count
                     sentence = "".join([sentence, token.text])
                     word_count += 1
-                else:
-                    # Add the current sentence to the result list and start a new sentence with the token
-                    result.append(sentence)
-                    sentence = token.text
-                    word_count = 1
+
             else:
-                # If the current sentence is empty, add the token to the sentence and increment the word count
-                sentence = "".join([sentence, token.text])
+                # If the token is not a coordinating conjunction, adverb, or a pipe character, add it to the current sentence and increment the word count
+                sentence = " ".join([sentence, token.text])
                 word_count += 1
 
-        else:
-            # If the token is not a coordinating conjunction, adverb, or a pipe character, add it to the current sentence and increment the word count
-            sentence = " ".join([sentence, token.text])
-            word_count += 1
-
-    # If the current sentence is not empty and contains more than one word, add it to the result list
-    if sentence != "" and len(sentence.split()) > 1:
-        result.append(sentence.strip())
+        # If the current sentence is not empty and contains more than one word, add it to the result list
+        if sentence != "" and len(sentence.split()) > 1:
+            result.append(sentence.strip())
 
     # Return the segmented sentences, removing any empty strings
+    return [t.strip() for t in result if t.strip()]
 
 
 def french_segmentation(text):
@@ -284,10 +293,11 @@ def analyse_text(review_item, labels, entity='review', min_score=0.8, language='
     if review_item['text'] and len(review_item['text']) > 25:
         sentences = segment_text(review_item["text"], language)
         res = []
-        
+
         for sentence in sentences:
-            res.extend(format_results(sentence_analyse(sentence), review_item, entity, categories=labels))
-        
+            res.extend(format_results(sentence_analyse(sentence),
+                       review_item, entity, categories=labels))
+
         return res
 
     return []
