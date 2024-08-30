@@ -105,7 +105,7 @@ def spanish_segmentation(text):
     sentences = nltk.sent_tokenize(text, language='spanish')
 
     # Load the Spanish language model in spaCy
-    nlp = spacy.load("es_core_web_sm")
+    nlp = spacy.load("es_core_news_sm")
 
     for item in sentences:
 
