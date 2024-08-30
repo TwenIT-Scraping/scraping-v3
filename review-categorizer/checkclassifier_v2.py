@@ -66,7 +66,7 @@ def english_segmentation(text):
     if current_sentence:
         sentences.append(" ".join(current_sentence).strip())
 
-    spinner.next("Segmentation done !\n")
+    spinner.next()
 
     return sentences
 
@@ -157,7 +157,7 @@ def spanish_segmentation(text):
         if sentence != "" and len(sentence.split()) > 1:
             result.append(sentence.strip())
 
-    spinner.next("Segmentation done !\n")
+    spinner.next()
 
     # Return the segmented sentences, removing any empty strings
     return [t.strip() for t in result if t.strip()]
@@ -182,7 +182,7 @@ def french_segmentation(text):
     # Tokenize the text into sentences
     sentences = nltk.sent_tokenize(text, language='french')
 
-    spinner.next("Segmentation done !\n")
+    spinner.next()
 
     return sentences
 
@@ -308,6 +308,8 @@ def analyse_text(review_item, labels, entity='review', min_score=0.8, language='
     if review_item['text'] and len(review_item['text']) > 25:
         sentences = segment_text(review_item["text"], language)
         res = []
+
+        print('\n')
 
         # progress = ChargingBar('Text categorization |', max=len(sentences))
         bar = Bar('Text categorization | ', fill='*',
@@ -477,6 +479,8 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
             if page >= data['pages']:
                 print("Last page !!!")
                 return True
+
+            print("\n")
 
             progress = ChargingBar(
                 'Review categorization | ', max=len(data['reviews']))
