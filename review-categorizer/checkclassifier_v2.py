@@ -344,7 +344,7 @@ def get_data_from_api(url, bearer_token, params=None):
     response = None
 
     try:
-        response = requests.get(url, headers=headers, params=params)
+        response = requests.get(url, headers=headers, params=params, verify=False)
         response.raise_for_status()  # Raise an exception if the request was unsuccessful
 
     except requests.exceptions.RequestException as err:
@@ -363,7 +363,7 @@ def post_data_to_api(url, bearer_token, data):
     response = None
 
     try:
-        response = requests.post(url, headers=headers, data=json.dumps(data))
+        response = requests.post(url, headers=headers, data=json.dumps(data), verify=False)
         response.raise_for_status()  # Raise an exception if the request was unsuccessful
 
     except requests.exceptions.RequestException as err:
