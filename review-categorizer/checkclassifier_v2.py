@@ -66,7 +66,7 @@ def english_segmentation(text):
     if current_sentence:
         sentences.append(" ".join(current_sentence).strip())
 
-    spinner.next()
+    spinner.next("Segmentation done !\n")
 
     return sentences
 
@@ -157,7 +157,7 @@ def spanish_segmentation(text):
         if sentence != "" and len(sentence.split()) > 1:
             result.append(sentence.strip())
 
-    spinner.next()
+    spinner.next("Segmentation done !\n")
 
     # Return the segmented sentences, removing any empty strings
     return [t.strip() for t in result if t.strip()]
@@ -182,7 +182,7 @@ def french_segmentation(text):
     # Tokenize the text into sentences
     sentences = nltk.sent_tokenize(text, language='french')
 
-    spinner.next()
+    spinner.next("Segmentation done !\n")
 
     return sentences
 
