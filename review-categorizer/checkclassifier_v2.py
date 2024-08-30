@@ -11,6 +11,8 @@ import requests
 import json
 import traceback
 import nltk
+from progress.bar import ChargingBar, Bar
+from progress.spinner import MoonSpinner
 
 api_token = ""
 api_url = ""
@@ -31,6 +33,8 @@ def english_segmentation(text):
     This function segments a given English text into sentences based on certain conditions.
     It uses the spaCy library for tokenization and part-of-speech tagging.
     """
+
+    spinner = MoonSpinner('Text segmentation ')
 
     # Load the English language model in spaCy
     nlp = spacy.load("en_core_web_sm")
@@ -62,6 +66,8 @@ def english_segmentation(text):
     if current_sentence:
         sentences.append(" ".join(current_sentence).strip())
 
+    spinner.next()
+
     return sentences
 
 
@@ -92,6 +98,8 @@ def spanish_segmentation(text):
     It uses the spaCy library to process the text and identify sentence boundaries.
     The function considers certain parts of speech and punctuation marks to determine sentence breaks.
     """
+
+    spinner = MoonSpinner('Text segmentation ')
 
     # Tokenize the text into sentences
     sentences = nltk.sent_tokenize(text, language='spanish')
@@ -149,6 +157,8 @@ def spanish_segmentation(text):
         if sentence != "" and len(sentence.split()) > 1:
             result.append(sentence.strip())
 
+    spinner.next()
+
     # Return the segmented sentences, removing any empty strings
     return [t.strip() for t in result if t.strip()]
 
@@ -167,8 +177,12 @@ def french_segmentation(text):
     # Ensure that the French tokenizer is downloaded
     nltk.download('punkt')
 
+    spinner = MoonSpinner('Text segmentation ')
+
     # Tokenize the text into sentences
     sentences = nltk.sent_tokenize(text, language='french')
+
+    spinner.next()
 
     return sentences
 
@@ -176,6 +190,7 @@ def french_segmentation(text):
 # This function segments text based on the language specified.
 # It uses different segmentation functions for different languages.
 def segment_text(text, language):
+
     # Define a dictionary that maps languages to their respective segmentation functions.
     segmentation_functions = {
         "en": english_segmentation,  # Function for English text segmentation.
@@ -294,9 +309,14 @@ def analyse_text(review_item, labels, entity='review', min_score=0.8, language='
         sentences = segment_text(review_item["text"], language)
         res = []
 
+        # progress = ChargingBar('Text categorization |', max=len(sentences))
+        bar = Bar('Text categorization | ', fill='*',
+                  suffix='%(percent)d%%', max=len(sentences))
+
         for sentence in sentences:
             res.extend(format_results(sentence_analyse(sentence),
                        review_item, entity, categories=labels))
+            bar.next()
 
         return res
 
@@ -458,6 +478,9 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
                 print("Last page !!!")
                 return True
 
+            progress = ChargingBar(
+                'Review categorization | ', max=len(data['reviews']))
+
             for review in data['reviews']:
                 # Check if the review language is English
                 if review['language'] and review['language'] == language:
@@ -467,6 +490,8 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
                         review, labels, entity=entity_dict[entity], min_score=0.7, language=language)
                     print(f"\nResult => {result}\n")
                     results.extend(result)
+
+                progress.next()
 
             # If there are results, post them to the API
             if len(results):
