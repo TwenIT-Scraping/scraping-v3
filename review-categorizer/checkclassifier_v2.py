@@ -589,17 +589,19 @@ def compute_sentiment(text):
 
 # This function is used to post sentiments to a specified URL.
 def post_sentiments(datas):
+    global api_url
+    global api_token
+
     # Print the data that is being uploaded for debugging purposes.
     print("\n Datas: ", datas, '\n')
 
     # Print a message to indicate that the sentiments are being uploaded.
     print("Uploading sentiments ...")
 
-    # Define the bearer token for authentication.
-    bearer_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTY4OTAxNjAsImV4cCI6MzI3MjA5MDE2MCwicm9sZXMiOlsiUk9MRV9FUkVQIiwiUk9MRV9DVVNUT01FUiIsIlJPTEVfUEFSVE5FUiIsIlJPTEVfVVNFUiJdLCJ1c2VybmFtZSI6ImxhdXJlbnppb3NhbWJhbnlAZ21haWwuY29tIn0.AfCjRneev40fepe1YuPdI22BoHQznaYkAGyee19dxiYhBWR8YAr15HbhL4ewNyyoglazQTVaW4HmI5AmUIKG7L8_PhzJkso0F4o6W5Tpf8T-xvhv_eB1STM39DEmFx3DPDDxABdbm7Xxc1BE5trSBQ_mIz1d-Rcebkej7Rg4SCGHL0Wv6GJlhFH3RVB87y49ETQDWCK4icU4UKlo-q6CW2HzAEct3cXk6vWhU93sw8y_iqFmlvCKU_cMdb1BTqsqohZYQ1Nt2k8xNRiNBcl4yazWrI-2qJS33e9IUkjib5jWfnsvMuA8BzntozZk2ieD-K5MfavT1nyuRij5BI018w"
+    url = f"{api_url}classification/feeling/categorization"
 
     # Send a POST request to the API with the data and bearer token.
-    response = post_data_to_api(url, bearer_token, data={
+    response = post_data_to_api(url, api_token, data={
                                 'data_content': datas})
 
     # If the request was successful (status code 200), print the response data and a success message.
