@@ -344,7 +344,8 @@ def get_data_from_api(url, bearer_token, params=None):
     response = None
 
     try:
-        response = requests.get(url, headers=headers, params=params, verify=False)
+        response = requests.get(url, headers=headers,
+                                params=params, verify=False)
         response.raise_for_status()  # Raise an exception if the request was unsuccessful
 
     except requests.exceptions.RequestException as err:
@@ -363,7 +364,8 @@ def post_data_to_api(url, bearer_token, data):
     response = None
 
     try:
-        response = requests.post(url, headers=headers, data=json.dumps(data), verify=False)
+        response = requests.post(url, headers=headers,
+                                 data=json.dumps(data), verify=False)
         response.raise_for_status()  # Raise an exception if the request was unsuccessful
 
     except requests.exceptions.RequestException as err:
@@ -615,7 +617,7 @@ def post_sentiments(datas):
 # Example usage:
 
 
-def get_sections(page=1, limit=10):
+def get_section_page(tag, page=1, limit=10):
     """
     This function retrieves data from the Nexties API based on the provided page and limit parameters.
     It uses a bearer token for authentication and a specific tag to filter the data.
@@ -629,20 +631,17 @@ def get_sections(page=1, limit=10):
     None: If the request is not successful.
     """
 
-    # The tag used to filter the data. Change this value to retrieve data for a different tag.
-    tag = "652d515ba431b"
+    global api_url
+    global api_token
 
     # The URL of the Nexties API endpoint.
-    url = "https://api-dev.nexties.fr/api/customer/classifications"
-
-    # The bearer token used for authentication.
-    bearer_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTY4OTAxNjAsImV4cCI6MzI3MjA5MDE2MCwicm9sZXMiOlsiUk9MRV9FUkVQIiwiUk9MRV9DVVNUT01FUiIsIlJPTEVfUEFSVE5FUiIsIlJPTEVfVVNFUiJdLCJ1c2VybmFtZSI6ImxhdXJlbnppb3NhbWJhbnlAZ21haWwuY29tIn0.AfCjRneev40fepe1YuPdI22BoHQznaYkAGyee19dxiYhBWR8YAr15HbhL4ewNyyoglazQTVaW4HmI5AmUIKG7L8_PhzJkso0F4o6W5Tpf8T-xvhv_eB1STM39DEmFx3DPDDxABdbm7Xxc1BE5trSBQ_mIz1d-Rcebkej7Rg4SCGHL0Wv6GJlhFH3RVB87y49ETQDWCK4icU4UKlo-q6CW2HzAEct3cXk6vWhU93sw8y_iqFmlvCKU_cMdb1BTqsqohZYQ1Nt2k8xNRiNBcl4yazWrI-2qJS33e9IUkjib5jWfnsvMuA8BzntozZk2ieD-K5MfavT1nyuRij5BI018w"
+    url = f"{api_url}customer/classifications"
 
     # The parameters to include in the API request.
     params = {"page": page, 'limit': limit}
 
     # Send a GET request to the API endpoint with the bearer token and parameters.
-    response = get_data_from_api(url, bearer_token, params)
+    response = get_data_from_api(url, api_token, params)
 
     # If the request is successful, return the JSON data.
     if response.status_code == 200:
@@ -656,31 +655,27 @@ def get_sections(page=1, limit=10):
 
 
 # This function fetches all sections from a website
-def get_all_sections():
-    # Start from the first page
-    page = 1
+def ia_sentiment_analysis_v2(tag, page=1):
     # Continue fetching pages until there are no more pages left
-    while True:
-        # Print the current page number for tracking progress
-        print(f"\n====== Fetching page {page} ======\n")
-        # Fetch the data for the current page
-        data = get_sections(page=page)
+    # Print the current page number for tracking progress
+    print(f"\n====== Fetching page {page} ======\n")
+    # Fetch the data for the current page
+    data = get_section_page(tag=tag, page=page)
 
-        # Print the data for debugging purposes
-        # print(data)
-        # If there is no data or we've reached the last page, break the loop
-        if not data or data['last_pages'] < page:
-            print("Last page !!!")
-            break
+    # Print the data for debugging purposes
+    # print(data)
+    # If there is no data or we've reached the last page, break the loop
+    if not data or data['last_pages'] < page:
+        print("Last page !!!")
+        return True
 
-        # Process the data for the current page
-        results = process_page_data(data)
-        # If there are results, post the sentiments
-        if results:
-            post_sentiments(results)
+    # Process the data for the current page
+    results = process_page_data(data)
+    # If there are results, post the sentiments
+    if results:
+        post_sentiments(results)
 
-        # Move on to the next page
-        page += 1
+    return False
 
 
 # This function processes the data from a page and computes the sentiment of each section.
@@ -688,13 +683,16 @@ def process_page_data(data):
     # Initialize an empty list to store the results.
     results = []
 
+    progress = ChargingBar(
+        'Sentiment analysis | ', max=len(data['items']))
+
     # Loop through each item in the data.
     for line in data['items']:
         # Get the section of the current item.
         section = line['section']
 
         # If the section exists and contains more than one word, compute its sentiment.
-        if section and len(section.split()) > 1:
+        if section and len(section.split()) > 1 and len(section) >= 25:
             # Compute the sentiment of the section.
             score = compute_sentiment(section)
 
@@ -707,6 +705,8 @@ def process_page_data(data):
                     # The confidence of the sentiment score.
                     'confidence_feeling': str(score['confidence'])
                 })
+
+        progress.next()
 
     # Return the results.
     return results

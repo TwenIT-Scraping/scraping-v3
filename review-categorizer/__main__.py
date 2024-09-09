@@ -18,7 +18,7 @@ from api import ERApi
 from progress.bar import ChargingBar
 from progress.spinner import Spinner
 from checkclassifier import ia_categorize, classify_text
-from checkclassifier_v2 import ia_categorize_v2, set_global_config
+from checkclassifier_v2 import ia_categorize_v2, set_global_config, ia_sentiment_analysis_v2
 
 dotenv.load_dotenv()
 
@@ -670,7 +670,8 @@ class ClassificationAPIV2(object):
                     is_done = ia_categorize_v2(
                         self.tag, self.type, self.language, self.page)
                 else:
-                    break
+                    is_done = ia_sentiment_analysis_v2(
+                        self.tag, self.page)
 
                 if is_done:
                     break
