@@ -299,7 +299,7 @@ def analyse_text(review_item, labels, entity='review', min_score=0.8, language='
         if not results:
             max_category = max_label(classify_text(
                 labels, current_sentence.strip()))
-            if max_category:
+            if max_category and max_category[1] >= 0.8:
                 results.append((current_sentence.strip(), max_category))
 
         return results
@@ -493,7 +493,7 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
                     print(f"\nText => {review['text']}:\n")
                     # Analyze the text and classify it into categories
                     result = analyse_text(
-                        review, labels, entity=entity_dict[entity], min_score=0.7, language=language)
+                        review, labels, entity=entity_dict[entity], min_score=0.8, language=language)
                     print(f"\nResult => {result}\n")
                     results.extend(result)
 
