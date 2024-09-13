@@ -453,7 +453,7 @@ class ClassificationAPI(object):
 
 class ClassificationAPIV2(object):
 
-    def __init__(self, env='dev', type='reviews', tag='', limit=5, column="category", language='en') -> None:
+    def __init__(self, env='dev', type='reviews', tag='', limit=5, column="category", language='en', full_text='Y') -> None:
         self.type = type
         self.establishment = None
         self.categories = []
@@ -465,6 +465,7 @@ class ClassificationAPIV2(object):
         self.pages = 1
         self.column = column
         self.language = language
+        self.full_text = full_text
 
         set_global_config(os.environ.get(
             f"API_URL_{env.upper()}"), os.environ.get(f'API_TOKEN_{env.upper()}'))
@@ -671,7 +672,7 @@ class ClassificationAPIV2(object):
                         self.tag, self.type, self.language, self.page)
                 else:
                     is_done = ia_sentiment_analysis_v2(
-                        self.tag, self.page)
+                        self.tag, self.full_text == 'Y', self.page)
 
                 if is_done:
                     break
@@ -738,6 +739,8 @@ def main_arguments() -> object:
                         help="Option: en, fr, es", default="fr")
     parser.add_argument('--results', '-r', dest='stat',
                         default="N", help="Option: N ou Y")
+    parser.add_argument('--full', '-f', dest='full_text', default="Y",
+                        help="Option: Y si texte complet et N si par section")
     return parser.parse_args()
 
 
@@ -747,7 +750,8 @@ ARGS_INFO = {
     '-v': {'long': '--env', 'dest': 'env', 'help': "Optionnel: environnement de l'api. PROD par d�faut"},
     '-n': {'long': '--names', 'dest': 'names', 'help': "Nom des �tablissements � traiter, s�par� par des virgules."},
     '-r': {'long': '--results', 'dest': 'stat', 'help': 'Option: N ou Y'},
-    '-l': {'long': '--language', 'dest': 'language', 'help': 'Option: en, fr ou es'}
+    '-l': {'long': '--language', 'dest': 'language', 'help': 'Option: en, fr ou es'},
+    '-f': {'long': '--full', 'dest': 'full_text', 'help': 'Option: Y si texte complet et N si par section'}
 }
 
 
@@ -810,7 +814,7 @@ if __name__ == '__main__':
                     print("======> Etablissement: ",
                           item['name'], ' <========')
                     cl = ClassificationAPIV2(
-                        tag=item['tag'], type=args.type, limit=20, env=args.env, column=args.column, language=args.language)
+                        tag=item['tag'], type=args.type, limit=20, env=args.env, column=args.column, language=args.language, full_text=args.full_text)
 
                     if args.stat == 'Y':
                         cl.check_results()
