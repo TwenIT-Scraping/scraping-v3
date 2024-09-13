@@ -708,6 +708,9 @@ def process_page_data(data):
                     'confidence_feeling': str(score['confidence'])
                 })
 
+        else:
+            print("section line characters number lower than 25: ", section)
+
         progress.next()
 
     # Return the results.
