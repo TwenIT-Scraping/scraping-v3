@@ -580,8 +580,23 @@ def compute_sentiment(text):
         feeling = "negative" if score_stars < 3 else (
             "positive" if score_stars > 3 else "neutral")
 
-        # Return a dictionary containing the confidence score and sentiment category
-        return {'confidence': confidence, 'feeling': feeling}
+        if feeling == "negative":
+            if score_stars == 1:
+                score_value = -1*confidence
+            if score_stars == 2:
+                score_value = -0.75
+        elif feeling == "neutre":
+            score_value = 0
+        else:
+            if score_stars == 4:
+                score_value = 0.75
+            if score_stars == 5:
+                score_value = confidence
+
+        return {'score': str(score_value), 'confidence': confidence, 'feeling': feeling}
+
+        # # Return a dictionary containing the confidence score and sentiment category
+        # return {'confidence': confidence, 'feeling': feeling}
 
     # If the sentiment analysis failed, return False
     return False
@@ -708,7 +723,9 @@ def process_page_data(data, full_text):
                     # The sentiment of the section.
                     'feeling': score['feeling'],
                     # The confidence of the sentiment score.
-                    'confidence_feeling': str(score['confidence'])
+                    'confidence_feeling': str(score['confidence']),
+                    # The score of the sentiment
+                    'score': score['score']
                 })
 
         else:
