@@ -588,7 +588,7 @@ def compute_sentiment(text):
 
 
 # This function is used to post sentiments to a specified URL.
-def post_sentiments(datas, full_text=True):
+def post_sentiments(datas, full_text=True, type='reviews'):
     global api_url
     global api_token
 
@@ -598,7 +598,7 @@ def post_sentiments(datas, full_text=True):
     # Print a message to indicate that the sentiments are being uploaded.
     print("Uploading sentiments ...")
 
-    url = f"{api_url}classification/feeling/categorization" if full_text else f"{api_url}classification/feeling/categorization"
+    url = f"{api_url}classification/feeling/text?type{type}" if full_text else f"{api_url}classification/feeling/categorization"
 
     # Send a POST request to the API with the data and bearer token.
     response = post_data_to_api(url, api_token, data={
@@ -619,7 +619,7 @@ def post_sentiments(datas, full_text=True):
 # Example usage:
 
 
-def get_lines(tag, full_text, page=1, limit=10):
+def get_lines(tag, full_text, page=1, limit=10, type='reviews'):
     """
     This function retrieves data from the Nexties API based on the provided page and limit parameters.
     It uses a bearer token for authentication and a specific tag to filter the data.
@@ -637,7 +637,7 @@ def get_lines(tag, full_text, page=1, limit=10):
     global api_token
 
     # The URL of the Nexties API endpoint.
-    url = f"{api_url}customer/classifications" if full_text else f"{api_url}customer/classifications"
+    url = f"{api_url}customer/analyse/text?tag={tag}&type{type}" if full_text else f"{api_url}customer/classifications"
 
     # The parameters to include in the API request.
     params = {"page": page, 'limit': limit}
@@ -657,13 +657,13 @@ def get_lines(tag, full_text, page=1, limit=10):
 
 
 # This function fetches all sections from a website
-def ia_sentiment_analysis_v2(tag, full_text=True, page=1):
+def ia_sentiment_analysis_v2(tag='non', full_text=True, page=1, type='reviews'):
     # Continue fetching pages until there are no more pages left
     # Print the current page number for tracking progress
     print(f"\n====== Fetching page {page} ======\n")
 
     # Fetch the data for the current page
-    data = get_lines(tag=tag, full_text=full_text, page=page)
+    data = get_lines(tag=tag, full_text=full_text, page=page, type=type)
 
     # Print the data for debugging purposes
     # print(data)
@@ -676,7 +676,7 @@ def ia_sentiment_analysis_v2(tag, full_text=True, page=1):
     results = process_page_data(data)
     # If there are results, post the sentiments
     if results:
-        post_sentiments(results, full_text)
+        post_sentiments(results, full_text, type=type)
 
     return False
 
