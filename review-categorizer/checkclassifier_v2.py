@@ -637,7 +637,7 @@ def get_lines(tag, full_text, page=1, limit=10, type='reviews'):
     global api_token
 
     # The URL of the Nexties API endpoint.
-    url = f"{api_url}customer/analyse/text?tag={tag}&type{type}" if full_text else f"{api_url}customer/classifications"
+    url = f"{api_url}customer/analyse/text?tag={tag}&type={type}" if full_text else f"{api_url}customer/classifications"
 
     # The parameters to include in the API request.
     params = {"page": page, 'limit': limit}
@@ -666,15 +666,18 @@ def ia_sentiment_analysis_v2(tag='non', full_text=True, page=1, type='reviews'):
     data = get_lines(tag=tag, full_text=full_text, page=page, type=type)
 
     # Print the data for debugging purposes
-    # print(data)
+    print(data)
     # If there is no data or we've reached the last page, break the loop
     if not data or data['last_pages'] < page:
         print("Last page !!!")
         return True
 
-    # Process the data for the current page
-    results = process_page_data(data)
-    # If there are results, post the sentiments
+    # # Process the data for the current page
+    results = process_page_data(data, full_text=full_text)
+    print("Process results:")
+    print(results)
+
+    # # If there are results, post the sentiments
     if results:
         post_sentiments(results, full_text, type=type)
 
@@ -682,17 +685,16 @@ def ia_sentiment_analysis_v2(tag='non', full_text=True, page=1, type='reviews'):
 
 
 # This function processes the data from a page and computes the sentiment of each section.
-def process_page_data(data):
+def process_page_data(data, full_text):
     # Initialize an empty list to store the results.
     results = []
-
     progress = ChargingBar(
         'Sentiment analysis | ', max=len(data['items']))
 
     # Loop through each item in the data.
     for line in data['items']:
         # Get the section of the current item.
-        section = line['section']
+        section = line['comment'] if full_text else line['section']
 
         # If the section exists and contains more than one word, compute its sentiment.
         if section and len(section.split()) > 1 and len(section) >= 25:
