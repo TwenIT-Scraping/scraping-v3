@@ -459,6 +459,35 @@ def fetch_page(tag, entity='reviews', page=1, limit=10):
         return None
 
 
+def fetch_labels(tag):
+    global api_url
+    global api_token
+
+    url = f"{api_url}customer/establishment/categorizations"
+
+    # Define the query parameters
+    params = {"tag": tag}
+
+    response = get_data_from_api(url, api_token, params)
+
+    if response.status_code == 200:
+        data = response.json()
+        # print(data)
+        return data
+
+    else:
+        print(f"Error: {response.status_code}")
+    # If the request was successful, print the JSON response and return it
+    if response.status_code == 200:
+        data = response.json()
+        print(data)
+        return data
+    # If the request was unsuccessful, print an error message and return None
+    else:
+        print(f"Error: {response.status_code}")
+        return None
+
+
 def ia_categorize_v2(tag, entity, language='en', page=1):
     results = []
 
@@ -471,11 +500,13 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
     print(f"\n====== Retrieving page {page} ======\n")
     data = fetch_page(tag=tag, entity=entity, page=page)
 
+    # Define the labels for text classification
+    labels = fetch_labels(tag=tag)
+
     # print(data)
+    print(labels)
 
     if data:
-        # Define the labels for text classification
-        labels = [item['category'] for item in data['categories']]
 
         if len(labels):
             if page >= data['pages']:
