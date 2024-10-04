@@ -611,6 +611,8 @@ def compute_sentiment(text):
         feeling = "negative" if score_stars < 3 else (
             "positive" if score_stars > 3 else "neutral")
 
+        score_value = 0
+
         if feeling == "negative":
             if score_stars == 1:
                 score_value = -1*confidence
