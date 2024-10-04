@@ -29,6 +29,7 @@ BG_RED = "\033[41m"
 BG_YELLOW = "\033[43m"
 WHITE = "\033[37m"
 BOLD = "\033[1m"
+BLUE = "\033[34m"
 
 
 def set_global_config(url, token):
@@ -365,6 +366,7 @@ def get_data_from_api(url, bearer_token, params=None):
         print(RED + traceback.format_exc() + RESET)
         print(traceback.format_exc())
         time.sleep(2)
+        input(BLUE + BOLD + "Press enter to continue ..." + Style.RESET_ALL)
 
     return response
 
@@ -386,6 +388,7 @@ def post_data_to_api(url, bearer_token, data):
         print(RED + err)
         print(RED + traceback.format_exc() + RESET)
         time.sleep(2)
+        input(BLUE + BOLD + "Press enter to continue ..." + Style.RESET_ALL)
 
     return response
 
