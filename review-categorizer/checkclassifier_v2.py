@@ -27,6 +27,7 @@ RESET = "\033[0m"  # Reset to default
 BG_RED = "\033[41m"
 BG_YELLOW = "\033[43m"
 WHITE = "\033[37m"
+BOLD = "\033[1m"
 
 
 def set_global_config(url, token):
@@ -358,9 +359,9 @@ def get_data_from_api(url, bearer_token, params=None):
         response.raise_for_status()  # Raise an exception if the request was unsuccessful
 
     except requests.exceptions.RequestException as err:
-        print(RED + "An error occurred:")
-        print(WHITE + BG_RED + err)
-        print(WHITE + BG_RED + traceback.format_exc() + RESET)
+        print(WHITE + BG_RED + BOLD + "An error occurred:")
+        print(RED + err)
+        print(RED + traceback.format_exc() + RESET)
         print(traceback.format_exc())
         time.sleep(2)
 
@@ -380,8 +381,8 @@ def post_data_to_api(url, bearer_token, data):
         response.raise_for_status()  # Raise an exception if the request was unsuccessful
 
     except requests.exceptions.RequestException as err:
-        print(RED + "An error occurred:")
-        print(WHITE + BG_RED + traceback.format_exc() + RESET)
+        print(WHITE + BG_RED + BOLD + "An error occurred:")
+        print(RED + traceback.format_exc() + RESET)
         time.sleep(2)
 
     return response
@@ -416,7 +417,7 @@ def post_classifications(datas):
     # If the request was successful, print a success message and return the JSON response
     if response.status_code == 200:
         data = response.json()
-        print(GREEN + BG_YELLOW + "Uploaded succesfully !" + RESET)
+        print(GREEN + BG_YELLOW + BOLD + "Uploaded succesfully !" + RESET)
         time.sleep(2)
         return data
     # If the request was unsuccessful, print an error message and return None
@@ -674,7 +675,7 @@ def post_sentiments(datas, full_text=True, type='reviews'):
     if response.status_code == 200:
         data = response.json()
         print(data)
-        print(GREEN + BG_YELLOW + "Uploaded successfully !" + RESET)
+        print(GREEN + BG_YELLOW + BOLD + "Uploaded successfully !" + RESET)
         time.sleep(2)
         return data
 
