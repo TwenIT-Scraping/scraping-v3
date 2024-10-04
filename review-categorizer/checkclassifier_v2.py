@@ -25,6 +25,7 @@ GREEN = "\033[32m"
 RESET = "\033[0m"  # Reset to default
 BG_RED = "\033[41m"
 BG_YELLOW = "\033[43m"
+WHITE = "\033[37m"
 
 
 def set_global_config(url, token):
@@ -357,8 +358,8 @@ def get_data_from_api(url, bearer_token, params=None):
 
     except requests.exceptions.RequestException as err:
         print(RED + "An error occurred:")
-        print(BG_RED + err)
-        print(BG_RED + traceback.format_exc() + RESET)
+        print(WHITE + BG_RED + err)
+        print(WHITE + BG_RED + traceback.format_exc() + RESET)
         print(traceback.format_exc())
 
     return response
@@ -378,7 +379,7 @@ def post_data_to_api(url, bearer_token, data):
 
     except requests.exceptions.RequestException as err:
         print(RED + "An error occurred:")
-        print(BG_RED + traceback.format_exc() + RESET)
+        print(WHITE + BG_RED + traceback.format_exc() + RESET)
 
     return response
 
