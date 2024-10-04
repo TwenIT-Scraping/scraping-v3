@@ -383,6 +383,7 @@ def post_data_to_api(url, bearer_token, data):
 
     except requests.exceptions.RequestException as err:
         print(WHITE + BG_RED + BOLD + "An error occurred:" + Style.RESET_ALL)
+        print(RED + err)
         print(RED + traceback.format_exc() + RESET)
         time.sleep(2)
 
