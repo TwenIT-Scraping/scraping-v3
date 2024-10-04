@@ -419,7 +419,8 @@ def post_classifications(datas):
     # If the request was successful, print a success message and return the JSON response
     if response.status_code == 200:
         data = response.json()
-        print(GREEN + BG_YELLOW + BOLD + "Uploaded succesfully !" + RESET)
+        print(GREEN + BG_YELLOW + BOLD +
+              "Uploaded succesfully !" + Style.RESET_ALL)
         time.sleep(2)
         return data
     # If the request was unsuccessful, print an error message and return None
@@ -677,7 +678,8 @@ def post_sentiments(datas, full_text=True, type='reviews'):
     if response.status_code == 200:
         data = response.json()
         print(data)
-        print(GREEN + BG_YELLOW + BOLD + "Uploaded successfully !" + RESET)
+        print(GREEN + BG_YELLOW + BOLD +
+              "Uploaded successfully !" + Style.RESET_ALL)
         time.sleep(2)
         return data
 
