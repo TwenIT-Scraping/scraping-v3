@@ -646,7 +646,7 @@ def post_sentiments(datas, full_text=True, type='reviews'):
     # Print a message to indicate that the sentiments are being uploaded.
     print("Uploading sentiments ...")
 
-    url = f"{api_url}classification/feeling/text?type{type}" if full_text else f"{api_url}classification/feeling/categorization"
+    url = f"{api_url}classification/feeling/text?type={type}" if full_text else f"{api_url}classification/feeling/categorization"
 
     # Send a POST request to the API with the data and bearer token.
     response = post_data_to_api(url, api_token, data={
