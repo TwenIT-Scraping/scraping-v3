@@ -14,6 +14,7 @@ import nltk
 from progress.bar import ChargingBar, Bar
 from progress.spinner import MoonSpinner
 import time
+from colorama import Style
 
 api_token = ""
 api_url = ""
@@ -359,7 +360,7 @@ def get_data_from_api(url, bearer_token, params=None):
         response.raise_for_status()  # Raise an exception if the request was unsuccessful
 
     except requests.exceptions.RequestException as err:
-        print(WHITE + BG_RED + BOLD + "An error occurred:")
+        print(WHITE + BG_RED + BOLD + "An error occurred:" + Style.RESET_ALL)
         print(RED + err)
         print(RED + traceback.format_exc() + RESET)
         print(traceback.format_exc())
@@ -381,7 +382,7 @@ def post_data_to_api(url, bearer_token, data):
         response.raise_for_status()  # Raise an exception if the request was unsuccessful
 
     except requests.exceptions.RequestException as err:
-        print(WHITE + BG_RED + BOLD + "An error occurred:")
+        print(WHITE + BG_RED + BOLD + "An error occurred:" + Style.RESET_ALL)
         print(RED + traceback.format_exc() + RESET)
         time.sleep(2)
 
