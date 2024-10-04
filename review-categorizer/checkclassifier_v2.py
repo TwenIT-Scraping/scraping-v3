@@ -362,9 +362,9 @@ def get_data_from_api(url, bearer_token, params=None):
 
     except requests.exceptions.RequestException as err:
         print(WHITE + BG_RED + BOLD + "An error occurred:" + Style.RESET_ALL)
-        print(RED + err)
-        print(RED + traceback.format_exc() + RESET)
-        print(traceback.format_exc())
+        print(RED + "")
+        print(err)
+        print(traceback.format_exc() + RESET)
         time.sleep(2)
         input(BLUE + BOLD + "Press enter to continue ..." + Style.RESET_ALL)
 
@@ -385,8 +385,9 @@ def post_data_to_api(url, bearer_token, data):
 
     except requests.exceptions.RequestException as err:
         print(WHITE + BG_RED + BOLD + "An error occurred:" + Style.RESET_ALL)
-        print(RED + err)
-        print(RED + traceback.format_exc() + RESET)
+        print(RED + "")
+        print(err)
+        print(traceback.format_exc() + RESET)
         time.sleep(2)
         input(BLUE + BOLD + "Press enter to continue ..." + Style.RESET_ALL)
 
