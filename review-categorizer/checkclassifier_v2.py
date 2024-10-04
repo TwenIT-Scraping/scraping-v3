@@ -19,6 +19,13 @@ api_url = ""
 
 nltk.download('punkt')
 
+# Define some color codes
+RED = "\033[31m"
+GREEN = "\033[32m"
+RESET = "\033[0m"  # Reset to default
+BG_RED = "\033[41m"
+BG_YELLOW = "\033[43m"
+
 
 def set_global_config(url, token):
     global api_url
@@ -349,8 +356,9 @@ def get_data_from_api(url, bearer_token, params=None):
         response.raise_for_status()  # Raise an exception if the request was unsuccessful
 
     except requests.exceptions.RequestException as err:
-        print("An error occurred:")
-        print(err)
+        print(RED + "An error occurred:")
+        print(BG_RED + err)
+        print(BG_RED + traceback.format_exc() + RESET)
         print(traceback.format_exc())
 
     return response
@@ -369,8 +377,8 @@ def post_data_to_api(url, bearer_token, data):
         response.raise_for_status()  # Raise an exception if the request was unsuccessful
 
     except requests.exceptions.RequestException as err:
-        print("An error occurred:")
-        print(traceback.format_exc())
+        print(RED + "An error occurred:")
+        print(BG_RED + traceback.format_exc() + RESET)
 
     return response
 
@@ -404,11 +412,11 @@ def post_classifications(datas):
     # If the request was successful, print a success message and return the JSON response
     if response.status_code == 200:
         data = response.json()
-        print("Uploaded successfully !")
+        print(GREEN + BG_YELLOW + "Uploaded succesfully !" + RESET)
         return data
     # If the request was unsuccessful, print an error message and return None
     else:
-        print(f"Error: {response.status_code}")
+        print(RED + f"Error: {response.status_code}" + RESET)
         return None
 
 
@@ -447,7 +455,7 @@ def fetch_page(tag, entity='reviews', page=1, limit=10):
         return data
 
     else:
-        print(f"Error: {response.status_code}")
+        print(RED + f"Error: {response.status_code}" + RESET)
     # If the request was successful, print the JSON response and return it
     if response.status_code == 200:
         data = response.json()
@@ -455,7 +463,7 @@ def fetch_page(tag, entity='reviews', page=1, limit=10):
         return data
     # If the request was unsuccessful, print an error message and return None
     else:
-        print(f"Error: {response.status_code}")
+        print(RED + f"Error: {response.status_code}" + RESET)
         return None
 
 
@@ -476,7 +484,7 @@ def fetch_labels(tag):
         return data
 
     else:
-        print(f"Error: {response.status_code}")
+        print(RED + f"Error: {response.status_code}" + RESET)
     # If the request was successful, print the JSON response and return it
     if response.status_code == 200:
         data = response.json()
@@ -484,7 +492,7 @@ def fetch_labels(tag):
         return data
     # If the request was unsuccessful, print an error message and return None
     else:
-        print(f"Error: {response.status_code}")
+        print(RED + f"Error: {response.status_code}" + RESET)
         return None
 
 
@@ -656,12 +664,12 @@ def post_sentiments(datas, full_text=True, type='reviews'):
     if response.status_code == 200:
         data = response.json()
         print(data)
-        print("Uploaded successfully !")
+        print(GREEN + BG_YELLOW + "Uploaded successfully !" + RESET)
         return data
 
     # If the request was not successful, print the error status code.
     else:
-        print(f"Error: {response.status_code}")
+        print(RED + f"Error: {response.status_code}" + RESET)
         return None
 
 # Example usage:
@@ -700,7 +708,8 @@ def get_lines(tag, full_text, page=1, limit=10, type='reviews'):
 
     # If the request is not successful, print the error status code and return None.
     else:
-        print(f"Error: {response.status_code}")
+
+        print(RED + f"Error: {response.status_code}" + RESET)
         return None
 
 
