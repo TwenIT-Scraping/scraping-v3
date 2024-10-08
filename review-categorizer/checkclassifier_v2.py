@@ -386,7 +386,11 @@ def post_data_to_api(url, bearer_token, data):
     except requests.exceptions.RequestException as err:
         print(WHITE + BG_RED + BOLD + "An error occurred:" + Style.RESET_ALL)
         print(RED + "")
-        print(err)
+        if err.response is not None and err.response.headers.get('Content-Type') == 'application/json':
+            error_json = err.response.json()  # Récupère le contenu JSON
+            print("Erreur JSON reçue :", error_json)
+        else:
+            print(f"Erreur HTTP : {err}")
         print(traceback.format_exc() + RESET)
         time.sleep(2)
         input(BLUE + BOLD + "Press enter to continue ..." + Style.RESET_ALL)
