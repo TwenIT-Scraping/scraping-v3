@@ -20,6 +20,16 @@ from progress.spinner import Spinner
 from checkclassifier import ia_categorize, classify_text
 from checkclassifier_v2 import ia_categorize_v2, set_global_config, ia_sentiment_analysis_v2
 
+# Define some color codes
+RED = "\033[31m"
+GREEN = "\033[32m"
+RESET = "\033[0m"  # Reset to default
+BG_RED = "\033[41m"
+BG_YELLOW = "\033[43m"
+WHITE = "\033[37m"
+BOLD = "\033[1m"
+BLUE = "\033[34m"
+
 dotenv.load_dotenv()
 
 rating_structure = {
@@ -658,13 +668,15 @@ if __name__ == '__main__':
             for item in todo:
                 print("ici")
                 try:
-                    if item['language'] and item['language'] == args.language:
+                    if 'language' in item.keys() and item['language'] and item['language'] == args.language:
                         final_todo.append(item)
                         print("if")
 
                     else:
-                        print("else")
-                        final_todo.append(item)
+                        print(RED + "The establishment " + BLUE +
+                              item['name'] + RED + " do not have " + BLUE + "a language" + RESET)
+                        # print("else")
+                        # final_todo.append(item)
                 except Exception as e:
                     print(e)
 
