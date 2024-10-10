@@ -540,9 +540,8 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
     }
 
     print(BLUE + BOLD + "\n====== Retrieving page  ======" + Style.RESET_ALL)
-    
+
     data = fetch_page(tag=tag, entity=entity, page=page)
-    
 
     # # Define the labels for text classification
     # labels = fetch_labels(tag=tag)
@@ -551,7 +550,8 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
     # print(labels)
 
     if data:
-        print( RED + BOLD + page + "/" + data['pages'] + Style.RESET_ALL)
+        print(RED + BOLD + str(page) + "/" +
+              str(data['pages']) + Style.RESET_ALL)
         labels = list(map(lambda x: x.capitalize(), data['categories']))
 
         if len(labels):
