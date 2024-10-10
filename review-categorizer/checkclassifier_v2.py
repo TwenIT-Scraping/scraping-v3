@@ -398,6 +398,18 @@ def post_data_to_api(url, bearer_token, data):
     return response
 
 
+def save_to_file(data, filename):
+
+    data = []
+
+    with open(filename, 'r') as json_file:
+        data = json.load(json_file)
+        print(data)
+
+    with open('data.json', 'w') as json_file:
+        json.dump(data, json_file, indent=4)
+
+
 def post_classifications(datas):
 
     global api_url
@@ -530,13 +542,15 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
     print(f"\n====== Retrieving page {page} ======\n")
     data = fetch_page(tag=tag, entity=entity, page=page)
 
-    # Define the labels for text classification
-    labels = fetch_labels(tag=tag)
+    # # Define the labels for text classification
+    # labels = fetch_labels(tag=tag)
 
-    # print(data)
-    print(labels)
+    # # print(data)
+    # print(labels)
 
     if data:
+
+        labels = list(map(lambda x: x.capitalize(), data['categories']))
 
         if len(labels):
             if page >= data['pages']:
@@ -797,7 +811,8 @@ def process_page_data(data, full_text):
                 })
 
         else:
-            print("section line characters number lower than 25: ", section)
+            print(
+                "\n" + BLUE + "Section line characters number lower than 25: " + section + RESET + "\n")
 
         progress.next()
 

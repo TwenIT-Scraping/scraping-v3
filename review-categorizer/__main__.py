@@ -470,35 +470,6 @@ class ClassificationAPIV2(object):
         set_global_config(os.environ.get(
             f"API_URL_{env.upper()}"), os.environ.get(f'API_TOKEN_{env.upper()}'))
 
-    # def fetch_datas(self):
-    #     endpoint = f"establishment/{self.tag}/reviews_to_classify"
-
-    #     try:
-    #         get_instance = ERApi(
-    #             method="get", entity=endpoint, env=self.env, params={"all": "yes", "type": self.type, "page": self.page, 'limit': self.limit})
-    #         res = get_instance.execute()
-
-    #         if (res):
-    #             print("Etablissement trait�: ", res['establishment']['name'])
-
-    #             print("Liste des cat�gories disponibles: ",
-    #                   res['categories'])
-    #             self.categories = res['categories']
-
-    #             self.establishment = res['establishment']
-    #             self.pages = res['pages']
-    #             self.lines = res['reviews']
-
-    #             print(
-    #                 f"Lignes trait�es: {(self.page-1)*self.limit}/{res['count']}")
-
-    #         self.page += 1
-
-    #         print("Lignes r�cup�r�es: ", len(self.lines))
-
-    #     except Exception as e:
-    #         print(e)
-
     def check_results(self):
         results = []
         stats = {'categories': [], 'classification': {},
@@ -570,94 +541,6 @@ class ClassificationAPIV2(object):
 
         print("\n=============================================\n")
 
-    # def check_categories(self, line):
-    #     if os.environ.get('ENV_TYPE') == 'local':
-    #         line['prediction'] = {
-    #             # 'labels': ['travel', 'cooking', 'dancing'],
-    #             'labels': self.categories,
-    #             # 'scores': [random.uniform(0, 1) for i in range(3)],
-    #             'scores': [random.uniform(0, 1) for i in range(len(self.categories))],
-    #             'sequence': line['text']
-    #         }
-    #     else:
-    #         # if len(self.categories):
-
-    #         #     categs = list(
-    #         #         map(lambda x: x['category'], self.categories))
-
-    #         #     line['prediction'] = classifytext(categs, line['text'])
-
-    #         # else:
-    #         #     line['prediction'] = None
-
-    #     return line
-
-    # def compute_lines_classifications(self):
-    #     results = []
-    #     progress = ChargingBar(
-    #         'Calcul classification', max=len(self.lines))
-    #     for i in range(len(self.lines)):
-    #         progress.next()
-    #         line = self.lines[i]
-    #         # print("\n ==== Line to classify ==== ")
-    #         # print(line)
-    #         # print("================================\n")
-
-    #         if line['text'] != "" and len(line['text']) >= 25:
-    #             # results += ia_categorize(line, 'review', list(
-    #             #     map(lambda x: x['category'], self.categories)))
-    #             # results += ia_categorize(line, type_dict[self.type], self.categories)
-    #             # results.extend(ia_categorize(line, type_dict[self.type],["Mobilier", "Accueil", "Ménage", "Nourriture", "Emplacement", "Confort", "Commodités", "Ambiance", "Restauration", "Sécurité", "Accès", "Transport"] ))
-    #             results.extend(ia_categorize(line, type_dict[self.type], ["Furniture", "Welcome", "Housekeeping", "Food",
-    #                            "Location", "Comfort", "Amenities", "Atmosphere", "Catering", "Safety", "Access", "Transportation"]))
-
-    #     return results
-
-    # def transform_data(self):
-
-    #     result = ""
-
-    #     if self.column == "category":
-
-    #         print("\n******** Cat�gories trouv�es *********\n")
-
-    #         for line in self.lines:
-    #             l_categs = ""
-    #             c_categs = ""
-
-    #             if 'prediction' in line.keys() and line['prediction']:
-    #                 for i in range(0, len(line['prediction']['labels'])):
-    #                     if line['prediction']['scores'][i] >= 0.8 and len(f"{line['prediction']['sequence']}") > 30:
-    #                         l_categs += f"{line['prediction']['labels'][i]}${str(line['prediction']['scores'][i])}|"
-
-    #             if len(self.categories):
-    #                 c_categs = "|".join(
-    #                     list(map(lambda x: x['category'], self.categories)))
-
-    #             l_categs != "" and print(
-    #                 f"- {l_categs.replace('|', ', ')} => {line['prediction']['sequence']}\n")
-
-    #             l = "&".join([str(line['id']), self.type, l_categs, c_categs])
-    #             result += l + "#"
-
-    #         print("\n**************************************\n")
-
-    #     return result
-
-    # def upload(self):
-    #     try:
-    #         data = self.transform_data()
-
-    #         print(data)
-
-    #         endpoint = "classification/multi" if self.column == "category" else "feeling/multi"
-    #         # print(data)
-    #         post_instance = ERApi(
-    #             method="postclassifications", entity=endpoint, env=self.env, body={'data_content': data})
-    #         return post_instance.execute()
-    #     except Exception as e:
-    #         print(e)
-
     def execute(self):
         results = []
         is_done = False
@@ -678,45 +561,6 @@ class ClassificationAPIV2(object):
                     break
                 else:
                     self.page += 1
-
-                # print("\n -------- Original -----------")
-                # print(self.lines)
-                # # if len(self.categories):
-                # res = self.compute_lines_classifications()
-                # print("\n -------- Apr�s traitement -----------")
-                # print(res)
-
-                # all_results = []
-
-                # if os.path.isfile('Sample.json') and os.access("Sample.json", os.R_OK):
-                #     # checks if file exists
-                #     all_results = json.load(open("Sample.json"))
-
-                # all_results.extend(res)
-
-                # json_object = json.dumps(all_results, indent=4)
-
-                # print("**** Saving in file ...")
-
-                # with open("Sample.json", "w") as outfile:
-                #     outfile.write(json_object)
-
-                # print("**** Saved")
-
-                # results.extend(res)
-
-                # else:
-                #     print("!!!! Pas de cat�gories")
-                #     break
-
-                # if os.environ.get('ENV_TYPE') != 'local':
-                #     res = self.upload()
-                #     print(res)
-
-                # print(len(self.lines))
-
-                # if self.page > self.pages:
-                #     break
 
         except Exception as e:
             print(e)
@@ -803,13 +647,22 @@ if __name__ == '__main__':
             else:
                 todo = [item for item in all_establishments if item['customer_id']]
 
+            final_todo = []
+
+            for item in todo:
+                if item['language'] and item['language'] == args.language:
+                    final_todo.append(item)
+
+                else:
+                    final_todo.append(item)
+
             print("Apr�s filtre: ", len(todo))
 
-            [print(item['name'], item['tag']) for item in todo]
+            [print(item['name'], item['tag']) for item in final_todo]
 
             all_results = []
 
-            for item in todo:
+            for item in final_todo:
                 try:
                     print("======> Etablissement: ",
                           item['name'], ' <========')
