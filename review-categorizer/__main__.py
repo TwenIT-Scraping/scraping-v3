@@ -657,13 +657,16 @@ if __name__ == '__main__':
 
             for item in todo:
                 print("ici")
-                if item['language'] and item['language'] == args.language:
-                    final_todo.append(item)
-                    print("if")
+                try:
+                    if item['language'] and item['language'] == args.language:
+                        final_todo.append(item)
+                        print("if")
 
-                else:
-                    print("else")
-                    final_todo.append(item)
+                    else:
+                        print("else")
+                        final_todo.append(item)
+                except Exception as e:
+                    print(e)
 
             print("Apres second filtre: ", len(final_todo))
 
