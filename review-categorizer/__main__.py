@@ -647,11 +647,13 @@ if __name__ == '__main__':
             else:
                 todo = [item for item in all_establishments if item['customer_id']]
 
-            print("Avant second filtre:\n")
+            print("Avant second filtre:")
 
             [print(item['name']) for item in todo]
 
             final_todo = []
+
+            print(todo)
 
             for item in todo:
                 if item['language'] and item['language'] == args.language:
