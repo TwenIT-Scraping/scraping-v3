@@ -647,6 +647,10 @@ if __name__ == '__main__':
             else:
                 todo = [item for item in all_establishments if item['customer_id']]
 
+            print("Avant second filtre:\n")
+
+            [print(item['name']) for item in todo]
+
             final_todo = []
 
             for item in todo:
@@ -656,9 +660,11 @@ if __name__ == '__main__':
                 else:
                     final_todo.append(item)
 
-            print("Apr�s filtre: ", len(todo))
+            print("Apres second filtre: ", len(final_todo))
 
-            [print(item['name'], item['tag']) for item in final_todo]
+            [print(item['name']) for item in todo]
+
+            # [print(item['name'], item['tag']) for item in final_todo]
 
             all_results = []
 
