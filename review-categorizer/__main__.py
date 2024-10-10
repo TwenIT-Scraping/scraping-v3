@@ -19,6 +19,7 @@ from progress.bar import ChargingBar
 from progress.spinner import Spinner
 from checkclassifier import ia_categorize, classify_text
 from checkclassifier_v2 import ia_categorize_v2, set_global_config, ia_sentiment_analysis_v2
+from colorama import Style
 
 # Define some color codes
 RED = "\033[31m"
@@ -657,32 +658,23 @@ if __name__ == '__main__':
             else:
                 todo = [item for item in all_establishments if item['customer_id']]
 
-            print("Avant second filtre:")
-
-            [print(item['name']) for item in todo]
-
             final_todo = []
 
-            print(todo)
-
             for item in todo:
-                print("ici")
                 try:
                     if 'language' in item.keys() and item['language'] and item['language'] == args.language:
                         final_todo.append(item)
-                        print("if")
 
                     else:
                         print(RED + "The establishment " + BLUE +
                               item['name'] + RED + " do not have " + BLUE + "a language" + RESET)
-                        # print("else")
-                        # final_todo.append(item)
+                        final_todo.append(item)
                 except Exception as e:
                     print(e)
 
-            print("Apres second filtre: ", len(final_todo))
+            # print("Apres filtre: ", len(final_todo))
 
-            [print(item['name']) for item in todo]
+            # [print(item['name']) for item in todo]
 
             # [print(item['name'], item['tag']) for item in final_todo]
 
@@ -690,8 +682,8 @@ if __name__ == '__main__':
 
             for item in final_todo:
                 try:
-                    print("======> Etablissement: ",
-                          item['name'], ' <========')
+                    print(BLUE + BOLD + "======> Etablissement: " +
+                          item['name'] + ' <========' + Style.RESET_ALL)
                     cl = ClassificationAPIV2(
                         tag=item['tag'], type=args.type, limit=20, env=args.env, column=args.column, language=args.language, full_text=args.full_text)
 
