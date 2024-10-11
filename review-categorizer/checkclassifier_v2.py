@@ -386,12 +386,28 @@ def post_data_to_api(url, bearer_token, data):
     except requests.exceptions.RequestException as err:
         print(WHITE + BG_RED + BOLD + "An error occurred:" + Style.RESET_ALL)
         print(RED + "")
-        print(err)
+        if err.response is not None and err.response.headers.get('Content-Type') == 'application/json':
+            error_json = err.response.json()  # Récupère le contenu JSON
+            print("Erreur JSON reçue :", error_json)
+        else:
+            print(f"Erreur HTTP : {err}")
         print(traceback.format_exc() + RESET)
         time.sleep(2)
         input(BLUE + BOLD + "Press enter to continue ..." + Style.RESET_ALL)
 
     return response
+
+
+def save_to_file(data, filename):
+
+    data = []
+
+    with open(filename, 'r') as json_file:
+        data = json.load(json_file)
+        print(data)
+
+    with open('data.json', 'w') as json_file:
+        json.dump(data, json_file, indent=4)
 
 
 def post_classifications(datas):
@@ -523,16 +539,18 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
         'comments': 'socialComment'
     }
 
-    print(f"\n====== Retrieving page {page} ======\n")
     data = fetch_page(tag=tag, entity=entity, page=page)
 
-    # Define the labels for text classification
-    labels = fetch_labels(tag=tag)
+    # # Define the labels for text classification
+    # labels = fetch_labels(tag=tag)
 
-    # print(data)
-    print(labels)
+    # # print(data)
+    # print(labels)
 
     if data:
+        print(BLUE + BOLD + "Page " + RED + str(page) + "/" +
+              str(data['pages']) + Style.RESET_ALL)
+        labels = list(map(lambda x: x.capitalize(), data['categories']))
 
         if len(labels):
             if page >= data['pages']:
@@ -793,7 +811,8 @@ def process_page_data(data, full_text):
                 })
 
         else:
-            print("section line characters number lower than 25: ", section)
+            print(
+                "\n" + BLUE + "Section line characters number lower than 25: " + section + RESET + "\n")
 
         progress.next()
 
