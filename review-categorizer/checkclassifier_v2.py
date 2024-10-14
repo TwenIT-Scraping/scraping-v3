@@ -443,6 +443,10 @@ def post_classifications(datas):
         print(WHITE + Back.GREEN + BOLD +
               "Uploaded succesfully !" + Style.RESET_ALL)
         time.sleep(2)
+        if data["details"] and data["details"]["errors"] and len(data["details"]["errors"]) > 0:
+            print(RED + "Errors found:")
+            [print(line) for line in data["details"]["errors"]]
+            print(RESET)
         return data
     # If the request was unsuccessful, print an error message and return None
     else:
