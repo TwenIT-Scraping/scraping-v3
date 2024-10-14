@@ -440,8 +440,9 @@ def post_classifications(datas):
     # If the request was successful, print a success message and return the JSON response
     if response.status_code == 200:
         data = response.json()
-        print(WHITE + Back.GREEN + BOLD +
-              "Uploaded succesfully !" + Style.RESET_ALL)
+        if data["Message"]:
+            print(WHITE + Back.GREEN + BOLD +
+                  data["Message"] + Style.RESET_ALL)
         time.sleep(2)
         if data["details"] and data["details"]["errors"] and len(data["details"]["errors"]) > 0:
             print(RED + "Errors found:")
