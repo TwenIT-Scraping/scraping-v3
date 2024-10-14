@@ -14,7 +14,7 @@ import nltk
 from progress.bar import ChargingBar, Bar
 from progress.spinner import MoonSpinner
 import time
-from colorama import Style
+from colorama import Style, Back
 
 api_token = ""
 api_url = ""
@@ -324,7 +324,7 @@ def analyse_text(review_item, labels, entity='review', min_score=0.8, language='
         print('\n')
 
         # progress = ChargingBar('Text categorization |', max=len(sentences))
-        bar = Bar('Text categorization | ', fill='*',
+        bar = Bar('Segment categorization | ', fill='*',
                   suffix='%(percent)d%%', max=len(sentences))
 
         for sentence in sentences:
@@ -391,6 +391,7 @@ def post_data_to_api(url, bearer_token, data):
             print("Erreur JSON reçue :", error_json)
         else:
             print(f"Erreur HTTP : {err}")
+            print(response.text)
         print(traceback.format_exc() + RESET)
         time.sleep(2)
         input(BLUE + BOLD + "Press enter to continue ..." + Style.RESET_ALL)
@@ -439,7 +440,7 @@ def post_classifications(datas):
     # If the request was successful, print a success message and return the JSON response
     if response.status_code == 200:
         data = response.json()
-        print(GREEN + BG_YELLOW + BOLD +
+        print(WHITE + Back.GREEN + BOLD +
               "Uploaded succesfully !" + Style.RESET_ALL)
         time.sleep(2)
         return data
@@ -541,12 +542,6 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
 
     data = fetch_page(tag=tag, entity=entity, page=page)
 
-    # # Define the labels for text classification
-    # labels = fetch_labels(tag=tag)
-
-    # # print(data)
-    # print(labels)
-
     if data:
         print(BLUE + BOLD + "Page " + RED + str(page) + "/" +
               str(data['pages']) + Style.RESET_ALL)
@@ -587,18 +582,6 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
     else:
         print("None data !!!")
         return True
-
-
-# Add comments to explain the purpose and functionality of the code
-# This function retrieves reviews from the API, analyzes the text of each review,
-# classifies it into categories, and posts the results to the API.
-# The function uses a while loop to retrieve all pages of reviews,
-# and it checks the language of each review to ensure that it is English.
-# The function also uses the analyse_text function to classify the text into categories,
-# and it uses the post_classifications function to post the results to the API.
-
-
-# get_all_reviews()
 
 
 def get_score(classifier, text):
@@ -700,7 +683,7 @@ def post_sentiments(datas, full_text=True, type='reviews'):
     if response.status_code == 200:
         data = response.json()
         print(data)
-        print(GREEN + BG_YELLOW + BOLD +
+        print(WHITE + Back.GREEN + BOLD +
               "Uploaded successfully !" + Style.RESET_ALL)
         time.sleep(2)
         return data
