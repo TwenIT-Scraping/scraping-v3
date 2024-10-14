@@ -456,7 +456,7 @@ def post_classifications(datas):
         return None
 
 
-def fetch_page(tag, entity='reviews', page=1, limit=10):
+def fetch_page(tag, entity='reviews', page=1, limit=5):
 
     global api_url
     global api_token
