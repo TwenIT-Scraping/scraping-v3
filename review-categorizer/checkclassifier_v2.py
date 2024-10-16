@@ -594,7 +594,7 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
             progress = ChargingBar(
                 'Review categorization | ', max=len(data['reviews']))
 
-            index = 0
+            index = 1
 
             for review in data['reviews']:
                 print(BLUE + BOLD, "\n-> Review n°", index, Style.RESET_ALL)
