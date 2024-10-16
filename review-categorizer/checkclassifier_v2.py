@@ -488,7 +488,7 @@ def post_classifications(datas):
         return None
 
 
-def fetch_page(tag, entity='reviews', page=1, limit=5):
+def fetch_page(tag, entity='reviews', page=1, limit=5, language='en'):
 
     global api_url
     global api_token
@@ -509,10 +509,11 @@ def fetch_page(tag, entity='reviews', page=1, limit=5):
     # tag = "66a21d3f105b8" # Hotel Lux Grand Gaube
 
     # Define the API endpoint URL
-    url = f"{api_url}establishment/{tag}/reviews_to_classify"
+    url = f"{api_url}establishment/{tag}/reviews_to_classify-v2"
 
     # Define the query parameters
-    params = {"all": "yes", "type": entity, "page": page, 'limit': limit}
+    params = {"all": "yes", "type": entity, "page": page,
+              'limit': limit, 'language': language}
 
     # Send a GET request to the API endpoint with the parameters and bearer token
     response = get_data_from_api(url, api_token, params)
@@ -577,7 +578,7 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
         'comments': 'socialComment'
     }
 
-    data = fetch_page(tag=tag, entity=entity, page=page)
+    data = fetch_page(tag=tag, entity=entity, page=page, language=language)
 
     if data:
         print(BLUE + BOLD + "Page " + RED + str(page) + "/" +
