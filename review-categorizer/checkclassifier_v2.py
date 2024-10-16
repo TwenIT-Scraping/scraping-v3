@@ -166,9 +166,12 @@ def spanish_segmentation(text):
                 sentence = " ".join([sentence, token.text])
                 word_count += 1
 
+            spinner.next()
+
         # If the current sentence is not empty and contains more than one word, add it to the result list
         if sentence != "" and len(sentence.split()) > 1:
             result.append(sentence.strip())
+            spinner.next()
 
     spinner.next()
 
@@ -267,20 +270,7 @@ def analyse_text(review_item, labels, entity='review', min_score=0.8, language='
             obj[entity] = str(review["id"])
             return obj
 
-        if len(results):
-            return [format_line(x, review, entity, categories) for x in results]
-        else:
-            obj = {
-                "section": "",
-                "category": "None",
-                "confidence": 1,
-                "checked": categories,
-                "review": "",
-                "socialPost": "",
-                "socialComment": ""
-            }
-            obj[entity] = str(review["id"])
-            return [obj]
+        return [format_line(x, review, entity, categories) for x in results]
 
     # This nested function analyzes a sentence and returns the results.
     def sentence_analyse(sentence, entity='review'):
@@ -341,10 +331,28 @@ def analyse_text(review_item, labels, entity='review', min_score=0.8, language='
         bar = Bar('Segment categorization | ', fill='*',
                   suffix='%(percent)d%%', max=len(sentences))
 
+        item_results = []
+
         for sentence in sentences:
-            res.extend(format_results(sentence_analyse(sentence),
-                       review_item, entity, categories=labels))
+            item_results.extend(format_results(sentence_analyse(sentence),
+                                               review_item, entity, categories=labels))
             bar.next()
+
+        if len(item_results) > 0:
+            res.extend(item_results)
+
+        else:
+            obj = {
+                "section": "",
+                "category": "None",
+                "confidence": 1,
+                "checked": labels,
+                "review": "",
+                "socialPost": "",
+                "socialComment": ""
+            }
+            obj[entity] = str(review_item["id"])
+            res.append(obj)
 
         return res
     else:
