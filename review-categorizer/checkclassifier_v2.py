@@ -594,7 +594,10 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
             progress = ChargingBar(
                 'Review categorization | ', max=len(data['reviews']))
 
+            index = 0
+
             for review in data['reviews']:
+                print(BLUE + BOLD, "\n-> Review n°", index, Style.RESET_ALL)
                 # Check if the review language is English
                 if review['language'] and review['language'] == language:
                     print(f"\nText => {review['text']}:\n")
@@ -605,6 +608,7 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
                     results.extend(result)
 
                 progress.next()
+                index += 1
 
             # If there are results, post them to the API
             # if len(results):
