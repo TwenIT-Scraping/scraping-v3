@@ -619,7 +619,7 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
             # if len(results):
             #     post_classifications(results)
 
-            print(results)
+            print("\n", results)
 
             return False
 
