@@ -190,8 +190,8 @@ def french_segmentation(text):
     Returns:
     list: A list of sentences.
     """
-    # Ensure that the French tokenizer is downloaded
-    nltk.download('punkt')
+    # # Ensure that the French tokenizer is downloaded
+    # nltk.download('punkt')
 
     spinner = MoonSpinner('Text segmentation ')
 
