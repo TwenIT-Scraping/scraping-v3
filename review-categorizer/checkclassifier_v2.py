@@ -74,11 +74,12 @@ def english_segmentation(text):
             current_sentence.append(token.text)
             word_count += 1
 
+        spinner.next()
+
     # Process any remaining sentence
     if current_sentence:
         sentences.append(" ".join(current_sentence).strip())
-
-    spinner.next()
+        spinner.next()
 
     return sentences
 
@@ -266,7 +267,20 @@ def analyse_text(review_item, labels, entity='review', min_score=0.8, language='
             obj[entity] = str(review["id"])
             return obj
 
-        return [format_line(x, review, entity, categories) for x in results]
+        if len(results):
+            return [format_line(x, review, entity, categories) for x in results]
+        else:
+            obj = {
+                "section": "",
+                "category": "None",
+                "confidence": 1,
+                "checked": categories,
+                "review": "",
+                "socialPost": "",
+                "socialComment": ""
+            }
+            obj[entity] = str(review["id"])
+            return [obj]
 
     # This nested function analyzes a sentence and returns the results.
     def sentence_analyse(sentence, entity='review'):
@@ -333,8 +347,18 @@ def analyse_text(review_item, labels, entity='review', min_score=0.8, language='
             bar.next()
 
         return res
-
-    return []
+    else:
+        obj = {
+            "section": "",
+            "category": "None",
+            "confidence": 1,
+            "checked": labels,
+            "review": "",
+            "socialPost": "",
+            "socialComment": ""
+        }
+        obj[entity] = str(review_item["id"])
+        return [obj]
 
 
 def get_data_from_api(url, bearer_token, params=None):
@@ -575,8 +599,10 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
                 progress.next()
 
             # If there are results, post them to the API
-            if len(results):
-                post_classifications(results)
+            # if len(results):
+            #     post_classifications(results)
+
+            print(results)
 
             return False
 
