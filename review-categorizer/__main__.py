@@ -1,23 +1,12 @@
-import csv
-import pprint
-import json
 import random
-import pandas as pd
-from datetime import datetime, timedelta
-from random import randint
-import sys
+from datetime import datetime
 import os
-import time
-from abc import abstractmethod
-import orjson
 import dotenv
 import argparse
-import ssl
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 from api import ERApi
 from progress.bar import ChargingBar
-from progress.spinner import Spinner
-from checkclassifier import ia_categorize, classify_text
+from checkclassifier import classify_text
 from checkclassifier_v2 import ia_categorize_v2, set_global_config, ia_sentiment_analysis_v2
 from colorama import Style
 
