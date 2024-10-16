@@ -607,6 +607,10 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
                     print(f"\nResult => {result}\n")
                     results.extend(result)
 
+                else:
+                    print(BOLD + RED + "Autre langue trouvée: ",
+                          review['language'], Style.RESET_ALL)
+
                 progress.next()
                 index += 1
 
