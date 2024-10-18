@@ -35,7 +35,14 @@ def get_ip(use_tor:bool) -> None:
 
 class Scraping(object):
 
-    def __init__(self, in_background: bool, url: str, establishment: str, settings: str, env: str, force_refresh=False) -> None:
+    def __init__(self, 
+                 in_background: bool, 
+                 url: str, 
+                 establishment: str, 
+                 settings: str, 
+                 env: str, 
+                 last_review_date: str,
+                 force_refresh=False) -> None:
         # driver options
         user_agents = [
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -60,7 +67,7 @@ class Scraping(object):
         # self.chrome_options.add_argument('--disable-gpu')
         # self.chrome_options.add_experimental_option('excludeSwitch',['enable-logging']) 
         self.chrome_options.add_argument("--enable-javascript")
-        self.chrome_options.add_argument(f"user-agent={random.choice(user_agents)}")
+        # self.chrome_options.add_argument(f"user-agent={random.choice(user_agents)}")
         self.chrome_options.add_argument('--log-level=3') 
         # in_background and self.chrome_options.add_argument('--headless')
         # self.chrome_options.add_argument('--incognito')
@@ -76,14 +83,14 @@ class Scraping(object):
 
         dotenv.load_dotenv()
         # get_ip(False)
-        if os.environ.get('DRIVER') == 'chrome':
-            global TOR_PROXY
-            self.chrome_options.add_extension(f'{Path.cwd().joinpath("extensions/canvas_blocker_0_2_0_0.crx")}')
-            self.chrome_options.add_extension(f'{Path.cwd().joinpath("extensions/browser_fingerprint_protector.crx")}')
-            self.chrome_options.add_extension(
-                f'{Path.cwd().joinpath("extensions/user_agent_1.crx")}')
-            self.chrome_options.add_extension(
-                f'{Path.cwd().joinpath("extensions/user_agent_2.crx")}')
+        # if os.environ.get('DRIVER') == 'chrome':
+        #     global TOR_PROXY
+        #     self.chrome_options.add_extension(f'{Path.cwd().joinpath("extensions/canvas_blocker_0_2_0_0.crx")}')
+        #     self.chrome_options.add_extension(f'{Path.cwd().joinpath("extensions/browser_fingerprint_protector.crx")}')
+        #     self.chrome_options.add_extension(
+        #         f'{Path.cwd().joinpath("extensions/user_agent_1.crx")}')
+        #     self.chrome_options.add_extension(
+        #         f'{Path.cwd().joinpath("extensions/user_agent_2.crx")}')
             # self.chrome_options.add_argument(f"--proxy-server={TOR_PROXY}")
             # seleniumwireoptions = {
             #     "proxy": {
@@ -92,9 +99,9 @@ class Scraping(object):
             #     }
             # }
             # self.driver = webdriver.Chrome(options=self.chrome_options, seleniumwire_options=seleniumwireoptions)
-            self.driver = webdriver.Chrome(options=self.chrome_options)
-        else:
-            self.driver = webdriver.Firefox(options=self.firefox_options)
+        self.driver = webdriver.Chrome(options=self.chrome_options)
+        # else:
+        #     self.driver = webdriver.Firefox(options=self.firefox_options)
             # self.driver.install_addon(
             #     f'{Path.cwd().joinpath("extensions/canvasblocker-1.10.1.xpi")}')
         self.driver.maximize_window()
@@ -109,6 +116,7 @@ class Scraping(object):
         self.env = env
         self.lang = 'fr'
         self.setting_id = "-1"
+        self.last_review_date = last_review_date
 
         self.set_random_params()
 

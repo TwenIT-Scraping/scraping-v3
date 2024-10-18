@@ -12,7 +12,7 @@ from api import ERApi
 import random
 from changeip import refresh_connection
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from tools import ReviewScore
 
 
@@ -213,10 +213,19 @@ class ListScraperV2:
                     print(item)
                     if 'tripadvisor' in item['source'].lower():
                         instance = __class_name_v2__[item['source']](
-                            url=item['url'], establishment=item['establishment_id'], settings=item['id'],name=item['establishment_name'], env=self.env)
+                            url=item['url'], 
+                            establishment=item['establishment_id'], 
+                            settings=item['id'],
+                            name=item['establishment_name'], 
+                            last_review_date=item.get("last_review_date", (datetime.now() - timedelta(days=-365)).strftime("%d/%m/%Y")),
+                            env=self.env)
                     else:
                         instance = __class_name_v2__[item['source']](
-                            url=item['url'], establishment=item['establishment_id'], settings=item['id'], env=self.env)
+                            url=item['url'], 
+                            establishment=item['establishment_id'], 
+                            settings=item['id'], 
+                            last_review_date=item.get("last_review_date", (datetime.now() - timedelta(days=-365)).strftime("%d/%m/%Y")),
+                            env=self.env)
                     item['language'] and instance.set_language(
                         item['language'])
                     instance.set_setting_id(item['id'])

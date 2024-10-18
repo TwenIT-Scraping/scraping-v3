@@ -39,9 +39,8 @@ class BaseTwitterScrap(Scraping):
 
     def resolve_loginform(self) -> None:
         self.fill_loginform()
-        self.normal_login_step = 0
+        # self.normal_login_step = 0
         while "/home" not in self.page.url:
-
             self.fill_loginform()
         self.page.wait_for_timeout(60000)
 
@@ -63,7 +62,9 @@ class BaseTwitterScrap(Scraping):
     def fill_loginform(self) -> None:
         time.sleep(5)
         modal_header = self.page.locator("//h1[@id='modal-header']").text_content().lower()
+        print(modal_header)
         match modal_header:
+        
             case 'sign in to x':
                 self.page.wait_for_selector(
                     "//input[@autocomplete='username']")
@@ -72,7 +73,7 @@ class BaseTwitterScrap(Scraping):
                 print(self.current_credential)
                 self.page.locator("//input[@autocomplete='username']").fill(self.current_credential['email'])
                 self.page.locator(
-                    "//span[text()='Next' or text()='Suivant']").click()
+                    "//span[text()='Next' or text()='Next']").click()
                 self.page.wait_for_timeout(10000)
                 time.sleep(randint(1, 3))
 
@@ -92,7 +93,7 @@ class BaseTwitterScrap(Scraping):
                 time.sleep(randint(1, 3))
                 self.page.locator("//input[@data-testid='ocfEnterTextTextInput']").fill(self.current_credential['username'])
                 self.page.locator(
-                    "//span[text()='Next' or text()='Suivant']").click()
+                    "//span[text()='Next' or text()='Next']").click()
                 self.page.wait_for_timeout(10000)
                 time.sleep(randint(1, 3))
 
@@ -101,7 +102,7 @@ class BaseTwitterScrap(Scraping):
                     "//input[@data-testid='ocfEnterTextTextInput']").click()
                 time.sleep(randint(1, 3))
                 self.page.locator("//input[@data-testid='ocfEnterTextTextInput']").fill(self.current_credential['username'])
-                self.page.locator("//span[text()='Next' or text()='Suivant']").click()
+                self.page.locator("//button[@data-testid='ocfEnterTextNextButton']").click()
                 self.page.wait_for_timeout(10000)
                 time.sleep(randint(1, 3))
 
@@ -549,29 +550,29 @@ class TwitterProfileScraper(Scraping):
         pass
 
     def execute(self) -> None:
-        progress = ChargingBar('Preparing ', max=3)
+        # progress = ChargingBar('Preparing ', max=3)
         self.goto_login()
-        progress.next()
+        # progress.next()
         print(" | Fill login page")
         self.resolve_loginform()
-        progress.next()
+        # progress.next()
         print(" | Logged in!")
         output_files = []
 
         for item in self.items:
             try:
-                p_item = FillingCirclesBar(item['establishment_name'], max=4)
+                # p_item = FillingCirclesBar(item['establishment_name'], max=4)
                 self.set_item(item)
-                p_item.next()
+                # p_item.next()
                 print(" | Open page")
                 self.goto_tweet_page()
-                p_item.next()
+                # p_item.next()
                 print(" | Extracting")
                 self.extract_data()
-                p_item.next()
+                # p_item.next()
                 print(" | Saving")
                 self.save()
-                p_item.next()
+                # p_item.next()
                 output_files.append(self.save())
                 print(" | Saved")
             except:
@@ -608,6 +609,17 @@ class TwitterProfileScraperFR(TwitterProfileScraper):
                 self.page.wait_for_timeout(10000)
                 time.sleep(randint(1, 3))
 
+            case "sing in to x":
+                self.page.wait_for_selector(
+                    "//input[@autocomplete='username']")
+                self.page.locator("//input[@autocomplete='username']").click()
+                time.sleep(randint(1, 3))
+                self.page.fill(
+                    "//input[@autocomplete='username']", self.current_credential['email'])
+                self.page.locator("//span[text()='Next']").click()
+                self.page.wait_for_timeout(10000)
+                time.sleep(randint(1, 3))
+
             case "entrez votre adresse email ou votre nom d'utilisateur.":
                 self.page.locator(
                     "//input[@data-testid='ocfEnterTextTextInput']").click()
@@ -615,6 +627,16 @@ class TwitterProfileScraperFR(TwitterProfileScraper):
                 self.page.fill(
                     "//input[@data-testid='ocfEnterTextTextInput']", self.current_credential['username'])
                 self.page.locator("//span[text()='Suivant']").click()
+                self.page.wait_for_timeout(10000)
+                time.sleep(randint(1, 3))
+
+            case 'enter your phone number or username':
+                self.page.locator(
+                    "//input[@data-testid='ocfEnterTextTextInput']").click()
+                time.sleep(randint(1, 3))
+                self.page.fill(
+                    "//input[@data-testid='ocfEnterTextTextInput']", self.current_credential['username'])
+                self.page.locator("//button[@data-testid='ocfEnterTextNextButton']").click()
                 self.page.wait_for_timeout(10000)
                 time.sleep(randint(1, 3))
 
@@ -626,6 +648,17 @@ class TwitterProfileScraperFR(TwitterProfileScraper):
                 self.page.locator("//span[text()='Se connecter']").click()
                 self.page.wait_for_timeout(10000)
                 time.sleep(randint(1, 3))
+
+            case "enter your password":
+                self.page.locator("//input[@type='password']").click()
+                time.sleep(randint(1, 3))
+                self.page.fill("//input[@type='password']",
+                               self.current_credential['password'])
+                self.page.locator("//span[text()='Se connecter']").click()
+                self.page.wait_for_timeout(10000)
+                time.sleep(randint(1, 3))
+
+
 
             case _:
                 self.page.wait_for_selector(
@@ -671,13 +704,14 @@ class X_scraper(BaseTwitterScrap):
                 self.xhr_calls['tweets'] = response.json()
 
     def extract_page_data(self) -> None:
-        name = re.sub(r'[^\w]', ' ', nested_lookup(key='name', document=self.xhr_calls['profile'])[0]).strip()
+        # name = re.sub(r'[^\w]', ' ', nested_lookup(key='name', document=self.xhr_calls['profile'])[0]).strip()
         self.page_data = {
-            'followers': nested_lookup(key='followers_count', document=self.xhr_calls['profile'])[0],
-            'likes': nested_lookup(key='favourites_count', document=self.xhr_calls['profile'])[0],
+            # 'followers': nested_lookup(key='followers_count', document=self.xhr_calls['profile'])[0],
+            # 'likes': nested_lookup(key='favourites_count', document=self.xhr_calls['profile'])[0],
             'source': "twitter",
             'establishment': self.establishment,
-            'name': f"twitter_{name.replace(' ', '_')}",
+            'posts': []
+            # 'name': f"twitter_{name.replace(' ', '_')}",
         }
         print(self.page_data)
 
@@ -709,7 +743,7 @@ class X_scraper(BaseTwitterScrap):
     
     def format_date_from_iso(self, time_str:str) -> str:
         datetime_obj = datetime.fromisoformat(time_str.replace('Z', '+00:00'))
-        return datetime_obj.strftime("%d/%m/%Y")
+        return datetime_obj.strftime("%Y-%m-%d")
 
     def get_articles(self) -> object | None:
         articles = self.page.query_selector_all("//article[@role='article']")
@@ -818,20 +852,25 @@ class X_scraper(BaseTwitterScrap):
             try:
                 comment['likes'] = int(article.find('button', {'data-testid':'like'}).text)
             except:
-                comment['likes'] = int(0)
-            comment['published_at'] = self.format_date_from_iso(article.find('time')['datetime'])
+                comment['likes'] = 0
+            comment['publishedAt'] = self.format_date_from_iso(article.find('time')['datetime'])
             post['comment_values'].append(comment)
 
         post['comments'] = len(post['comment_values'])
-        self.posts.append(post)
+        self.page_data['posts'].append(post)
 
         print('extraction done')
+
+
+    def post_data(self):
+        pass
 
     def execute(self):
         super().execute()
         output_files = []
 
         for item in self.items:
+            print(item)
             self.set_item(item)
             self.goto_x_page()
             # self.extract_page_data() j'ai commenté ça car il me semble qu'on a juste besoin des comments pour le social media puisque les score sont scrapé dans l'autre programme
@@ -841,10 +880,36 @@ class X_scraper(BaseTwitterScrap):
                 for data in self.post_data:
                     self.goto_post(data['link'])
                     self.load_comments()
-                    self.extract_posts()
-
-            print(self.page_data)
-            print(self.posts)
-            output_files.append(self.save())
+                    try:
+                        self.extract_posts()
+                        self.save()
+                        self.page_data['posts'].clear()
+                    except:
+                        pass
+            # output_files.append(self.save())
         
         return output_files
+
+
+
+
+if __name__ == '__main__':
+
+    data = [
+        # {'id': 238, 'caption': '', 'section': 'FOLLOW US', 'establishment_name': 'LUX Grand Gaube', 'establishment_id': 70, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/LUXGrandGaube', 'language': 'en', 'last_review_date': None, 'last_comment_date': '01/09/2024', 'last_post_date': '03/09/2024'}, 
+        # {'id': 223, 'caption': '', 'section': 'FOLLOW US', 'establishment_name': 'SOC Rugby', 'establishment_id': 69, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/soc_rugby', 'language': 'fr', 'last_review_date': None, 'last_comment_date': '13/09/2024', 'last_post_date': '13/09/2024'}, 
+        # {'id': 204, 'caption': '', 'section': 'FOLLOW US', 'establishment_name': 'AMSB', 'establishment_id': 63, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/amsbofficiel', 'language': 'fr', 'last_review_date': None, 'last_comment_date': '03/09/2024', 'last_post_date': '05/09/2024'}, 
+        # {'id': 177, 'caption': None, 'section': 'FOLLOW US', 'establishment_name': 'Sport2000 France', 'establishment_id': 52, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/https://x.com/SPORT2000France', 'language': 'fr', 'last_review_date': None, 'last_comment_date': '25/06/2024', 'last_post_date': '30/08/2024'}, 
+        {'id': 161, 'caption': None, 'section': 'FOLLOW US', 'establishment_name': 'Team Chambé', 'establishment_id': 49, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/TeamChambe', 'language': 'fr', 'last_review_date': None, 'last_comment_date': '02/09/2024', 'last_post_date': '03/09/2024'}, 
+        # {'id': 127, 'caption': None, 'section': None, 'establishment_name': 'Hotel Chamartín The One', 'establishment_id': 28, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/ChamartinTheOne', 'language': 'es', 'last_review_date': None, 'last_comment_date': '08/03/2024', 'last_post_date': '07/03/2024'}, 
+        # {'id': 99, 'caption': None, 'section': None, 'establishment_name': 'Le Château de Candie', 'establishment_id': 4, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/chateaudecandie', 'language': 'fr', 'last_review_date': None, 'last_comment_date': '31/08/2024', 'last_post_date': '31/08/2024'}, 
+        # {'id': 91, 'caption': None, 'section': None, 'establishment_name': 'Hotel Chamartín The One', 'establishment_id': 28, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/ChamartinTheOne', 'language': 'es', 'last_review_date': None, 'last_comment_date': '08/03/2024', 'last_post_date': '07/03/2024'}, 
+        # {'id': 66, 'caption': None, 'section': None, 'establishment_name': 'ESF Chamonix', 'establishment_id': 23, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/chamonixesf', 'language': 'fr', 'last_review_date': None, 'last_comment_date': None, 'last_post_date': None}, 
+        # {'id': 22, 'caption': None, 'section': None, 'establishment_name': 'Madame Vacances', 'establishment_id': 7, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/Madame_Vacances', 'language': 'fr', 'last_review_date': None, 'last_comment_date': '01/07/2024', 'last_post_date': '29/08/2024'}
+        ]
+
+
+    t = X_scraper(
+        items=data
+    )
+    t.execute()

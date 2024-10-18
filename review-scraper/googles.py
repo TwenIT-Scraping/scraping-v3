@@ -200,7 +200,7 @@ class BaseGoogleScrap(Scraping):
             if self.check_page():
                 self.load_reviews()
                 time.sleep(2)
-                self.save()
+                # self.save()
             else:
                 print("!!!!!!!! Cette page n'existe pas !!!!!!!!")
             self.driver.quit()
@@ -440,6 +440,7 @@ class Google(BaseGoogleScrap):
   
                 date_review = self.formate_date(date_raw)
                 if date_review != "" and date_review is not None:
+                    #if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365) or (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
                     if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365):
                         reviews.append({
                             'rating': rating,
@@ -455,6 +456,7 @@ class Google(BaseGoogleScrap):
                             'novisitday': "1"
                         })
 
+                    #if datetime.strptime(date_review, '%d/%m/%Y') < (datetime.now() - timedelta(days=365)) or (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
                     if datetime.strptime(date_review, '%d/%m/%Y') < (datetime.now() - timedelta(days=365)):
                         print("last date valid reached")
                         self.data = reviews
