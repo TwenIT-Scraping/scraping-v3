@@ -43,12 +43,12 @@ class BaseGoogleScrap(Scraping):
                  url: str, 
                  establishment: str, 
                  settings: str, 
-                #  last_review_date:str, 
+                last_review_date:str, 
                  env: str):
         super().__init__(in_background=False, url=url,
                          establishment=establishment, 
                          settings=settings, 
-                        #  last_review_date=last_review_date,
+                        last_review_date=last_review_date,
                          env=env) 
         self.url_lang_code = {
             'fr': 'fr-FR',
@@ -302,13 +302,13 @@ class Google(BaseGoogleScrap):
     def __init__(self, url: str, 
                  establishment: str, 
                  settings: str,
-                #  last_review_date: str, 
+                 last_review_date: str, 
                  env: str):
         super().__init__(
             url=url, 
             establishment=establishment, 
             settings=settings,
-            # last_review_date=last_review_date, 
+            last_review_date=last_review_date, 
             env=env)
 
         # self.chrome_options.add_argument(f'--lang={self.lang}')
