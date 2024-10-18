@@ -1,36 +1,21 @@
 {
     "facebook": [
         {
-            "email": "sonalimampiemo@gmail.com",
-            "password": "Kl#23pol106"
-        },
-        {
             "email": "joharyandrianjafimanohisolo@gmail.com",
             "password": "dsE&=9(xL"
         }
     ],
     "twitter": [
         {
-            "username": "RThierry15776",
-            "email": "thierry0keller@gmail.com",
-            "password": "3A9k7BWm&PbgFwe"
+            "email":"randrianarivonynomena1@gmail.com",
+            "username":"NomenaRand83020",
+            "password":"TGP#674mato"
         }
     ],
     "instagram": [
         {
-            "email": "0348485370",
-            "password": "just focus on what you want to be",
-            "username": "domoina.sarobidy"
-        },
-        {
-            "username": "sonalimampiemo",
-            "email": "sonalimampiemo@gmail.com",
-            "password": "Kl#23pol106"
-        },
-        {
-            "username": "feno.fitia",
-            "email": "0340851090",
-            "password": "0gFGm!4ze"
+            "email":"randrianarivonynomena1@gmail.com",
+            "password":"TGP#674mato"
         }
     ],
     "youtube": [
@@ -41,12 +26,9 @@
     ],
     "linkedin": [
         {
-            "email": "sonalimampiemo@gmail.com",
-            "password": "Kl#23pol106"
-        },
-        {
-            "email": "thierry0keller@gmail.com",
-            "password": "Linkedin#Pass1289"
+            "email":"randrianarivonynomena1@gmail.com",
+            "password":"TGP#674mato"
         }
+
     ]
 }

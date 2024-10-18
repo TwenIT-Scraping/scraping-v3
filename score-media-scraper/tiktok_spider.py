@@ -21,7 +21,7 @@ class TikTokProfileScraper(Scraping):
 
         self.playwright = sync_playwright().start()
         self.browser = self.playwright.chromium.launch(
-            headless=False, args=['--start-maximized'])
+            headless=False, args=['--start-maximized'], channel='chrome')
         self.context = self.browser.new_context(no_viewport=True)
         self.page = self.context.new_page()
 
@@ -96,13 +96,17 @@ class TikTokProfileScraper(Scraping):
         name = re.sub(r'[^\w]', ' ', soupify(header_element).find(
             'h1', {'data-e2e': 'user-title'}).text.strip())
         self.page_data['name'] = f"tiktok_{name}"
-        self.page_data['followers'] = soupify(header_element).find(
-            'strong', {'data-e2e': 'followers-count'}).text.strip()
-        self.page_data['likes'] = soupify(header_element).find(
-            'strong', {'data-e2e': 'likes-count'}).text.strip()
-        self.page_data['establishment'] = self.establishment
+        #des int()
+        self.page_data['followers'] = int(soupify(header_element).find(
+            'strong', {'data-e2e': 'followers-count'}).text.strip())
+        
+        self.page_data['likes'] = int(soupify(header_element).find(
+            'strong', {'data-e2e': 'likes-count'}).text.strip())
+        
+        self.page_data['establishment'] = f'api/establishments/{self.establishment}'
         self.page_data['source'] = 'tiktok'
-
+        self.source = self.page_data['source']
+        """
         try:
             self.page.locator(
                 "css=[data-e2e='user-post-item'] a").first.click()
@@ -118,9 +122,10 @@ class TikTokProfileScraper(Scraping):
             print(e)
             pass
 
-        self.page_data['posts'] = len(self.posts)
+        #self.page_data['posts'] = len(self.posts)"""
 
-    def execute(self) -> None:
+    def execute(self):
+        output_file = []
         for item in self.items:
             try:
                 p_item = FillingCirclesBar(item['establishment_name'], max=4)
@@ -133,9 +138,10 @@ class TikTokProfileScraper(Scraping):
                 self.extract_data()
                 p_item.next()
                 print(" | Saving")
-                self.save()
+                output_file.append(self.save())
                 p_item.next()
                 print(" | Saved !")
+                return output_file
             except Exception as e:
                 print(e)
 

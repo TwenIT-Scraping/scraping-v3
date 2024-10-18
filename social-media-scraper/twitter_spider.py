@@ -41,7 +41,6 @@ class BaseTwitterScrap(Scraping):
         self.fill_loginform()
         self.normal_login_step = 0
         while "/home" not in self.page.url:
-            if self.normal_login_step == 2:
 
             self.fill_loginform()
         self.page.wait_for_timeout(60000)
@@ -658,7 +657,9 @@ class X_scraper(BaseTwitterScrap):
         self.page.on("response", self.intercept_response)
         self.page.goto(self.url)
         self.page.wait_for_selector("//article[@role='article']", timeout=20000)
-        self.page.wait_for_timeout(20000)
+        #  self.page.wait_for_timeout(20000)
+        #le probleme ici c'est que si la page n'existe pas il y aura une erreur donc j'essaie avec saulement le timeout pas l'attente du selecteur car elle n'existera pas si pas de page
+        self.page.wait_for_timeout(10000)
 
     def intercept_response(self, response) -> None:
         """capture all background requests and save them"""
@@ -833,7 +834,7 @@ class X_scraper(BaseTwitterScrap):
         for item in self.items:
             self.set_item(item)
             self.goto_x_page()
-            self.extract_page_data()
+            # self.extract_page_data() j'ai commenté ça car il me semble qu'on a juste besoin des comments pour le social media puisque les score sont scrapé dans l'autre programme
             self.load_and_extract()
 
             if self.post_data:

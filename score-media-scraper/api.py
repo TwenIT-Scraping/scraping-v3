@@ -70,6 +70,9 @@ class ERApi:
                     data=self.body,
                     verify=False
                 )
+                if response.status_code in ['200','201']:
+                    print('REPONSE OK DU SERVEUR CONCERNANT LA REQUETE (bien envoyé)') 
+                    
                 print(response.text)
             except Exception as e:
                 print(e)

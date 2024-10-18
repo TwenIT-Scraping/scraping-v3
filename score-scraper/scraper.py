@@ -32,6 +32,7 @@ __class_name__ = {
 __class_name_v2__ = {
     'Booking': Booking,
     'Booking ES': Booking,
+    'Booking MU':Booking,#ajouté le 02 10 2024 car il n'y en avait pas c'est pour cela que Bokking MU ne fonctionnait pas
     'Maeva': Maeva,
     'Maeva ES': Maeva,
     'Campings': Campings,

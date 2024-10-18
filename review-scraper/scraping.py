@@ -191,7 +191,7 @@ class Scraping(object):
     def scrap(self) -> None:
         # self.set_random_params()
         self.driver.get(self.url)
-        input('enter yes: ')
+       # input('enter yes: ')
 
     def refresh(self) -> None:
         self.driver.refresh()

@@ -93,14 +93,16 @@ class YoutubeProfileScraper(Scraping):
         self.xhr_posts = posts
 
     def goto_youtube_page(self) -> None:
+        if '.com/channel/@socrugby-chambery4833' in self.url:
+            self.url = self.url.replace('.com/channel/@socrugby-chambery4833', '.com/@socrugby-chambery4833')
         self.page.goto(f"{self.url}/videos", timeout=50000)
 
         self.page.wait_for_timeout(6000)
         time.sleep(3)
         self.extract_page_data()
         print(self.page_data)
-        self.scroll_down_page(iteration="infinite")
-        self.open_posts()
+        #self.scroll_down_page(iteration="infinite")
+        #self.open_posts()
         # self.complete_source_data()
 
     def format_number(self, number):
@@ -147,18 +149,21 @@ class YoutubeProfileScraper(Scraping):
 
         try:
             soupe = BeautifulSoup(self.page.content(), 'lxml')
-            name = soupe.find('yt-formatted-string', {'class': "ytd-channel-name"}).text.strip() \
-                if soupe.find('yt-formatted-string', {'class': "ytd-channel-name"}) else ''
-            followers = soupe.find('yt-formatted-string', {'id': "subscriber-count"}).text.strip() \
-                if soupe.find('yt-formatted-string', {'id': "subscriber-count"}) else ''
+            """name = soupe.find('yt-formatted-string', {'class': "ytd-channel-name"}).text.strip() \
+                if soupe.find('yt-formatted-string', {'class': "ytd-channel-name"}) else ''"""
+            name = self.page.locator('xpath=//*[@id="page-header"]/yt-page-header-renderer/yt-page-header-view-model/div/div[1]/div/yt-dynamic-text-view-model/h1/span').inner_text().strip()
+            """followers = soupe.find('yt-formatted-string', {'id': "subscriber-count"}).text.strip() \
+                if soupe.find('yt-formatted-string', {'id': "subscriber-count"}) else ''"""
+            followers = self.page.locator('xpath=//*[@id="page-header"]/yt-page-header-renderer/yt-page-header-view-model/div/div[1]/div/yt-content-metadata-view-model/div[2]/span[1]').inner_text().strip()
 
             self.page_data = {
                 'followers': self.format_number(followers),
-                'likes': 0,
+                'likes': None,
                 'source': "youtube",
-                'establishment': self.establishment,
+                'establishment': f'api/establishments/{self.establishment}',
                 'name': f"youtube_{name}",
             }
+            self.source = self.page_data['source']
 
         except Exception as e:
             print(e)
@@ -254,6 +259,7 @@ class YoutubeProfileScraper(Scraping):
         print(" | Open login page")
         self.goto_login()
         output_files = []
+        i = 1
         for item in self.items:
             p_item = FillingCirclesBar(item['establishment_name'], max=3)
             self.set_item(item)
@@ -264,12 +270,13 @@ class YoutubeProfileScraper(Scraping):
             p_item.next()
             # print(" | Extracting")
             # self.extract_data()
-        #     p_item.next()
+            #p_item.next()
             print(" | Saving")
             output_files.append(self.save())
             p_item.next()
             print(" | Saved")
-
+            if i == 1:
+                break
         self.stop()
 
         return output_files

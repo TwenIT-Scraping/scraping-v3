@@ -16,10 +16,40 @@ from lingua import Language, LanguageDetectorBuilder
 from changeip import refresh_connection
 
 
+def format_date_fr(date_str:str) -> str:
+    month_fr = {
+    "janvier": "01",  
+    "février": "02",  
+    "mars": "03",  
+    "avril": "04",  
+    "mai": "05",  
+    "juin": "06",  
+    "juillet": "07",  
+    "août": "08",  
+    "septembre": "09",  
+    "octobre": "10",  
+    "novembre": "11",  
+    "décembre": "12" 
+    }
+    date_str = date_str.lower().replace('visité en ', '')
+    if len(date_str.split(' ')) == 1:
+        return f"{datetime.now().day}/{month_fr[date_str]}/{datetime.now().year}"
+    if len(date_str.split(' ')) == 2 and int(date_str.split(' ')[-1]) > 31:
+        return f"{datetime.now().day}/{month_fr[date_str]}/{int(date_str.split(' ')[-1])}"
+
+
 class BaseGoogleScrap(Scraping):
-    def __init__(self, url: str, establishment: str, settings: str, env: str):
+    def __init__(self, 
+                 url: str, 
+                 establishment: str, 
+                 settings: str, 
+                #  last_review_date:str, 
+                 env: str):
         super().__init__(in_background=False, url=url,
-                         establishment=establishment, settings=settings, env=env)
+                         establishment=establishment, 
+                         settings=settings, 
+                        #  last_review_date=last_review_date,
+                         env=env) 
         self.url_lang_code = {
             'fr': 'fr-FR',
             'en': 'en-EN',
@@ -269,8 +299,17 @@ class BaseGoogleScrap(Scraping):
 
 class Google(BaseGoogleScrap):
 
-    def __init__(self, url: str, establishment: str, settings: str, env: str):
-        super().__init__(url=url, establishment=establishment, settings=settings, env=env)
+    def __init__(self, url: str, 
+                 establishment: str, 
+                 settings: str,
+                #  last_review_date: str, 
+                 env: str):
+        super().__init__(
+            url=url, 
+            establishment=establishment, 
+            settings=settings,
+            # last_review_date=last_review_date, 
+            env=env)
 
         # self.chrome_options.add_argument(f'--lang={self.lang}')
         # self.chrome_options.add_argument('--disable-translate')
@@ -324,39 +363,60 @@ class Google(BaseGoogleScrap):
                 rating = 0
                 date_review = ''
                 date_visit = ''
+                lang = ''
                 url = self.driver.current_url
 
                 if self.is_travel():
-                    author = card.find('a', {'class':'DHIhE QB2Jof'}).text.strip() if card.find('a', {'class':'DHIhE QB2Jof'}) else ""
-                    try:
-                        comment = card.find('div', {'class':'K7oBsc'}).find('span').text.replace('(Traducido por Google) ', '').replace('\xa0... Ver más', '').replace(" En savoir plus", "") \
-                        .replace('(Traduit par Google)', '').replace('(Traduce by Google)', '').lower().split('(original)')[-1] if card.find('div', {'class':'K7oBsc'}) else ""
-                        if comment and "avis d'origine" in comment:
-                            comment = comment.split("(avis d'origine)")[-1]
-                        if comment and "(original)" in comment:
-                            comment = comment.split("(original)")[-1]
-                    except:
-                        comment = ""
-                    try:
-                        url = card.find('a', {'class':'YhR3n'}, href=True)['href']
-                    except:
+                    if 'google' in card.find('span', {'class':'iUtr1 CQYfx'}).text.lower():
+                        author = card.find('a', {'class':'DHIhE QB2Jof'}).text.strip() if card.find('a', {'class':'DHIhE QB2Jof'}) else ""
+                        try:
+                            comment = ""
+                            if card.find('div', {'jsname':'NwoMSd'}):
+                                comment = card.find('div', {'jsname':'NwoMSd'}).find('span').text
+                            else:
+                                comment = card.find('div', {'class':'K7oBsc'}).find('span').text if card.find('div', {'class':'K7oBsc'}) else ""
+                            comment = comment.replace('(Traducido por Google) ', '').replace('\xa0... Ver más', '').replace(" En savoir plus", "") \
+                            .replace('(Traduit par Google)', '').replace('(Translated by Google)', '').replace('(Original)', '')
+                            try:
+                                if comment and "avis d'origine" in comment.lower():
+                                    comment = comment.lower().split("(avis d'origine)")[-1]
+                                if comment and "(original)" in comment:
+                                    comment = comment.lower().split("(original)")[-1]
+                            except:
+                                pass
+                            try:
+                                lang = self.detect_lang(comment)
+                            except:
+                                lang = self.lang
+                            try:
+                                date_visit_content = card.find('div', {'class':'DmVtKb'}).text.strip()
+                            except:
+                                date_visit_content = ""
+
+                            match lang:
+                                case 'fr':
+                                    date_visit = format_date_fr(date_visit_content) if date_visit_content else ""
+                        except:
+                            comment = ""
+                        
                         url = self.driver.current_url
 
-                    rating = card.find('div', {'class': 'GDWaad'}).text.strip() if card.find('div', {'class': 'GDWaad'}) else rating
-                    date_raw = card.find('span', {'class': 'iUtr1 CQYfx'}).text.lower()
+                        rating = card.find('div', {'class': 'GDWaad'}).text.strip() if card.find('div', {'class': 'GDWaad'}) else rating
+                        date_raw = card.find('span', {'class': 'iUtr1 CQYfx'}).text.lower()
 
-                    if 'sur' in date_raw:
-                        date_raw = date_raw[:date_raw.index(' sur')]
-                    if 'on' in date_raw:
-                        date_raw = date_raw[:date_raw.index(' on')]
-                    if 'en' in date_raw:
-                        date_raw = date_raw[:date_raw.index(' en')]
+                        if 'sur' in date_raw:
+                            date_raw = date_raw[:date_raw.index(' sur')]
+                        if 'on' in date_raw:
+                            date_raw = date_raw[:date_raw.index(' on')]
+                        if 'en' in date_raw:
+                            date_raw = date_raw[:date_raw.index(' en')]
 
-                    date_raw = date_raw.replace('il y a ', '').replace('\xa0', ' ').replace('hace ', '').replace('ago', '')
-
+                        date_raw = date_raw.replace('il y a ', '').replace('\xa0', ' ').replace('hace ', '').replace('ago', '')
+                    else:
+                        print('other site')
+                        continue
                 else:
-                    author = card.find('div', {'class': 'Vpc5Fe'}).text.strip(
-                    ) if card.find('div', {'class': 'Vpc5Fe'}) else ''
+                    author = card.find('div', {'class': 'Vpc5Fe'}).text.strip() if card.find('div', {'class': 'Vpc5Fe'}) else ''
                     try:
                         comment = card.find('div', {'class': 'OA1nbd'}).text.strip().replace('(Traducido por Google) ', '').replace('\xa0... Ver más', '').replace(" En savoir plus", "") \
                             .replace('(Traduit par Google)', '').replace('(Traduce by Google)', '').lower() if card.find('div', {'class': 'OA1nbd'}) else ''
@@ -389,7 +449,7 @@ class Google(BaseGoogleScrap):
                             'url': url,
                             'language': lang,
                             'source': urlparse(self.driver.current_url).netloc.split('.')[1],
-                            'date_visit': date_review,
+                            'date_visit': date_visit if date_visit else date_review,
                             'establishment': f'/api/establishments/{self.establishment}',
                             'settings': f'/api/settings/{self.settings}',
                             'novisitday': "1"
@@ -411,8 +471,8 @@ class Google(BaseGoogleScrap):
             print(e)
             
 
-# trp = Google(url="https://www.google.com/search?sa=X&sca_esv=631c077ebeab8f5b&tbm=lcl&sxsrf=ACQVn0-Vrn-6SBs84xf8oDcggXXtf0T_AQ:1711639111610&q=Le+Carre+d%27As+Avis&rflfq=1&num=20&stick=H4sIAAAAAAAAAONgkxIxNLG0tLSwtDQzNjM3sjQ2MbUwstzAyPiKUcgnVcE5sagoVSFF3bFYwbEss3gRKxZBANr-AYtFAAAA&rldimm=14999899636729345829&hl=fr-FR&ved=2ahUKEwj8hezJoJeFAxVyUqQEHbrzDs4Q9fQKegQIOxAF&biw=1920&bih=927&dpr=1#lkt=LocalPoiReviews",
-#                 establishment=3, settings=1, env="DEV")
+# trp = Google(url="https://www.google.com/travel/search?gsas=1&ts=EggKAggDCgIIAxocEhoSFAoHCOgPEAgYEhIHCOgPEAgYExgBMgIQAA&qs=MhNDZ29JMHJiR3ZQQ0sxNEJ1RUFFOAI&ap=KigKEgmcw-RS3xY1wBEoPI0SLJ1LQBISCRp2zWogFjXAESg8jWepnUtAugEHcmV2aWV3cw&client=firefox-b-d&hl=fr-FR&ved=0CAAQ5JsGahcKEwiwhrLhj_yIAxUAAAAAHQAAAAAQFA",
+#                 establishment=79, settings=267, env="PROD")
 # trp.set_language('fr')
 # trp.execute()
 # print(trp.data)

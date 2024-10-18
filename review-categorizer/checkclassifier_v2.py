@@ -581,13 +581,13 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
     data = fetch_page(tag=tag, entity=entity, page=page, language=language)
 
     if data:
-        print(BLUE + BOLD + "Page " + RED + str(page) + "/" +
+        print(BLUE + BOLD + "Review " + RED + str(page) + "/" +
               str(data['pages']) + Style.RESET_ALL)
         labels = list(map(lambda x: x.capitalize(), data['categories']))
 
         if len(labels):
             if page >= data['pages']:
-                print("Last page !!!")
+                print("Last review !!!")
                 return True
 
             print("\n")
@@ -595,13 +595,14 @@ def ia_categorize_v2(tag, entity, language='en', page=1):
             progress = ChargingBar(
                 'Review categorization | ', max=len(data['reviews']))
 
-            index = 1
+            # index = 1
 
             for review in data['reviews']:
-                print(BLUE + BOLD, "\n-> Review n°", index, Style.RESET_ALL)
+                # print(BLUE + BOLD, "\n-> Review n°", index, Style.RESET_ALL)
                 # Check if the review language is English
                 if review['language'] and review['language'] == language:
                     print(f"\nText => {review['text']}:\n")
+                    print(review)
                     # Analyze the text and classify it into categories
                     result = analyse_text(
                         review, labels, entity=entity_dict[entity], min_score=0.8, language=language)

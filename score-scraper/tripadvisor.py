@@ -16,7 +16,7 @@ class Tripadvisor(Scraping):
         self.source = 'tripadvisor'
 
     def extract(self) -> None:
-        input("Entrer une touche pour continuer ...")
+       # input("Entrer une touche pour continuer ...")
         return super().extract()
 
 
@@ -31,7 +31,7 @@ class Tripadvisor_UK(Scraping):
         self.source = 'tripadvisor'
 
     def extract(self) -> None:
-        input("Entrer une touche pour continuer ...")
+       # input("Entrer une touche pour continuer ...")
         return super().extract()
 
 
@@ -46,7 +46,7 @@ class Tripadvisor_ES(Scraping):
         self.source = 'tripadvisor'
 
     def extract(self) -> None:
-        input("Entrer une touche pour continuer ...")
+       # input("Entrer une touche pour continuer ...")
         return super().extract()
 
 

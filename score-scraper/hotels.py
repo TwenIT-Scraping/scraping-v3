@@ -12,9 +12,9 @@ class Hotels_FR(Scraping):
 
     def extract(self) -> None:
 
-        input("Enter a key to continue ...")
+       # input("Enter a key to continue ...")
 
-        time.sleep(2)
+        time.sleep(7)
 
         score = float(self.driver.find_element(
             By.XPATH, "//meta[@itemprop='ratingValue']").get_attribute('content').replace(',', '.'))
@@ -31,9 +31,9 @@ class Hotels_EN(Scraping):
 
     def extract(self) -> None:
 
-        input("Enter a key to continue ...")
+       # input("Enter a key to continue ...")
 
-        time.sleep(2)
+        time.sleep(7)
 
         score = float(self.driver.find_element(
             By.XPATH, "//meta[@itemprop='ratingValue']").get_attribute('content').replace(',', '.'))

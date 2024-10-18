@@ -157,19 +157,34 @@ class Opentable_UK(Opentable):
                 self.extract()
 
             reviews_list = soupe.find_all(
-                'li', {'data-test': 'reviews-list-item'})
+                'li', {'data-test': 'reviews-list-item'})           
 
             for item in reviews_list:
 
-                comment = item.find('span', {'data-test': 'wrapper-tag'}).text.strip(
-                ) if item.find('span', {'data-test': 'wrapper-tag'}) else ""
-
+                comment = item.find('span', {'data-testid': 'wrapper-tag'}).text.strip(
+                ) if item.find('span', {'data-testid': 'wrapper-tag'}) else "" #attribut changé 
+                author = item.find_all('section')[0].find_all('p')[0].text.strip()
+                #Je pense qu'on ne prend pas les avis du site lui-même car tous ses avis sont au maximum
+                """if 'opentable' in author.lower():
+                    print("C'est un avis du site même, on zappe")
+                    continue"""
                 try:
-                    rating_container = item.find(
+                    """rating_container = item.find(
                         'span', string='overall').parent
                     rating_items = rating_container.find_all('span')
                     rating = str(int(sum(map(lambda x: int(x.text.strip()), [
-                                 rating_items[1], rating_items[3], rating_items[5], rating_items[7]]))/4)) + '/5'
+                                 rating_items[1], rating_items[3], rating_items[5], rating_items[7]]))/4)) + '/5'"""
+                    rating_container = item.find('ol',{'class' : 'gUG3MNkU6Hc- ciu9fF9m-z0-'})
+                    #print('on a le container des <li> contenant les scores')
+                    rating_items = rating_container.find_all('li')
+                    #print('on a tous les <li>')
+                    score = 0
+                    for score_by_type in rating_items:
+                        score = score + int(score_by_type.find('span').text.strip())
+                    #print(f"on a tous les scores donnée par {author} et on va les divisé par 4 et le mettre sur 5")
+                    rating = str(score / 4) + '/5'
+                    print(f'Score = {rating}')
+                    
                 except Exception as e:
                     rating = "0/5"
                     print(e)
@@ -183,7 +198,7 @@ class Opentable_UK(Opentable):
 
                 try:
                     date_raw = item.find(
-                        'p', {'class': 'Xfrgl6cRPxn4vwFrFgk1'}).text.strip()
+                        'p', {'class': 'iLkEeQbexGs-'}).text.strip() #nouveau selecteur
                     if date_raw[:8] == 'Dined on':
                         date = date_raw[9:]
 
@@ -200,7 +215,7 @@ class Opentable_UK(Opentable):
                     'language': lang,
                     'rating': rating,
                     'source': urlparse(self.url).netloc.split('.')[1],
-                    'author': item.find_all('section')[0].find_all('p')[0].text.strip(),
+                    'author': author,
                     'establishment': f'/api/establishments/{self.establishment}',
                     'settings': f'/api/settings/{self.settings}',
                     'date_review': review_date,

@@ -75,10 +75,11 @@ class ListScraper:
         for source in __class_name__.keys():
             by_source[source] = [
                 item for item in self.settings.items if item['source'] == source]
-
+        print(by_source)#pas la même lorsque je print en local sur windows, source deu problème sur serveur 16 10 2024 16h10 
         for item_key in by_source.keys():
             time.sleep(random.randint(1, 3))
             if item_key in __class_name__.keys() and len(by_source[item_key]):
+                print(item_key)
                 try:
                     instance = __class_name__[item_key](
                         items=by_source[item_key])

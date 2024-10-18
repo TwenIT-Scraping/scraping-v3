@@ -89,7 +89,7 @@ class Scraping(object):
                 refresh_connection()
 
             self.scrap()
-            time.sleep(5)
+            time.sleep(8)
             WebDriverWait(self.driver, 10)
             self.extract()
             time.sleep(2)
@@ -101,7 +101,7 @@ class Scraping(object):
 
     def scrap(self) -> None:
         self.driver.get(self.url)
-        input("press enter: ")
+       # input("press enter: ")
 
     def exit(self) -> None:
         self.driver.quit()

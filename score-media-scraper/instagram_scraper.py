@@ -65,6 +65,7 @@ class InstagramProfileScraper(Scraping):
 
     def goto_insta_page(self) -> None:
         self.page.on("response", self.intercept_response)
+        time.sleep(10)
         self.page.goto(self.url, timeout=50000)
         self.page.wait_for_timeout(6000)
 

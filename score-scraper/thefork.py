@@ -16,7 +16,7 @@ class Thefork(Scraping):
 
     def extract(self):
 
-        input("Entrer une touche pour continuer ...")
+        # input("Entrer une touche pour continuer ...")
         return super().extract()
 
 

@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
 from langdetect import detect
-from tools import shortmonths_fr,months_es, shortmonths_en
+from tools import shortmonths_fr,months_es, months_fr, months_es
 from random import randint
 from selenium.webdriver.support.select import Select
 import locale
@@ -28,18 +28,21 @@ class BaseHotelsReviewScrap(Scraping):
     def goto_page(self) -> None:
         print(f"url: {self.url}")
         self.driver.get(self.url)
-        WebDriverWait(self.driver, 10000)
-        time.sleep(randint(30, 60))
+        time.sleep(10)
+        #input('check the driver for debugging')
         try:
             self.driver.find_element(By.ID, 'onetrust-accept-btn-handler').click()
             WebDriverWait(self.driver, 10000)
             self.first_pop_up_closed = True
             print('cookies closed')
+            time.sleep(5) #on attend le rechargement car il y en a si il y avait ce popup
         except:
             time.sleep(1)
 
     def scroll_down_page(self):
-        print("scroll down page")
+        #print("scroll down page")
+        print("Clique sur bouton reviews")
+        """commenté le 08 10 2024
         while True:
             try:
                 review_container = BeautifulSoup(self.driver.find_element(By.ID, 'Reviews').get_attribute('innerHTML'), 'lxml')
@@ -50,8 +53,11 @@ class BaseHotelsReviewScrap(Scraping):
                     time.sleep(3)
                     break
             except NoSuchElementException:
-                self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
-                time.sleep(1)
+                #self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
+                time.sleep(1)"""
+        time.sleep(10)
+        self.driver.find_element(By.CSS_SELECTOR, "button[data-stid='reviews-link']").click()
+        time.sleep(2)
 
     def close_popup(self):
         try:
@@ -63,15 +69,46 @@ class BaseHotelsReviewScrap(Scraping):
             time.sleep(2)
 
     def get_last_date(self) -> object:
-        review_container = BeautifulSoup(self.driver.find_element(By.CSS_SELECTOR, '#app-layer-reviews-property-reviews-1 > section > div.uitk-sheet-content.uitk-sheet-content-padded.uitk-sheet-content-extra-large > div > div.uitk-layout-grid.uitk-layout-grid-has-auto-columns.uitk-layout-grid-has-columns.uitk-layout-grid-has-columns-by-medium.uitk-layout-grid-has-columns-by-large.uitk-layout-grid-display-grid > div.uitk-layout-grid-item.uitk-spacing.uitk-spacing-margin-blockstart-six > section > div:nth-child(1) > div').get_attribute('innerHTML'), 'lxml')
-        reviews = review_container.find_all('article', {'itemprop':'review'})
-        last_date = self.format_date(reviews[-1].find('span', {'itemprop':'datePublished'}).text)
+        page = self.driver.page_source
+        soupe = BeautifulSoup(page, 'lxml')
+        last_review_cards = soupe.find('div', {'class', 'uitk-card uitk-card-roundcorner-all uitk-card-has-primary-theme'}).find_all('article', {'itemprop':'review'})[-1]
+        last_date = last_review_cards.find('span', {'itemprop': 'datePublished'}).text.strip() if last_review_cards.find('span', {'itemprop': 'datePublished'}) else ""
+        #last_date = self.format_date(reviews[-1].find('span', {'itemprop':'datePublished'}).text.strip())
         print(f'last date' + last_date)
-        return datetime.strptime(last_date, '%d/%m/%Y')
+
+        #Traitement des dates
+        if 'hotels.com/es/' in self.driver.current_url:
+            date_split = last_date.split(' ') #on a ici 0 à 4 dans date split car il y a les "de"
+            day = date_split[0]
+            month = months_es[date_split[2]]
+            year = date_split[4]
+            date_review = datetime.strptime(f'{day}/{month}/{year}', '%d/%m/%Y')
+            return date_review
+        else:
+            try:
+                date_split = last_date.split(' ')
+                day = date_split[0]
+                if '.' in date_split[1]:
+                    month = shortmonths_fr[date_split[1]]
+                else:
+                    month = shortmonths_fr[date_split[1]]
+                year = date_split[2]
+                print(f'{day}/{month}/{year}')
+                return datetime.strptime(f'{day}/{month}/{year}', '%d/%m/%Y')
+            except:
+                """ comment é le 08 10 2024
+                date_rawt = last_date.split()
+                date_review = "%s/%s/%s" % (date_rawt[0], month_number(
+                    date_rawt[1], 'fr', 'short'), date_rawt[2])"""
+                print('Hotels.com FR , erreur au niveau du formattage de la date dans la classe BaseHotelsReviewScrap() méthode get_last_date()')
+
+            
+
+        
         
     def count_review(self):
-        print(" extracting data")
-        review_container = BeautifulSoup(self.driver.find_element(By.ID, 'app-layer-reviews-property-reviews-1').get_attribute('innerHTML'), 'lxml')
+        print(" Count review")
+        review_container = BeautifulSoup(self.driver.find_element(By.XPATH, '/html/body/div[1]/div[1]/div[2]/section/div[3]/div/div[2]/div[4]/section/div[1]/div').get_attribute('innerHTML'), 'lxml')
         reviews = review_container.find_all('article', {'itemprop':'review'})
         print(f'reviews {len(reviews)} loaded')
 
@@ -80,21 +117,25 @@ class BaseHotelsReviewScrap(Scraping):
         time.sleep(6)
         self.close_popup()
         self.driver.find_element(By.XPATH, "//option[@value='NEWEST_TO_OLDEST']").click()
+
         time.sleep(5)
+        """ commenté le 08 10 2024
         review_container = BeautifulSoup(self.driver.find_element(By.ID, 'Reviews').get_attribute('innerHTML'), 'lxml')
         btn_view = review_container.find('button', {'class':'uitk-button uitk-button-medium uitk-button-has-text uitk-button-secondary'})
-        self.btn_text = btn_view.text.strip()
+        self.btn_text = btn_view.text.strip()"""
         self.last_date = self.get_last_date()
-        if btn_view:
+        # Encore tsy hitako izay ilavana azy -> if btn_view:
+        self.scroll_element()
+        # Encore un -> btn_view_more = self.driver.find_element(By.XPATH, f"//button[contains(text(), '{btn_view.text.strip()}')]")
+        # print('btn cliqued')
+        """ suite de condition commenté le 08 10 2024 -> and btn_view_more.is_displayed()"""
+        #while self.last_date > (datetime.now() - timedelta(days=365)):
+        while self.last_date > (datetime.now() - timedelta(days=365)):
+            self.close_popup()
+            self.count_review()
             self.scroll_element()
-            btn_view_more = self.driver.find_element(By.XPATH, f"//button[contains(text(), '{btn_view.text.strip()}')]")
-            # print('btn cliqued')
-            while self.last_date > (datetime.now() - timedelta(days=365)) and btn_view_more.is_displayed():
-                self.close_popup()
-                self.count_review()
-                self.scroll_element()
-                time.sleep(2)
-                self.last_date = self.get_last_date()
+            time.sleep(2)
+            self.last_date = self.get_last_date()
 
     def scroll_element(self):
             print("scrolling element")
@@ -111,8 +152,16 @@ class BaseHotelsReviewScrap(Scraping):
     def extract(self):
         print(" extracting data")
         reviews = []
-        review_container = BeautifulSoup(self.driver.find_element(By.ID, 'app-layer-reviews-property-reviews-1').get_attribute('innerHTML'), 'lxml')
-        reviews_cards = review_container.find_all('article', {'itemprop':'review'})
+        review_container = BeautifulSoup(self.driver.find_element(By.XPATH, '/html/body/div[1]/div[1]/div[2]/section/div[3]/div/div[2]/div[4]/section/div[1]/div').get_attribute('innerHTML'), 'lxml')
+        #nocommenteko 07 10 2024 reviews_cards = review_container.find_all('article', {'itemprop':'review'})
+
+        try:
+            
+            reviews_cards = review_container.find_all('article', {'itemprop':'review'})
+            
+        except Exception as e:
+            print(f'ERREUR dans extract() de la classe BaseHotelsReviewScrap() ==> {e}')
+
         for card in reviews_cards:
             try:
                 comment = card.find('span', {'itemprop': 'description'}).text
@@ -146,12 +195,16 @@ class BaseHotelsReviewScrap(Scraping):
                 data['novisitday'] = "0"
 
                 if datetime.strptime(data['date_review'], "%d/%m/%Y") > (datetime.now() - timedelta(days=365)):
-                    print(data)
+                    reviews.append(data)
             except Exception as e:
                 print(e)
                 pass
-        
+        print(f'Self.data => {reviews}')
         self.data = reviews
+        self.driver.close()
+
+        """ Save """
+        self.save()
 
 
     def execute(self) -> None:
@@ -193,7 +246,7 @@ class Hotels_ES(BaseHotelsReviewScrap):
 
     def format_date(self, date:str) -> str:
         date = date.split(' ')
-        return f"{date[0]}/{months_es[date[1]]}/{date[2]}"
+        return f"{date[0]}/{months_es[date[2]]}/{date[4]}" #4 car il y a les 'de'
 
 
 

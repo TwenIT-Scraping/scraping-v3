@@ -194,6 +194,7 @@ class TwitterScraper(BaseTwitterSrap):
 
     def goto_tweet_page(self) -> None:
         self.page.on("response", self.intercept_page_response)
+        time.sleep(10)
         self.page.goto(self.url)
         self.page.wait_for_timeout(10000)
         time.sleep(4)
@@ -202,7 +203,7 @@ class TwitterScraper(BaseTwitterSrap):
     def extract_profile(self) -> None:
         profile_data_container = nested_lookup(key='legacy', document=self.xhr_calls['profile'])[0]
         self.page_data['followers'] = profile_data_container['followers_count']
-        self.page_data['establishement'] = self.establishment
+        self.page_data['establishment'] = f"/api/establishments/{self.establishment}" 
         self.page_data['likes'] = profile_data_container['followers_count']
         self.page_data['createdAt'] = self.format_date(profile_data_container['created_at'])
         self.page_data['hasStat'] = "1"
@@ -237,7 +238,7 @@ class TwitterScraper(BaseTwitterSrap):
             output_files.append(self.save())
             # p_item.next()
             print(" | Saved")
-            self.save()
+            # self.save()
             # except:
             #     pass
 
