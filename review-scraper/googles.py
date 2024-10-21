@@ -43,7 +43,7 @@ class BaseGoogleScrap(Scraping):
                  url: str, 
                  establishment: str, 
                  settings: str, 
-                last_review_date:str, 
+                last_review_date:str,
                  env: str):
         super().__init__(in_background=False, url=url,
                          establishment=establishment, 
@@ -302,7 +302,7 @@ class Google(BaseGoogleScrap):
     def __init__(self, url: str, 
                  establishment: str, 
                  settings: str,
-                last_review_date: str, 
+                 last_review_date: str,  
                  env: str):
         super().__init__(
             url=url, 
