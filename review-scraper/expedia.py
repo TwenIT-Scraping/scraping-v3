@@ -35,21 +35,19 @@ months_es_short = {
 }
 
 class Expedia(Scraping):
-    def __init__(self, url: str, establishment: str, settings: str, env: str):
+    def __init__(self, url: str, establishment: str, settings: str, env: str, last_review_date: str):
         url_split = url.split('.')
         url_split[-1] = 'Avis-Voyageurs'
         url = '.'.join(url_split)
 
         super().__init__(in_background=False, url=url,
-                         establishment=establishment, settings=settings, env=env)
+                         establishment=establishment, settings=settings, env=env, last_review_date=last_review_date)
 
     def load_reviews(self):
         # time.sleep(5)
         print("\n Loading ... \n")
 
-        #Ajout d'une instruction qui clique sur le bouton / lien qui est en charge d'afficher les reviews car il n'y en avait paset c'est pour ça qu'on a rien
         time.sleep(3)
-        print('CLIQUE SUR LE BOUTON')
         button_show_reviews = self.driver.find_element(By.CSS_SELECTOR, "button[data-stid='reviews-link']")
         if button_show_reviews:
             self.driver.execute_script("arguments[0].click();", button_show_reviews)
@@ -73,8 +71,7 @@ class Expedia(Scraping):
         while True:
             time.sleep(random.randint(1, 3))
 
-            if not self.check_date(get_last_review_date()):
-                print('On a zappé un review car la date ne correspond pas à notre condition')
+            if not self.check_date(get_last_review_date(), self.last_review_date):
                 break
 
             try:
@@ -122,8 +119,7 @@ class Expedia(Scraping):
             return date_review
 
     def extract(self):
-        """ On active ça seulement lors des debug mais je vais enlever le caractère pour plus de rapidité
-        enter_key = str(input("Entrer un caractère svp:"))"""
+        #enter_key = str(input("Entrer un caractère svp:"))
         run_the_code = True
         time.sleep(3)
         if run_the_code:

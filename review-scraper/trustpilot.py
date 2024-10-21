@@ -19,9 +19,9 @@ from langdetect import detect
 
 
 class Trustpilot(Scraping):
-    def __init__(self, url: str, establishment: str, settings: str, env: str):
+    def __init__(self, url: str, establishment: str, settings: str, env: str, last_review_date : str):
         super().__init__(in_background=False, url=url,
-                         establishment=establishment, settings=settings, env=env)
+                         establishment=establishment, settings=settings, env=env, last_review_date=last_review_date)
 
     def extract(self):
 
@@ -92,7 +92,7 @@ class Trustpilot(Scraping):
                     'novisitday': "1"
                 })
 
-            if not self.check_date(reviews[-1]['date_review']):
+            if not self.check_date(reviews[-1]['date_review'], self.last_review_date):
                 break
 
             try:

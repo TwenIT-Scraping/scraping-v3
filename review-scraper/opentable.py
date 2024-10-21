@@ -21,9 +21,9 @@ from dateutil import parser
 
 
 class Opentable(Scraping):
-    def __init__(self, url: str, establishment: str, settings: str, env: str):
+    def __init__(self, url: str, establishment: str, settings: str, env: str, last_review_date : str):
         super().__init__(in_background=False, url=url,
-                         establishment=establishment, settings=settings, env=env)
+                         establishment=establishment, settings=settings, env=env, last_review_date=last_review_date)
         self.reviews_data = []
 
     def extract(self):
@@ -107,7 +107,7 @@ class Opentable(Scraping):
                     'novisitday': "1"
                 })
 
-            if len(self.reviews_data) and not self.check_date(self.reviews_data[-1]['date_review']):
+            if len(self.reviews_data) and not self.check_date(self.reviews_data[-1]['date_review'], self.last_review_date):
                 break
 
             try:

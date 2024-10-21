@@ -23,10 +23,15 @@ from requests.models import PreparedRequest
 
 
 class Booking(Scraping):
-    def __init__(self, url: str, establishment: str, settings: str, env: str):
+    def __init__(self, url: str, establishment: str, settings: str, env: str, last_review_date:str):
         defurl = url if url.endswith('.fr.html') else f"{url}.fr.html"
-        super().__init__(in_background=False, url=defurl,
-                         establishment=establishment, settings=settings, env=env)
+        super().__init__(in_background=False, 
+                         url=defurl,
+                         establishment=establishment, 
+                         settings=settings, 
+                         env=env,
+                         last_review_date=last_review_date
+                         )
 
     def set_language(self, language) -> None:
         super().set_language(language)
@@ -113,14 +118,17 @@ class Booking(Scraping):
 
                         try:
                             # if self.lang and lang == self.lang:
+                            author = card.find('p', {'class': 'reviewer_name'}).text.strip() if card.find('p', {'class': 'reviewer_name'}) else ""
+                            rating = card.find('span', {'class': 'review-score-badge'}).text.strip() if card.find('span', {'class': 'review-score-badge'}) else "0"
+
                             reviews.append({
                                 'comment': comment,
-                                'rating': card.find('span', {'class': 'review-score-badge'}).text.strip()
-                                if card.find('span', {'class': 'review-score-badge'}) else "0",
+                                'rating': rating,
                                 'date_review': date_review,
                                 'language': self.lang,
+                                'url':self.driver.current_url,
                                 'source': urlparse(self.url).netloc.split('.')[1],
-                                'author': card.find('p', {'class': 'reviewer_name'}).text.strip() if card.find('p', {'class': 'reviewer_name'}) else "",
+                                'author': author,
                                 'establishment': f'/api/establishments/{self.establishment}',
                                 'settings': f'/api/settings/{self.settings}',
                                 'date_visit': date_review,
@@ -132,9 +140,10 @@ class Booking(Scraping):
 
                     except Exception as e:
                         print(e)
-
-                if not self.check_date(reviews[-1]['date_review']):
+                #ajout condition pour self.last_review_date
+                if not self.check_date(reviews[-1]['date_review'], self.last_review_date):
                     break
+                #vérifie si on prend encore la review par rapport à sa date
 
                 try:
 
@@ -156,8 +165,8 @@ class Booking(Scraping):
 
 
 class Booking_ES(Booking):
-    def __init__(self, url: str, establishment: str, settings: str, env: str):
-        super().__init__(url=url, establishment=establishment, settings=settings, env=env)
+    def __init__(self, url: str, establishment: str, settings: str, env: str, last_review_date : str):
+        super().__init__(url=url, establishment=establishment, settings=settings, env=env, last_review_date=last_review_date)
         self.lang = "es"
 
 

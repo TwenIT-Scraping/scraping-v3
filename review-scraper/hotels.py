@@ -21,9 +21,9 @@ from langdetect import detect
 
 
 class BaseHotelsReviewScrap(Scraping):
-    def __init__(self, url: str, establishment: str, settings: str, env: str):
+    def __init__(self, url: str, establishment: str, settings: str, env: str, last_review_date):
         super().__init__(in_background=False, url=url,
-                         establishment=establishment, settings=settings, env=env)
+                         establishment=establishment, settings=settings, env=env, last_review_date=last_review_date)
         
     def goto_page(self) -> None:
         print(f"url: {self.url}")
@@ -177,9 +177,9 @@ class BaseHotelsReviewScrap(Scraping):
                 pass
 
             try:
+                date_review = self.format_date(card.find('span', {'itemprop': 'datePublished'}).text.strip())
                 data = {}
-                data['date_review'] = self.format_date(card.find(
-                    'span', {'itemprop': 'datePublished'}).text.strip())
+                data['date_review'] = date_review
                 data['author'] = card.find('img').parent.text.split(',')[0]
                 data['rating'] = card.find('span', {'itemprop': 'ratingValue'}).text.split(
                     ' ')[0] if card.find('span', {'itemprop': 'ratingValue'}) else '0'
@@ -191,10 +191,11 @@ class BaseHotelsReviewScrap(Scraping):
                 data['settings'] = f'/api/establishments/{self.settings}'
                 data['source'] = urlparse(self.driver.current_url).netloc.split('.')[1]
                 data['source'] = 'hotels'
-                data['date_visit'] = data['date_review']
+                data['date_visit'] = date_review
                 data['novisitday'] = "0"
-
-                if datetime.strptime(data['date_review'], "%d/%m/%Y") > (datetime.now() - timedelta(days=365)):
+                
+                if datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365) or (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
+                #if datetime.strptime(data['date_review'], "%d/%m/%Y") > (datetime.now() - timedelta(days=365)):
                     reviews.append(data)
             except Exception as e:
                 print(e)

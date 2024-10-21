@@ -43,12 +43,12 @@ class BaseGoogleScrap(Scraping):
                  url: str, 
                  establishment: str, 
                  settings: str, 
-                #  last_review_date:str, 
+                last_review_date:str, 
                  env: str):
         super().__init__(in_background=False, url=url,
                          establishment=establishment, 
                          settings=settings, 
-                        #  last_review_date=last_review_date,
+                        last_review_date=last_review_date,
                          env=env) 
         self.url_lang_code = {
             'fr': 'fr-FR',
@@ -302,13 +302,13 @@ class Google(BaseGoogleScrap):
     def __init__(self, url: str, 
                  establishment: str, 
                  settings: str,
-                #  last_review_date: str, 
+                last_review_date: str, 
                  env: str):
         super().__init__(
             url=url, 
             establishment=establishment, 
             settings=settings,
-            # last_review_date=last_review_date, 
+            last_review_date=last_review_date, 
             env=env)
 
         # self.chrome_options.add_argument(f'--lang={self.lang}')
@@ -440,8 +440,8 @@ class Google(BaseGoogleScrap):
   
                 date_review = self.formate_date(date_raw)
                 if date_review != "" and date_review is not None:
-                    #if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365) or (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
-                    if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365):
+                    if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365) or (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
+                    #if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365):
                         reviews.append({
                             'rating': rating,
                             'author': author,
@@ -456,8 +456,8 @@ class Google(BaseGoogleScrap):
                             'novisitday': "1"
                         })
 
-                    #if datetime.strptime(date_review, '%d/%m/%Y') < (datetime.now() - timedelta(days=365)) or (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
-                    if datetime.strptime(date_review, '%d/%m/%Y') < (datetime.now() - timedelta(days=365)):
+                    if datetime.strptime(date_review, '%d/%m/%Y') < (datetime.now() - timedelta(days=365)) or (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
+                    #if datetime.strptime(date_review, '%d/%m/%Y') < (datetime.now() - timedelta(days=365)):
                         print("last date valid reached")
                         self.data = reviews
                         self.data_loaded = True

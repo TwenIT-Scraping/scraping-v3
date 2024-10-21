@@ -17,9 +17,9 @@ import pandas as pd
 
 
 class Maeva(Scraping):
-    def __init__(self, url: str, establishment: str, settings: str, env: str):
+    def __init__(self, url: str, establishment: str, settings: str, env: str, last_review_date: str):
         super().__init__(in_background=False, url=url,
-                         establishment=establishment, settings=settings, env=env)
+                         establishment=establishment, settings=settings, env=env, last_review_date=last_review_date)
         self.data_loaded = False
 
     def detect(text:str) -> str:
@@ -108,7 +108,8 @@ class Maeva(Scraping):
                 source = urlparse(self.driver.current_url).netloc.split('.')[1]
 
                 if date_review != "" and date_review is not None:
-                    if (author or comment or rating != "0") and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365):
+                    if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365) or (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
+                    #if (author or comment or rating != "0") and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365):
 
                         reviews.append({
                             'rating': rating,
