@@ -237,6 +237,8 @@ class TwitterScraper(BaseTwitterScrap):
 
     def goto_detail_pages(self, url:str) -> None:
         print(url)
+        if 'https://x.com/https://x.com' in url:
+            url = url.replace('https://x.com/https://x.com', 'https://x.com')
         self.page.on('response', self.intercept_detail_page_response)
         self.page.goto(url)
         self.page.wait_for_timeout(10000)
