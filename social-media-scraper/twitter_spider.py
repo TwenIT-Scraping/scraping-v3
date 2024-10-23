@@ -41,6 +41,7 @@ class BaseTwitterScrap(Scraping):
         self.fill_loginform()
         # self.normal_login_step = 0
         while "/home" not in self.page.url:
+            # if self.normal_login_step == 2:
             self.fill_loginform()
         self.page.wait_for_timeout(60000)
 
@@ -679,6 +680,11 @@ class X_scraper(BaseTwitterScrap):
         self.post_data = []
         self.xhr_calls = {}
         self.last_date = datetime.now()
+        self.page_data = {
+            'source': "twitter",
+            'establishment': self.establishment,
+            'posts': []
+        }
 
     def print_in_file(self, obj) -> None:
         with open('dates.json', 'a') as openfile:
@@ -688,11 +694,9 @@ class X_scraper(BaseTwitterScrap):
         print(f" ==> { self.url }")
         self.print_in_file(self.url)
         self.page.on("response", self.intercept_response)
-        self.page.goto(self.url)
-        self.page.wait_for_selector("//article[@role='article']", timeout=20000)
-        #  self.page.wait_for_timeout(20000)
-        #le probleme ici c'est que si la page n'existe pas il y aura une erreur donc j'essaie avec saulement le timeout pas l'attente du selecteur car elle n'existera pas si pas de page
-        self.page.wait_for_timeout(10000)
+        self.page.goto(self.url, timeout=60000)
+        self.page.wait_for_selector("//article[@role='article']", timeout=120000)
+        # self.page.wait_for_timeout(30000)
 
     def intercept_response(self, response) -> None:
         """capture all background requests and save them"""
@@ -702,18 +706,6 @@ class X_scraper(BaseTwitterScrap):
                 self.xhr_calls['profile'] = response.json()
             if 'UserTweets' in response.url:
                 self.xhr_calls['tweets'] = response.json()
-
-    def extract_page_data(self) -> None:
-        # name = re.sub(r'[^\w]', ' ', nested_lookup(key='name', document=self.xhr_calls['profile'])[0]).strip()
-        self.page_data = {
-            # 'followers': nested_lookup(key='followers_count', document=self.xhr_calls['profile'])[0],
-            # 'likes': nested_lookup(key='favourites_count', document=self.xhr_calls['profile'])[0],
-            'source': "twitter",
-            'establishment': self.establishment,
-            'posts': []
-            # 'name': f"twitter_{name.replace(' ', '_')}",
-        }
-        print(self.page_data)
 
     def goto_post(self, url:str) -> None:
         print(f" ==> { url }")
@@ -873,7 +865,6 @@ class X_scraper(BaseTwitterScrap):
             print(item)
             self.set_item(item)
             self.goto_x_page()
-            self.extract_page_data()
             self.load_and_extract()
 
             if self.post_data:
@@ -893,23 +884,23 @@ class X_scraper(BaseTwitterScrap):
 
 
 
-"""if __name__ == '__main__':
+# if __name__ == '__main__':
 
-    data = [
-        # {'id': 238, 'caption': '', 'section': 'FOLLOW US', 'establishment_name': 'LUX Grand Gaube', 'establishment_id': 70, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/LUXGrandGaube', 'language': 'en', 'last_review_date': None, 'last_comment_date': '01/09/2024', 'last_post_date': '03/09/2024'}, 
-        # {'id': 223, 'caption': '', 'section': 'FOLLOW US', 'establishment_name': 'SOC Rugby', 'establishment_id': 69, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/soc_rugby', 'language': 'fr', 'last_review_date': None, 'last_comment_date': '13/09/2024', 'last_post_date': '13/09/2024'}, 
-        # {'id': 204, 'caption': '', 'section': 'FOLLOW US', 'establishment_name': 'AMSB', 'establishment_id': 63, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/amsbofficiel', 'language': 'fr', 'last_review_date': None, 'last_comment_date': '03/09/2024', 'last_post_date': '05/09/2024'}, 
-        # {'id': 177, 'caption': None, 'section': 'FOLLOW US', 'establishment_name': 'Sport2000 France', 'establishment_id': 52, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/https://x.com/SPORT2000France', 'language': 'fr', 'last_review_date': None, 'last_comment_date': '25/06/2024', 'last_post_date': '30/08/2024'}, 
-        {'id': 161, 'caption': None, 'section': 'FOLLOW US', 'establishment_name': 'Team Chambé', 'establishment_id': 49, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/TeamChambe', 'language': 'fr', 'last_review_date': None, 'last_comment_date': '02/09/2024', 'last_post_date': '03/09/2024'}, 
-        # {'id': 127, 'caption': None, 'section': None, 'establishment_name': 'Hotel Chamartín The One', 'establishment_id': 28, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/ChamartinTheOne', 'language': 'es', 'last_review_date': None, 'last_comment_date': '08/03/2024', 'last_post_date': '07/03/2024'}, 
-        # {'id': 99, 'caption': None, 'section': None, 'establishment_name': 'Le Château de Candie', 'establishment_id': 4, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/chateaudecandie', 'language': 'fr', 'last_review_date': None, 'last_comment_date': '31/08/2024', 'last_post_date': '31/08/2024'}, 
-        # {'id': 91, 'caption': None, 'section': None, 'establishment_name': 'Hotel Chamartín The One', 'establishment_id': 28, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/ChamartinTheOne', 'language': 'es', 'last_review_date': None, 'last_comment_date': '08/03/2024', 'last_post_date': '07/03/2024'}, 
-        # {'id': 66, 'caption': None, 'section': None, 'establishment_name': 'ESF Chamonix', 'establishment_id': 23, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/chamonixesf', 'language': 'fr', 'last_review_date': None, 'last_comment_date': None, 'last_post_date': None}, 
-        # {'id': 22, 'caption': None, 'section': None, 'establishment_name': 'Madame Vacances', 'establishment_id': 7, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/Madame_Vacances', 'language': 'fr', 'last_review_date': None, 'last_comment_date': '01/07/2024', 'last_post_date': '29/08/2024'}
-        ]
+#     data = [
+#         # {'id': 238, 'caption': '', 'section': 'FOLLOW US', 'establishment_name': 'LUX Grand Gaube', 'establishment_id': 70, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/LUXGrandGaube', 'language': 'en', 'last_review_date': None, 'last_comment_date': '01/09/2024', 'last_post_date': '03/09/2024'}, 
+#         # {'id': 223, 'caption': '', 'section': 'FOLLOW US', 'establishment_name': 'SOC Rugby', 'establishment_id': 69, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/soc_rugby', 'language': 'fr', 'last_review_date': None, 'last_comment_date': '13/09/2024', 'last_post_date': '13/09/2024'}, 
+#         # {'id': 204, 'caption': '', 'section': 'FOLLOW US', 'establishment_name': 'AMSB', 'establishment_id': 63, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/amsbofficiel', 'language': 'fr', 'last_review_date': None, 'last_comment_date': '03/09/2024', 'last_post_date': '05/09/2024'}, 
+#         # {'id': 177, 'caption': None, 'section': 'FOLLOW US', 'establishment_name': 'Sport2000 France', 'establishment_id': 52, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/https://x.com/SPORT2000France', 'language': 'fr', 'last_review_date': None, 'last_comment_date': '25/06/2024', 'last_post_date': '30/08/2024'}, 
+#         {'id': 161, 'caption': None, 'section': 'FOLLOW US', 'establishment_name': 'Team Chambé', 'establishment_id': 49, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/TeamChambe', 'language': 'fr', 'last_review_date': None, 'last_comment_date': '02/09/2024', 'last_post_date': '03/09/2024'}, 
+#         # {'id': 127, 'caption': None, 'section': None, 'establishment_name': 'Hotel Chamartín The One', 'establishment_id': 28, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/ChamartinTheOne', 'language': 'es', 'last_review_date': None, 'last_comment_date': '08/03/2024', 'last_post_date': '07/03/2024'}, 
+#         # {'id': 99, 'caption': None, 'section': None, 'establishment_name': 'Le Château de Candie', 'establishment_id': 4, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/chateaudecandie', 'language': 'fr', 'last_review_date': None, 'last_comment_date': '31/08/2024', 'last_post_date': '31/08/2024'}, 
+#         # {'id': 91, 'caption': None, 'section': None, 'establishment_name': 'Hotel Chamartín The One', 'establishment_id': 28, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/ChamartinTheOne', 'language': 'es', 'last_review_date': None, 'last_comment_date': '08/03/2024', 'last_post_date': '07/03/2024'}, 
+#         # {'id': 66, 'caption': None, 'section': None, 'establishment_name': 'ESF Chamonix', 'establishment_id': 23, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/chamonixesf', 'language': 'fr', 'last_review_date': None, 'last_comment_date': None, 'last_post_date': None}, 
+#         # {'id': 22, 'caption': None, 'section': None, 'establishment_name': 'Madame Vacances', 'establishment_id': 7, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/Madame_Vacances', 'language': 'fr', 'last_review_date': None, 'last_comment_date': '01/07/2024', 'last_post_date': '29/08/2024'}
+#         ]
 
 
-    t = X_scraper(
-        items=data
-    )
-    t.execute()"""
+#     t = X_scraper(
+#         items=data
+#     )
+#     t.execute()
