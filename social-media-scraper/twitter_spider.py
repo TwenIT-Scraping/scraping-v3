@@ -680,11 +680,7 @@ class X_scraper(BaseTwitterScrap):
         self.post_data = []
         self.xhr_calls = {}
         self.last_date = datetime.now()
-        self.page_data = {
-            'source': "twitter",
-            'establishment': self.establishment,
-            'posts': []
-        }
+
 
     def print_in_file(self, obj) -> None:
         with open('dates.json', 'a') as openfile:
@@ -782,6 +778,13 @@ class X_scraper(BaseTwitterScrap):
         else:
             print('No articles found')
 
+    def extract_page_data(self): 
+        self.page_data = {
+            'source': "twitter",
+            'establishment': self.establishment,
+            'posts': []
+        }
+
     def extract_post_link(self) -> None:
         articles = self.get_articles()
         for article in articles:
@@ -865,6 +868,8 @@ class X_scraper(BaseTwitterScrap):
             print(item)
             self.set_item(item)
             self.goto_x_page()
+            self.extract_page_data()
+            
             self.load_and_extract()
 
             if self.post_data:
