@@ -66,6 +66,10 @@ class FacebookProfileScraper(Scraping):
             print('tsy tafiditra')
 
     def goto_fb_page(self) -> None:
+        #correction de certain url
+        if 'https://www.facebook.com/https://www.facebook.com' in self.url:
+            self.url = self.url.replace('https://www.facebook.com/https://www.facebook.com', 'https://www.facebook.com')
+            
         self.page.goto(self.url, timeout=randint(30000, 80000))
         self.page.wait_for_timeout(randint(5000, 30000))
         time.sleep(.5)
