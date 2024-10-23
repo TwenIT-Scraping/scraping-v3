@@ -873,7 +873,7 @@ class X_scraper(BaseTwitterScrap):
             print(item)
             self.set_item(item)
             self.goto_x_page()
-            # self.extract_page_data() j'ai commenté ça car il me semble qu'on a juste besoin des comments pour le social media puisque les score sont scrapé dans l'autre programme
+            self.extract_page_data()
             self.load_and_extract()
 
             if self.post_data:
@@ -893,7 +893,7 @@ class X_scraper(BaseTwitterScrap):
 
 
 
-if __name__ == '__main__':
+"""if __name__ == '__main__':
 
     data = [
         # {'id': 238, 'caption': '', 'section': 'FOLLOW US', 'establishment_name': 'LUX Grand Gaube', 'establishment_id': 70, 'idprovider': 13, 'category': 'Social', 'source': 'Twitter (X)', 'url': 'https://x.com/LUXGrandGaube', 'language': 'en', 'last_review_date': None, 'last_comment_date': '01/09/2024', 'last_post_date': '03/09/2024'}, 
@@ -912,4 +912,4 @@ if __name__ == '__main__':
     t = X_scraper(
         items=data
     )
-    t.execute()
+    t.execute()"""
