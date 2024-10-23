@@ -17,7 +17,7 @@ class Scraping(object):
         self.establishment = ''
         self.url = ''
         self.current_credential = {}
-        self.env = 'DEV'
+        self.env = 'PROD'
 
     def set_environ(self, env):
         self.env = env
@@ -65,34 +65,31 @@ class Scraping(object):
 
     def save(self):
 
+        print("saving data")
+
         try:
-            page_data = self.page_data
-            page_data['posts'] = self.posts
             # page_data['url'] = self.url
-            page_data['createdAt'] = datetime.now().strftime('%Y-%m-%d')
-            page_data['hasStat'] = "1"
+            self.page_data['createdAt'] = datetime.now().strftime('%Y-%m-%d')
+
+            print(self.page_data)
+            # page_data['hasStat'] = "1"
             
 
             # e_name = re.sub(r'[^a-zA-Z0-9\s]+', '',
             #                     page_data.pop('name')).replace(' ', '_')
             
 
-            e_name = page_data['name']
-            print(f'e_name {e_name}')
+            # e_name = page_data['name']
+            # print(f'e_name {e_name}')
 
-            output_file = f"{self.env}_{self.establishment}_{e_name}_{datetime.now().strftime('%Y-%m-%d')}"
+            # output_file = f"{self.env}_{self.establishment}_{e_name}_{datetime.now().strftime('%Y-%m-%d')}"
 
             print("posting ...")
-            data = page_data.copy()
-            print(data)
-            data['posts'] = len(data['posts'])
-            # del data['url']
-            del data['name']
-            data['post_items'] = data['posts']
+
 
             post = ERApi(method='postmulti', env=self.env)
 
-            post.set_body(data)
+            post.set_body(self.page_data)
 
             result = post.execute()
 
@@ -100,13 +97,13 @@ class Scraping(object):
 
             print('saved')
 
-            with open(f"{environ.get('SOCIAL_FOLDER')}/{output_file}.json", 'w') as foutput:
-                json.dump(page_data, foutput, indent=4, sort_keys=True)
+            # with open(f"{environ.get('SOCIAL_FOLDER')}/{output_file}.json", 'w') as foutput:
+            #     json.dump(page_data, foutput, indent=4, sort_keys=True)
 
-                self.posts = []
-                self.page_data = {}
+            #     self.posts = []
+            #     self.page_data = {}
 
-                return output_file
+            #     return output_file
 
         except Exception as e:
             print("Erreur ici")
