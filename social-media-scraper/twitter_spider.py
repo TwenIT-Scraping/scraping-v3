@@ -707,11 +707,11 @@ class X_scraper(BaseTwitterScrap):
         print(f" ==> { url }")
         try:
             self.page.goto(url)
-            self.page.wait_for_selector("//article[@role='article']", timeout=10000)
+            self.page.wait_for_selector("//article[@role='article']", timeout=60000)
             self.page.wait_for_timeout(10000)
         except TimeoutError:
             self.page.goto(url)
-            self.page.wait_for_selector("//article[@role='article']", timeout=10000)
+            self.page.wait_for_selector("//article[@role='article']", timeout=60000)
             self.page.wait_for_timeout(10000)
             
 
