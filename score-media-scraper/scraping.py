@@ -37,6 +37,18 @@ class Scraping(object):
             self.set_current_credential(0)
 
     def set_item(self, item):
+        match item:
+            case {'url' : url} if 'https://x.com/https://x.com' in url:
+                item['url'] = item['url'].replace('https://x.com/https://x.com', 'https://x.com')
+            case {'url' : url} if 'https://www.instagram.com/https://www.instagram.com' in url:
+                item['url'] = item['url'].replace('https://www.instagram.com/https://www.instagram.com','https://www.instagram.com')
+            case {'url' : url} if 'https://www.facebook.com/https://www.facebook.com' in url:
+                item['url'] = item['url'].replace('https://www.facebook.com/https://www.facebook.com','https://www.facebook.com')
+            case {'url' : url} if 'https://www.linkedin.com/company/https://www.linkedin.com' in url:
+                item['url'] = item['url'].replace('https://www.linkedin.com/company/https://www.linkedin.com/company','https://www.linkedin.com/company')
+            case _:
+                pass
+        
         self.establishment = item['establishment_id']
         self.url = item['url']
         self.establishment_name = item['establishment_name']
