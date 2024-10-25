@@ -7,6 +7,7 @@ import time
 from scraping import Scraping
 import re
 from progress.bar import ChargingBar, FillingCirclesBar
+from random import randint
 
 
 class InstagramProfileScraper(Scraping):
@@ -73,75 +74,92 @@ class InstagramProfileScraper(Scraping):
         followers = 0
         name = ""
 
-        if not self.xhr_page:
-            self.add_logging("Erreur extraction: GraphQL no trouvé!")
+        #On utilise le secteur pour le score
+        # if not self.xhr_page: 
+        #     self.add_logging("Erreur extraction: GraphQL no trouvé!")
+        #     pass
+        
+        #print(self.xhr_page)
+        try:
+            time.sleep(randint(2,3))
+            close_popup_connexion = self.page.locator('xpath=/html/body/div[6]/div[1]/div/div[2]/div/div/div/div/div[2]/div/div[1]/div/div/svg')
+            close_popup_connexion.click()
+        except:
             pass
+        try:
+            #followers = nested_lookup(key='follower_count', document=self.xhr_page)[0]
+            #followers = self.page.locator('span[class="x5n08af x1s688f"]').nth(2).get_attribute('title')
+            followers = self.page.evaluate('document.getElementsByClassName("x5n08af x1s688f")[1].getAttribute("title")')
+            specfic_space = "\u202f"
+            if specfic_space in followers:
+                followers = int(self.page.evaluate('document.getElementsByClassName("x5n08af x1s688f")[1].getAttribute("title")').replace(specfic_space,''))
+            else:
+                followers = int(followers)
+            print(f"{followers} followers de type {type(followers)}")
+            name = self.page.locator('h2').first.text_content()
+            print(f'Name {name} de type {type(name)}')
+        except Exception as e:
+            print(f'erreur dans Extract data()-> {e}')
+            self.add_error(e)
 
-        else:
+        # try:
+        #     name = nested_lookup(
+        #         key='full_name', document=self.xhr_page)[0]
+        # except Exception as e:
+        #     self.add_error(e)
 
-            try:
-                followers = nested_lookup(
-                    key='follower_count', document=self.xhr_page)[0]
-            except Exception as e:
-                self.add_error(e)
+        try:
+            if name == "" or followers == 0:
+                raise ("Error on extraction: name or followers informations")
 
-            try:
-                name = nested_lookup(
-                    key='full_name', document=self.xhr_page)[0]
-            except Exception as e:
-                self.add_error(e)
+            self.page_data = {
+                'followers': followers,
+                'likes': 0,
+                'source': "instagram",
+                'establishment': f"/api/establishments/{self.establishment}",
+                'name': f"instagram_{name}",
+                'posts': 0
+            }
 
-            try:
-                if name == "" or followers == 0:
-                    raise ("Error on extraction: name or followers informations")
+            print(self.page_data)
 
-                self.page_data = {
-                    'followers': followers,
-                    'likes': 0,
-                    'source': "instagram",
-                    'establishment': f"/api/establishments/{self.establishment}",
-                    'name': f"instagram_score_{name}",
-                    'posts': 0
-                }
-
-                print(self.page_data)
-
-            except Exception as e:
-                self.add_error(e)
-                pass
+        except Exception as e:
+            self.add_error(e)
+            pass
 
     def execute(self) -> None:
         progress = ChargingBar('Preparing ', max=3)
         self.set_current_credential(0)
-        progress.next()
+        """progress.next()
         print(" | Open login page")
         self.goto_login()
         progress.next()
         print(" | Fill login page")
         self.fill_loginform()
         progress.next()
-        print(" | Logged in!")
+        print(" | Logged in!")"""
         output_files = []
         for item in self.items:
-            p_item = FillingCirclesBar(item['establishment_name'], max=3)
-            self.set_item(item)
-            self.add_logging(f"Open page: {item['establishment_name']}")
-            self.clean_data()
-            p_item.next()
-            print(" | Open page")
-            self.goto_insta_page()
-            p_item.next()
-            print(" | Extracting")
-            self.extract_data()
-            self.add_logging(f"=> Data extracted !")
-            p_item.next()
-            if not self.has_errors():
-                print(" | Saving")
-                output_files.append(self.save())
-                self.add_logging(f"=> Saved in local file !")
+                p_item = FillingCirclesBar(item['establishment_name'], max=3)
+                self.set_item(item)
+                self.add_logging(f"Open page: {item['establishment_name']}")
+                self.clean_data()
                 p_item.next()
-                print(" | Saved")
-
+                print(" | Open page")
+                self.goto_insta_page()
+                p_item.next()
+                print(" | Extracting")
+                self.extract_data()
+                self.add_logging(f"=> Data extracted !")
+                p_item.next()
+                print(f'Data to save for actual link -> {self.page_data}')
+                if not self.has_errors():
+                    print(" | Saving")
+                    output_files.append(self.save())
+                    self.add_logging(f"=> Saved in local file !")
+                    p_item.next()
+                    print(" | Saved")
+            
         self.stop()
 
         return output_files
