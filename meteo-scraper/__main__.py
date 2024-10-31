@@ -90,7 +90,11 @@ class MeteoAPI(object):
                     url=url,
                     timeout=120
                 )
-
+                #for check if we have a data to uploads
+                if response.status >= 400:
+                    print(f'Detail of error request response ==> {response.data}')
+                else:
+                    print(f'Request response => {response.status}')
             return orjson.loads(response.data)
 
         except urllib3.exceptions.HTTPError as e:
