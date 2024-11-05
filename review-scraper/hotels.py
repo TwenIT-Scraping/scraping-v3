@@ -178,21 +178,22 @@ class BaseHotelsReviewScrap(Scraping):
 
             try:
                 date_review = self.format_date(card.find('span', {'itemprop': 'datePublished'}).text.strip())
+                rating = card.find('span', {'itemprop': 'ratingValue'}).text.split(
+                    ' ')[0] if card.find('span', {'itemprop': 'ratingValue'}) else '0'
                 data = {}
                 data['date_review'] = date_review
                 data['author'] = card.find('img').parent.text.split(',')[0]
-                data['rating'] = card.find('span', {'itemprop': 'ratingValue'}).text.split(
-                    ' ')[0] if card.find('span', {'itemprop': 'ratingValue'}) else '0'
+                data['rating'] = float(int(rating.replace('/10',''))/2)
                 data['comment'] = card.find('span', {'itemprop': 'description'}).text if card.find('span', {'itemprop': 'description'}) else ''
 
                 data['language'] = lang
 
                 data['establishment'] = f'/api/establishments/{self.establishment}'
                 data['settings'] = f'/api/establishments/{self.settings}'
-                data['source'] = urlparse(self.driver.current_url).netloc.split('.')[1]
-                data['source'] = 'hotels'
+                data['source'] = 'hotels.com'
                 data['date_visit'] = date_review
                 data['novisitday'] = "0"
+                data['url'] = self.driver.current_url
                 
                 if datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365) or (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
                 #if datetime.strptime(data['date_review'], "%d/%m/%Y") > (datetime.now() - timedelta(days=365)):
@@ -221,8 +222,8 @@ class BaseHotelsReviewScrap(Scraping):
     
 class Hotels_FR(BaseHotelsReviewScrap):
 
-    def __init__(self, url: str, establishment: str, settings: str, env: str):
-        super().__init__(url, establishment, settings, env)
+    def __init__(self, url: str, establishment: str, settings: str, env: str, last_review_date):
+        super().__init__(url, establishment, settings, env, last_review_date=last_review_date)
         self.lang = 'fr'
     def format_date(self, date:str) -> str:
         date = date.split(' ')
@@ -241,8 +242,8 @@ class Hotels_EN(BaseHotelsReviewScrap):
 
 class Hotels_ES(BaseHotelsReviewScrap):
 
-    def __init__(self, url: str, establishment: str, settings: str, env: str):
-        super().__init__(url, establishment, settings, env)
+    def __init__(self, url: str, establishment: str, settings: str, env: str, last_review_date):
+        super().__init__(url, establishment, settings, env, last_review_date=last_review_date)
         self.lang = 'es' 
 
     def format_date(self, date:str) -> str:
