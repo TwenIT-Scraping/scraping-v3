@@ -95,7 +95,7 @@ class FacebookProfileScraper(Scraping):
         try:
 
             if "k" in text:
-                tmp = text.split(',')
+                tmp = text.split('.')
                 if len(tmp) > 1:
                     first = int(digit_only(tmp[0]))*1000
                     second = int(digit_only(tmp[1]))*100
@@ -105,7 +105,7 @@ class FacebookProfileScraper(Scraping):
                     return int(digit_only(tmp[0]))*1000
 
             if "m" in text:
-                tmp = text.split(',')
+                tmp = text.split('.')
                 if len(tmp) > 1:
                     first = int(digit_only(tmp[0]))*1000000
                     second = int(digit_only(tmp[1]))*100000
