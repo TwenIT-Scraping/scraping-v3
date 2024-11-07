@@ -146,16 +146,13 @@ class FacebookProfileScraper(Scraping):
                 page_name = h1_tag.text.replace('\xa0', '') if h1_tag else page_name
             
                 # Récupération des likes et followers
-                followers_likes = header.find_all(
-                    'a', {'class': 'x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1sur9pj xkrqix3 xi81zsa x1s688f'}
-                )
+                followers_likes = self.page.query_selector('a[href*="/followers/"]')
 
-                if len(followers_likes) >= 2:
-                    #page_likes = self.format_string_to_number(followers_likes[0].text)
+                if followers_likes:
                     #None car on n'a pas de données pour les likes
                     page_likes = None 
                     print("Page likes:", page_likes)
-                    page_followers = self.format_string_to_number(followers_likes[0].text)
+                    page_followers = self.format_string_to_number(followers_likes.text_content())
                     print("Page Followers: ", page_followers)
                 else:
                     print("Followers and likes sections not found!")
