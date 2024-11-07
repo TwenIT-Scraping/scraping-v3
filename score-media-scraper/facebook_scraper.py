@@ -68,8 +68,7 @@ class FacebookProfileScraper(Scraping):
     def goto_fb_page(self) -> None:
         #correction de certain url
         if 'https://www.facebook.com/https://www.facebook.com' in self.url:
-            self.url = self.url.replace('https://www.facebook.com/https://www.facebook.com', 'https://www.facebook.com')
-            
+           self.url = self.url.replace('https://www.facebook.com/https://www.facebook.com', 'https://www.facebook.com')
         self.page.goto(self.url, timeout=randint(30000, 80000))
         self.page.wait_for_timeout(randint(5000, 30000))
         time.sleep(.5)
@@ -147,7 +146,6 @@ class FacebookProfileScraper(Scraping):
             
                 # Récupération des likes et followers
                 followers_likes = self.page.query_selector('a[href*="/followers/"]')
-
                 if followers_likes:
                     #None car on n'a pas de données pour les likes
                     page_likes = None 
@@ -201,7 +199,6 @@ class FacebookProfileScraper(Scraping):
         # Commencer à traiter les éléments
         progress = ChargingBar('Processing ', max=len(self.items))
         output_files = []
-        
         for item in self.items:
             p_item = FillingCirclesBar(item['establishment_name'], max=4)
             
@@ -238,13 +235,10 @@ class FacebookProfileScraper(Scraping):
                 # Capturer et afficher l'erreur
                 self.add_error(e)
                 print(f"An error occurred while processing {item['establishment_name']}: {e}")
-            
             progress.next()
-        
         # Optionnel: Retourner les fichiers sauvegardés ou ajouter d'autres actions
         print(f"Processing completed. Files saved: {output_files}")
-
-
+        
         self.stop()
         print(output_files)
         return output_files
