@@ -317,6 +317,16 @@ class Google(BaseGoogleScrap):
         # self.driver = webdriver.Chrome(options=self.chrome_options)
 
         self.driver.maximize_window()
+    
+    def click_for_complete_review(self) -> None:
+        if not self.is_travel():
+            number_of_plus_bouton = self.driver.find_elements(By.CSS_SELECTOR, 'a[class="MtCSLb"]')
+            print(f'Sur cette section de page, il y a {len(number_of_plus_bouton)} review(s) non affiché complètement')
+            script = "var buttons = document.querySelectorAll('a.MtCSLb');buttons.forEach(function(button) {button.click();}); "
+            self.driver.execute_script(script)
+            print('Tous les reviews doivent maintenant être affiché complètement')
+        else:
+            pass
 
     def extract(self) -> list:
         print('extraction..')
@@ -335,6 +345,7 @@ class Google(BaseGoogleScrap):
         page = self.driver.page_source
 
         try:
+            self.click_for_complete_review()
             soupe = BeautifulSoup(page, 'lxml')
             container = ''
             cards = []
@@ -421,7 +432,7 @@ class Google(BaseGoogleScrap):
                         comment = card.find('div', {'class': 'OA1nbd'}).text.strip().replace('(Traducido por Google) ', '').replace('\xa0... Ver más', '').replace(" En savoir plus", "") \
                             .replace('(Traduit par Google)', '').replace('(Traduce by Google)', '').lower() if card.find('div', {'class': 'OA1nbd'}) else ''
                         if comment and "avis d'origine" in comment:
-                            comment = comment.split("(avis d'origine)")[-1]
+                            comment = comment.split("(avis d'origine)")[-1] 
                         if comment and "(original)" in comment:
                             comment = comment.split("(original)")[-1]
                     except:
