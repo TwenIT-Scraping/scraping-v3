@@ -6,7 +6,7 @@ from hotels import Hotels_FR, Hotels_EN, Hotels_ES
 from googles import Google
 from opentable import Opentable, Opentable_UK
 from trustpilot import Trustpilot
-from tripadvisor import Tripadvisor_UK, Tripadvisor_FR, Tripadvisor_ES, Tripadvisor
+from tripadvisor import tripadvisor_task
 from expedia import Expedia
 from api import ERApi
 import random
@@ -25,7 +25,7 @@ __class_name__ = {
     'google': Google,
     'opentable': Opentable,
     'trustpilot': Trustpilot,
-    'tripadvisor': Tripadvisor_UK,
+    'tripadvisor': tripadvisor_task,
     'expedia': Expedia
 }
 
@@ -45,10 +45,10 @@ __class_name_v2__ = {
     'Opentable UK': Opentable_UK,
     'Opentable': Opentable,
     'Trustpilot': Trustpilot,
-    'Tripadvisor': Tripadvisor,
-    'Tripadvisor FR': Tripadvisor_FR,
-    'Tripadvisor UK': Tripadvisor_FR,
-    'Tripadvisor ES': Tripadvisor_FR,
+    'Tripadvisor': tripadvisor_task,
+    'Tripadvisor FR': tripadvisor_task,
+    'Tripadvisor UK': tripadvisor_task,
+    'Tripadvisor ES': tripadvisor_task,
     'Expedia': Expedia,
     'Expedia FR': Expedia,
     'Expedia ES': Expedia,
@@ -209,16 +209,11 @@ class ListScraperV2:
 
             if item['source'] in __class_name_v2__.keys():
                 print("=> A scraper !!!")
+                instance = None
                 try:
                     print(item)
                     if 'tripadvisor' in item['source'].lower():
-                        instance = __class_name_v2__[item['source']](
-                            url=item['url'], 
-                            establishment=item['establishment_id'], 
-                            settings=item['id'],
-                            name=item['establishment_name'], 
-                            last_review_date=item.get("last_review_date", (datetime.now() - timedelta(days=-365)).strftime("%d/%m/%Y")),
-                            env=self.env)
+                        tripadvisor_task(data=[item])
                     else:
                         instance = __class_name_v2__[item['source']](
                             url=item['url'], 
@@ -226,11 +221,10 @@ class ListScraperV2:
                             settings=item['id'], 
                             last_review_date=item.get("last_review_date", (datetime.now() - timedelta(days=-365)).strftime("%d/%m/%Y")),
                             env=self.env)
-                    item['language'] and instance.set_language(
+                        item['language'] and instance.set_language(
                         item['language'])
-                    instance.set_setting_id(item['id'])
-
-                    instance.set_url(item['url'])
+                        instance.set_setting_id(item['id'])
+                        instance.set_url(item['url'])
 
                     print('=> ', item['id'], ': ', item['url'])
 
@@ -244,7 +238,8 @@ class ListScraperV2:
                         else:
                             instance.set_last_date(item['last_review_date'])
 
-                    instance.execute()
+                    if item['source'].lower() != 'tripadvisor':
+                        instance.execute()
                 except Exception as e:
                     print(e)
                     pass

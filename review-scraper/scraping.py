@@ -189,7 +189,7 @@ class Scraping(object):
             if self.check_page():
                 self.extract()
                 time.sleep(2)
-                self.save()
+                # self.save()
             else:
                 print("!!!!!!!! Cette page n'existe pas !!!!!!!!")
             self.driver.quit()
