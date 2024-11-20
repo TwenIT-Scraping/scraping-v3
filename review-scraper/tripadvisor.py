@@ -6,7 +6,7 @@ from botasaurus.soupify import soupify
 from datetime import datetime, timedelta
 from urllib.parse import urlparse, parse_qs
 from pathlib import Path
-import time 
+import time
 import random
 import json
 import os
@@ -18,33 +18,33 @@ API_ENDPOINT = "https://api.nexties.fr/api/review/multi"
 
 
 DATA_SOURCE = [
-    # {'id': 297, 'caption': '', 'section': 'REVIEWS', 'establishment_name': 'Tamassa', 'establishment_id': 81, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g612353-d736372-Reviews-Tamassa_Resort-Bel_Ombre.html', 'language': 'en', 'last_review_date': None}, 
-    {'id': 289, 'caption': '', 'section': 'REVIEWS', 'establishment_name': 'LUX Le Morne', 'establishment_id': 77, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g488105-d316737-Reviews-LUX_Le_Morne-Le_Morne.html', 'language': 'en', 'last_review_date': None}, 
-    # {'id': 287, 'caption': '', 'section': 'REVIEWS', 'establishment_name': 'LUX Grand Baie', 'establishment_id': 75, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g488103-d302263-Reviews-LUX_Grand_Baie-Grand_Baie.html', 'language': 'en', 'last_review_date': None}, 
-    # {'id': 268, 'caption': '', 'section': 'REVIEWS', 'establishment_name': 'LUX Saint Gilles', 'establishment_id': 79, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Feature-g298470-d1473791-zft1-Lux_Saint_Gilles.html', 'language': 'en', 'last_review_date': '02/01/2024'}, 
-    # {'id': 262, 'caption': '', 'section': 'REVIEWS', 'establishment_name': 'LUX Belle Mare', 'establishment_id': 76, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g298342-d316743-Reviews-Lux_Belle_Mare-Belle_Mare.html', 'language': 'en', 'last_review_date': '12/09/2024'}, 
-    # {'id': 228, 'caption': '', 'section': 'REVIEWS', 'establishment_name': 'LUX Grand Gaube', 'establishment_id': 70, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g488104-d316747-Reviews-LUX_Grand_Gaube-Grand_Gaube.html', 'language': 'en', 'last_review_date': '04/09/2024'}, 
-    # {'id': 179, 'caption': None, 'section': None, 'establishment_name': 'Chalet Iona', 'establishment_id': 53, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/VacationRentalReview-g580182-d8308071-Chalet_Iona_Meribel-Meribel_Les_Allues_Savoie_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '09/03/2018'}, 
-    # {'id': 166, 'caption': None, 'section': 'REVIEWS', 'establishment_name': 'Les Rives marines', 'establishment_id': 50, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g1067666-d1068158-Reviews-Madame_Vacances_Residence_Les_Rives_Marines-Le_Teich_Gironde_Nouvelle_Aquitaine.html', 'language': 'fr', 'last_review_date': '04/09/2024'}, 
-    # {'id': 144, 'caption': None, 'section': None, 'establishment_name': 'Hôtel du Golfe Ajaccio', 'establishment_id': 47, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g187140-d313054-Reviews-Hotel_du_Golfe-Ajaccio_Communaute_d_Agglomeration_du_Pays_Ajaccien_Corse_du_Sud_Corsica.html', 'language': 'fr', 'last_review_date': '12/09/2024'}, 
-    # {'id': 137, 'caption': None, 'section': 'REVIEWS', 'establishment_name': 'Dolce Notte', 'establishment_id': 46, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g666541-d623991-Reviews-Hotel_Dolce_Notte-Saint_Florent_Haute_Corse_Corsica.html', 'language': 'fr', 'last_review_date': '03/09/2024'}, 
-    # {'id': 104, 'caption': None, 'section': None, 'establishment_name': 'Restaurant Chacouette', 'establishment_id': 29, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Restaurant_Review-g1079358-d10302464-Reviews-Le_Central-Cap_Ferret_Lege_Cap_Ferret_Gironde_Nouvelle_Aquitaine.html', 'language': 'fr', 'last_review_date': '15/08/2023'}, 
-    # {'id': 70, 'caption': None, 'section': None, 'establishment_name': 'Hotel Ibiza', 'establishment_id': 3, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g196707-d7120453-Reviews-Hotel_Ibiza-Les_Deux_Alpes_Isere_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '12/04/2024'}, 
-    # {'id': 64, 'caption': None, 'section': None, 'establishment_name': 'ESF Chamonix', 'establishment_id': 23, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Attraction_Review-g187261-d2463830-Reviews-ESF_Chamonix_Ski_and_Guide_Company-Chamonix_Haute_Savoie_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '05/04/2024'}, 
-    # {'id': 63, 'caption': None, 'section': None, 'establishment_name': 'La Fine Bouche', 'establishment_id': 22, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Restaurant_Review-g187261-d10491718-Reviews-La_Fine_Bouche-Chamonix_Haute_Savoie_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '17/08/2024'}, 
-    # {'id': 62, 'caption': None, 'section': None, 'establishment_name': 'Le Comptoir des Alpes', 'establishment_id': 21, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Restaurant_Review-g187261-d13294436-Reviews-Le_Comptoir_des_Alpes-Chamonix_Haute_Savoie_Auvergne_Rhone_Alpes.html#photos;aggregationId=101&albumid=101&filter=7&ff=466724336', 'language': 'fr', 'last_review_date': '06/09/2024'}, 
-    # {'id': 56, 'caption': None, 'section': None, 'establishment_name': 'Pierre & Vacances Residence La Rivière', 'establishment_id': 19, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g187261-d471965-Reviews-Pierre_Vacances_Residence_La_Riviere-Chamonix_Haute_Savoie_Auvergne_Rhone_Alpes.html#/media/471965/303132012:p/?albumid=101&type=0&category=101', 'language': 'fr', 'last_review_date': '27/08/2024'}, 
-    # {'id': 55, 'caption': None, 'section': None, 'establishment_name': 'Grand Hôtel des Alpes', 'establishment_id': 18, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g187261-d558174-Reviews-Grand_Hotel_des_Alpes-Chamonix_Haute_Savoie_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '21/08/2024'}, 
-    # {'id': 44, 'caption': None, 'section': None, 'establishment_name': 'Le Lido', 'establishment_id': 5, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Restaurant_Review-g1551846-d1555394-Reviews-Le_Lido-Tresserve_Savoie_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '27/08/2024'}, 
-    # {'id': 38, 'caption': None, 'section': None, 'establishment_name': 'Office de Tourisme de Chamonix-Mont-Blanc', 'establishment_id': 12, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Attraction_Review-g187261-d12123950-Reviews-Office_de_Tourisme_de_Chamonix_Mont_blanc-Chamonix_Haute_Savoie_Auvergne_Rhone_A.html', 'language': 'fr', 'last_review_date': '21/02/2024'}, 
-    # {'id': 14, 'caption': None, 'section': None, 'establishment_name': 'Les Chalets du Berger', 'establishment_id': 2, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g1056032-d1055274-Reviews-Madame_Vacances_Les_Chalets_de_Berger-La_Feclaz_Savoie_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '18/08/2024'}, 
-    # {'id': 6, 'caption': None, 'section': None, 'establishment_name': 'Le Château de Candie', 'establishment_id': 4, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g8309764-d239781-Reviews-Chateau_de_Candie-Chambery_Savoie_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '11/08/2024'}, 
+    # {'id': 297, 'caption': '', 'section': 'REVIEWS', 'establishment_name': 'Tamassa', 'establishment_id': 81, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g612353-d736372-Reviews-Tamassa_Resort-Bel_Ombre.html', 'language': 'en', 'last_review_date': None},
+    {'id': 289, 'caption': '', 'section': 'REVIEWS', 'establishment_name': 'LUX Le Morne', 'establishment_id': 77, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g488105-d316737-Reviews-LUX_Le_Morne-Le_Morne.html', 'language': 'en', 'last_review_date': None},
+    # {'id': 287, 'caption': '', 'section': 'REVIEWS', 'establishment_name': 'LUX Grand Baie', 'establishment_id': 75, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g488103-d302263-Reviews-LUX_Grand_Baie-Grand_Baie.html', 'language': 'en', 'last_review_date': None},
+    # {'id': 268, 'caption': '', 'section': 'REVIEWS', 'establishment_name': 'LUX Saint Gilles', 'establishment_id': 79, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Feature-g298470-d1473791-zft1-Lux_Saint_Gilles.html', 'language': 'en', 'last_review_date': '02/01/2024'},
+    # {'id': 262, 'caption': '', 'section': 'REVIEWS', 'establishment_name': 'LUX Belle Mare', 'establishment_id': 76, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g298342-d316743-Reviews-Lux_Belle_Mare-Belle_Mare.html', 'language': 'en', 'last_review_date': '12/09/2024'},
+    # {'id': 228, 'caption': '', 'section': 'REVIEWS', 'establishment_name': 'LUX Grand Gaube', 'establishment_id': 70, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g488104-d316747-Reviews-LUX_Grand_Gaube-Grand_Gaube.html', 'language': 'en', 'last_review_date': '04/09/2024'},
+    # {'id': 179, 'caption': None, 'section': None, 'establishment_name': 'Chalet Iona', 'establishment_id': 53, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/VacationRentalReview-g580182-d8308071-Chalet_Iona_Meribel-Meribel_Les_Allues_Savoie_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '09/03/2018'},
+    # {'id': 166, 'caption': None, 'section': 'REVIEWS', 'establishment_name': 'Les Rives marines', 'establishment_id': 50, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g1067666-d1068158-Reviews-Madame_Vacances_Residence_Les_Rives_Marines-Le_Teich_Gironde_Nouvelle_Aquitaine.html', 'language': 'fr', 'last_review_date': '04/09/2024'},
+    # {'id': 144, 'caption': None, 'section': None, 'establishment_name': 'Hôtel du Golfe Ajaccio', 'establishment_id': 47, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g187140-d313054-Reviews-Hotel_du_Golfe-Ajaccio_Communaute_d_Agglomeration_du_Pays_Ajaccien_Corse_du_Sud_Corsica.html', 'language': 'fr', 'last_review_date': '12/09/2024'},
+    # {'id': 137, 'caption': None, 'section': 'REVIEWS', 'establishment_name': 'Dolce Notte', 'establishment_id': 46, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g666541-d623991-Reviews-Hotel_Dolce_Notte-Saint_Florent_Haute_Corse_Corsica.html', 'language': 'fr', 'last_review_date': '03/09/2024'},
+    # {'id': 104, 'caption': None, 'section': None, 'establishment_name': 'Restaurant Chacouette', 'establishment_id': 29, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Restaurant_Review-g1079358-d10302464-Reviews-Le_Central-Cap_Ferret_Lege_Cap_Ferret_Gironde_Nouvelle_Aquitaine.html', 'language': 'fr', 'last_review_date': '15/08/2023'},
+    # {'id': 70, 'caption': None, 'section': None, 'establishment_name': 'Hotel Ibiza', 'establishment_id': 3, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g196707-d7120453-Reviews-Hotel_Ibiza-Les_Deux_Alpes_Isere_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '12/04/2024'},
+    # {'id': 64, 'caption': None, 'section': None, 'establishment_name': 'ESF Chamonix', 'establishment_id': 23, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Attraction_Review-g187261-d2463830-Reviews-ESF_Chamonix_Ski_and_Guide_Company-Chamonix_Haute_Savoie_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '05/04/2024'},
+    # {'id': 63, 'caption': None, 'section': None, 'establishment_name': 'La Fine Bouche', 'establishment_id': 22, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Restaurant_Review-g187261-d10491718-Reviews-La_Fine_Bouche-Chamonix_Haute_Savoie_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '17/08/2024'},
+    # {'id': 62, 'caption': None, 'section': None, 'establishment_name': 'Le Comptoir des Alpes', 'establishment_id': 21, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Restaurant_Review-g187261-d13294436-Reviews-Le_Comptoir_des_Alpes-Chamonix_Haute_Savoie_Auvergne_Rhone_Alpes.html#photos;aggregationId=101&albumid=101&filter=7&ff=466724336', 'language': 'fr', 'last_review_date': '06/09/2024'},
+    # {'id': 56, 'caption': None, 'section': None, 'establishment_name': 'Pierre & Vacances Residence La Rivière', 'establishment_id': 19, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g187261-d471965-Reviews-Pierre_Vacances_Residence_La_Riviere-Chamonix_Haute_Savoie_Auvergne_Rhone_Alpes.html#/media/471965/303132012:p/?albumid=101&type=0&category=101', 'language': 'fr', 'last_review_date': '27/08/2024'},
+    # {'id': 55, 'caption': None, 'section': None, 'establishment_name': 'Grand Hôtel des Alpes', 'establishment_id': 18, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g187261-d558174-Reviews-Grand_Hotel_des_Alpes-Chamonix_Haute_Savoie_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '21/08/2024'},
+    # {'id': 44, 'caption': None, 'section': None, 'establishment_name': 'Le Lido', 'establishment_id': 5, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Restaurant_Review-g1551846-d1555394-Reviews-Le_Lido-Tresserve_Savoie_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '27/08/2024'},
+    # {'id': 38, 'caption': None, 'section': None, 'establishment_name': 'Office de Tourisme de Chamonix-Mont-Blanc', 'establishment_id': 12, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Attraction_Review-g187261-d12123950-Reviews-Office_de_Tourisme_de_Chamonix_Mont_blanc-Chamonix_Haute_Savoie_Auvergne_Rhone_A.html', 'language': 'fr', 'last_review_date': '21/02/2024'},
+    # {'id': 14, 'caption': None, 'section': None, 'establishment_name': 'Les Chalets du Berger', 'establishment_id': 2, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g1056032-d1055274-Reviews-Madame_Vacances_Les_Chalets_de_Berger-La_Feclaz_Savoie_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '18/08/2024'},
+    # {'id': 6, 'caption': None, 'section': None, 'establishment_name': 'Le Château de Candie', 'establishment_id': 4, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Hotel_Review-g8309764-d239781-Reviews-Chateau_de_Candie-Chambery_Savoie_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '11/08/2024'},
     # {'id': 1, 'caption': None, 'section': None, 'establishment_name': 'MV Transport', 'establishment_id': 8, 'idprovider': 1, 'category': 'Platform', 'source': 'Tripadvisor FR', 'url': 'https://www.tripadvisor.fr/Attraction_Review-g8309764-d15690584-Reviews-MV_Transport-Chambery_Savoie_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '01/03/2024'},
-    # {'id': 82, 'caption': None, 'section': None, 'establishment_name': 'Hotel Chamartín The One', 'establishment_id': 28, 'idprovider': 23, 'category': 'Platform', 'source': 'Tripadvisor ES', 'url': 'https://www.tripadvisor.es/Hotel_Review-g187514-d228623-Reviews-Hotel_Chamartin_The_One-Madrid.html', 'language': 'es', 'last_review_date': '30/08/2024'}, 
+    # {'id': 82, 'caption': None, 'section': None, 'establishment_name': 'Hotel Chamartín The One', 'establishment_id': 28, 'idprovider': 23, 'category': 'Platform', 'source': 'Tripadvisor ES', 'url': 'https://www.tripadvisor.es/Hotel_Review-g187514-d228623-Reviews-Hotel_Chamartin_The_One-Madrid.html', 'language': 'es', 'last_review_date': '30/08/2024'},
     # {'id': 81, 'caption': None, 'section': 'REVIEWS', 'establishment_name': 'Hotel Antequera Hills', 'establishment_id': 27, 'idprovider': 23, 'category': 'Platform', 'source': 'Tripadvisor ES', 'url': 'https://www.tripadvisor.es/Hotel_Review-g315910-d325898-Reviews-Hotel_Antequera-Antequera_Costa_del_Sol_Province_of_Malaga_Andalucia.html', 'language': 'es', 'last_review_date': '03/09/2024'},
-    # {'id': 296, 'caption': '', 'section': 'REVIEWS', 'establishment_name': 'Salt of Palmar', 'establishment_id': 80, 'idprovider': 18, 'category': 'Platform', 'source': 'Tripadvisor', 'url': 'https://www.tripadvisor.com/Hotel_Review-g1182872-d15125547-Reviews-Salt_Of_Palmar_Mauritius_A_Member_Of_Design_Hotels-Palmar.html', 'language': 'en', 'last_review_date': None}, 
-    # {'id': 266, 'caption': '', 'section': 'REVIEWS', 'establishment_name': 'LUX South Ari Atoll', 'establishment_id': 78, 'idprovider': 18, 'category': 'Platform', 'source': 'Tripadvisor', 'url': 'https://www.tripadvisor.com/Hotel_Review-g6854954-d1053966-Reviews-LUX_South_Ari_Atoll-Dhidhoofinolhu_Island.html', 'language': 'en', 'last_review_date': '04/09/2024'}, 
-    # {'id': 181, 'caption': None, 'section': 'REVIEWS', 'establishment_name': 'MV Transport', 'establishment_id': 8, 'idprovider': 18, 'category': 'Platform', 'source': 'Tripadvisor', 'url': 'https://www.tripadvisor.com/Attraction_Review-g8309764-d15690584-Reviews-MV_Transport-Chambery_Savoie_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '19/12/2023'}, 
+    # {'id': 296, 'caption': '', 'section': 'REVIEWS', 'establishment_name': 'Salt of Palmar', 'establishment_id': 80, 'idprovider': 18, 'category': 'Platform', 'source': 'Tripadvisor', 'url': 'https://www.tripadvisor.com/Hotel_Review-g1182872-d15125547-Reviews-Salt_Of_Palmar_Mauritius_A_Member_Of_Design_Hotels-Palmar.html', 'language': 'en', 'last_review_date': None},
+    # {'id': 266, 'caption': '', 'section': 'REVIEWS', 'establishment_name': 'LUX South Ari Atoll', 'establishment_id': 78, 'idprovider': 18, 'category': 'Platform', 'source': 'Tripadvisor', 'url': 'https://www.tripadvisor.com/Hotel_Review-g6854954-d1053966-Reviews-LUX_South_Ari_Atoll-Dhidhoofinolhu_Island.html', 'language': 'en', 'last_review_date': '04/09/2024'},
+    # {'id': 181, 'caption': None, 'section': 'REVIEWS', 'establishment_name': 'MV Transport', 'establishment_id': 8, 'idprovider': 18, 'category': 'Platform', 'source': 'Tripadvisor', 'url': 'https://www.tripadvisor.com/Attraction_Review-g8309764-d15690584-Reviews-MV_Transport-Chambery_Savoie_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '19/12/2023'},
     # {'id': 136, 'caption': None, 'section': 'REVIEWS', 'establishment_name': "Le Carre d'As", 'establishment_id': 44, 'idprovider': 18, 'category': 'Platform', 'source': 'Tripadvisor', 'url': 'https://www.tripadvisor.com/Restaurant_Review-g187259-d27427020-Reviews-Le_Carre_D_as-Aix_les_Bains_Savoie_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '31/08/2024'}
 ]
 
@@ -187,7 +187,7 @@ def get_element_by_locator(element:object, locator:dict) -> object | None:
     else:
         element_found = element.find(locator['tag'], {locator['attr_key']:locator['attr_value']})
         return element_found
-    
+
 def get_all_element_by_locator(element:object, locator:dict) -> object | None:
     if locator['by_tag_only']:
         element_found = element.find_all(locator['tag'])
@@ -256,7 +256,7 @@ class TripadvisorPageDataExtractor(object):
                 review = {}
                 for key in list(self.selectors['review'].keys()):
                     review[key] = extract_element_by_locator(item, self.selectors['review'][key])
-                valid_data = True 
+                valid_data = True
 
                 for key in list(review.keys()):
                     if review[key] is None:
@@ -265,7 +265,7 @@ class TripadvisorPageDataExtractor(object):
                         else:
                             valid_data = False
                             print(review)
-                            
+
                 if valid_data:
                     self.page_data.append(review)
 
@@ -277,10 +277,10 @@ class TripadvisorPageDataExtractor(object):
 
     def get_last_date(self) -> datetime:
         return datetime.strptime(self.cleaned_data[-1]['date_review'], '%d/%m/%Y')
-    
+
     def get_lang(self) -> None:
         self.lang = urlparse(self.page_data_source['url']).netloc.split('.')[-1].lower()
-        
+
     def format_date_hotel(self, date_str:str) -> object:
         match self.lang:
             case 'com':
@@ -347,7 +347,7 @@ class TripadvisorPageDataExtractor(object):
                         month = months_es_short[date_split[0][:3]]
                         year = datetime.now().year if int(date_split[-1]) < 31 else date_split[-1]
                         return f"{day}/{month}/{year}"
-                
+
     def format_date_attraction(self, date_str:str) -> object:
         print(date_str)
         match self.lang:
@@ -479,7 +479,7 @@ class TripadvisorPageDataExtractor(object):
                         month = months_es_short[date_split[0][:3]]
                         year = date_split[1]
                         return f"{day}/{month}/{year}"
-          
+
     def format_date_vacation(self, date_str:str) -> object:
         print(date_str)
         match self.lang:
@@ -545,7 +545,7 @@ class TripadvisorPageDataExtractor(object):
                         month = months_es_short[date_split[0][:3]]
                         year = date_split[1]
                         return f"{day}/{month}/{year}"
-          
+
     def format_date_hotel_feature(self, date_str:str) -> object:
         match self.lang:
             case 'com':
@@ -610,24 +610,24 @@ class TripadvisorPageDataExtractor(object):
                         month = months_es_short[date_split[0][:3]]
                         year = date_split[1]
                         return f"{day}/{month}/{year}"
-          
+
     def format_date(self, date_str:str) -> object:
         date_format_func = getattr(self, f"format_date_{self.page_type}")
         formated_date = date_format_func(date_str)
         print(formated_date)
         return formated_date
-                
+
     def clean_author(self, author:str) -> object:
         if author and author != "":
             return author
         return None
-        
+
     def clean_comment(self, comment:str) -> object:
         if comment and comment != "":
             comment.replace('$', 'USD').replace('\n', '').strip()
-            return comment 
+            return comment
         return None
-    
+
     def clean_rating(self, rating:str) -> object:
         rating = rating.replace(',', '.')
         match(self.lang):
@@ -643,7 +643,7 @@ class TripadvisorPageDataExtractor(object):
             case 'es':
                 rating = rating.replace(' de ', '/').split(' ')[0]
                 return rating
-    
+
     def clean_date_review(self, date:str) -> object:
         match self.page_type:
             case 'hotel':
@@ -662,7 +662,7 @@ class TripadvisorPageDataExtractor(object):
                         if date.split(' ')[0].isdigit():
                             date = ' '.join(date.split(' ')[::-1])
                 return self.format_date(date)
-            
+
             case 'hotel_feature':
                 date = date.replace('(', '').replace(')', '').replace(',', '').lower()
                 match self.lang:
@@ -679,7 +679,7 @@ class TripadvisorPageDataExtractor(object):
                         if date.split(' ')[0].isdigit():
                             date = ' '.join(date.split(' ')[::-1])
                 return self.format_date(date)
-            
+
             case 'attraction':
                 date = date.replace('(', '').replace(')', '').replace(',', '').lower()
                 match self.lang:
@@ -692,7 +692,7 @@ class TripadvisorPageDataExtractor(object):
                     case 'uk':
                         date = date.replace('written ', '')
                 return self.format_date(date)
-            
+
             case 'restaurant':
                 date = date.replace('(', '').replace(')', '').replace(',', '').lower()
                 match self.lang:
@@ -708,7 +708,7 @@ class TripadvisorPageDataExtractor(object):
                         date_split = date.split(' ')
                         date = f"{date_split[1]} {date_split[0]} {date_split[2]}"
                 return self.format_date(date)
-            
+
             case 'vacation':
                 date = date.split('.')[0].replace('(', '').replace(')', '').replace(',', '').lower()
                 print(f"date review {date}")
@@ -726,7 +726,7 @@ class TripadvisorPageDataExtractor(object):
                         date = f"{date_split[1]} {date_split[0]} {date_split[2]}"
 
                 return self.format_date(date)
-    
+
     def clean_date_visit(self, date:str) -> object:
         match self.page_type:
             case 'hotel':
@@ -847,19 +847,22 @@ class TripadvisorPageDataExtractor(object):
         if not url:
             return self.page_data_source['url']
         return urlparse(self.page_data_source['url']).netloc + url
-    
+
     def normalize_data(self) -> None:
         for data in self.page_data:
             new_data = {}
             for key in list(data.keys()):
                 cleaner = getattr(self, f"clean_{key}")
                 new_data[key] = cleaner(data[key])
-            
+
             new_data['source'] = self.source
             new_data['language'] = self.language
             new_data['settings'] = self.settings
             new_data['novisitday'] = self.novisitday
             new_data['establishment'] = self.establishment
+
+            if 'https://' not in new_data['url']:
+                new_data['url'] = 'https://' + new_data['url']
 
             print(new_data)
             self.cleaned_data.append(new_data)
@@ -870,7 +873,7 @@ class TripadvisorPageDataExtractor(object):
         ### Args:
             - `cleaned_data (list)`: data to be sent
         """
-        
+
         global API_ENDPOINT, API_TOKEN_PROD
         data = { "data_content": cleaned_data }
         encoded_data = json.dumps(data)
@@ -893,7 +896,7 @@ class TripadvisorPageDataExtractor(object):
         """
         print(" ==> saving ...")
         def split_data(data_to_split:list, by:int) -> list:
-            """## split a large of list of data in to small list 
+            """## split a large of list of data in to small list
 
             ### Args:
                 - `data_to_split (list)`: list of big data to b
@@ -903,7 +906,7 @@ class TripadvisorPageDataExtractor(object):
                 - `list`: list contains splitted list of data
             """
             return [data_to_split[i:i + by] for i in range(0, len(data_to_split), by)]
-        
+
         data_count = len(self.cleaned_data)
         print(f" {data_count} data to upload")
         self.post_data(self.cleaned_data)
@@ -920,7 +923,7 @@ def load_selectors(selector_name:str) -> dict:
 
     with open(f"{os.path.abspath(__file__).replace('.py', '.json')}", 'r') as openfile:
         data = json.load(openfile)
-        print(data)
+        # print(data)
         try:
             return data[selector_name]
         except KeyError:
@@ -996,13 +999,13 @@ def build_selectors(page:str, selectors:list) -> dict | None:
 
 # def check_for_captcha(driver: Driver, locators:list) -> None:
 #     print("  ==> checking for captcha")
-    
 
-@browser(user_agent=UserAgent.RANDOM, 
+
+@browser(user_agent=UserAgent.RANDOM,
          headless=False,
          add_arguments=[
                 "---disable-translate",
-                "--disable-geolocation", 
+                "--disable-geolocation",
                 "--disable-gpu",
                 "--disable-fingerprinting"])
 def tripadvisor_task(driver: Driver, data:list):
@@ -1042,7 +1045,7 @@ def tripadvisor_task(driver: Driver, data:list):
                         try:
                             page_data_source = {'web_page':soupify(driver.select(create_selector(valid_selector['container_locator']))), 'url': driver.current_url}
                             t = TripadvisorPageDataExtractor(
-                                page_data_source=page_data_source, 
+                                page_data_source=page_data_source,
                                 selectors=valid_selector,
                                 settings=data['id'],
                                 establishment=data['establishment_id'],
@@ -1071,14 +1074,14 @@ def tripadvisor_task(driver: Driver, data:list):
                     else:
                         print("No valid selector found, please check page and add the selector.")
                         input(" press `ctrl + C` to stop or enter to by-pass this error")
-        
+
             else:
                     pass
                 #     driver.select(selectors['container_locator']).scroll_into_view()
                 #     driver.sleep(random.randint(3,5))
                 #     page_data_source = {'web_page':soupify(driver.page_html), 'url': driver.current_url}
                 #     t = TripadvisorPageDataExtractor(
-                #         page_data_source=page_data_source, 
+                #         page_data_source=page_data_source,
                 #         selectors=selectors,
                 #         settings=data['id'],
                 #         establishment=data['establishment_id'],
