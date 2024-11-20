@@ -245,7 +245,7 @@ class TripadvisorPageDataExtractor(object):
 
         self.get_lang()
         self.extract()
-        # self.save()
+        self.save()
 
 
     def extract(self) -> None:

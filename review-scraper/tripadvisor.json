@@ -10,7 +10,7 @@
     "hotel_feature": {
         "has_pagination": true,
         "pagination_type": "button",
-        "optional_fields": ["url"],
+        "optional_fields": [],
         "paginator_locator": [
             {
                 "by_tag_only":false,
@@ -152,7 +152,7 @@
     "hotel": {
         "has_pagination": true,
         "pagination_type": "button",
-        "optional_fields": ["url"],
+        "optional_fields": [],
         "paginator_locator": [
             {
                 "by_tag_only":false,
@@ -248,7 +248,7 @@
     "attraction": {
         "has_pagination": true,
         "pagination_type": "button",
-        "optional_fields": ["url"],
+        "optional_fields": [],
         "paginator_locator": [
             {
                 "by_tag_only":false,
@@ -337,7 +337,7 @@
     "restaurant": {
         "has_pagination": true,
         "pagination_type": "button",
-        "optional_fields": ["url"],
+        "optional_fields": [],
         "paginator_locator": [
             {
                 "by_tag_only":false,
