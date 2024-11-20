@@ -342,6 +342,15 @@ class Google(BaseGoogleScrap):
         except:
             pass
 
+        #load comments for non google travel page
+        try:
+            view_more_btns = self.driver.find_elements(By.XPATH, "//a[@jsaction='KoToPc']")
+            for view_more_btn in view_more_btns:
+                view_more_btn.location_once_scrolled_into_view
+                view_more_btn.click()
+        except:
+            pass
+
         page = self.driver.page_source
 
         try:
