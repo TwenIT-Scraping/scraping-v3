@@ -1,0 +1,262 @@
+{
+    "tripadvisor": {
+        "hotel": [
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "class",
+                "attr_value": "uqMDf z BGJxv YGfmd YQkjl",
+                "target": "child",
+                "child": {
+                    "by_tag_only": false,
+                    "tag": "span",
+                    "attr_key": "class",
+                    "attr_value": "kJyXc P",
+                    "target": "text"
+                }
+            }
+        ],
+        "hotel_feature": [
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "class",
+                "attr_value": "uqMDf z BGJxv YGfmd YQkjl",
+                "target": "child",
+                "child": {
+                    "by_tag_only": false,
+                    "tag": "span",
+                    "attr_key": "class",
+                    "attr_value": "kJyXc P",
+                    "target": "text"
+                }
+            }
+        ],
+        "attraction": [
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "class",
+                "attr_value": "yFKLG",
+                "target": "child",
+                "child": {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "data-automation",
+                    "attr_value": "reviewBubbleScore",
+                    "target": "text"
+                }
+            }
+        ],
+        "restaurant": [
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "class",
+                "attr_value": "bOdYe f e",
+                "target": "child",
+                "child": {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "data-automation",
+                    "attr_value": "reviewBubbleScore",
+                    "target": "text"
+                }
+            }
+        ],
+        "vacation": [
+            {
+                "by_tag_only": false,
+                "tag": "a",
+                "attr_key": "class",
+                "attr_value": "SZQJb Cg wSSLS",
+                "target": "child",
+                "child": {
+                    "by_tag_only": false,
+                    "tag": "span",
+                    "attr_key": "class",
+                    "attr_value": "yyzcQ",
+                    "target": "text"
+                }
+            }
+        ]
+    },
+    "booking": {
+        "hotel":[
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "id",
+                "attr_value": "review_list_score",
+                "target": "child",
+                "child": {
+                    "by_tag_only": false,
+                    "tag": "span",
+                    "attr_key": "class",
+                    "attr_value": "review-score-badge",
+                    "target": "text"
+                }
+            }
+        ]
+    },
+    "maeva": {
+        "residence":[
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "id",
+                "attr_value": "fiche-produit-note",
+                "target": "child",
+                "child": {
+                    "by_tag_only": false,
+                    "tag": "span",
+                    "attr_key": "class",
+                    "attr_value": "text-bold",
+                    "target": "text"
+                }
+            }
+        ]
+    },
+    "campings": {
+        "residence":[
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "class",
+                "attr_value": "reviews__campings scroll-target open-reviews open-collapsible",
+                "target": "child",
+                "child": {
+                    "by_tag_only": false,
+                    "tag": "span",
+                    "attr_key": "class",
+                    "attr_value": "review__value",
+                    "target": "text"
+                }
+            }
+        ]
+    },
+    "expedia": {
+        "page":[
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "data-stid",
+                "attr_value": "content-hotel-reviewsummary",
+                "target": "child",
+                "child": {
+                    "by_tag_only": false,
+                    "tag": "span",
+                    "attr_key": "class",
+                    "attr_value": "uitk-badge-base-text",
+                    "target": "text"
+                }
+            }
+        ]
+    },
+    "hotels.com": {
+        "page":[
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "data-stid",
+                "attr_value": "content-hotel-reviewsummary",
+                "target": "child",
+                "child": {
+                    "by_tag_only": false,
+                    "tag": "span",
+                    "attr_key": "class",
+                    "attr_value": "uitk-badge-base-text",
+                    "target": "text"
+                }
+            }
+        ]
+    },
+    "opentable": {
+        "restaurant":[
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "id",
+                "attr_value": "ratingInfo",
+                "target": "child",
+                "child": {
+                    "by_tag_only": false,
+                    "tag": "span",
+                    "attr_key": "class",
+                    "attr_value": "m1KNa9XKCHY- C7Tp-bANpE4-",
+                    "target": "text"
+                }
+            }
+        ]
+    },
+    "google": {
+        "search": [
+            {
+                "by_tag_only": false,
+                "tag": "li",
+                "attr_key": "data-hveid",
+                "attr_value": "CAQQCA",
+                "target": "child",
+                "child": {
+                    "by_tag_only": false,
+                    "tag": "span",
+                    "attr_key": "class",
+                    "attr_value": "fzTgPe Aq14fc",
+                    "target": "text"
+                }
+            }
+        ],
+        "travel": [
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "class",
+                "attr_value": "pDLIp",
+                "target": "child",
+                "child": {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "FBsWCd",
+                    "target": "text"
+                }
+            }
+        ]
+    },
+    "yelp": {
+        "page":[
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "data-testid",
+                "attr_value": "BizHeaderReviewCount",
+                "target": "child",
+                "child": {
+                    "by_tag_only": false,
+                    "tag": "span",
+                    "attr_key": "class",
+                    "attr_value": "y-css-1jz061g",
+                    "target": "text"
+                }
+            }
+        ]
+    },
+    "trustpilot": {
+        "page":[
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "id",
+                "attr_value": "business-unit-title",
+                "target": "child",
+                "child": {
+                    "by_tag_only": false,
+                    "tag": "p",
+                    "attr_key": "data-rating-typography",
+                    "attr_value": "true",
+                    "target": "text"
+                }
+            }
+        ]
+    }
+}

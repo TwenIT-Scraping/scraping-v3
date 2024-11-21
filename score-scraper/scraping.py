@@ -126,7 +126,7 @@ class Scraping(object):
 
         if self.css_selector:
             page = self.driver.page_source
-            soupe = BeautifulSoup(page, 'lxml')
+            soupe = BeautifulSoup(page, 'html.parser')
 
             score = float(soupe.find(self.balise, {self.attr: self.css_selector}).text.strip(
             ).replace(',', '.')) if soupe.find(self.balise, {self.attr: self.css_selector}) else 0

@@ -15,6 +15,9 @@ from changeip import refresh_connection
 import time
 from datetime import datetime
 from thefork import Thefork
+from scores import score_scraping_task
+from botasaurus.browser import Driver
+
 
 
 __class_name__ = {
@@ -89,36 +92,40 @@ class ListScraperV2:
             list(map(lambda x: x['establishment_name'], self.settings.items)))
 
         for item in self.settings.items:
+            # if item['establishment_name'] != "Résidence Les Balcons d'Aix - Vacancéole":
+            #     continue
             time.sleep(random.randint(1, 3))
-            # print(item)
+            print(item)
 
             print(
                 f"****** {item['establishment_name']} / {item['source']} ******")
-            print(
-                f"\t=> {item['url']}")
+            print(f"\t=> {item['url']}")
 
-            if item['source'] in __class_name_v2__.keys():
-                print("=> A scraper !!!")
-                try:
-                    instance = __class_name_v2__[item['source']](
-                        url=item['url'], establishment=item['establishment_id'], env=self.env)
+            # if item['source'] in __class_name_v2__.keys():
+            #     print("=> A scraper !!!")
+            try:
+                env = self.settings.env
+                print(f'here is the {env}')
+                score_scraping_task(driver=Driver, data=[item], env=env)
+                # instance = __class_name_v2__[item['source']](
+                #     url=item['url'], establishment=item['establishment_id'], env=self.env)
 
-                    # print(item['url'])
+                # print(item['url'])
 
-            #         if item['last_review_date']:
-            #             if self.last_date:
-            #                 if datetime.strptime(self.last_date, "%d/%m/%Y") < datetime.strptime(item['last_review_date'], "%d/%m/%Y"):
-            #                     instance.set_last_date(
-            #                         item['last_review_date'])
-            #                 else:
-            #                     instance.set_last_date(self.last_date)
-            #             else:
-            #                 instance.set_last_date(item['last_review_date'])
+        #         if item['last_review_date']:
+        #             if self.last_date:
+        #                 if datetime.strptime(self.last_date, "%d/%m/%Y") < datetime.strptime(item['last_review_date'], "%d/%m/%Y"):
+        #                     instance.set_last_date(
+        #                         item['last_review_date'])
+        #                 else:
+        #                     instance.set_last_date(self.last_date)
+        #             else:
+        #                 instance.set_last_date(item['last_review_date'])
 
-                    instance.execute()
-                except Exception as e:
-                    print(e)
-                    pass
+                # instance.execute()
+            except Exception as e:
+                print(e)
+                pass
 
             #     # if counter == 4:
             #     #     counter == 0
