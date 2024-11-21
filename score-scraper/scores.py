@@ -201,74 +201,74 @@ DATA_SOURCE = [
     # {'id': 20, 'caption': None, 'section': None, 'external_url': None, 'establishment_name': '28-50 Marylebone Lane', 'enable': True, 'establishment_id': 6, 'establishment_tag': '653f8d61dd3f9', 'idprovider': 11, 'category': 'Platform', 'source': 'Yelp', 'url': 'https://www.yelp.com/biz/28-50-wine-workshop-and-kitchen-london', 'language': 'fr', 'last_review_date': None, 'last_comment_date': None, 'last_post_date': None},
     # {'id': 183, 'caption': None, 'section': 'REVIEWS', 'external_url': None, 'establishment_name': 'Sport2000 France', 'enable': True, 'establishment_id': 52, 'establishment_tag': '663df5f465c43', 'idprovider': 5, 'category': 'Platform', 'source': 'Trustpilot', 'url': 'https://fr.trustpilot.com/review/www.sport2000.fr', 'language': 'fr', 'last_review_date': '11/11/2024', 'last_comment_date': '25/06/2024', 'last_post_date': '30/08/2024'}
     # {'id': 31, 'caption': None, 'section': None, 'external_url': None, 'establishment_name': 'MV Transport', 'enable': True, 'establishment_id': 47, 'establishment_tag': '653681b7dea2f', 'idprovider': 5, 'category': 'Platform', 'source': 'Trustpilot', 'url': 'https://fr.trustpilot.com/review/www.mvtransport.fr', 'language': 'EN', 'last_review_date': '14/01/2022', 'last_comment_date': None, 'last_post_date': None}
-    {
-    "id": 7,
-    "caption": None,
-    "section": None,
-    "external_url": None,
-    "establishment_name": "Résidence Les Balcons d'Aix - Vacancéole",
-    "enable": True,
-    "establishment_id": 9,
-    "establishment_tag": "653fcf0dc46b5",
-    "idprovider": 2,
-    "category": "Platform",
-    "source": "Google Travel",
-    "url": "https://www.google.com/travel/search?gsas=1&ts=EggKAggDCgIIAxocEhoSFAoHCOgPEAYYGBIHCOgPEAYYGhgCMgIQAA&qs=MhRDZ3NJbzYtWnd1UE4xS3l5QVJBQjgC&ap=ugEHcmV2aWV3cw&hl=fr-FR&ved=0CAAQ5JsGahcKEwiYrNOJ2IyGAxUAAAAAHQAAAAAQBQ",
-    "language": None,
-    "last_review_date": None,
-    "last_comment_date": None,
-    "last_post_date": None
-  },
-  {
-    "id": 5,
-    "caption": None,
-    "section": None,
-    "external_url": None,
-    "establishment_name": "Résidence Les Balcons d'Aix - Vacancéole",
-    "enable": True,
-    "establishment_id": 9,
-    "establishment_tag": "653fcf0dc46b5",
-    "idprovider": 1,
-    "category": "Platform",
-    "source": "Tripadvisor FR",
-    "url": "https://www.tripadvisor.fr/Hotel_Review-g1067706-d1431734-Reviews-Vacanceole_Residence_Les_Balcons_d_Aix-Les_Deserts_Savoie_Auvergne_Rhone_Alpes.html",
-    "language": None,
-    "last_review_date": None,
-    "last_comment_date": None,
-    "last_post_date": None
-  },
-  {
-    "id": 4,
-    "caption": None,
-    "section": None,
-    "external_url": None,
-    "establishment_name": "Résidence Les Balcons d'Aix - Vacancéole",
-    "enable": True,
-    "establishment_id": 9,
-    "establishment_tag": "653fcf0dc46b5",
-    "idprovider": 6,
-    "category": "Platform",
-    "source": "Campings",
-    "url": "https://www.campings.com/fr/camping/residence-les-balcons-d-aix-88189",
-    "language": None,
-    "last_review_date": "28/08/2023",
-    "last_comment_date": None,
-    "last_post_date": None
-  }
+#     {
+#     "id": 7,
+#     "caption": None,
+#     "section": None,
+#     "external_url": None,
+#     "establishment_name": "Résidence Les Balcons d'Aix - Vacancéole",
+#     "enable": True,
+#     "establishment_id": 9,
+#     "establishment_tag": "653fcf0dc46b5",
+#     "idprovider": 2,
+#     "category": "Platform",
+#     "source": "Google Travel",
+#     "url": "https://www.google.com/travel/search?gsas=1&ts=EggKAggDCgIIAxocEhoSFAoHCOgPEAYYGBIHCOgPEAYYGhgCMgIQAA&qs=MhRDZ3NJbzYtWnd1UE4xS3l5QVJBQjgC&ap=ugEHcmV2aWV3cw&hl=fr-FR&ved=0CAAQ5JsGahcKEwiYrNOJ2IyGAxUAAAAAHQAAAAAQBQ",
+#     "language": None,
+#     "last_review_date": None,
+#     "last_comment_date": None,
+#     "last_post_date": None
+#   },
+#   {
+#     "id": 5,
+#     "caption": None,
+#     "section": None,
+#     "external_url": None,
+#     "establishment_name": "Résidence Les Balcons d'Aix - Vacancéole",
+#     "enable": True,
+#     "establishment_id": 9,
+#     "establishment_tag": "653fcf0dc46b5",
+#     "idprovider": 1,
+#     "category": "Platform",
+#     "source": "Tripadvisor FR",
+#     "url": "https://www.tripadvisor.fr/Hotel_Review-g1067706-d1431734-Reviews-Vacanceole_Residence_Les_Balcons_d_Aix-Les_Deserts_Savoie_Auvergne_Rhone_Alpes.html",
+#     "language": None,
+#     "last_review_date": None,
+#     "last_comment_date": None,
+#     "last_post_date": None
+#   },
+#   {
+#     "id": 4,
+#     "caption": None,
+#     "section": None,
+#     "external_url": None,
+#     "establishment_name": "Résidence Les Balcons d'Aix - Vacancéole",
+#     "enable": True,
+#     "establishment_id": 9,
+#     "establishment_tag": "653fcf0dc46b5",
+#     "idprovider": 6,
+#     "category": "Platform",
+#     "source": "Campings",
+#     "url": "https://www.campings.com/fr/camping/residence-les-balcons-d-aix-88189",
+#     "language": None,
+#     "last_review_date": "28/08/2023",
+#     "last_comment_date": None,
+#     "last_post_date": None
+#   }
 ]
 
-providers = """Booking, Booking ES, 
-                Booking FR, Booking MU, 
-                Campings, Expedia, 
-                Expedia ES, Expedia FR, 
-                Google, Google Travel, 
-                Hotels.com ES, Hotels.com FR, 
-                Maeva, Opentable UK, Thefork, 
-                Tripadvisor, Tripadvisor ES, 
-                Tripadvisor FR, Trustpilot, Yelp"""
+# providers = """Booking, Booking ES, 
+#                 Booking FR, Booking MU, 
+#                 Campings, Expedia, 
+#                 Expedia ES, Expedia FR, 
+#                 Google, Google Travel, 
+#                 Hotels.com ES, Hotels.com FR, 
+#                 Maeva, Opentable UK, Thefork, 
+#                 Tripadvisor, Tripadvisor ES, 
+#                 Tripadvisor FR, Trustpilot, Yelp"""
 
-if __name__ == '__main__':
-    score_scraping_task(DATA_SOURCE)
+# if __name__ == '__main__':
+#     score_scraping_task(DATA_SOURCE)
 
 
 
