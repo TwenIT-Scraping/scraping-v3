@@ -11,6 +11,7 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from abc import abstractmethod
 import sys
+import json
 import time
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
@@ -51,6 +52,7 @@ class Booking(Scraping):
             return True
 
     def extract(self):
+        print('extraction ...')
 
         reviews = []
 
@@ -68,7 +70,7 @@ class Booking(Scraping):
 
                 page = self.driver.page_source
 
-                soupe = BeautifulSoup(page, 'lxml')
+                soupe = BeautifulSoup(page, 'html.parser')
 
                 review_cards = soupe.find_all('li', {'itemprop': 'review'})
                 count = len(review_cards)
@@ -90,6 +92,7 @@ class Booking(Scraping):
                         raw_date = card.find('p', {'class': 'review_item_date'}).text.strip(
                         ) if card.find('p', {'class': 'review_item_date'}) else ""
                         dates = raw_date.split()
+                        print(dates)
 
                         date_review = ""
 
@@ -134,6 +137,19 @@ class Booking(Scraping):
                                 'date_visit': date_review,
                                 'novisitday': "0"
                             })
+                            print({
+                                'comment': comment,
+                                'rating': rating,
+                                'date_review': date_review,
+                                'language': self.lang,
+                                'url':self.driver.current_url,
+                                'source': urlparse(self.url).netloc.split('.')[1],
+                                'author': author,
+                                'establishment': f'/api/establishments/{self.establishment}',
+                                'settings': f'/api/settings/{self.settings}',
+                                'date_visit': date_review,
+                                'novisitday': "0"
+                            })
                         except Exception as e:
                             print(e)
                             continue
@@ -158,10 +174,14 @@ class Booking(Scraping):
                 except Exception as e:
                     break
 
-        except:
+        except Exception as e:
+            print(e)
             pass
 
         self.data = reviews
+
+        with open('booking_test.json', 'w') as openfile:
+            openfile.write(json.dumps(self.data, indent=4))
 
 
 class Booking_ES(Booking):
@@ -169,7 +189,12 @@ class Booking_ES(Booking):
         super().__init__(url=url, establishment=establishment, settings=settings, env=env, last_review_date=last_review_date)
         self.lang = "es"
 
+{'id': 294, 'caption': '', 'section': '', 'external_url': None, 'establishment_name': 'LUX Saint Gilles', 'establishment_id': 79, 'establishment_tag': '66a0156222716', 'idprovider': 33, 'category': 'Platform', 'source': 'Booking', 'url': 'https://www.booking.com/reviews/re/hotel/lux-saint-gilles-resort.fr.html', 'language': 'en', 'last_review_date': '13/11/2024', 'last_comment_date': None, 'last_post_date': None}
 
-# trp = Booking(url="https://www.booking.com/reviews/fr/hotel/la-belle-etoile-les-deux-alpes.fr.html")
+# trp = Booking_ES(url="https://www.booking.com/reviews/es/hotel/antequera-golf.es.html?aid=356980\u0026customer_type=total\u0026order=completed_desc",
+#                 establishment=27,
+#                 settings=80,
+#                 env='PROD',
+#                 last_review_date='29/08/2024')
 # trp.execute()
 # print(trp.data)
