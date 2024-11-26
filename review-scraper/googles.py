@@ -460,27 +460,47 @@ class Google(BaseGoogleScrap):
   
                 date_review = self.formate_date(date_raw)
                 if date_review != "" and date_review is not None:
-                    if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365) or (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
-                    #if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365):
-                        reviews.append({
-                            'rating': rating,
-                            'author': author,
-                            'date_review': date_review,
-                            'comment': comment,
-                            'url': url,
-                            'language': lang,
-                            'source': urlparse(self.driver.current_url).netloc.split('.')[1],
-                            'date_visit': date_visit if date_visit else date_review,
-                            'establishment': f'/api/establishments/{self.establishment}',
-                            'settings': f'/api/settings/{self.settings}',
-                            'novisitday': "1"
-                        })
+                    #Pour les nouveau url ajoutés d'hotels
+                    if self.last_review_date == None:
+                        if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365):
+                            reviews.append({
+                                'rating': rating,
+                                'author': author,
+                                'date_review': date_review,
+                                'comment': comment,
+                                'url': url,
+                                'language': lang,
+                                'source': urlparse(self.driver.current_url).netloc.split('.')[1],
+                                'date_visit': date_visit if date_visit else date_review,
+                                'establishment': f'/api/establishments/{self.establishment}',
+                                'settings': f'/api/settings/{self.settings}',
+                                'novisitday': "1"
+                            })
 
-                    if datetime.strptime(date_review, '%d/%m/%Y') < (datetime.now() - timedelta(days=365)) or (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
-                    #if datetime.strptime(date_review, '%d/%m/%Y') < (datetime.now() - timedelta(days=365)):
-                        print("last date valid reached")
-                        self.data = reviews
-                        self.data_loaded = True
+                        if datetime.strptime(date_review, '%d/%m/%Y') < (datetime.now() - timedelta(days=365)):
+                            print("last date valid reached")
+                            self.data = reviews
+                            self.data_loaded = True
+                    else:
+                        if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365) or (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
+                            reviews.append({
+                                'rating': rating,
+                                'author': author,
+                                'date_review': date_review,
+                                'comment': comment,
+                                'url': url,
+                                'language': lang,
+                                'source': urlparse(self.driver.current_url).netloc.split('.')[1],
+                                'date_visit': date_visit if date_visit else date_review,
+                                'establishment': f'/api/establishments/{self.establishment}',
+                                'settings': f'/api/settings/{self.settings}',
+                                'novisitday': "1"
+                            })
+
+                        if datetime.strptime(date_review, '%d/%m/%Y') < (datetime.now() - timedelta(days=365)) or (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
+                            print("last date valid reached")
+                            self.data = reviews
+                            self.data_loaded = True
 
                     if self.data_loaded:
                         self.data = reviews
