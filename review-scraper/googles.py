@@ -460,7 +460,7 @@ class Google(BaseGoogleScrap):
   
                 date_review = self.formate_date(date_raw)
                 if date_review != "" and date_review is not None:
-                    #Pour les nouveau url ajoutés d'hotels
+                    #Pour les nouveau url ajoutés d'hotels :
                     if self.last_review_date == None:
                         if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365):
                             reviews.append({
