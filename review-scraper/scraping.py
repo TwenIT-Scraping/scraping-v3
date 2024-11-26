@@ -172,9 +172,13 @@ class Scraping(object):
 
     def check_date(self, date, last_rev_date) -> bool:
         current_date = datetime.strptime(date, '%d/%m/%Y')
-        last_revs_date = datetime.strptime(last_rev_date, '%d/%m/%Y')
-        return current_date >= (current_date - timedelta(days=365)) or (current_date > (last_revs_date + timedelta(days=1)))
-    #si cette condition est false, on ne prend plus les reviews, ça break
+        #pour les nouveaux url d'hotel, leur last_rev_date = None
+        if last_rev_date == None:
+            return current_date >= (current_date - timedelta(days=365))
+        else:
+            last_revs_date = datetime.strptime(last_rev_date, '%d/%m/%Y')
+            return current_date >= (current_date - timedelta(days=365)) or (current_date > (last_revs_date + timedelta(days=1)))
+        #si cette condition est false, on ne prend plus les reviews, ça break
 
     def execute(self):
         print("executing scrap")
