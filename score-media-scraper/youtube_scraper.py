@@ -259,7 +259,7 @@ class YoutubeProfileScraper(Scraping):
         print(" | Open login page")
         self.goto_login()
         output_files = []
-        i = 1
+        
         for item in self.items:
             p_item = FillingCirclesBar(item['establishment_name'], max=3)
             self.set_item(item)
@@ -275,8 +275,7 @@ class YoutubeProfileScraper(Scraping):
             output_files.append(self.save())
             p_item.next()
             print(" | Saved")
-            if i == 1:
-                break
+
         self.stop()
 
         return output_files

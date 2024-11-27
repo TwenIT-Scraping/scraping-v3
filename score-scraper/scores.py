@@ -150,7 +150,7 @@ def load_selectors(selector_name:str) -> dict:
                 "--disable-gpu",
                 "--disable-fingerprinting"])
 def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
-    sites_with_captcha = ["expedia", "hotels", "thefork", "yelp"]
+    sites_with_captcha = ["yelp"] #mettre dans cette liste les providers où il y a des captchas (différent en local et sur serveur)
     try:
         try:
             driver.delete_cookies_and_local_storage()

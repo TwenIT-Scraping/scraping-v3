@@ -17,7 +17,7 @@ from progress.bar import ChargingBar
 
 __class_name__ = {
     # 'Facebook': FacebookProfileScraper,
-    'Youtube': YoutubeProfileScraper,
+    'Youtube Channel': YoutubeProfileScraper,
     'Instagram': InstagramProfileScraper,
     'Linkedin': LinkedInProfileScraper,
     'facebook EN': FacebookProfileScraper,
