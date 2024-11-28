@@ -204,6 +204,13 @@
                     "attr_value": "fzTgPe Aq14fc",
                     "target": "text"
                 }
+            },
+            { 
+                    "by_tag_only": false,
+                    "tag": "span",
+                    "attr_key": "class",
+                    "attr_value": "fzTgPe Aq14fc",
+                    "target": "text"
             }
         ],
         "travel": [

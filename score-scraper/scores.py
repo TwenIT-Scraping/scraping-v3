@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from urllib.parse import urlparse, parse_qs
 from toolkits import bs4_extension as bs4_ext
 from api import ERApi
+from changeip import refresh_connection
 import time 
 import random
 import json
@@ -50,10 +51,12 @@ def get_page_type(origin:str,url:str) -> str:
         case "opentable":
             return "restaurant"
         case "google":
-            if "/search?sa" in url:
-                return 'search'
+            # if "/search?sa" in url:
+            #     return 'search'
             if "/travel" in url:
                 return 'travel'
+            else: #car si ce n'est pas travel vaut mieux tout de suite retourné le selecteur search
+                return 'search'
         case _: 
             return 'page'
 
@@ -150,7 +153,10 @@ def load_selectors(selector_name:str) -> dict:
                 "--disable-gpu",
                 "--disable-fingerprinting"])
 def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
-    sites_with_captcha = ["yelp"] #mettre dans cette liste les providers où il y a des captchas (différent en local et sur serveur)
+    sites_with_captcha = [] #mettre dans cette liste les providers où il y a des captchas (différent en local et sur serveur)
+    sites_needs_to_change_ip = ["thefork", "tripadvisor", "yelp"]
+    if data['source'].lower().split(' ')[0] in sites_needs_to_change_ip:
+        refresh_connection()
     try:
         try:
             driver.delete_cookies_and_local_storage()
