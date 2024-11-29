@@ -174,6 +174,14 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
     provider = data['source'].lower().split(' ')[0]
     page_type = get_page_type(provider, driver.current_url)
     print(page_type)
+    if provider == "google":
+        print('Accept all cookies')
+        try:
+            button_accept_before_start_run_scrap = "#yDmH0d > c-wiz > div > div > div > div.NIoIEf > div.G4njw > div.AIC7ge > div.CxJub > div.VtwTSb > form:nth-child(2) > div > div > button"
+            driver.click(button_accept_before_start_run_scrap, wait=Wait.SHORT)
+            time.sleep(random.randint(1,2))
+        except Exception as e:
+            print(f'erreur => {e}')
     if page_type == 'unknown':
         print("selector not define for this page")
         driver.prompt()
