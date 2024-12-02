@@ -139,6 +139,7 @@ class BaseGoogleScrap(Scraping):
                 f"window.scrollTo({currentHeight}, {scrollHeight});")
             time.sleep(random.randint(1, 3))
             if index == 20:
+                self.click_for_complete_review()
                 self.driver.find_element(
                     By.TAG_NAME, 'body').send_keys(Keys.PAGE_UP)
                 self.extract()
@@ -178,6 +179,16 @@ class BaseGoogleScrap(Scraping):
         except ValueError:
             print(f"{self.url}&hl={self.url_lang_code[language]}")
             return f"{self.url}&hl={self.url_lang_code[language]}"
+        
+    def click_for_complete_review(self) -> None:
+        if not self.is_travel():
+            number_of_plus_bouton = self.driver.find_elements(By.CSS_SELECTOR, 'a[class="MtCSLb"]')
+            print(f'Sur cette section de page, il y a {len(number_of_plus_bouton)} review(s) non affiché complètement')
+            script = "var buttons = document.querySelectorAll('a.MtCSLb');buttons.forEach(function(button) {button.click();}); "
+            self.driver.execute_script(script)
+            print('Tous les reviews doivent maintenant être affiché complètement')
+        else:
+            pass
 
     def execute(self) -> None:
         try:
@@ -325,16 +336,6 @@ class Google(BaseGoogleScrap):
         # self.driver = webdriver.Chrome(options=self.chrome_options)
 
         self.driver.maximize_window()
-    
-    def click_for_complete_review(self) -> None:
-        if not self.is_travel():
-            number_of_plus_bouton = self.driver.find_elements(By.CSS_SELECTOR, 'a[class="MtCSLb"]')
-            print(f'Sur cette section de page, il y a {len(number_of_plus_bouton)} review(s) non affiché complètement')
-            script = "var buttons = document.querySelectorAll('a.MtCSLb');buttons.forEach(function(button) {button.click();}); "
-            self.driver.execute_script(script)
-            print('Tous les reviews doivent maintenant être affiché complètement')
-        else:
-            pass
 
     def extract(self) -> list:
         print('extraction..')
@@ -350,19 +351,18 @@ class Google(BaseGoogleScrap):
         except:
             pass
 
-        #load comments for non google travel page
-        try:
-            view_more_btns = self.driver.find_elements(By.XPATH, "//a[@jsaction='KoToPc']")
-            for view_more_btn in view_more_btns:
-                view_more_btn.location_once_scrolled_into_view
-                view_more_btn.click()
-        except:
-            pass
+        #load comments for non google travel page (déja réglé avec la fonction click for complete review)
+        # try:
+        #     view_more_btns = self.driver.find_elements(By.XPATH, "//a[@jsaction='KoToPc']")
+        #     for view_more_btn in view_more_btns:
+        #         view_more_btn.location_once_scrolled_into_view
+        #         view_more_btn.click()
+        # except:
+        #     pass
 
         page = self.driver.page_source
 
         try:
-            self.click_for_complete_review()
             soupe = BeautifulSoup(page, 'lxml')
             container = ''
             cards = []
@@ -447,7 +447,10 @@ class Google(BaseGoogleScrap):
                     author = card.find('div', {'class': 'Vpc5Fe'}).text.strip() if card.find('div', {'class': 'Vpc5Fe'}) else ''
                     try:
                         comment = card.find('div', {'class': 'OA1nbd'}).text.strip().replace('(Traducido por Google) ', '').replace('\xa0... Ver más', '').replace(" En savoir plus", "") \
-                            .replace('(Traduit par Google)', '').replace('(Traduce by Google)', '').lower() if card.find('div', {'class': 'OA1nbd'}) else ''
+                            .replace('(Traduit par Google)', '').replace('(Traduce by Google)', '') if card.find('div', {'class': 'OA1nbd'}) else ''
+                        if "Cuisine\xa0:" in comment:
+                            comment = comment.split("Cuisine\xa0:")
+                            comment = comment[0]
                         if comment and "avis d'origine" in comment:
                             comment = comment.split("(avis d'origine)")[-1] 
                         if comment and "(original)" in comment:
