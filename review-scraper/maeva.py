@@ -61,8 +61,11 @@ class Maeva(Scraping):
         try:
             self.driver.find_element(By.ID, 'didomi-notice-agree-button').click()
             time.sleep(2)
+            self.driver.find_element(By.CLASS_NAME, 'ab_widget_container_popin-image_close_button').click()
+            time.sleep(2)
         except:
             pass
+        time.sleep(2)
         self.driver.execute_script("popin({selector:'#avis-comp'});")
         time.sleep(1)
         self.driver.find_element(By.XPATH, "//button[contains(text(), 'Les plus récents')]").click()
