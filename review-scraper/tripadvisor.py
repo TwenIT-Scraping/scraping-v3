@@ -8,6 +8,7 @@ from urllib.parse import urlparse, parse_qs
 from pathlib import Path
 import time
 import random
+from changeip import refresh_connection
 import json
 import os
 import requests
@@ -305,7 +306,7 @@ class TripadvisorPageDataExtractor(object):
                 if 'hier' in date_str:
                     return (datetime.now() - timedelta(days=-1)).strftime('%d/%m/%Y')
                 else:
-                    date_split = date_str.strip().split(' ')
+                    date_split = date_str.replace('en', '').strip().split(' ')
                     print(date_split)
                     if len(date_split) == 3:
                         day = date_split[0]
@@ -615,7 +616,11 @@ class TripadvisorPageDataExtractor(object):
         date_format_func = getattr(self, f"format_date_{self.page_type}")
         formated_date = date_format_func(date_str)
         print(formated_date)
-        return formated_date
+        try:
+            datetime.strptime(formated_date, "%d/%m/%Y")
+            return formated_date
+        except:
+            print('failed to format date')
 
     def clean_author(self, author:str) -> object:
         if author and author != "":
@@ -1010,101 +1015,104 @@ def build_selectors(page:str, selectors:list) -> dict | None:
                 "--disable-fingerprinting"])
 def tripadvisor_task(driver: Driver, data:list):
     print(f"path : {os.path.abspath(__file__)}")
+    refresh_connection()
     driver.get(data['url'], wait=random.randint(5, 10))
     time.sleep(random.randint(2,3))
-    page_type = get_page_type('tripadvisor', driver.current_url)
-    print(f"  ==> page type: {page_type}")
-    if page_type == 'unknown':
-        print("selector not define for this page")
-        driver.prompt()
-    else:
-        selectors = load_selectors(page_type)
-        reviews = []
-        page = 0
-        if selectors:
-            print(f"\t ==> go to {driver.current_url}")
-            if selectors['has_pagination'] and selectors['pagination_type'] == 'button':
-                while True:
-                    captcha_selectors = load_selectors('captcha')
-                    # check page if captcha verification is found in the page
-                    # check_for_captcha(driver, captcha_selectors)
-                    for container_selector in selectors['container_locator']:
-                        try:
-                            driver.select(create_selector(container_selector)).scroll_into_view()
-                        except:
-                            pass
-                    # check page if captcha verification is found in the page
-                    # check_for_captcha(driver, captcha_selectors)
 
-                    valid_selector = build_selectors(soupify(driver.page_html), selectors)
-                    # comments = driver.select_all(create_selector(valid_selector['review']['comment']))
-                    # for comment in comments:
-                    #     comment.run_js(r"(el) => el.firstElementChild.style.max-height = none")
-
-                    if valid_selector:
-                        try:
-                            page_data_source = {'web_page':soupify(driver.select(create_selector(valid_selector['container_locator']))), 'url': driver.current_url}
-                            t = TripadvisorPageDataExtractor(
-                                page_data_source=page_data_source,
-                                selectors=valid_selector,
-                                settings=data['id'],
-                                establishment=data['establishment_id'],
-                                language=data['language'])
-                            reviews += t.cleaned_data
-                            container = driver.select(create_selector(valid_selector['container_locator']))
-                            if 'paginator_locator' in list(valid_selector.keys()):
-                                next_page = container.select(valid_selector['paginator_locator'])
-                                if bool(next_page):
-                                    next_page.scroll_into_view()
-                                    if t.get_last_date() < (datetime.now() - timedelta(days=365)):
-                                        break
-                                    time.sleep(.5)
-                                    next_page.click()
-                                    print(f"\t  ==> go to page {page + 2}")
-                                    page += 1
-                                    time.sleep(2)
-                                    # check page if captcha verification is found in the page
-                                    # check_for_captcha(soupify(driver.page_html), captcha_selecors)
-                            else:
-                                print('pagination selector not found or not located')
-                                break
-                        except Exception as e:
-                            print(e)
-                            break
-                    else:
-                        print("No valid selector found, please check page and add the selector.")
-                        input(" press `ctrl + C` to stop or enter to by-pass this error")
-
-            else:
-                    pass
-                #     driver.select(selectors['container_locator']).scroll_into_view()
-                #     driver.sleep(random.randint(3,5))
-                #     page_data_source = {'web_page':soupify(driver.page_html), 'url': driver.current_url}
-                #     t = TripadvisorPageDataExtractor(
-                #         page_data_source=page_data_source,
-                #         selectors=selectors,
-                #         settings=data['id'],
-                #         establishment=data['establishment_id'],
-                #         language=data['language'])
-                #     reviews += t.cleaned_data
-                #     container = driver.select(valid_selector['container_locator'])
-                #     next_page = container.select(selectors['paginator_locator'])
-                #     if next_page:
-                #         next_page.scroll_into_view()
-                #         if t.get_last_date() < (datetime.now() - timedelta(days=365)):
-                #             break
-                #         next_page.click()
-                #         print(f"\t  ==> go to page {page + 2}")
-                #         page += 1
-                #     else:
-                #         print('pagination selector not found')
-                #         break
-
-            print('scraping done')
-            return {'reviews':reviews}
+    url_gourmand_false = "sa=X&sca_esv=38d63245fe7a3678&tbm=lcl&sxsrf=ADLYWIL_b4jFRw12_uVmNs2c44K-Zi4wAQ:1730585967685&q=Les+Gourmands+Disent+Avis&rflfq=1"
+    if url_gourmand_false not in data['url']:
+        page_type = get_page_type('tripadvisor', driver.current_url)
+        print(f"  ==> page type: {page_type}")
+        if page_type == 'unknown':
+            print("selector not define for this page")
+            driver.prompt()
         else:
-            print(f'selector not found for {driver.current_url}')
+            selectors = load_selectors(page_type)
+            reviews = []
+            page = 0
+            if selectors:
+                print(f"\t ==> go to {driver.current_url}")
+                if selectors['has_pagination'] and selectors['pagination_type'] == 'button':
+                    while True:
+                        captcha_selectors = load_selectors('captcha')
+                        # check page if captcha verification is found in the page
+                        # check_for_captcha(driver, captcha_selectors)
+                        for container_selector in selectors['container_locator']:
+                            try:
+                                driver.select(create_selector(container_selector)).scroll_into_view()
+                            except:
+                                pass
+                        # check page if captcha verification is found in the page
+                        # check_for_captcha(driver, captcha_selectors)
 
+                        valid_selector = build_selectors(soupify(driver.page_html), selectors)
+                        # comments = driver.select_all(create_selector(valid_selector['review']['comment']))
+                        # for comment in comments:
+                        #     comment.run_js(r"(el) => el.firstElementChild.style.max-height = none")
+
+                        if valid_selector:
+                            try:
+                                page_data_source = {'web_page':soupify(driver.select(create_selector(valid_selector['container_locator']))), 'url': driver.current_url}
+                                t = TripadvisorPageDataExtractor(
+                                    page_data_source=page_data_source,
+                                    selectors=valid_selector,
+                                    settings=data['id'],
+                                    establishment=data['establishment_id'],
+                                    language=data['language'])
+                                reviews += t.cleaned_data
+                                container = driver.select(create_selector(valid_selector['container_locator']))
+                                if 'paginator_locator' in list(valid_selector.keys()):
+                                    next_page = container.select(valid_selector['paginator_locator'])
+                                    if bool(next_page):
+                                        next_page.scroll_into_view()
+                                        if t.get_last_date() < (datetime.now() - timedelta(days=365)):
+                                            break
+                                        time.sleep(.5)
+                                        next_page.click()
+                                        print(f"\t  ==> go to page {page + 2}")
+                                        page += 1
+                                        time.sleep(2)
+                                        # check page if captcha verification is found in the page
+                                        # check_for_captcha(soupify(driver.page_html), captcha_selecors)
+                                else:
+                                    print('pagination selector not found or not located')
+                                    break
+                            except Exception as e:
+                                print(e)
+                                break
+                        else:
+                            print("No valid selector found, please check page and add the selector.")
+                            input(" press `ctrl + C` to stop or enter to by-pass this error")
+
+                else:
+                        pass
+                    #     driver.select(selectors['container_locator']).scroll_into_view()
+                    #     driver.sleep(random.randint(3,5))
+                    #     page_data_source = {'web_page':soupify(driver.page_html), 'url': driver.current_url}
+                    #     t = TripadvisorPageDataExtractor(
+                    #         page_data_source=page_data_source,
+                    #         selectors=selectors,
+                    #         settings=data['id'],
+                    #         establishment=data['establishment_id'],
+                    #         language=data['language'])
+                    #     reviews += t.cleaned_data
+                    #     container = driver.select(valid_selector['container_locator'])
+                    #     next_page = container.select(selectors['paginator_locator'])
+                    #     if next_page:
+                    #         next_page.scroll_into_view()
+                    #         if t.get_last_date() < (datetime.now() - timedelta(days=365)):
+                    #             break
+                    #         next_page.click()
+                    #         print(f"\t  ==> go to page {page + 2}")
+                    #         page += 1
+                    #     else:
+                    #         print('pagination selector not found')
+                    #         break
+
+                print('scraping done')
+                return {'reviews':reviews}
+            else:
+                print(f'selector not found for {driver.current_url}')
 # if __name__ == "__main__":
 #     tripadvisor_task(DATA_SOURCE)
 
