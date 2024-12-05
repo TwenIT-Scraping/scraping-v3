@@ -171,31 +171,37 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
     except TimeoutError:
         driver.reload()
     time.sleep(random.randint(2, 3))
-    provider = data['source'].lower().split(' ')[0]
-    page_type = get_page_type(provider, driver.current_url)
-    print(page_type)
-    if provider == "google":
-        print('Accept all cookies')
-        try:
-            button_accept_before_start_run_scrap = "#yDmH0d > c-wiz > div > div > div > div.NIoIEf > div.G4njw > div.AIC7ge > div.CxJub > div.VtwTSb > form:nth-child(2) > div > div > button"
-            driver.click(button_accept_before_start_run_scrap, wait=Wait.SHORT)
-            time.sleep(random.randint(3,4))
-        except Exception as e:
-            print(f'erreur => {e}')
-    if page_type == 'unknown':
-        print("selector not define for this page")
-        driver.prompt()
-    else:
-        selectors = load_selectors(provider)[page_type]
-        valid_selector = build_selectors(soupify(driver.page_html), selectors)
-        print(valid_selector)
-        score_container = driver.select(bs4_ext.create_selector(valid_selector))
-        score_container.scroll_into_view()
-        if valid_selector:
-            s = ScoreExtractor(data={'selectors': valid_selector, 'settings': data,'env': env, 'web_page': soupify(driver.page_html)})
-            s.extract()
-            s.save()
-        driver.close()
+    #Ce sont des urls n'ayant pas de score dans las page ou bien erroné (ça bloque les autres et j'ai mis comme ça)
+    url_gourmand_false = "https://www.tripadvisor.fr/Restaurant_Review-g8309764-d2298919-Reviews-Les_gourmands_disent-Chambery_Savoie_Auvergne_Rhone_Alpes.html"
+    url_lux_saint_giles_errone = "https://www.tripadvisor.fr/Hotel_Feature-g298470-d1473791-zft1-Lux_Saint_Gilles.html"
+    url_Restaurant_cafe_errone = "https://www.tripadvisor.fr/Restaurant_Review-g187265-d2278761-Reviews-Le_Beranger-Lyon_Rhone_Auvergne_Rhone_Alpes.html"
+    url_errone = [url_gourmand_false, url_lux_saint_giles_errone, url_Restaurant_cafe_errone]
+    if data['url'] not in url_errone:    
+        provider = data['source'].lower().split(' ')[0]
+        page_type = get_page_type(provider, driver.current_url)
+        print(page_type)
+        if provider == "google":
+            print('Accept all cookies')
+            try:
+                button_accept_before_start_run_scrap = "#yDmH0d > c-wiz > div > div > div > div.NIoIEf > div.G4njw > div.AIC7ge > div.CxJub > div.VtwTSb > form:nth-child(2) > div > div > button"
+                driver.click(button_accept_before_start_run_scrap, wait=Wait.SHORT)
+                time.sleep(random.randint(3,4))
+            except Exception as e:
+                print(f'erreur => {e}')
+        if page_type == 'unknown':
+            print("selector not define for this page")
+            driver.prompt()
+        else:
+            selectors = load_selectors(provider)[page_type]
+            valid_selector = build_selectors(soupify(driver.page_html), selectors)
+            print(valid_selector)
+            score_container = driver.select(bs4_ext.create_selector(valid_selector))
+            score_container.scroll_into_view()
+            if valid_selector:
+                s = ScoreExtractor(data={'selectors': valid_selector, 'settings': data,'env': env, 'web_page': soupify(driver.page_html)})
+                s.extract()
+                s.save()
+            driver.close()
 
 DATA_SOURCE = [
     # {'id': 296, 'caption': '', 'section': 'REVIEWS', 'external_url': None, 'establishment_name': 'Salt of Palmar', 'establishment_id': 80, 'establishment_tag': '66a1373b0298b', 'idprovider': 18, 'category': 'Platform', 'source': 'Tripadvisor', 'url': 'https://www.tripadvisor.com/Hotel_Review-g1182872-d15125547-Reviews-Salt_Of_Palmar_Mauritius_A_Member_Of_Design_Hotels-Palmar.html', 'language': 'en', 'last_review_date': '08/01/2021', 'last_comment_date': None, 'last_post_date': None},

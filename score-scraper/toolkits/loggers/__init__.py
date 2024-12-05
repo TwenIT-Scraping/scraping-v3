@@ -7,7 +7,7 @@ from colorama import Fore
 
 # logging.basicConfig(level=logging.INFO, format=Fore.YELLOW + '%(asctime)s - %(levelname)s - %(message)s')
 
-def show_message(msg_type:str, message:str, hide_in_prod:bool=False) -> None:
+def show_message(msg_type:str, message:str, hide_in_prod:bool=True) -> None:
     if hide_in_prod:
         return
     match msg_type.lower():
