@@ -584,6 +584,8 @@ class TripadvisorPageDataExtractor(object):
                     return (datetime.now() - timedelta(days=-1)).strftime('%d/%m/%Y')
                 else:
                     date_split = date_str.strip().split(' ')
+                    #mise à jour 09 12 2024 ligne 588
+                    date_split = date_str.replace('en', '').strip().split(' ')
                     print(date_split)
                     if len(date_split) == 3:
                         day = date_split[0]
@@ -1019,8 +1021,9 @@ def tripadvisor_task(driver: Driver, data:list):
     driver.get(data['url'], wait=random.randint(5, 10))
     time.sleep(random.randint(2,3))
 
-    url_gourmand_false = "sa=X&sca_esv=38d63245fe7a3678&tbm=lcl&sxsrf=ADLYWIL_b4jFRw12_uVmNs2c44K-Zi4wAQ:1730585967685&q=Les+Gourmands+Disent+Avis&rflfq=1"
-    if url_gourmand_false not in data['url']:
+    filtre_url_errone = ["https://www.tripadvisor.fr/Restaurant_Review-g187265-d2278761-Reviews-Le_Beranger-Lyon_Rhone_Auvergne_Rhone_Alpes.html", "https://www.tripadvisor.fr/sa=X&sca_esv=38d63245fe7a3678&tbm=lcl&sxsrf=ADLYWIL_b4jFRw12_uVmNs2c44K-Zi4wAQ:1730585967685&q=Les+Gourmands+Disent+Avis&rflfq=1&num=20&stick=H4sIAAAAAAAAAONgkxK2MDMzNzAyNzczNrA0MbcwMTQw2cDI-IpR0ie1WME9v7QoNzEvpVjBJbM4Na9EwbEss3gRK245AKsQJutSAAAA&rldimm=8667027763094784104&hl=fr-FR&ved=2ahUKEwj-su2O176JAxVEVqQEHQ2THcEQ9fQKegQIORAF&biw=1920&bih=927&dpr=1#lkt=LocalPoiReviews" ]
+
+    if data['url'] not in filtre_url_errone:
         page_type = get_page_type('tripadvisor', driver.current_url)
         print(f"  ==> page type: {page_type}")
         if page_type == 'unknown':
