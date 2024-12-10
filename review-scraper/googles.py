@@ -241,7 +241,7 @@ class BaseGoogleScrap(Scraping):
 
     def formate_date(self, raw_date: str) -> str:
         split_date = raw_date.split(' ')
-        print(split_date)
+        # print(split_date)
         today = datetime.now()
         language = self.detect_date_lang(split_date[1])
         match language:
@@ -313,7 +313,8 @@ class BaseGoogleScrap(Scraping):
         for i in range(len(df)):
             new_data.append(df.iloc[i].to_dict())
         self.data = new_data
-        print("=>  Actual datas: ", len(self.data))
+        print(f"New data not in database ready to post => {self.data}")
+        print("=>  Actual datas to post: ", len(self.data))
 
 
 class Google(BaseGoogleScrap):
@@ -493,7 +494,8 @@ class Google(BaseGoogleScrap):
                             self.data = reviews
                             self.data_loaded = True
                     else:
-                        if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365) or (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
+                        #j'ai changé le or par and pour la condition last_review_date 10 12 2024, ça me semble plus correcte
+                        if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365) and (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
                             reviews.append({
                                 'rating': rating,
                                 'author': author,
@@ -507,19 +509,21 @@ class Google(BaseGoogleScrap):
                                 'settings': f'/api/settings/{self.settings}',
                                 'novisitday': "1"
                             })
+                            print(f'{date_review} >> {self.last_review_date} , New review registred to save')
 
-                        if datetime.strptime(date_review, '%d/%m/%Y') < (datetime.now() - timedelta(days=365)) or (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
-                            print("last date valid reached")
+                        # if datetime.strptime(date_review, '%d/%m/%Y') < (datetime.now() - timedelta(days=365)) or (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
+                        else:    
+                            # print("last date valid reached")
                             self.data = reviews
                             self.data_loaded = True
 
-                    if self.data_loaded:
-                        self.data = reviews
-                        return self.data
+                    # if self.data_loaded:
+                    #     self.data = reviews
+                    #     return self.data J'ai commenté car ça me semble inutile (10 12 2024)
                 else:
                     print('date format incorrect')
-            print(reviews)
-            self.data = reviews
+            # print(reviews) J'ai également comanté le 10 12 2024
+            # self.data = reviews
         except Exception as e:
             print(e)
             
