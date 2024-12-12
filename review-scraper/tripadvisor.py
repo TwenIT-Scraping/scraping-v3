@@ -1030,6 +1030,7 @@ def tripadvisor_task(driver: Driver, data:list):
             print("selector not define for this page")
             driver.prompt()
         else:
+            driver.short_random_sleep()
             selectors = load_selectors(page_type)
             reviews = []
             page = 0
