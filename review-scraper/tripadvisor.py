@@ -1030,12 +1030,12 @@ def tripadvisor_task(driver: Driver, data:list):
             print("selector not define for this page")
             driver.prompt()
         else:
-            driver.short_random_sleep()
             selectors = load_selectors(page_type)
             reviews = []
             page = 0
             if selectors:
                 print(f"\t ==> go to {driver.current_url}")
+                driver.short_random_sleep()
                 if selectors['has_pagination'] and selectors['pagination_type'] == 'button':
                     while True:
                         captcha_selectors = load_selectors('captcha')
