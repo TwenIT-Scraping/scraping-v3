@@ -467,6 +467,9 @@ class Google(BaseGoogleScrap):
                     date_raw = date_raw.replace('il y a ', '').replace('\xa0', '').replace('hace ', '').replace('ago', '')
                 try:
                     lang = self.detect_lang(comment)
+                    #J'ai ajouté ce bout de code car des fois les personnes ne mettent pas de commentaire et c'est en "espace"
+                    if lang == None or lang == "":
+                        lang = self.lang
                 except:
                     lang = self.lang
   
