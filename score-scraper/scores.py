@@ -210,7 +210,7 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
             if valid_selector:
                 s = ScoreExtractor(data={'selectors': valid_selector, 'settings': data,'env': env, 'web_page': soupify(driver.page_html)})
                 s.extract()
-                # s.save()
+                s.save()
             driver.close()
 
 DATA_SOURCE = [
