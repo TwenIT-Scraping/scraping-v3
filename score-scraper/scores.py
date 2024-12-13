@@ -79,7 +79,7 @@ class ScoreExtractor(object):
     def clean_score(self) -> None:
         try:
             #ajput de replace '/' car sur serveur par exemple avec table de Lans l'affichage est différente du local
-            self.score = float(self.score.strip().replace(',', '.').replace('/',''))
+            self.score = float(self.score.strip().replace(',', '.').replace('/5',''))
         except Exception as e:
             print(e)
 
