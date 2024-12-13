@@ -184,7 +184,8 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
             print('Accept all cookies')
             try:
                 time.sleep(3)
-                button_accept_before_start_run_scrap = "#yDmH0d > c-wiz > div > div > div > div.NIoIEf > div.G4njw > div.AIC7ge > div.CxJub > div.VtwTSb > form:nth-child(2) > div > div > button"
+                button_accept_before_start_run_scrap = "#yDmH0d > c-wiz > div > div > div > div.h22mC > div.jn2Duf > div.AIC7ge > div.CxJub > div.VtwTSb > form:nth-child(2) > div > div > button"
+                # button_accept_before_start_run_scrap = "#yDmH0d > c-wiz > div > div > div > div.NIoIEf > div.G4njw > div.AIC7ge > div.CxJub > div.VtwTSb > form:nth-child(2) > div > div > button"
                 driver.click(button_accept_before_start_run_scrap, wait=Wait.SHORT)
                 time.sleep(random.randint(3,4))
             except Exception as e:
