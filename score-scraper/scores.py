@@ -78,7 +78,8 @@ class ScoreExtractor(object):
 
     def clean_score(self) -> None:
         try:
-            self.score = float(self.score.strip().replace(',', '.'))
+            #ajput de replace '/' car sur serveur par exemple avec table de Lans l'affichage est différente du local
+            self.score = float(self.score.strip().replace(',', '.').replace('/',''))
         except Exception as e:
             print(e)
 
@@ -188,14 +189,14 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
                 # button_accept_before_start_run_scrap = "#yDmH0d > c-wiz > div > div > div > div.NIoIEf > div.G4njw > div.AIC7ge > div.CxJub > div.VtwTSb > form:nth-child(2) > div > div > button"
                 driver.click(button_accept_before_start_run_scrap, wait=Wait.SHORT)
                 time.sleep(random.randint(3,4))
-            except Exception as e:
+            except Exception as error:
                 try:
                     button_accept_before_start_run_scrap = "#L2AGLb"
                     driver.click(button_accept_before_start_run_scrap, wait=Wait.SHORT)
                     time.sleep(random.randint(3,4))
                 except Exception as e:
                     print(f"2eme selecteur accept cookie not found => {e}")
-                print(f'1er selecteur accept cookie not found => {e}')
+                print(f'1er selecteur accept cookie not found => {error}')
                 pass
         if page_type == 'unknown':
             print("selector not define for this page")
@@ -209,7 +210,7 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
             if valid_selector:
                 s = ScoreExtractor(data={'selectors': valid_selector, 'settings': data,'env': env, 'web_page': soupify(driver.page_html)})
                 s.extract()
-                s.save()
+                # s.save()
             driver.close()
 
 DATA_SOURCE = [
