@@ -188,7 +188,14 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
                 driver.click(button_accept_before_start_run_scrap, wait=Wait.SHORT)
                 time.sleep(random.randint(3,4))
             except Exception as e:
-                print(f'erreur => {e}')
+                try:
+                    button_accept_before_start_run_scrap = "#L2AGLb"
+                    driver.click(button_accept_before_start_run_scrap, wait=Wait.SHORT)
+                    time.sleep(random.randint(3,4))
+                except Exception as e:
+                    print(f"2eme selecteur accept cookie not found => {e}")
+                print(f'1er selecteur accept cookie not found => {e}')
+                pass
         if page_type == 'unknown':
             print("selector not define for this page")
             driver.prompt()
