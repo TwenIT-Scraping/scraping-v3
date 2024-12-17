@@ -302,9 +302,64 @@ class TripadvisorPageDataExtractor(object):
                     month = months_en_short[date_split[0][:3]]
                     year = datetime.now().year if int(date_split[-1]) < 31 else date_split[-1]
                     return f"{day}/{month}/{year}"
+            # case 'fr':
+            #     if 'hier' in date_str:
+            #         return (datetime.now() - timedelta(days=-1)).strftime('%d/%m/%Y')
+            #     else:
+            #         date_split = date_str.replace('en', '').strip().split(' ')
+            #         print(date_split)
+            #         if len(date_split) == 3:
+            #             day = date_split[0]
+            #             month = months_fr_short[date_split[1][:3]] if 'juin' not in date_split[1] else months_fr_short['jun']
+            #             year = date_split[2]
+            #             return f"{day}/{month}/{year}"
+            #         if len(date_split) == 2:
+            #             day = ''
+            #             month = ''
+            #             year = ''
+            #             if date_split[0].isdigit() and int(date_split[0]) < 32:
+            #                 day = date_split[0]
+            #             else:
+            #                 day = datetime.now().day
+            #                 year = date_split[0]
+            #             if date_split[0].isalpha():
+            #                 month = months_fr_short[date_split[0][:3]] if 'juin' not in date_split[0] else months_fr_short['jun']
+            #             if date_split[1].isdigit() and int(date_split[1]) > 32:
+            #                 year = date_split[1]
+            #             else:
+            #                 month = months_fr_short[date_split[1][:3]] if 'juin' not in date_split[0] else months_fr_short['jun']
+            #                 if not year:
+            #                     year = datetime.now().year
+            #             return f"{day}/{month}/{year}"
             case 'fr':
+                today = datetime.now()
                 if 'hier' in date_str:
                     return (datetime.now() - timedelta(days=-1)).strftime('%d/%m/%Y')
+                #format date for new type hotel page 17 12 2024
+                elif 'il y a' in date_str:
+                    # input("MISY il y a amle date")
+                    date_split = date_str.replace('il y a ','').strip().split(' ')
+                    if date_split[0] == "1":
+                        if date_split[1] == "jour":
+                            # input(f"{datetime.strftime(today + timedelta(days=-1), '%d/%m/%Y')}")
+                            return datetime.strftime(today + timedelta(days=-1), '%d/%m/%Y')
+                        if date_split[1] == "semaine":
+                            # input(f"{datetime.strftime(today + timedelta(days=-7), '%d/%m/%Y')}")
+                            return datetime.strftime(today + timedelta(days=-7), '%d/%m/%Y')
+                        if date_split[1] == "mois":
+                            # input(f"{datetime.strftime(today + timedelta(days=-31), '%d/%m/%Y')}")
+                            return datetime.strftime(today + timedelta(days=-31), '%d/%m/%Y')
+                    else:
+                        if date_split[1] == "jours":
+                            # input(f"{datetime.strftime(today + timedelta(days=-(int(date_split[0]))), '%d/%m/%Y')}")
+                            return datetime.strftime(today + timedelta(days=-(int(date_split[0]))), '%d/%m/%Y')
+                        if date_split[1] == "semaines":
+                            # input(f"{datetime.strftime(today + timedelta(days=-7*(int(date_split[0]))), '%d/%m/%Y')}")
+                            return datetime.strftime(today + timedelta(days=-7*(int(date_split[0]))), '%d/%m/%Y')
+                        if date_split[1] == "mois":
+                            # input(f"{datetime.strftime(today + timedelta(days=-31*(int(date_split[0]))), '%d/%m/%Y')}")
+                            return datetime.strftime(today + timedelta(days=-31*(int(date_split[0]))), '%d/%m/%Y')
+                #fin format date for new type hotel page 17 12 2024
                 else:
                     date_split = date_str.replace('en', '').strip().split(' ')
                     print(date_split)
@@ -1017,7 +1072,10 @@ def build_selectors(page:str, selectors:list) -> dict | None:
                 "--disable-fingerprinting"])
 def tripadvisor_task(driver: Driver, data:list):
     print(f"path : {os.path.abspath(__file__)}")
-    refresh_connection()
+    try:
+        refresh_connection()
+    except:
+        refresh_connection()
     driver.get(data['url'], wait=random.randint(5, 10))
     time.sleep(random.randint(2,3))
 
@@ -1069,8 +1127,19 @@ def tripadvisor_task(driver: Driver, data:list):
                                     next_page = container.select(valid_selector['paginator_locator'])
                                     if bool(next_page):
                                         next_page.scroll_into_view()
-                                        if t.get_last_date() < (datetime.now() - timedelta(days=365)):
-                                            break
+                                        # if t.get_last_date() < (datetime.now() - timedelta(days=365)):
+                                        #     break
+                                        #maj date condition 17 12 2024
+                                        if (data['last_review_date'] == None) or (data['last_review_date'] == ""):
+                                            if t.get_last_date() < (datetime.now() - timedelta(days=365)):
+                                                print(f"{t.get_last_date()} < {(datetime.now() - timedelta(days=365))}")
+                                                print("Last date valid reached")
+                                                break
+                                        else:
+                                            if t.get_last_date() < datetime.strptime(data['last_review_date'], '%d/%m/%Y'):
+                                                print(f"{t.get_last_date()} < {datetime.strptime(data['last_review_date'], '%d/%m/%Y')}")
+                                                print("Last date valid reached")
+                                                break
                                         time.sleep(.5)
                                         next_page.click()
                                         print(f"\t  ==> go to page {page + 2}")
