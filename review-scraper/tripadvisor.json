@@ -419,6 +419,12 @@
                 "tag": "section",
                 "attr_key": "id",
                 "attr_value": "REVIEWS"
+            },
+            {
+                "by_tag_only": false,
+                "tag": "section",
+                "attr_key": "id",
+                "attr_value": "REVIEWS_LIST"
             }
         ],
         "reviews": [
