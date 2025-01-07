@@ -283,10 +283,35 @@ class TripadvisorPageDataExtractor(object):
         self.lang = urlparse(self.page_data_source['url']).netloc.split('.')[-1].lower()
 
     def format_date_hotel(self, date_str:str) -> object:
+        today = datetime.now()
         match self.lang:
             case 'com':
                 if 'yesterday' in date_str:
                     return (datetime.now() - timedelta(days=-1)).strftime('%d/%m/%Y')
+                #format date for new type view hotel page 07 01 2025
+                elif 'ago' in date_str:
+                    date_split = date_str.replace('ago ','').strip().split(' ')
+                    if date_split[0] == "1":
+                        if date_split[1] == "day":
+                            # input(f"{datetime.strftime(today + timedelta(days=-1), '%d/%m/%Y')}")
+                            return datetime.strftime(today + timedelta(days=-1), '%d/%m/%Y')
+                        if date_split[1] == "week":
+                            # input(f"{datetime.strftime(today + timedelta(days=-7), '%d/%m/%Y')}")
+                            return datetime.strftime(today + timedelta(days=-7), '%d/%m/%Y')
+                        if date_split[1] == "month":
+                            # input(f"{datetime.strftime(today + timedelta(days=-31), '%d/%m/%Y')}")
+                            return datetime.strftime(today + timedelta(days=-31), '%d/%m/%Y')
+                    else:
+                        if date_split[1] == "days":
+                            # input(f"{datetime.strftime(today + timedelta(days=-(int(date_split[0]))), '%d/%m/%Y')}")
+                            return datetime.strftime(today + timedelta(days=-(int(date_split[0]))), '%d/%m/%Y')
+                        if date_split[1] == "weeks":
+                            # input(f"{datetime.strftime(today + timedelta(days=-7*(int(date_split[0]))), '%d/%m/%Y')}")
+                            return datetime.strftime(today + timedelta(days=-7*(int(date_split[0]))), '%d/%m/%Y')
+                        if date_split[1] == "months":
+                            # input(f"{datetime.strftime(today + timedelta(days=-31*(int(date_split[0]))), '%d/%m/%Y')}")
+                            return datetime.strftime(today + timedelta(days=-31*(int(date_split[0]))), '%d/%m/%Y')
+                    #format date for new type view hotel page 07 01 2025
                 else:
                     date_split = date_str.split(' ')
                     day = datetime.now().day if int(date_split[-1]) > 31 else date_split[-1]
@@ -332,7 +357,6 @@ class TripadvisorPageDataExtractor(object):
             #                     year = datetime.now().year
             #             return f"{day}/{month}/{year}"
             case 'fr':
-                today = datetime.now()
                 if 'hier' in date_str:
                     return (datetime.now() - timedelta(days=-1)).strftime('%d/%m/%Y')
                 #format date for new type hotel page 17 12 2024
