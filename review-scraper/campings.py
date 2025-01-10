@@ -16,61 +16,76 @@ import time
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
+from random import randint
 
 
 class Campings(Scraping):
-    def __init__(self, url: str, establishment: str, settings: str, env: str):
+    def __init__(self, url: str, establishment: str, settings: str, last_review_date:str, env: str):
         super().__init__(in_background=False, url=url,
-                         establishment=establishment, settings=settings, env=env)
+                         establishment=establishment, settings=settings, last_review_date=last_review_date, env=env)
 
     def extract(self):
+        try:
+            try:
+                #en local il y a un btn accept cookies, je ne sais pas sur serveur mais je laisse là:
+                #car des fois ça n'apparait pas d'un coup
+                accept_cookies = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="axeptio_btn_acceptAll"]')))
+                # accept_cookies = self.driver.find_element(By.XPATH, '//*[@id="axeptio_btn_acceptAll"]')
+                time.sleep(1)
+                accept_cookies.click()
+                time.sleep(.5)
+                review_toggle_btn = self.driver.find_element(By.ID, "toggle-reviews")
+                time.sleep(2)
+                review_toggle_btn.click()
+                # self.driver.execute_script("arguments[0].click();", review_toggle_btn)
+                time.sleep(.5)
+                print('toggle cliqué avec succès')
+            except Exception as e:
+                print(f"erreur clique toggle => {e}")
+                pass
 
-        review_toggle_btn = self.driver.find_element(By.ID, "toggle-reviews")
-        self.driver.execute_script("arguments[0].click();", review_toggle_btn)
-        time.sleep(.5)
+            # review_sort_btn = Select(
+            #     self.driver.find_element(By.ID, "reviews_sort_sort"))
+            # review_sort_btn.select_by_visible_text("date")
+            # time.sleep(2)
 
-        # review_sort_btn = Select(
-        #     self.driver.find_element(By.ID, "reviews_sort_sort"))
-        # review_sort_btn.select_by_visible_text("date")
-        # time.sleep(2)
+            # self.driver.find_element(
+            #     By.XPATH, "//select[@id='reviews_sort_sort']/option[text()='date']").click()
+            # time.sleep(2)
+            try:
+                # choise = self.driver.find_element(By.CSS_SELECTOR, '.reviews__filter div.choices')
+                self.driver.execute_script("window.scrollBy(0,500)")
+                time.sleep(1)
+                print('scroll OK') #sans ça, ça ne marche pas car la page apparait dynamiquement
+                choise = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.reviews__filter div.choices')))
+                # choise = self.driver.find_element(By.XPATH, '//*[@id="campings-reviews"]/div[3]/form/div[1]/div/div[1]/div')
+            except Exception as e:
+                print(f'variable choice non attribué  => {e}')
+                pass
+            self.driver.execute_script("arguments[0].setAttribute('class', 'choices is-focused is-open')", choise)
+            self.driver.execute_script("arguments[0].setAttribute('aria-expanded', 'true')", choise)
 
-        # self.driver.find_element(
-        #     By.XPATH, "//select[@id='reviews_sort_sort']/option[text()='date']").click()
-        # time.sleep(2)
+            choises_list = self.driver.find_element(By.CSS_SELECTOR, '.reviews__filter div.choices__list.choices__list--dropdown')
+            self.driver.execute_script("arguments[0].setAttribute('class', 'choices__list choices__list--dropdown is-active')", choises_list)
+            self.driver.execute_script("arguments[0].setAttribute('aria-expanded', 'true')", choises_list)
 
-        choise = self.driver.find_element(
-            By.CSS_SELECTOR, '.reviews__filter div.choices')
-        self.driver.execute_script(
-            "arguments[0].setAttribute('class', 'choices is-focused is-open')", choise)
-        self.driver.execute_script(
-            "arguments[0].setAttribute('aria-expanded', 'true')", choise)
+            time.sleep(.2)
 
-        choises_list = self.driver.find_element(
-            By.CSS_SELECTOR, '.reviews__filter div.choices__list.choices__list--dropdown')
-        self.driver.execute_script(
-            "arguments[0].setAttribute('class', 'choices__list choices__list--dropdown is-active')", choises_list)
-        self.driver.execute_script(
-            "arguments[0].setAttribute('aria-expanded', 'true')", choises_list)
+            self.driver.find_element(By.XPATH, "//div[@data-value='-publishedAt']").click()
 
-        time.sleep(.2)
+            time.sleep(.2)
 
-        self.driver.find_element(
-            By.XPATH, "//div[@data-value='-publishedAt']").click()
+            self.driver.execute_script("arguments[0].setAttribute('class', 'choices')", choise)
+            self.driver.execute_script("arguments[0].setAttribute('aria-expanded', 'false')", choise)
+            self.driver.execute_script("arguments[0].setAttribute('class', 'choices__list choices__list--dropdown')", choises_list)
+            self.driver.execute_script("arguments[0].setAttribute('aria-expanded', 'false')", choises_list)
 
-        time.sleep(.2)
-
-        self.driver.execute_script(
-            "arguments[0].setAttribute('class', 'choices')", choise)
-        self.driver.execute_script(
-            "arguments[0].setAttribute('aria-expanded', 'false')", choise)
-        self.driver.execute_script(
-            "arguments[0].setAttribute('class', 'choices__list choices__list--dropdown')", choises_list)
-        self.driver.execute_script(
-            "arguments[0].setAttribute('aria-expanded', 'false')", choises_list)
-
-        time.sleep(2)
-
+            time.sleep(2)
+        except Exception as error:
+            print(f"erreur dans l'extraction => {error}")
+            input('Erreur extraction')
         reviews = []
+        review_for_test_dateçin_actual_page = []
 
         while True:
 
@@ -88,35 +103,43 @@ class Campings(Scraping):
                     'date_review': card.find('div', {'class': 'review__publish-date'}).find('span').text.strip() if card.find('div', {'class': 'review__publish-date'}) else "01/01/1999",
                     'date_visit': card.find('div', {'class': 'review__publish-date'}).find('span').text.strip() if card.find('div', {'class': 'review__publish-date'}) else "01/01/1999",
                     'language': 'fr',
+                    'url' : self.driver.current_url,
                     'source': urlparse(self.url).netloc.split('.')[1],
                     'author': card.find('div', {'class': 'review__author'}).text.strip() if card.find('div', {'class': 'review__author'}) else "",
                     'establishment': f'/api/establishments/{self.establishment}',
                     'novisitday': "1",
                     'settings': f'/api/settings/{self.settings}'
                 }
+                if t['date_review'] != '01/01/1999':
+                    #le 01 01 1999 doit rester là car le programme s'arrete sans ça, je ne comprend pas totalement mais vaut mieux ne pas toucher et le mettre dans cette condition pour ne pas le voir
+                    # print(f"date de review => {t['date_review']}")
+                    review_for_test_dateçin_actual_page.append(t)
+                #09 01 2025 , optimisation avec la condition de date pour ne pas prendre les éxistante dans la base
+                if t['author'] and t['date_review'] != '01/01/1999' and self.check_date(t['date_review'], self.last_review_date):
+                    reviews.append(t)
 
-                t['author'] and t['date_review'] != '01/01/1999' and reviews.append(
-                    t)
+            print(f"Dernière date de review sur la page actuelle => {review_for_test_dateçin_actual_page[-1]['date_review']}")
+            #  09 01 2025 modification de cette condition en ajoutant le self.last_review_date du dernier review de la page actuelle
+            if self.check_date(review_for_test_dateçin_actual_page[-1]['date_review'], self.last_review_date):
+                try:
+                    print('La date de review sur cette section de page rentre encore dans la norme, on clique sur le suivant')
+                    next_btn = self.driver.find_element(
+                        By.CLASS_NAME, 'dca-pagination__next')
+                    hidden_btn = 'dca-pagination--hidden' in next_btn.get_attribute(
+                        'class').split()
 
-            if not self.check_date(reviews[-1]['date_review']):
-                break
-
-            try:
-                next_btn = self.driver.find_element(
-                    By.CLASS_NAME, 'dca-pagination__next')
-                hidden_btn = 'dca-pagination--hidden' in next_btn.get_attribute(
-                    'class').split()
-
-                if next_btn and not hidden_btn:
-                    self.driver.execute_script(
-                        "arguments[0].click();", next_btn)
-                    time.sleep(4)
-                else:
+                    if next_btn and not hidden_btn:
+                        self.driver.execute_script(
+                            "arguments[0].click();", next_btn)
+                        time.sleep(4)
+                    else:
+                        break
+                except Exception as e:
                     break
-
-            except Exception as e:
+            else:
                 break
-
+                
+        print(f"Reviews = {reviews}")
         self.data = reviews
 
 

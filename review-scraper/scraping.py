@@ -177,7 +177,8 @@ class Scraping(object):
             return current_date >= (current_date - timedelta(days=365))
         else:
             last_revs_date = datetime.strptime(last_rev_date, '%d/%m/%Y')
-            return current_date >= (current_date - timedelta(days=365)) or (current_date > (last_revs_date + timedelta(days=1)))
+            #10 01 2025 changement de la condition en AND et no OR car si c'est OR ça ne sert à rien
+            return current_date >= (current_date - timedelta(days=365)) and (current_date > (last_revs_date + timedelta(days=1)))
         #si cette condition est false, on ne prend plus les reviews, ça break
 
     def execute(self):
