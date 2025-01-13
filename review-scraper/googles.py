@@ -494,7 +494,7 @@ class Google(BaseGoogleScrap):
 
                         if datetime.strptime(date_review, '%d/%m/%Y') < (datetime.now() - timedelta(days=365)):
                             print("last date valid reached")
-                            self.data = reviews
+                            # self.data = reviews
                             self.data_loaded = True
                     else:
                         #j'ai changé le or par and pour la condition last_review_date 10 12 2024, ça me semble plus correcte
@@ -517,7 +517,7 @@ class Google(BaseGoogleScrap):
                         # if datetime.strptime(date_review, '%d/%m/%Y') < (datetime.now() - timedelta(days=365)) or (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
                         else:    
                             # print("last date valid reached")
-                            self.data = reviews
+                            # self.data = reviews
                             self.data_loaded = True
 
                     # if self.data_loaded:
@@ -525,8 +525,8 @@ class Google(BaseGoogleScrap):
                     #     return self.data J'ai commenté car ça me semble inutile (10 12 2024)
                 else:
                     print('date format incorrect')
-            # print(reviews) J'ai également comanté le 10 12 2024
-            # self.data = reviews
+            # print(reviews)
+            self.data = reviews
         except Exception as e:
             print(e)
             
