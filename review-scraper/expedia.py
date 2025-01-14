@@ -47,12 +47,12 @@ class Expedia(Scraping):
         # time.sleep(5)
         print("\n Loading ... \n")
 
-        time.sleep(3)
+        time.sleep(5)
         button_show_reviews = self.driver.find_element(By.CSS_SELECTOR, "button[data-stid='reviews-link']")
         if button_show_reviews:
             self.driver.execute_script("arguments[0].click();", button_show_reviews)
 
-        time.sleep(3)
+        time.sleep(5)
 
         def get_last_review_date():
             page = self.driver.page_source
