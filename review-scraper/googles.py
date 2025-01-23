@@ -209,7 +209,7 @@ class BaseGoogleScrap(Scraping):
             try:
                 #accept_btn for google not travel
                 time.sleep(3)
-                accept_btn = self.driver.find_element(By.XPATH, '//*[@id="L2AGLb"]')
+                accept_btn = self.driver.find_element(By.XPATH, '//*[@id="yDmH0d"]/c-wiz/div/div/div/div[2]/div[1]/div[3]/div[1]/div[1]/form[2]/div/div/button/span[6]')
                 self.driver.execute_script("arguments[0].click();", accept_btn)
                 time.sleep(random.randint(2, 5))
             except:

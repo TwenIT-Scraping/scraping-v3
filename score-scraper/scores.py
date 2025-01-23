@@ -155,7 +155,7 @@ def load_selectors(selector_name:str) -> dict:
                 "--disable-fingerprinting"])
 def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
     sites_with_captcha = [] #mettre dans cette liste les providers où il y a des captchas (différent en local et sur serveur)
-    sites_needs_to_change_ip = ["thefork", "tripadvisor", "yelp"]
+    sites_needs_to_change_ip = ["thefork", "tripadvisor", "yelp", "expedia"]
     if data['source'].lower().split(' ')[0] in sites_needs_to_change_ip:
         refresh_connection()
     try:
