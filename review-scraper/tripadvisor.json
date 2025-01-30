@@ -282,15 +282,9 @@
                     "by_tag_only": false,
                     "tag": "div",
                     "attr_key": "class",
-                    "attr_value": "UBLWD",
-                    "target": "child",
-                    "child": {
-                        "by_tag_only": false,
-                        "tag": "div",
-                        "attr_key": "class",
-                        "attr_value": "biGQs _P eVqsT hmDzD",
-                        "target": "text"
-                    }
+                    "attr_value": "biGQs _P eVqsT hmDzD",
+                    "target": "text"
+                    
                 }
             ],
             "date_visit": [
@@ -305,7 +299,7 @@
                     "by_tag_only": false,
                     "tag": "div",
                     "attr_key": "class",
-                    "attr_value": "zXoYL",
+                    "attr_value": "lszGc",
                     "target": "child",
                     "child":{
                         "by_tag_only": false,
