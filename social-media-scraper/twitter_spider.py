@@ -763,6 +763,27 @@ class X_scraper(BaseTwitterScrap):
         for _ in range(3): 
             self.page.evaluate('window.scrollBy(0, window.innerHeight);')
             time.sleep(3)
+    
+    def load_more_comments(self) -> None: #05 02 2025 plus approprié pour les commentaires
+        self.page.evaluate(
+                """
+                async () => {
+                    function delay(temps) {
+                        return new Promise(resolve => setTimeout(resolve, temps));
+                    }
+                    let currentPosition = 0;
+                    const distance = 100;   
+                    const delayTime = 100;  
+                    
+                    while (currentPosition < document.body.scrollHeight) {
+                        window.scrollBy(0, distance);
+                        currentPosition += distance;
+                        await delay(delayTime);
+                    }
+                }
+            """
+            )
+        time.sleep(3)
 
     def load_and_extract(self) -> None:
         # article.evaluate('(element) => element.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })')
@@ -796,10 +817,12 @@ class X_scraper(BaseTwitterScrap):
                 self.post_data.append(data)
 
     def load_comments(self) -> None:
+        self.load_more_comments()
         current_articles = len(self.get_articles())
         new_articles_count = current_articles
         while True:
-            self.load_more_articles()
+            # self.load_more_articles()
+            self.load_more_comments() 
             new_articles_count = len(self.get_articles())
             if new_articles_count == current_articles:
                 break
