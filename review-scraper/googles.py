@@ -37,7 +37,7 @@ def format_date_fr(date_str:str) -> str:
     if len(date_str.split(' ')) == 2 and int(date_str.split(' ')[-1]) > 31:
         return f"{datetime.now().day}/{month_fr[date_str]}/{int(date_str.split(' ')[-1])}"
 
-
+all_language = ['en','de','fe','es']
 class BaseGoogleScrap(Scraping):
     def __init__(self, 
                  url: str, 
@@ -84,10 +84,20 @@ class BaseGoogleScrap(Scraping):
 
     def load_reviews(self) -> None:
         if not self.is_travel():
-            order_item = self.driver.find_elements(
-                By.XPATH, "//div[@jsname='XPtOyb']")[1]
+            #20 02 2025
+            try:
+                WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="akp_tsuid_VgSRZ6DQLZqo0-kPreOHaQ_15"]/div/div[1]/div/g-sticky-content-container/div/block-component/div/div[1]/div/div/div/div[1]/div/div/div[5]/div[1]/g-sticky-content/div/div[1]/g-tabs/div/div/a[3]')))
+                avis = self.driver.find_elements(By.XPATH, '//*[@id="akp_tsuid_VgSRZ6DQLZqo0-kPreOHaQ_15"]/div/div[1]/div/g-sticky-content-container/div/block-component/div/div[1]/div/div/div/div[1]/div/div/div[5]/div[1]/g-sticky-content/div/div[1]/g-tabs/div/div/a[3]')
+                self.driver.execute_script("arguments[0].click();", avis)
+                time.sleep(1)
+            except Exception as e:
+                # input('Avis non cliqué')
+                pass
+            
+            order_item = self.driver.find_elements(By.XPATH, "//div[@jsname='XPtOyb']")[1]
             self.driver.execute_script("arguments[0].click();", order_item)
             time.sleep(1)
+            #20 02 2025
         else:
             try:
                 time.sleep(2)
@@ -180,15 +190,29 @@ class BaseGoogleScrap(Scraping):
             print(f"{self.url}&hl={self.url_lang_code[language]}")
             return f"{self.url}&hl={self.url_lang_code[language]}"
         
-    def click_for_complete_review(self) -> None:
-        if not self.is_travel():
-            number_of_plus_bouton = self.driver.find_elements(By.CSS_SELECTOR, 'a[class="MtCSLb"]')
-            print(f'Sur cette section de page, il y a {len(number_of_plus_bouton)} review(s) non affiché complètement')
-            script = "var buttons = document.querySelectorAll('a.MtCSLb');buttons.forEach(function(button) {button.click();}); "
-            self.driver.execute_script(script)
-            print('Tous les reviews doivent maintenant être affiché complètement')
-        else:
-            pass
+    def click_for_complete_review(self):
+        #MAJ 20 02 2025
+        try:
+            if not self.is_travel():
+                plus_bouton = self.driver.find_elements(By.CSS_SELECTOR, 'a[class="MtCSLb"]')
+                print(f'Sur cette section de page, il y a {len(plus_bouton)} review(s) non affiché complètement')
+                script = "var buttons = document.querySelectorAll('a.MtCSLb');buttons.forEach(function(button) {button.click();}); "
+                self.driver.execute_script(script)
+                print('Tous les reviews doivent maintenant être affiché complètement')
+                time.sleep(random.randint(2,3))
+            else:
+                en_savoir_plus_bouton = self.driver.find_elements(By.CSS_SELECTOR, 'span[jsname="kDNJsb"]')
+                print(f'Sur cette section de page, il y a {len(en_savoir_plus_bouton)} review(s) non affiché complètement')
+                for plus in en_savoir_plus_bouton:
+                    #se souvenir de cette méthode de clique car rien n'a marché sauf celle-là
+                    WebDriverWait(self.driver,5).until(
+                                    EC.element_to_be_clickable(plus)
+                                )
+                    self.driver.execute_script("arguments[0].click();",plus)
+                print('Tous les reviews doivent maintenant être affiché complètement')
+                time.sleep(random.randint(2,3))
+        except Exception as e:
+            input(f"erreur => {e}")
 
     def execute(self) -> None:
         try:
@@ -396,38 +420,122 @@ class Google(BaseGoogleScrap):
                 url = self.driver.current_url
 
                 if self.is_travel():
+                    #code comment before 20 02 2025
+                    # if 'google' in card.find('span', {'class':'iUtr1 CQYfx'}).text.lower():
+                    #     author = card.find('a', {'class':'DHIhE QB2Jof'}).text.strip() if card.find('a', {'class':'DHIhE QB2Jof'}) else ""
+                    #     try:
+                    #         comment = ""
+                    #         if card.find('div', {'jsname':'NwoMSd'}):
+                    #             comment = card.find('div', {'jsname':'NwoMSd'}).find('span').text
+                    #         else:
+                    #             comment = card.find('div', {'class':'K7oBsc'}).find('span').text if card.find('div', {'class':'K7oBsc'}) else ""
+                    #         comment = comment.replace('(Traducido por Google) ', '').replace('\xa0... Ver más', '').replace(" En savoir plus", "") \
+                    #         .replace('(Traduit par Google)', '').replace('(Translated by Google)', '').replace('(Original)', '')
+                    #         try:
+                    #             if comment and "avis d'origine" in comment.lower():
+                    #                 comment = comment.lower().split("(avis d'origine)")[-1]
+                    #             if comment and "(original)" in comment:
+                    #                 comment = comment.lower().split("(original)")[-1]
+                    #         except:
+                    #             pass
+                    #         try:
+                    #             lang = self.detect_lang(comment)
+                    #         except:
+                    #             lang = self.lang
+                    #         try:
+                    #             date_visit_content = card.find('div', {'class':'DmVtKb'}).text.strip()
+                    #         except:
+                    #             date_visit_content = ""
+
+                    #         match lang:
+                    #             case 'fr':
+                    #                 date_visit = format_date_fr(date_visit_content) if date_visit_content else ""
+                    #     except:
+                    #         comment = ""
+                        
+                    #     url = self.driver.current_url
+
+                    #     rating = card.find('div', {'class': 'GDWaad'}).text.strip() if card.find('div', {'class': 'GDWaad'}) else rating
+                    #     date_raw = card.find('span', {'class': 'iUtr1 CQYfx'}).text.lower()
+
+                    #     if 'sur' in date_raw:
+                    #         date_raw = date_raw[:date_raw.index(' sur')]
+                    #     if 'on' in date_raw:
+                    #         date_raw = date_raw[:date_raw.index(' on')]
+                    #     if 'en' in date_raw:
+                    #         date_raw = date_raw[:date_raw.index(' en')]
+
+                    #     date_raw = date_raw.replace('il y a ', '').replace('\xa0', ' ').replace('hace ', '').replace('ago', '')
+                    # else:
+                    #     print('other site')
+                    #     continue
                     if 'google' in card.find('span', {'class':'iUtr1 CQYfx'}).text.lower():
                         author = card.find('a', {'class':'DHIhE QB2Jof'}).text.strip() if card.find('a', {'class':'DHIhE QB2Jof'}) else ""
+                        #20 02 2025 code
                         try:
                             comment = ""
                             if card.find('div', {'jsname':'NwoMSd'}):
+                                # selecteur span avec tous les reviews même sans cliqué (vérifié le 20 02 2025)
                                 comment = card.find('div', {'jsname':'NwoMSd'}).find('span').text
+                            elif card.find('div', {'class':'K7oBsc'}):
+                                try:
+                                    comment = card.find('div', {'class':'K7oBsc'}).find('span').text
+                                except:
+                                    pass
                             else:
-                                comment = card.find('div', {'class':'K7oBsc'}).find('span').text if card.find('div', {'class':'K7oBsc'}) else ""
-                            comment = comment.replace('(Traducido por Google) ', '').replace('\xa0... Ver más', '').replace(" En savoir plus", "") \
-                            .replace('(Traduit par Google)', '').replace('(Translated by Google)', '').replace('(Original)', '')
-                            try:
-                                if comment and "avis d'origine" in comment.lower():
-                                    comment = comment.lower().split("(avis d'origine)")[-1]
-                                if comment and "(original)" in comment:
-                                    comment = comment.lower().split("(original)")[-1]
-                            except:
+                                #ce bloc pour les auteurs ne laissant pas de commentaire
+                                comment = ""
+                            if comment == "":
                                 pass
-                            try:
-                                lang = self.detect_lang(comment)
-                            except:
-                                lang = self.lang
-                            try:
-                                date_visit_content = card.find('div', {'class':'DmVtKb'}).text.strip()
-                            except:
-                                date_visit_content = ""
+                            else:
+                                comment = comment.replace('(Traducido por Google) ', '').replace('\xa0... Ver más', '').replace(" En savoir plus", "") \
+                                .replace('(Traduit par Google)', '').replace('(Translated by Google)', '')
+                                print("                     ")
+                                comment_view_in_page = comment
+                                if "avis d'origine" in comment.lower():
+                                    two_comment = True
+                                    comment_original_language = comment.lower().split("(avis d'origine)")[-1]
+                                    comment_traduct = comment.lower().split("(avis d'origine)")[0]
+                                elif "(original)" in comment.lower():
+                                    two_comment = True
+                                    comment_original_language = comment.lower().split("(original)")[-1]
+                                    comment_traduct = comment.lower().split("(original)")[0]
+                                else:
+                                    two_comment = False
 
-                            match lang:
-                                case 'fr':
-                                    date_visit = format_date_fr(date_visit_content) if date_visit_content else ""
-                        except:
-                            comment = ""
-                        
+                                if two_comment:
+                                    # print("                     ")
+                                    # print('Two comments, check language')
+                                    # print("                     ")
+                                    try:
+                                        lang = self.detect_lang(comment_original_language)
+                                    except Exception as erreur:
+                                        lang = "fr"
+                                    if lang not in all_language:
+                                        lang = "fr"
+                                    
+                                try:
+                                    date_visit_content = card.find('div', {'class':'DmVtKb'}).text.strip()
+                                except:
+                                    date_visit_content = ""
+
+                                match lang:
+                                    case 'fr':
+                                        date_visit = format_date_fr(date_visit_content) if date_visit_content else ""
+                                if two_comment:
+                                    # print("                     ")
+                                    # print("take the comment traduct because we have two comment")
+                                    # print("                     ")
+                                    comment = comment_traduct
+                                else:
+                                    # print("             ")
+                                    # print("we have only one comment, take this")
+                                    # print("                     ")
+                                    comment = comment_view_in_page
+                        except Exception as e:
+                            print("                     ")
+                            input(f"Erreur in BLOC comment selector, check navigator => {e}")
+                        #fin 20 02 2025
                         url = self.driver.current_url
 
                         rating = card.find('div', {'class': 'GDWaad'}).text.strip() if card.find('div', {'class': 'GDWaad'}) else rating
@@ -444,6 +552,7 @@ class Google(BaseGoogleScrap):
                     else:
                         print('other site')
                         continue
+
                 else:
                     author = card.find('div', {'class': 'Vpc5Fe'}).text.strip() if card.find('div', {'class': 'Vpc5Fe'}) else ''
                     try:
