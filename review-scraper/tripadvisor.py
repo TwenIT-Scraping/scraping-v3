@@ -287,7 +287,7 @@ class TripadvisorPageDataExtractor(object):
         match self.lang:
             case 'com':
                 if 'yesterday' in date_str:
-                    return (datetime.now() - timedelta(days=-1)).strftime('%d/%m/%Y')
+                    return (datetime.now() - timedelta(days=1)).strftime('%d/%m/%Y')
                 #format date for new type view hotel page 07 01 2025
                 elif 'ago' in date_str:
                     date_split = date_str.replace('ago ','').strip().split(' ')
@@ -313,11 +313,26 @@ class TripadvisorPageDataExtractor(object):
                             return datetime.strftime(today + timedelta(days=-31*(int(date_split[0]))), '%d/%m/%Y')
                     #format date for new type view hotel page 07 01 2025
                 else:
-                    date_split = date_str.split(' ')
-                    day = datetime.now().day if int(date_split[-1]) > 31 else date_split[-1]
-                    month = months_en_short[date_split[0][:3]]
-                    year = datetime.now().year if int(date_split[-1]) < 31 else date_split[-1]
-                    return f"{day}/{month}/{year}"
+                    # date_split = date_str.split(' ')
+                    # day = datetime.now().day if int(date_split[-1]) > 31 else date_split[-1]
+                    # month = months_en_short[date_split[0][:3]]
+                    # year = datetime.now().year if int(date_split[-1]) < 31 else date_split[-1]
+                    # return f"{day}/{month}/{year}"
+
+                    #modification pour la forme March 14, 2025 (modif 25 03 2025)
+                    date_split = date_str.replace(',','').split(' ')
+                    if len(date_split) == 3:
+                        #jamais fausse car utilise le title (date_review)
+                        day = date_split[1]
+                        month = months_en_long[date_split[0].lower()]
+                        year = date_split[2]
+                        return f"{day}/{month}/{year}"
+                    else:
+                        # day = datetime.now().day if int(date_split[-1]) > 31 else date_split[-1]
+                        day = "1" if int(date_split[-1]) > 31 else date_split[-1]
+                        month = months_en_short[date_split[0][:3]]
+                        year = datetime.now().year if int(date_split[-1]) < 31 else date_split[-1]
+                        return f"{day}/{month}/{year}"
             case 'uk':
                 if 'yesterday' in date_str:
                     return (datetime.now() - timedelta(days=-1)).strftime('%d/%m/%Y')
@@ -387,32 +402,65 @@ class TripadvisorPageDataExtractor(object):
                 else:
                     date_split = date_str.replace('en', '').strip().split(' ')
                     print(date_split)
+                    # if len(date_split) == 3:
+                    #     day = date_split[0]
+                    #     month = months_fr_short[date_split[1][:3]] if 'juin' not in date_split[1] else months_fr_short['jun']
+                    #     year = date_split[2]
+                    #     return f"{day}/{month}/{year}"
+                    # if len(date_split) == 2:
+                    #     day = ''
+                    #     month = ''
+                    #     year = ''
+                    #     if date_split[0].isdigit() and int(date_split[0]) < 32:
+                    #         day = date_split[0]
+                    #     else:
+                    #         day = datetime.now().day
+                    #         year = date_split[0]
+                    #     if date_split[0].isalpha():
+                    #         month = months_fr_short[date_split[0][:3]] if 'juin' not in date_split[0] else months_fr_short['jun']
+                    #     if date_split[1].isdigit() and int(date_split[1]) > 32:
+                    #         year = date_split[1]
+                    #     else:
+                    #         month = months_fr_short[date_split[1][:3]] if 'juin' not in date_split[0] else months_fr_short['jun']
+                    #         if not year:
+                    #             year = datetime.now().year
+                    #     return f"{day}/{month}/{year}"
+
+                    #mise à jour 27 03 2025
                     if len(date_split) == 3:
-                        day = date_split[0]
-                        month = months_fr_short[date_split[1][:3]] if 'juin' not in date_split[1] else months_fr_short['jun']
-                        year = date_split[2]
-                        return f"{day}/{month}/{year}"
+                        #format date type -> day month year (attribut title)
+                        if date_split[0].isdigit() and date_split[1].isalpha() and date_split[2].isdigit():
+                            day = date_split[0]
+                            month = months_fr_long[date_split[1]]
+                            year = date_split[2]
+                            input(f" DATE VAOVAO => {day}/{month}/{year}")
+                            return f"{day}/{month}/{year}"
+                        else:
+                            day = date_split[0]
+                            month = months_fr_short[date_split[1][:3]] if 'juin' not in date_split[1] else months_fr_short['jun']
+                            year = date_split[2]
+                            return f"{day}/{month}/{year}"
                     if len(date_split) == 2:
                         day = ''
                         month = ''
                         year = ''
-                        if date_split[0].isdigit() and int(date_split[0]) < 32:
+                        if date_split[0].isdigit() and int(date_split[0]) < 32 and date_split[1].isalpha():
+                            print('type de date = jour/mois')
                             day = date_split[0]
-                        else:
-                            day = datetime.now().day
-                            year = date_split[0]
-                        if date_split[0].isalpha():
-                            month = months_fr_short[date_split[0][:3]] if 'juin' not in date_split[0] else months_fr_short['jun']
-                        if date_split[1].isdigit() and int(date_split[1]) > 32:
+                            month = months_fr_short[date_split[1][:3]]
+                            #pas de year donc on prend l'année en cours
+                            year = datetime.now().year
+                        
+                        if date_split[0].isalpha() and date_split[1].isdigit() and int(date_split[1]) > 32:
+                            print('type de date = mois/annee')
+                            #pas de day, on prend le 1er car si jamais la date visite dépasse la date de review si la review a un day, c'est pas normal
+                            day = "1"
+                            month = months_fr_short[date_split[0][:3]]
                             year = date_split[1]
-                        else:
-                            month = months_fr_short[date_split[1][:3]] if 'juin' not in date_split[0] else months_fr_short['jun']
-                            if not year:
-                                year = datetime.now().year
                         return f"{day}/{month}/{year}"
             case 'es':
                 if 'ayer' in date_str:
-                    return (datetime.now() - timedelta(days=-1)).strftime('%d/%m/%Y')
+                    return (datetime.now() - timedelta(days=1)).strftime('%d/%m/%Y')
                 else:
                     date_split = date_str.split(' ')
                     print(date_split)
@@ -422,8 +470,10 @@ class TripadvisorPageDataExtractor(object):
                         year = date_split[2]
                         return f"{day}/{month}/{year}"
                     if len(date_split) == 2:
-                        date_split = date_str.split(' ')
-                        day = datetime.now().day if int(date_split[-1]) > 31 else date_split[-1]
+                        # date_split = date_str.split(' ')
+                        # day = datetime.now().day if int(date_split[-1]) > 31 else date_split[-1]
+                        #mise à jour 27 03 2025
+                        day = "1" if int(date_split[-1]) > 31 else date_split[-1]
                         month = months_es_short[date_split[0][:3]]
                         year = datetime.now().year if int(date_split[-1]) < 31 else date_split[-1]
                         return f"{day}/{month}/{year}"
@@ -462,8 +512,10 @@ class TripadvisorPageDataExtractor(object):
                         year = date_split[1]
                         return f"{day}/{month}/{year}"
             case 'fr':
+                #26 03 2025 , présence de "en famille, en couple sur les dates de visite, il y a déja cela dans les clean date mais je ne sais pas encore pourqoi c'est ici que ça marche"
+                date_str = date_str.strip().replace(' en famille','').replace(' entre amis','').replace(' en couple','').strip()
                 if 'hier' in date_str:
-                    return (datetime.now() - timedelta(days=-1)).strftime('%d/%m/%Y')
+                    return (datetime.now() - timedelta(days=11)).strftime('%d/%m/%Y')
                 else:
                     date_split = date_str.strip().split(' ')
                     print(date_split)
@@ -740,9 +792,13 @@ class TripadvisorPageDataExtractor(object):
                     case 'fr':
                         date = date.split('avis')[-1].strip()
                     case 'es':
-                        date = date.split('opinión')[-1].strip()
-                        if date.split(' ')[0].isdigit():
-                            date = ' '.join(date.split(' ')[::-1])
+                        if date.split(' ')[0].isdigit() and date.split(' ')[2].isalpha() and date.split(' ')[4].isdigit():
+                            #nouvel affichage, mdification 25 03 2025
+                            date = date.replace(' de ', ' ').strip()
+                        else:
+                            date = date.split('opinión')[-1].strip()
+                            if date.split(' ')[0].isdigit():
+                                date = ' '.join(date.split(' ')[::-1])
                     case 'uk':
                         date = date.split('review ')[-1].strip()
                         if date.split(' ')[0].isdigit():

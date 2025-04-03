@@ -275,16 +275,21 @@
                     "by_tag_only": false,
                     "tag": "div",
                     "attr_key": "class",
-                    "attr_value": "tVWyV _Z o S4 H3 Ci",
-                    "target":"text"
+                    "attr_value": "biGQs _P eVqsT hmDzD",
+                    "target": "child",
+                    "child": {
+                        "by_tag_only": true,
+                        "tag": "span",
+                        "target": "attribute",
+                        "value_attr": "title"
+                    }
                 },
                 {
                     "by_tag_only": false,
                     "tag": "div",
                     "attr_key": "class",
-                    "attr_value": "biGQs _P eVqsT hmDzD",
-                    "target": "text"
-                    
+                    "attr_value": "tVWyV _Z o S4 H3 Ci",
+                    "target":"text"
                 }
             ],
             "date_visit": [
@@ -592,5 +597,4 @@
             ]
         }
     }
-    
 }

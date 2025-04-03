@@ -65,6 +65,23 @@ class Maeva(Scraping):
             time.sleep(2)
         except:
             pass
+
+        #une autre popup a fermer 02 04 2025
+        def popup_remise():
+            self.driver.find_element(By.CSS_SELECTOR, 'button[class="ab_widget_container_popin-simple_close_button"]').click()
+        try:
+            time.sleep(1.8)
+            popup_remise()
+            print('popup remise closed')
+        except:
+            try:
+                time.sleep(1.8)
+                popup_remise()
+                print('popup remise closed')
+            except:
+                pass
+            pass
+        
         time.sleep(2)
         self.driver.execute_script("popin({selector:'#avis-comp'});")
         time.sleep(1)
