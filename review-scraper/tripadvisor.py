@@ -1003,6 +1003,15 @@ class TripadvisorPageDataExtractor(object):
             new_data['novisitday'] = self.novisitday
             new_data['establishment'] = self.establishment
 
+            #10 04 2025 , es établissements n'ont pas de langue depuis l'api, et ça bloque le sauvegarde, ajout langue selon site:
+            if new_data['language'] == None:
+                # print('language etablissement = None')
+                # input(f'Self.lang (avant de mettre dans le new_data[language]) => {self.lang} ')
+                if self.lang == "com":
+                    self.lang = "en"
+                    
+                new_data['language'] = self.lang
+
             if 'https://' not in new_data['url']:
                 new_data['url'] = 'https://' + new_data['url']
 
