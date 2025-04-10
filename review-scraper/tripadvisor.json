@@ -502,6 +502,13 @@
                     "by_tag_only": false,
                     "tag": "div",
                     "attr_key": "class",
+                    "attr_value": "IlciT",
+                    "target": "text"
+                },
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
                     "attr_value": "aVuQn",
                     "target": "text"
                 }
