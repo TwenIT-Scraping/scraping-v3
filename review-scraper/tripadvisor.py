@@ -433,7 +433,7 @@ class TripadvisorPageDataExtractor(object):
                             day = date_split[0]
                             month = months_fr_long[date_split[1]]
                             year = date_split[2]
-                            input(f" DATE VAOVAO => {day}/{month}/{year}")
+                            # input(f" DATE VAOVAO => {day}/{month}/{year}")
                             return f"{day}/{month}/{year}"
                         else:
                             day = date_split[0]

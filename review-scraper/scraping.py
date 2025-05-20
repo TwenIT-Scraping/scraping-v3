@@ -3,6 +3,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 from abc import abstractmethod
 import sys
 import time
@@ -99,7 +101,7 @@ class Scraping(object):
             #     }
             # }
             # self.driver = webdriver.Chrome(options=self.chrome_options, seleniumwire_options=seleniumwireoptions)
-        self.driver = webdriver.Chrome(options=self.chrome_options)
+        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=self.chrome_options)
         # else:
         #     self.driver = webdriver.Firefox(options=self.firefox_options)
             # self.driver.install_addon(
