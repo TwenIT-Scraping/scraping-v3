@@ -119,11 +119,18 @@ class Maeva(Scraping):
             container = soupe.find('div', {'id':'avis-cards-content-container'})
             cards = container.find_all('article', {'typeof':'comment'})
             for card in cards:
-                rating = card.find('div', {'class':'avis-comp-section flex-ai-center mr-1'}).find('div')['aria-label'][0]
+                #Nouvelle disposition d'affichage de structure de page , MAJ le 21 05 2025
+                # rating = card.find('div', {'class':'avis-comp-section flex-ai-center mr-1'}).find('div')['aria-label'][0]
+                rating = card.find('div', {'class':'avis-comp-section flex-ai-center mr-1'}).find('span', {'class':'sr-only'}).text
+                #nouvelle affichage je pense (car ça bloque ici)
+                rating = rating.replace(' étoiles sur ','/')
                 date_name = card.find('div', {'class':'date-publication pt-1'})
-                author = date_name.find('strong').text
-                date_review = self.formate_date(date_name.find('span').text.lower().replace('il y a ', ''))
-                comment = card.find('p', {'class':'avis-comment'}).text.strip()
+                # author = date_name.find('strong').text
+                author = card.find('div', {'class':'date-publication pt-1'}).text
+                author = author.split(' il y a')[0]
+                date_review = self.formate_date(date_name.find('span', {'property':'dateCreated'}).text.lower().replace('il y a ', ''))
+                # comment = card.find('p', {'class':'avis-comment'}).text.strip()
+                comment = card.find('blockquote', {'class':'avis-comment avis-full-comment'}).text.strip()
                 language = detect(comment)
                 source = urlparse(self.driver.current_url).netloc.split('.')[1]
 
