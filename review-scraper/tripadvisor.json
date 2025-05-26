@@ -313,6 +313,13 @@
                         "attr_value": "biGQs _P fiohW fOtGX",
                         "target": "text"
                     }
+                },
+                {
+                    "by_tag_only": false,
+                    "tag": "span",
+                    "attr_key": "class",
+                    "attr_value": "biGQs _P ZNjnF",
+                    "target": "text"
                 }
             ]
         }
