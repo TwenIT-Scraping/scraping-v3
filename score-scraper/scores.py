@@ -155,7 +155,7 @@ def load_selectors(selector_name:str) -> dict:
                 "--disable-fingerprinting"])
 def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
     sites_with_captcha = [] #mettre dans cette liste les providers où il y a des captchas (différent en local et sur serveur)
-    sites_needs_to_change_ip = ["thefork", "tripadvisor", "yelp", "expedia"]
+    sites_needs_to_change_ip = ["thefork", "yelp"]
     if data['source'].lower().split(' ')[0] in sites_needs_to_change_ip:
         refresh_connection()
     try:
@@ -229,6 +229,8 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
                 s.extract()
                 s.save()
             driver.close()
+    #ajout temps d'attente avant reouverture driver
+    driver.short_random_sleep()
 
 DATA_SOURCE = [
     # {'id': 296, 'caption': '', 'section': 'REVIEWS', 'external_url': None, 'establishment_name': 'Salt of Palmar', 'establishment_id': 80, 'establishment_tag': '66a1373b0298b', 'idprovider': 18, 'category': 'Platform', 'source': 'Tripadvisor', 'url': 'https://www.tripadvisor.com/Hotel_Review-g1182872-d15125547-Reviews-Salt_Of_Palmar_Mauritius_A_Member_Of_Design_Hotels-Palmar.html', 'language': 'en', 'last_review_date': '08/01/2021', 'last_comment_date': None, 'last_post_date': None},

@@ -1161,10 +1161,11 @@ def build_selectors(page:str, selectors:list) -> dict | None:
                 "--disable-fingerprinting"])
 def tripadvisor_task(driver: Driver, data:list):
     print(f"path : {os.path.abspath(__file__)}")
-    try:
-        refresh_connection()
-    except:
-        refresh_connection()
+    #commenté le 26 05 2025 mais ajout de temps d'attente avant ouverture driver
+    # try:
+    #     refresh_connection()
+    # except:
+    #     refresh_connection()
     driver.get(data['url'])
     driver.long_random_sleep()
 
@@ -1275,6 +1276,9 @@ def tripadvisor_task(driver: Driver, data:list):
                 return {'reviews':reviews}
             else:
                 print(f'selector not found for {driver.current_url}')
+    #ajout short sleep avant ouverture nouveau driver
+    driver.close()
+    driver.short_random_sleep()
 # if __name__ == "__main__":
 #     tripadvisor_task(DATA_SOURCE)
 
