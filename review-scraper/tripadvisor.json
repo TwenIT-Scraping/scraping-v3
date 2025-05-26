@@ -445,6 +445,12 @@
                 "tag": "div",
                 "attr_key": "data-automation",
                 "attr_value":"reviewCard"
+            },
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "class",
+                "attr_value":"LMGCx f e"
             }
         ],
         "review": {
@@ -495,6 +501,19 @@
                     "attr_key": "class",
                     "attr_value": "biGQs _P pZUbB ncFvv osNWb",
                     "target":"text"
+                },
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "biGQs _P eVqsT hmDzD",
+                    "target": "child",
+                    "child": {
+                        "by_tag_only": true,
+                        "tag": "span",
+                        "target": "attribute",
+                        "value_attr": "title"
+                    }
                 }
             ],
             "date_visit": [
@@ -517,6 +536,13 @@
                     "tag": "div",
                     "attr_key": "class",
                     "attr_value": "aVuQn",
+                    "target": "text"
+                },
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "biGQs _P fiohW fOtGX",
                     "target": "text"
                 }
             ]
