@@ -1177,7 +1177,9 @@ def tripadvisor_task(driver: Driver, data:list):
         if page_type == 'unknown':
             print("selector not define for this page")
             driver.prompt()
-        else:
+        #restaurant en modification 11 06 2025
+        elif page_type != 'restaurant':
+        # else:
             selectors = load_selectors(page_type)
             reviews = []
             page = 0
