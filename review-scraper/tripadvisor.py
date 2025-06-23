@@ -455,7 +455,7 @@ class TripadvisorPageDataExtractor(object):
                             print('type de date = mois/annee')
                             #pas de day, on prend le 1er car si jamais la date visite dépasse la date de review si la review a un day, c'est pas normal
                             day = "1"
-                            month = months_fr_short[date_split[0][:3]] if 'juin' not in date_split[1] else months_fr_short['jun']
+                            month = months_fr_short[date_split[0][:3]] if 'juin' not in date_split[0] else months_fr_short['jun']
                             year = date_split[1]
                         return f"{day}/{month}/{year}"
             case 'es':
