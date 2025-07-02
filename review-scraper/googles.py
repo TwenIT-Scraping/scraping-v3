@@ -254,18 +254,25 @@ class BaseGoogleScrap(Scraping):
             sys.exit("Arret")
 
     def detect_date_lang(self, date:str) -> str:
-        if date in ['jour', 'jours', 'semaine', 'semaines', 'mois', 'an', 'ans']:
+        if date in ['heure','heures','jour', 'jours', 'semaine', 'semaines', 'mois', 'an', 'ans']:
             return 'fr'
-        elif date in ['days', 'week', 'weeks', 'month', 'months', 'year', 'years']:
+        elif date in ['hour','hours','days', 'week', 'weeks', 'month', 'months', 'year', 'years']:
             return 'en'
-        elif date in ['día', 'días', 'semana', 'semanas', 'mes', 'año', 'año']:
+        elif date in ['hora','horas','día', 'días', 'semana', 'semanas', 'mes', 'año', 'año']:
             return 'es'
         return ''
+        #ajout heure dans la liste 02 07 2025 car ça n'a pas pris en compte les journaliers
 
 
     def formate_date(self, raw_date: str) -> str:
         split_date = raw_date.split(' ')
         # print(split_date)
+        #formattage des dates où il y a inscrit "modifié" [02 07 2025]
+        if "modifié" in split_date[0]:
+            # input(f'Commentaire ou Note modifié il y a {split_date[1]} {split_date[2]}')
+            raw_date = raw_date.replace('modifié ','')
+            split_date = raw_date.split(' ')
+            # input(f'new split date sans modifié => {split_date}')
         today = datetime.now()
         language = self.detect_date_lang(split_date[1])
         match language:
