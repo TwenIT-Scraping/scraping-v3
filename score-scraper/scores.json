@@ -4,14 +4,14 @@
             {
                 "by_tag_only": false,
                 "tag": "div",
-                "attr_key": "class",
-                "attr_value": "uqMDf z BGJxv YGfmd YQkjl",
+                "attr_key": "data-test-target",
+                "attr_value": "hr-atf-info",
                 "target": "child",
                 "child": {
                     "by_tag_only": false,
-                    "tag": "span",
-                    "attr_key": "class",
-                    "attr_value": "kJyXc P",
+                    "tag": "div",
+                    "attr_key": "data-automation",
+                    "attr_value": "bubbleRatingValue",
                     "target": "text"
                 }
             }
@@ -28,6 +28,20 @@
                     "tag": "span",
                     "attr_key": "class",
                     "attr_value": "kJyXc P",
+                    "target": "text"
+                }
+            },
+            {
+                "by_tag_only": false,
+                "tag": "div",
+                "attr_key": "data-tab",
+                "attr_value": "TABS_ABOUT",
+                "target": "child",
+                "child": {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "biGQs _P hzzSG LSyRd",
                     "target": "text"
                 }
             }
