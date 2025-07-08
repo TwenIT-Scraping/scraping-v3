@@ -125,18 +125,18 @@ class Booking(Scraping):
                             rating = card.find('span', {'class': 'review-score-badge'}).text.strip() if card.find('span', {'class': 'review-score-badge'}) else "0"
                             
                             #04 07 2025 : rating /2, all rating is /10 donc pas besoin de condition if rating > 10
-                            try:
-                                # input(f"firmat du note => {rating}")
-                                if '.' in rating:
-                                    # input('decimaal en point')
-                                    rating = float(rating)
-                                if ',' in rating:
-                                    # input('decimaal en virgule, changement virgule par point')
-                                    rating = float(rating.replace(',', '.'))
-                                rating = rating / 2
-                                # input(f"rating après conversion sur 10 => {rating}")
-                            except Exception as e:
-                                print(f"erreur de conversion du rating => {e}")
+                            # try:
+                            #     # input(f"firmat du note => {rating}")
+                            #     if '.' in rating:
+                            #         # input('decimaal en point')
+                            #         rating = float(rating)
+                            #     if ',' in rating:
+                            #         # input('decimaal en virgule, changement virgule par point')
+                            #         rating = float(rating.replace(',', '.'))
+                            #     rating = rating / 2
+                            #     # input(f"rating après conversion sur 10 => {rating}")
+                            # except Exception as e:
+                            #     print(f"erreur de conversion du rating => {e}")
 
                             reviews.append({
                                 'comment': comment,
