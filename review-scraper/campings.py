@@ -17,6 +17,7 @@ from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
 from random import randint
+from selenium.webdriver.common.keys import Keys
 
 
 class Campings(Scraping):
@@ -57,33 +58,43 @@ class Campings(Scraping):
                 self.driver.execute_script("window.scrollBy(0,500)")
                 time.sleep(1)
                 print('scroll OK') #sans ça, ça ne marche pas car la page apparait dynamiquement
-                choise = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.reviews__filter div.choices')))
+                # choise = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.reviews__filter div.choices')))
                 # choise = self.driver.find_element(By.XPATH, '//*[@id="campings-reviews"]/div[3]/form/div[1]/div/div[1]/div')
             except Exception as e:
-                print(f'variable choice non attribué  => {e}')
+                print(f'scroll non effectué  => {e}')
                 pass
-            self.driver.execute_script("arguments[0].setAttribute('class', 'choices is-focused is-open')", choise)
-            self.driver.execute_script("arguments[0].setAttribute('aria-expanded', 'true')", choise)
+            # self.driver.execute_script("arguments[0].setAttribute('class', 'choices is-focused is-open')", choise)
+            # self.driver.execute_script("arguments[0].setAttribute('aria-expanded', 'true')", choise)
 
-            choises_list = self.driver.find_element(By.CSS_SELECTOR, '.reviews__filter div.choices__list.choices__list--dropdown')
-            self.driver.execute_script("arguments[0].setAttribute('class', 'choices__list choices__list--dropdown is-active')", choises_list)
-            self.driver.execute_script("arguments[0].setAttribute('aria-expanded', 'true')", choises_list)
+            # choises_list = self.driver.find_element(By.CSS_SELECTOR, '.reviews__filter div.choices__list.choices__list--dropdown')
+            # self.driver.execute_script("arguments[0].setAttribute('class', 'choices__list choices__list--dropdown is-active')", choises_list)
+            # self.driver.execute_script("arguments[0].setAttribute('aria-expanded', 'true')", choises_list)
 
-            time.sleep(.2)
+            # time.sleep(.2)
 
-            self.driver.find_element(By.XPATH, "//div[@data-value='-publishedAt']").click()
+            # self.driver.find_element(By.XPATH, "//div[@data-value='-publishedAt']").click()
 
-            time.sleep(.2)
+            # time.sleep(.2)
 
-            self.driver.execute_script("arguments[0].setAttribute('class', 'choices')", choise)
-            self.driver.execute_script("arguments[0].setAttribute('aria-expanded', 'false')", choise)
-            self.driver.execute_script("arguments[0].setAttribute('class', 'choices__list choices__list--dropdown')", choises_list)
-            self.driver.execute_script("arguments[0].setAttribute('aria-expanded', 'false')", choises_list)
+            # self.driver.execute_script("arguments[0].setAttribute('class', 'choices')", choise)
+            # self.driver.execute_script("arguments[0].setAttribute('aria-expanded', 'false')", choise)
+            # self.driver.execute_script("arguments[0].setAttribute('class', 'choices__list choices__list--dropdown')", choises_list)
+            # self.driver.execute_script("arguments[0].setAttribute('aria-expanded', 'false')", choises_list)
+
+            try:
+                #clique sur le tri par Date (testé et ajouté le 15 07 2025)
+                container_choice = self.driver.find_element(By.XPATH,'//*[@id="campings-reviews"]/div[3]/form/div[1]/div/div[1]/div')
+                time.sleep(0.5)
+                self.driver.execute_script("arguments[0].click();", container_choice)
+                time.sleep(0.5)
+                container_choice.send_keys(Keys.ENTER)
+                print('review trié par date avec succès')
+            except (ElementNotVisibleException, ElementNotSelectableException):
+                input(f"erreur de clique pour les review affiché par date => {e}")
 
             time.sleep(2)
         except Exception as error:
-            print(f"erreur dans l'extraction => {error}")
-            input('Erreur extraction')
+            input(f"erreur dans l'extraction (les reviews affichés peuvent ne pas être complète)=> {error}")
         reviews = []
         review_for_test_dateçin_actual_page = []
 
