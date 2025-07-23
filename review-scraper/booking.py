@@ -56,9 +56,18 @@ class Booking(Scraping):
 
         reviews = []
 
-        # review_order = Select(self.driver.find_element(
-        #     By.XPATH, "//select[@id='sorting']"))
-        # review_order.select_by_value('completed_desc')
+        try:
+            review_order = Select(self.driver.find_element(
+                By.XPATH, "//select[@id='sorting']"))
+            review_order.select_by_value('completed_desc')
+            time.sleep(0.8)
+            view_list_btn = self.driver.find_element(
+                By.XPATH, "//div[@class='review_list_nav_wrapper clearfix']/form/input[@type='submit']")
+            self.driver.execute_script("arguments[0].click();", view_list_btn)
+            print('ordre des avis (les plus récents) sélectionné avec succès')
+        except Exception as e:
+            input(f"Erreur lors de la sélection de l'ordre des avis : {e}")
+            return
 
         try:
             # view_list_btn = self.driver.find_element(
