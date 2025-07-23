@@ -137,7 +137,18 @@ class Booking(Scraping):
                             #     # input(f"rating après conversion sur 10 => {rating}")
                             # except Exception as e:
                             #     print(f"erreur de conversion du rating => {e}")
-
+                            #Code de Thierry semaine du 07 07 2025
+                            lang_source = {'Belgique':'be','España':'es', 'France': 'fr', 'United Kingdom': 'en', 'Deutschland': 'de', 'Italia': 'it'}
+                            lang = card.find('span', {'class': 'reviewer_country'}).find('span', {'itemprop':'name'}).text.strip()
+                            if lang:
+                                try:
+                                    print(f"lang {lang} == {lang_source[lang]}")
+                                    lang = lang_source[lang]
+                                    
+                                except Exception as e:
+                                    print(e)
+                                    lang = self.lang
+                                    
                             reviews.append({
                                 'comment': comment,
                                 'rating': rating,
