@@ -133,7 +133,7 @@
                 "by_tag_only": false,
                 "tag": "div",
                 "attr_key": "id",
-                "attr_value": "fiche-produit-note",
+                "attr_value": "fiche__produit-note",
                 "target": "child",
                 "child": {
                     "by_tag_only": false,
