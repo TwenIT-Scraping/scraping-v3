@@ -173,14 +173,21 @@ class Scraping(object):
         self.lang = language.lower()
 
     def check_date(self, date, last_rev_date) -> bool:
-        current_date = datetime.strptime(date, '%d/%m/%Y')
+        #modification et correction 31 07 2025
+        # print(f'date en cours => {date} et dernier date dans la base => {last_rev_date}')
+        current_date = datetime.now()
+        date = datetime.strptime(date, '%d/%m/%Y')
+        # print(f"current date review => {current_date}")
         #pour les nouveaux url d'hotel, leur last_rev_date = None
         if last_rev_date == None:
-            return current_date >= (current_date - timedelta(days=365))
+            # input(f'{date} >= ({current_date - timedelta(days=365)})')
+            # print(f"date aujourd'hui - 1 an => {current_date - timedelta(days=365)}")
+            return date >= (current_date - timedelta(days=365))
         else:
             last_revs_date = datetime.strptime(last_rev_date, '%d/%m/%Y')
-            #10 01 2025 changement de la condition en AND et no OR car si c'est OR ça ne sert à rien
-            return current_date >= (current_date - timedelta(days=365)) and (current_date > (last_revs_date + timedelta(days=1)))
+            # input(f'{date} >= ({current_date - timedelta(days=365)}) and ({date > (last_revs_date + timedelta(days=1))})')
+            #changement de la condition en AND et no OR car si c'est OR ça ne sert à rien
+            return date >= (current_date - timedelta(days=365)) and (date > (last_revs_date + timedelta(days=1)))
         #si cette condition est false, on ne prend plus les reviews, ça break
 
     def execute(self):

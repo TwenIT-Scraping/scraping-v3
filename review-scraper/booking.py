@@ -70,22 +70,18 @@ class Booking(Scraping):
             return
 
         try:
-            # view_list_btn = self.driver.find_element(
-            #     By.XPATH, "//div[@class='review_list_nav_wrapper clearfix']/form/input[@type='submit']")
-            # self.driver.execute_script("arguments[0].click();", view_list_btn)
-
+            break_transmetter = True
             while True:
                 time.sleep(5)
 
                 page = self.driver.page_source
-
+                # input('pause pour changement de langue manuel avant de donner à BS')
                 soupe = BeautifulSoup(page, 'html.parser')
 
                 review_cards = soupe.find_all('li', {'itemprop': 'review'})
                 count = len(review_cards)
 
                 print(f"====> {count} cards trouvés !")
-
                 for card in review_cards:
                     try:
                         title = card.find('div', {'class': 'review_item_header_content'}).text.strip(
@@ -106,8 +102,15 @@ class Booking(Scraping):
                         date_review = ""
 
                         if self.lang == "es":
-                            date_review = f"{dates[-5]}/{month_number(dates[-3], 'es')}/{dates[-1]}"
-                            print(dates)
+                            try:
+                                #sur serveur c'est la date_review suivante:
+                                date_review = f"{dates[-5]}/{month_number(dates[-3], 'es')}/{dates[-1]}"
+                                #si dans mon local c'est la date review suivante (question d'affichage en langue de mon pc)
+                                # date_review = f"{dates[-3]}/{month_number(dates[-2], 'fr')}/{dates[-1]}"
+                            except Exception as e:
+                                print(f"erreur date_review modification => {e}")
+                                input('ETO')
+                            # print(dates)
                             print(date_review)
                         else:
                             try:
@@ -130,12 +133,13 @@ class Booking(Scraping):
 
                         try:
                             # if self.lang and lang == self.lang:
+                            #ilay code booking amzao anaty serveur sy amle TENA IZY local mbola alainy daholo izay amle page actuel 
                             author = card.find('p', {'class': 'reviewer_name'}).text.strip() if card.find('p', {'class': 'reviewer_name'}) else ""
                             rating = card.find('span', {'class': 'review-score-badge'}).text.strip() if card.find('span', {'class': 'review-score-badge'}) else "0"
                             
                             #04 07 2025 : rating /2, all rating is /10 donc pas besoin de condition if rating > 10
                             # try:
-                            #     # input(f"firmat du note => {rating}")
+                            #     input(f"format de la note => {rating}")
                             #     if '.' in rating:
                             #         # input('decimaal en point')
                             #         rating = float(rating)
@@ -143,7 +147,7 @@ class Booking(Scraping):
                             #         # input('decimaal en virgule, changement virgule par point')
                             #         rating = float(rating.replace(',', '.'))
                             #     rating = rating / 2
-                            #     # input(f"rating après conversion sur 10 => {rating}")
+                            #     input(f"rating après conversion sur 5 => {rating}")
                             # except Exception as e:
                             #     print(f"erreur de conversion du rating => {e}")
                             #Code de Thierry semaine du 07 07 2025
@@ -157,44 +161,70 @@ class Booking(Scraping):
                                 except Exception as e:
                                     print(e)
                                     lang = self.lang
-                                    
-                            reviews.append({
-                                'comment': comment,
-                                'rating': rating,
-                                'date_review': date_review,
-                                'language': self.lang,
-                                'url':self.driver.current_url,
-                                'source': urlparse(self.url).netloc.split('.')[1],
-                                'author': author,
-                                'establishment': f'/api/establishments/{self.establishment}',
-                                'settings': f'/api/settings/{self.settings}',
-                                'date_visit': date_review,
-                                'novisitday': "0"
-                            })
-                            print({
-                                'comment': comment,
-                                'rating': rating,
-                                'date_review': date_review,
-                                'language': self.lang,
-                                'url':self.driver.current_url,
-                                'source': urlparse(self.url).netloc.split('.')[1],
-                                'author': author,
-                                'establishment': f'/api/establishments/{self.establishment}',
-                                'settings': f'/api/settings/{self.settings}',
-                                'date_visit': date_review,
-                                'novisitday': "0"
-                            })
+                            #juste pour test en local ity:
+                            # input({
+                            #     'comment': comment,
+                            #     'rating': rating,
+                            #     'date_review': date_review,
+                            #     'language': lang,
+                            #     'url':self.driver.current_url,
+                            #     'source': urlparse(self.url).netloc.split('.')[1],
+                            #     'author': author,
+                            #     'establishment': f'/api/establishments/{self.establishment}',
+                            #     'settings': f'/api/settings/{self.settings}',
+                            #     'date_visit': date_review,
+                            #     'novisitday': "0"
+                            #     })
+                            
+                            if self.check_date(date_review, self.last_review_date):
+                                print("             ")
+                                print("On ajoute car la date du review est encore supérieur à celle dans la base")
+                                print("             ")
+                                reviews.append({
+                                    'comment': comment,
+                                    'rating': rating,
+                                    'date_review': date_review,
+                                    'language': lang,
+                                    'url':self.driver.current_url,
+                                    'source': urlparse(self.url).netloc.split('.')[1],
+                                    'author': author,
+                                    'establishment': f'/api/establishments/{self.establishment}',
+                                    'settings': f'/api/settings/{self.settings}',
+                                    'date_visit': date_review,
+                                    'novisitday': "0"
+                                })
+                            else:
+                                input("date review est superieur à la last_review_date, on ne l'ajoute pas")
+                                # input(f"date de la dernière review appender => {reviews[-1]['date_review']}")
+                                break_transmetter = False
+                                break
+
+                                # print(f"reviews qui seront ajoutés dans la base, date last prise en compte => {reviews}")
+                            # print({
+                            #     'comment': comment,
+                            #     'rating': rating,
+                            #     'date_review': date_review,
+                            #     'language': self.lang,
+                            #     'url':self.driver.current_url,
+                            #     'source': urlparse(self.url).netloc.split('.')[1],
+                            #     'author': author,
+                            #     'establishment': f'/api/establishments/{self.establishment}',
+                            #     'settings': f'/api/settings/{self.settings}',
+                            #     'date_visit': date_review,
+                            #     'novisitday': "0"
+                            # })
                         except Exception as e:
+                            input('pause')
                             print(e)
                             continue
 
                     except Exception as e:
                         print(e)
                 #ajout condition pour self.last_review_date
-                if not self.check_date(reviews[-1]['date_review'], self.last_review_date):
+                print(f"la valeur du check date => {self.check_date(reviews[-1]['date_review'], self.last_review_date)}")
+                if not break_transmetter:
+                    input("On ne clique plus sur le bouton suivant")
                     break
-                #vérifie si on prend encore la review par rapport à sa date
-
                 try:
 
                     next_btn = self.driver.find_element(
@@ -206,6 +236,7 @@ class Booking(Scraping):
                         time.sleep(4)
 
                 except Exception as e:
+                    input(f"Erreur lors de la recherche du bouton suivant : {e}")
                     break
 
         except Exception as e:
