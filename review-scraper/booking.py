@@ -177,9 +177,9 @@ class Booking(Scraping):
                             #     })
                             
                             if self.check_date(date_review, self.last_review_date):
-                                print("             ")
-                                print("On ajoute car la date du review est encore supérieur à celle dans la base")
-                                print("             ")
+                                # print("             ")
+                                # print("On ajoute car la date du review est encore supérieur à celle dans la base")
+                                # print("             ")
                                 reviews.append({
                                     'comment': comment,
                                     'rating': rating,
@@ -194,7 +194,7 @@ class Booking(Scraping):
                                     'novisitday': "0"
                                 })
                             else:
-                                input("date review est superieur à la last_review_date, on ne l'ajoute pas")
+                                # input("date review est superieur à la last_review_date, on ne l'ajoute pas")
                                 # input(f"date de la dernière review appender => {reviews[-1]['date_review']}")
                                 break_transmetter = False
                                 break
@@ -223,7 +223,7 @@ class Booking(Scraping):
                 #ajout condition pour self.last_review_date
                 print(f"la valeur du check date => {self.check_date(reviews[-1]['date_review'], self.last_review_date)}")
                 if not break_transmetter:
-                    input("On ne clique plus sur le bouton suivant")
+                    # input("On ne clique plus sur le bouton suivant")
                     break
                 try:
 
