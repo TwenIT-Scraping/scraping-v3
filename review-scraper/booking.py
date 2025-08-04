@@ -41,6 +41,16 @@ class Booking(Scraping):
         req = PreparedRequest()
         req.prepare_url(url, params)
         super().set_url(req.url)
+    
+    #code de Thierry pour afficher toutes les reviews y compris les autres languages 04 08 2025
+    def set_language(self, language) -> None:
+        super().set_language(language)
+        url = self.url.split('?')[0]
+        # params = {'r_lang': self.lang, 'order': 'completed_desc'}
+        params = {'r_lang': 'all', 'order': 'completed_desc'}
+        req = PreparedRequest()
+        req.prepare_url(url, params)
+        super().set_url(req.url)
 
     def check_page(self) -> None:
         try:
@@ -240,7 +250,7 @@ class Booking(Scraping):
                     break
 
         except Exception as e:
-            print(e)
+            print(f"Erreur lors de la recherche du bouton suivant : {e}")
             pass
 
         self.data = reviews
