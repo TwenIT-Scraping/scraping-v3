@@ -67,6 +67,12 @@ class Booking(Scraping):
         reviews = []
 
         try:
+            #selection d'affichage des reviews pour all languages 05 08 2025
+            show_all_languages_review = Select(self.driver.find_element(By.XPATH, '//*[@id="language"]'))
+            show_all_languages_review.select_by_value('all')
+            time.sleep(0.8)
+            print('All languages sort OK')
+            
             review_order = Select(self.driver.find_element(
                 By.XPATH, "//select[@id='sorting']"))
             review_order.select_by_value('completed_desc')
@@ -161,7 +167,7 @@ class Booking(Scraping):
                             # except Exception as e:
                             #     print(f"erreur de conversion du rating => {e}")
                             #Code de Thierry semaine du 07 07 2025
-                            lang_source = {'Belgique':'be','España':'es', 'France': 'fr', 'United Kingdom': 'en', 'Deutschland': 'de', 'Italia': 'it'}
+                            lang_source = {'Belgique':'be', 'France': 'fr', 'Italie': 'it', 'Pays-Bas' : 'nl', 'Brésil':'br', 'Portugal': 'pt','Autriche' : 'at', 'Suisse' : 'ch', 'Allemagne' : 'de', 'Australie' : 'au', 'Royaume-Uni' : 'uk', 'Estonie' : 'ee', 'Serbie' : 'sr', 'Suède' : 'se', 'Israël' : 'il', 'Bulgarie' : 'bg', 'Lituanie' : 'lt', 'Slovaquie' : 'sk', 'Irlande' : 'ie', 'Espagne' : 'es', 'Panama' : 'pa', 'Norvège' : 'no', 'Slovénie' : 'si', 'République tchèque' : 'cz'}
                             lang = card.find('span', {'class': 'reviewer_country'}).find('span', {'itemprop':'name'}).text.strip()
                             if lang:
                                 try:
