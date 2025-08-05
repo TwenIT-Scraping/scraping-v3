@@ -38,7 +38,7 @@ def format_date_fr(date_str:str) -> str:
     date_str = date_str.lower().split(' ')
     if len(date_str) == 3:
         # input(f" date formatté => {date_str[0]}/{month_fr[date_str[1]]}/{date_str[2]}")
-        return f"{date_str[0]}/{month_fr[date_str[1]]}/{date_str[2]}
+        return f"{date_str[0]}/{month_fr[date_str[1]]}/{date_str[2]}"
 
 class Trustpilot(Scraping):
     def __init__(self, url: str, establishment: str, settings: str, env: str, last_review_date : str):
