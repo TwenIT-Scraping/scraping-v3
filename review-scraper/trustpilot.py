@@ -17,6 +17,28 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
 from langdetect import detect
 
+#format date 05 08 2025
+def format_date_fr(date_str:str) -> str:
+    # input(f'date_str => {date_str}')
+    # 28 juin 2023
+    month_fr = {
+    "janvier": "01",  
+    "février": "02",  
+    "mars": "03",  
+    "avril": "04",  
+    "mai": "05",  
+    "juin": "06",  
+    "juillet": "07",  
+    "août": "08",  
+    "septembre": "09",  
+    "octobre": "10",  
+    "novembre": "11",  
+    "décembre": "12" 
+    }
+    date_str = date_str.lower().split(' ')
+    if len(date_str) == 3:
+        # input(f" date formatté => {date_str[0]}/{month_fr[date_str[1]]}/{date_str[2]}")
+        return f"{date_str[0]}/{month_fr[date_str[1]]}/{date_str[2]}
 
 class Trustpilot(Scraping):
     def __init__(self, url: str, establishment: str, settings: str, env: str, last_review_date : str):
@@ -179,7 +201,7 @@ class Trustpilot(Scraping):
                 })
 
             # input(f"date du dernier review appender => {reviews[-1]['date_review']} et date du dernier dans la base => {self.last_review_date}")
-            if not self.check_date(reviews[-1]['date_review'], self.last_review_date):
+            if self.check_date(reviews[-1]['date_review'], self.last_review_date) == False:
                 print("                 ")
                 print(" Date review atteinte, break ")
                 print("                 ")
