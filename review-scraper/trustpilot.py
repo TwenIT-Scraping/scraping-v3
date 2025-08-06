@@ -135,8 +135,8 @@ class Trustpilot(Scraping):
         #         # print(e)
 
         #debut code 29 07 2025
-
-        while True:
+        break_transmetter = True
+        while break_transmetter:
 
             page = self.driver.page_source
 
@@ -185,29 +185,34 @@ class Trustpilot(Scraping):
                     url = self.driver.current_url
                     input(f"url global car url spécifique non existante => {url}")
                     pass
+                
+                if date_review != "01/01/1999" :
+                    reviews.append({
+                        'comment': comment,
+                        'rating': card.find('div', {'data-service-review-rating': True})['data-service-review-rating'] if card.find('div', {'data-service-review-rating': True}) else "0",
+                        'date_review': date_review,
+                        'language': lang,
+                        'url': url,
+                        'source': urlparse(self.url).netloc.split('.')[1],
+                        'author': card.find('span', {'data-consumer-name-typography': 'true'}).text.strip() if card.find('span', {'data-consumer-name-typography': 'true'}) else "",
+                        'establishment': f'/api/establishments/{self.establishment}',
+                        'settings': f'/api/settings/{self.settings}',
+                        'date_visit': date_visit_formatted,
+                        'novisitday': "1"
+                    })
 
-                date_review != "01/01/1999" and reviews.append({
-                    'comment': comment,
-                    'rating': card.find('div', {'data-service-review-rating': True})['data-service-review-rating'] if card.find('div', {'data-service-review-rating': True}) else "0",
-                    'date_review': date_review,
-                    'language': lang,
-                    'url': url,
-                    'source': urlparse(self.url).netloc.split('.')[1],
-                    'author': card.find('span', {'data-consumer-name-typography': 'true'}).text.strip() if card.find('span', {'data-consumer-name-typography': 'true'}) else "",
-                    'establishment': f'/api/establishments/{self.establishment}',
-                    'settings': f'/api/settings/{self.settings}',
-                    'date_visit': date_visit_formatted,
-                    'novisitday': "1"
-                })
-
-            # input(f"date du dernier review appender => {reviews[-1]['date_review']} et date du dernier dans la base => {self.last_review_date}")
-            if self.check_date(reviews[-1]['date_review'], self.last_review_date) == False:
-                print("                 ")
-                print(" Date review atteinte, break ")
-                print("                 ")
-                # print(f"last review date => 05/01/2025 > {reviews[-1]['date_review']} DONC on ne clique plus au next reviews page" )
-                break
-
+                # input(f'on a {len(reviews)} reviews a faire entrés dans la base de données')
+                # input(f"date du dernier review appender => {reviews[-1]['date_review']} et date du dernier dans la base => {self.last_review_date}")
+                if not self.check_date(reviews[-1]['date_review'], self.last_review_date):
+                    print("                 ")
+                    print(" Date review atteinte, break du for")
+                    print("                 ")
+                    break_transmetter = False
+                    # print(f"last review date => 05/01/2025 > {reviews[-1]['date_review']} DONC on ne clique plus au next reviews page" )
+                    break
+            #entre ici lorsque le date de review sur page est encore > last review date
+            # print('Date review sur page > last date en base, page suivante')
+            # input(f'on a {len(reviews)} reviews a faire entrés dans la base de données et voici ce qu\'il contient => {reviews}')
             try:
                 next_btn = self.driver.find_element(
                     By.NAME, 'pagination-button-next')
@@ -217,10 +222,8 @@ class Trustpilot(Scraping):
                 if next_btn and not disabled_btn:
                     self.driver.execute_script(
                         "arguments[0].click();", next_btn)
-                    input("clique sur le next button")
-                    time.sleep(4)
-                    print("re-extract()")
-                    self.extract()
+                    print("clique sur le next button")
+                    time.sleep(2)
                 else:
                     input("clique next button non effectué")
 
