@@ -211,24 +211,25 @@ class Trustpilot(Scraping):
                     # print(f"last review date => 05/01/2025 > {reviews[-1]['date_review']} DONC on ne clique plus au next reviews page" )
                     break
             #entre ici lorsque le date de review sur page est encore > last review date
-            # print('Date review sur page > last date en base, page suivante')
-            # input(f'on a {len(reviews)} reviews a faire entrés dans la base de données et voici ce qu\'il contient => {reviews}')
-            try:
-                next_btn = self.driver.find_element(
-                    By.NAME, 'pagination-button-next')
-                disabled_btn = True if next_btn.get_attribute(
-                    'aria-disabled') else False
+            if break_transmetter:
+                print('Date review sur page > last date en base, page suivante')
+                # input(f'on a {len(reviews)} reviews a faire entrés dans la base de données et voici ce qu\'il contient => {reviews}')
+                try:
+                    next_btn = self.driver.find_element(
+                        By.NAME, 'pagination-button-next')
+                    disabled_btn = True if next_btn.get_attribute(
+                        'aria-disabled') else False
 
-                if next_btn and not disabled_btn:
-                    self.driver.execute_script(
-                        "arguments[0].click();", next_btn)
-                    print("clique sur le next button")
-                    time.sleep(2)
-                else:
-                    input("clique next button non effectué")
+                    if next_btn and not disabled_btn:
+                        self.driver.execute_script(
+                            "arguments[0].click();", next_btn)
+                        print("clique sur le next button")
+                        time.sleep(2)
+                    else:
+                        input("clique next button non effectué")
 
-            except Exception as e:
-                input(f'erreur clique button next for other reviews => {e}')
+                except Exception as e:
+                    input(f'erreur clique button next for other reviews => {e}')
 
         self.data = reviews
 
