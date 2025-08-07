@@ -254,14 +254,15 @@ class BaseGoogleScrap(Scraping):
             sys.exit("Arret")
 
     def detect_date_lang(self, date:str) -> str:
-        if date in ['heure','heures','jour', 'jours', 'semaine', 'semaines', 'mois', 'an', 'ans']:
+        if date in ['minute','minutes','heure','heures','jour', 'jours', 'semaine', 'semaines', 'mois', 'an', 'ans']:
             return 'fr'
-        elif date in ['hour','hours','days', 'week', 'weeks', 'month', 'months', 'year', 'years']:
+        elif date in ['minute','minutes','hour','hours','days', 'week', 'weeks', 'month', 'months', 'year', 'years']:
             return 'en'
-        elif date in ['hora','horas','día', 'días', 'semana', 'semanas', 'mes', 'año', 'año']:
+        elif date in ['minuto','minutos','hora','horas','día', 'días', 'semana', 'semanas', 'mes', 'año', 'año']:
             return 'es'
         return ''
         #ajout heure dans la liste 02 07 2025 car ça n'a pas pris en compte les journaliers
+        #ajout minute dans la liste 07 08 2025 
 
 
     def formate_date(self, raw_date: str) -> str:
@@ -613,8 +614,9 @@ class Google(BaseGoogleScrap):
                             # self.data = reviews
                             self.data_loaded = True
                     else:
-                        #j'ai changé le or par and pour la condition last_review_date 10 12 2024, ça me semble plus correcte
-                        if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > datetime.now() - timedelta(days=365) and (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
+                        #j'ai enlevé le timedelta days=1 car je ne sais pas si ça sert à quoi
+                        # if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > (datetime.now() - timedelta(days=365)) and (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
+                        if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > (datetime.now() - timedelta(days=365)) and (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y'))):
                             reviews.append({
                                 'rating': rating,
                                 'author': author,
@@ -635,7 +637,15 @@ class Google(BaseGoogleScrap):
                             # print("last date valid reached")
                             # self.data = reviews
                             self.data_loaded = True
+                        
+                        """ Code teto avant 10 decembre 2024 (code Thierry)"""
+                        # if datetime.strptime(date_review, '%d/%m/%Y') < (datetime.now() - timedelta(days=365)) or (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
+                        #     print("last date valid reached")
+                            # self.data = reviews
+                            # self.data_loaded = True
+                        """ Fin Code teto avant 10 decembre 2024 (code Thierry) """
 
+                    #J'ai cmmenté le 10 12 2024
                     # if self.data_loaded:
                     #     self.data = reviews
                     #     return self.data J'ai commenté car ça me semble inutile (10 12 2024)
