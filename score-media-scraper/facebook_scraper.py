@@ -133,9 +133,9 @@ class FacebookProfileScraper(Scraping):
             page_name_div = soupe.find('div', {'class': "x1e56ztr x1xmf6yo"})
             page_name = page_name_div.text if page_name_div else ''
             
-            # Récupération du header
+            # Récupération du header (mise à jour le 08 08 2025)
             header = soupe.find('div', {
-                'class': 'x78zum5 x15sbx0n x5oxk1f x1jxijyj xym1h4x xuy2c7u x1ltux0g xc9uqle'
+                'class': 'x78zum5 x15sbx0n x1vv38fk x1ilwl7r xym1h4x xuy2c7u x1ltux0g xc9uqle'
             })
             
             if header:
