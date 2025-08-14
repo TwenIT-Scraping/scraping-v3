@@ -188,7 +188,7 @@ class Scraping(object):
             # input(f'{date} >= ({current_date - timedelta(days=365)}) and ({date > (last_revs_date + timedelta(days=1))})')
             #changement de la condition en AND et no OR car si c'est OR ça ne sert à rien
             # return date >= (current_date - timedelta(days=365)) and (date > (last_revs_date + timedelta(days=1))) je pense qu'on n'a pas beson du + time.. day = 1
-            return date >= (current_date - timedelta(days=365)) and (date > last_revs_date)
+            return date >= (current_date - timedelta(days=365)) and (date >= last_revs_date)
         #si cette condition est false, on ne prend plus les reviews, ça break
 
     def execute(self):
