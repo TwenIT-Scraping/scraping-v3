@@ -171,7 +171,9 @@ class Trustpilot(Scraping):
 
                 #pour date visite car date visite n'est pas forcémment = à la date_review ce qu'a fait l'ancien code
                 try:
-                    date_visit_not_formatted = card.find('p', {'data-service-review-date-of-experience-typography': 'true'}).find('span').text.strip()
+                    # date_visit_not_formatted = card.find('p', {'data-service-review-date-of-experience-typography': 'true'}).find('span').text.strip()
+                    #MAJ 21 08 2025 
+                    date_visit_not_formatted = card.find('div', {'data-testid': 'review-badge-date'}).find('span').text.strip()
                     # input(f'date_visit_not_formatted => {date_visit_not_formatted}')
                     date_visit_formatted = format_date_fr(date_visit_not_formatted)
                     # input(f'date_visit_formatted => {date_visit_formatted}')
