@@ -616,7 +616,7 @@ class Google(BaseGoogleScrap):
                     else:
                         #j'ai enlevé le timedelta days=1 car je ne sais pas si ça sert à quoi
                         # if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > (datetime.now() - timedelta(days=365)) and (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y') + timedelta(days=1))):
-                        if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > (datetime.now() - timedelta(days=365)) and (datetime.strptime(date_review, '%d/%m/%Y') > (datetime.strptime(self.last_review_date, '%d/%m/%Y'))):
+                        if (author or comment ) and rating != "0" and datetime.strptime(date_review, '%d/%m/%Y') > (datetime.now() - timedelta(days=365)) and (datetime.strptime(date_review, '%d/%m/%Y') >= (datetime.strptime(self.last_review_date, '%d/%m/%Y'))):
                             reviews.append({
                                 'rating': rating,
                                 'author': author,
