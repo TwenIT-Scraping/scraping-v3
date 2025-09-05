@@ -114,8 +114,15 @@ class YoutubeProfileScraper(Scraping):
             if splited_value[1].lower() == 'm':
                 return int(float(splited_value[0].replace(',', '.'))*1000000)
         if len(splited_value) == 2:
+            #ajout de visibilité le 05 09 2025
+            print(' divisé en 2 car affichage serveur pas despace ')
+
             if 'm ' in splited_value[1].lower():
                 return int(float(splited_value[0].replace(',', '.'))*1000000)
+            
+            #modif le 05 09 2025
+            if 'k' in splited_value[0].lower():
+                return int(float(splited_value[0].replace(',', '.').replace('K',''))*1000)
 
             return int(float(splited_value[0].replace(',', '.')))
 
