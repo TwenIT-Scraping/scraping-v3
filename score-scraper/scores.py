@@ -83,21 +83,44 @@ class ScoreExtractor(object):
         except Exception as e:
             print(e)
 
+    #22 10 2025 ajout champ total review
+    def clean_quantity(self) -> int|None:
+        try:
+            self.quantity = int(''.join(ch for ch in self.quantity if ch.isdigit()))
+            print(f'cleaned quantity: {self.quantity}')
+        except Exception as e:
+            print(e)
+
     def get_clean_data(self) -> dict:
         self.clean_score()
         self.normalize_score()
+        
+        self.clean_quantity()
+
         self.cleaned_data['score'] = self.score 
         self.cleaned_data['source'] = self.source
         self.cleaned_data['establishment'] = f"/api/establishments/{self.settings.get('establishment_id')}"
         self.cleaned_data['scoreDate'] = datetime.now().strftime("%Y-%m-%d")
 
+        self.cleaned_data['quantity'] = self.quantity
+
         return self.cleaned_data
 
+    # def extract(self):
+    #     score_source = bs4_ext.extract_element_by_locator(self.data.get('web_page'), self.data.get('selectors'))
+    #     print(score_source)
+    #     if score_source:
+    #         self.score = score_source
+    
+    #22 10 2025 for the quantitiy review
     def extract(self):
-        score_source = bs4_ext.extract_element_by_locator(self.data.get('web_page'), self.data.get('selectors'))
-        print(score_source)
+        score_source = bs4_ext.extract_element_by_locator(self.data.get('web_page'), self.data.get('selectors').get('scores'))
+        quantity_source = bs4_ext.extract_element_by_locator(self.data.get('web_page'), self.data.get('selectors').get('quantity'))
         if score_source:
             self.score = score_source
+        if quantity_source:
+            self.quantity = quantity_source
+        print(f'extracted score: {self.score} and quantity: {self.quantity}')
 
     def post_data(self) -> None:
         """## Post data to the API
@@ -122,12 +145,31 @@ class ScoreExtractor(object):
             openfile.write(json.dumps(str(self.cleaned_data)))
 
 
+# def build_selectors(page_element:str, selectors:dict) -> dict | None:
+#     print('building selectors')
+#     for selector_item in selectors:
+#         if bool(bs4_ext.extract_element_by_locator(page_element, selector_item)):
+#             return selector_item
+#     return None
+
+#new build selectors for checking a total review 22 10 2025
 def build_selectors(page_element:str, selectors:dict) -> dict | None:
-    print('building selectors')
-    for selector_item in selectors:
-        if bool(bs4_ext.extract_element_by_locator(page_element, selector_item)):
-            return selector_item
-    return None
+    print('building selectors ...')
+    valide_selector = {}
+    for items in selectors.keys():
+        # print(f'checking selectors for {items} ...')
+        for content in selectors.get(items):  
+            # print(content)
+            if bool(bs4_ext.get_element_by_locator(page_element, content)):
+                valide_selector[items] = content
+    
+    if set(valide_selector.keys()) == set(selectors.keys()):
+        return valide_selector
+    else:
+        for key in selectors.keys():
+            if key not in valide_selector.keys():
+                print(f'selector not found for {key}')
+        return None
 
 
 def load_selectors(selector_name:str) -> dict:
@@ -178,7 +220,23 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
     url_Restaurant_cafe_errone = "https://www.tripadvisor.fr/Restaurant_Review-g187265-d2278761-Reviews-Le_Beranger-Lyon_Rhone_Auvergne_Rhone_Alpes.html"
     url_google_travel_cafe_beranger = "https://www.google.com/travel/search?restaurant+café+comptoir+le+béranger+avis&sca_esv=581137776&sxsrf=AM9HkKkTxaU2EmD7HtSrp8Yn7nCXBlIrWA%3A1699604594342&ei=cuhNZYO_FJiKkdUP5eu3gAc&ved=0ahUKEwiDwOrAgLmCAxUYRaQEHeX1DXAQ4dUDCA8&uact=5&oq=restaurant+café+comptoir+le+béranger+avis&gs_lp=Egxnd3Mtd2l6LXNlcnAiK3Jlc3RhdXJhbnQgY2Fmw6kgY29tcHRvaXIgbGUgYsOpcmFuZ2VyIGF2aXMyBRAhGKABMgUQIRigAUi6C1DTAliyCnABeACQAQCYAXigAf8CqgEDNC4xuAEDyAEA-AEBwgIHECMYsAMYJ8ICBxAAGB4YsAPCAgQQIxgnwgIGEAAYFhgewgIFEAAYogTiAwQYASBBiAYBkAYC&sclient=gws-wiz-serp#ip=1"
     url_emulsion = "https://www.thefork.fr/restaurant/restaurant/l-emulsion-r692845"
+    url_la_plage_google_non_travel = "https://www.google.com/search?sca_esv=582576413&sxsrf=AM9HkKmXy0A81vuU5L0jRo1vlbEvdIkcZw:1700043302352&uds=H4sIAAAAAAAA_-PS5mJxLMssFlIsSi0uSSwtSswrUchJVCjISUxPVUjMrFDISS1WSErMzCs2YBbi4mIQYpBiUGLQYAAACFT5zzkAAAA&si=ALGXSla_WCGdkD9yT_jdHrUlk6LMkmNSL3U2mfjKFmuVN40wv5RcbCQ1ZF6KDdkvkTmZQXh9aRdXSh28wTPTeKgCA76uxIHLkAoAN-9UGXnNHKqD3GsUwp0%3D&q=Restaurant+LA+PLAGE+Avis&sa=X&ved=2ahUKEwjgoI7p4sWCAxXHVaQEHT3mAhQQ3PALegQIRxAF&biw=1920&bih=927&dpr=1"    
     url_errone = [url_gourmand_false, url_lux_saint_giles_errone, url_Restaurant_cafe_errone, url_google_travel_cafe_beranger, url_emulsion]
+    #captcha for google non travel
+    if "sorry" in driver.current_url:
+        #for google not travel
+        print("                 ")
+        print("******************")
+        print("remplis le captcha")
+        print("******************")
+        print("                 ")
+        enteer = input("ENTER 'm' AFTER SOLVING CAPTCHA")
+        while enteer.lower() != 'm':
+            print("Captcha not solved, please solve it and enter 'm' to continue.")
+            enteer = input("ENTER 'm' AFTER SOLVING CAPTCHA: ")
+            if enteer.lower() == 'm':
+                print("Captcha solved, continuing...")
+                
     if data['url'] not in url_errone:    
         provider = data['source'].lower().split(' ')[0]
         page_type = get_page_type(provider, driver.current_url)

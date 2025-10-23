@@ -1,315 +1,321 @@
 {
     "tripadvisor": {
-        "hotel": [
-            {
-                "by_tag_only": false,
-                "tag": "div",
-                "attr_key": "data-test-target",
-                "attr_value": "hr-atf-info",
-                "target": "child",
-                "child": {
+        "hotel": {
+            "scores": [
+                {
                     "by_tag_only": false,
                     "tag": "div",
-                    "attr_key": "data-automation",
-                    "attr_value": "bubbleRatingValue",
-                    "target": "text"
-                }
-            }
-        ],
-        "hotel_feature": [
-            {
-                "by_tag_only": false,
-                "tag": "div",
-                "attr_key": "class",
-                "attr_value": "uqMDf z BGJxv YGfmd YQkjl",
-                "target": "child",
-                "child": {
-                    "by_tag_only": false,
-                    "tag": "span",
-                    "attr_key": "class",
-                    "attr_value": "kJyXc P",
-                    "target": "text"
-                }
-            },
-            {
-                "by_tag_only": false,
-                "tag": "div",
-                "attr_key": "data-tab",
-                "attr_value": "TABS_ABOUT",
-                "target": "child",
-                "child": {
+                    "attr_key": "data-test-target",
+                    "attr_value": "hr-atf-info",
+                    "target": "child",
+                    "child": {
+                        "by_tag_only": false,
+                        "tag": "div",
+                        "attr_key": "data-automation",
+                        "attr_value": "bubbleRatingValue",
+                        "target": "text"
+                    }
+                },
+                {
                     "by_tag_only": false,
                     "tag": "div",
-                    "attr_key": "class",
-                    "attr_value": "biGQs _P hzzSG LSyRd",
-                    "target": "text"
+                    "attr_key": "data-test-target",
+                    "attr_value": "restaurant-detail-info",
+                    "target": "child",
+                    "child": {
+                        "by_tag_only": false,
+                        "tag": "div",
+                        "attr_key": "data-automation",
+                        "attr_value": "bubbleRatingValue",
+                        "target": "text"
+                    }
                 }
-            }
-        ],
-        "attraction": [
-            {
-                "by_tag_only": false,
-                "tag": "div",
-                "attr_key": "class",
-                "attr_value": "yFKLG",
-                "target": "child",
-                "child": {
+            ],
+            "quantity": [
+                {
                     "by_tag_only": false,
                     "tag": "div",
-                    "attr_key": "data-automation",
-                    "attr_value": "reviewBubbleScore",
-                    "target": "text"
+                    "attr_key": "data-test-target",
+                    "attr_value": "hr-atf-info",
+                    "target": "child",
+                    "child": {
+                        "by_tag_only": false,
+                        "tag": "div",
+                        "attr_key": "data-automation",
+                        "attr_value": "bubbleReviewCount",
+                        "target": "text"
+                    }
                 }
-            }
-        ],
-        "restaurant": [
-            {
-                "by_tag_only": false,
-                "tag": "div",
-                "attr_key": "class",
-                "attr_value": "bOdYe f e",
-                "target": "child",
-                "child": {
-                    "by_tag_only": false,
-                    "tag": "div",
-                    "attr_key": "data-automation",
-                    "attr_value": "reviewBubbleScore",
-                    "target": "text"
-                }
-            },
-            {
-                "by_tag_only": false,
-                "tag": "div",
-                "attr_key": "class",
-                "attr_value": "CsAqy",
-                "target": "child",
-                "child": {
-                    "by_tag_only": false,
-                    "tag": "div",
-                    "attr_key": "data-automation",
-                    "attr_value": "bubbleRatingValue",
-                    "target": "text"
-                }
-            }
-        ],
-        "vacation": [
-            {
-                "by_tag_only": false,
-                "tag": "a",
-                "attr_key": "class",
-                "attr_value": "SZQJb Cg wSSLS",
-                "target": "child",
-                "child": {
-                    "by_tag_only": false,
-                    "tag": "span",
-                    "attr_key": "class",
-                    "attr_value": "yyzcQ",
-                    "target": "text"
-                }
-            }
-        ]
+            ]
+        }
     },
     "booking": {
-        "hotel":[
-            {
-                "by_tag_only": false,
-                "tag": "div",
-                "attr_key": "id",
-                "attr_value": "review_list_score",
-                "target": "child",
-                "child": {
+        "hotel": {
+            "scores": [
+                {
                     "by_tag_only": false,
-                    "tag": "span",
-                    "attr_key": "class",
-                    "attr_value": "review-score-badge",
-                    "target": "text"
+                    "tag": "div",
+                    "attr_key": "id",
+                    "attr_value": "review_list_score",
+                    "target": "child",
+                    "child": {
+                        "by_tag_only": false,
+                        "tag": "span",
+                        "attr_key": "class",
+                        "attr_value": "review-score-badge",
+                        "target": "text"
+                    }
+                },
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "id",
+                    "attr_value": "review_list_score",
+                    "target": "child",
+                    "child": {
+                        "by_tag_only": false,
+                        "tag": "span",
+                        "attr_key": "class",
+                        "attr_value": "review-score-badge",
+                        "target": "text"
+                    }
                 }
-            }
-        ]
+            ],
+            "quantity": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "id",
+                    "attr_value": "review_list_score",
+                    "target": "child",
+                    "child": {
+                        "by_tag_only": false,
+                        "tag": "p",
+                        "attr_key": "class",
+                        "attr_value": "review_list_score_count",
+                        "target": "text"
+                    }
+                }
+            ]
+        }
     },
     "maeva": {
-        "residence":[
-            {
-                "by_tag_only": false,
-                "tag": "div",
-                "attr_key": "id",
-                "attr_value": "fiche__produit-note",
-                "target": "child",
-                "child": {
+        "residence": {
+            "scores": [
+                {
                     "by_tag_only": false,
-                    "tag": "span",
-                    "attr_key": "class",
-                    "attr_value": "text-bold",
-                    "target": "text"
+                    "tag": "div",
+                    "attr_key": "id",
+                    "attr_value": "fiche__produit-note",
+                    "target": "child",
+                    "child": {
+                        "by_tag_only": false,
+                        "tag": "span",
+                        "attr_key": "class",
+                        "attr_value": "text-bold",
+                        "target": "text"
+                    }
                 }
-            }
-        ]
+            ],
+            "quantity": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "id",
+                    "attr_value": "fiche__badge-localisation",
+                    "target": "child",
+                    "child": {
+                        "by_tag_only": false,
+                        "tag": "span",
+                        "attr_key": "class",
+                        "attr_value": "is-link-light fs-5 ui-maeva-scrollTo-trigger fiche-produit-avis-btn",
+                        "target": "text"
+                    }
+                }
+            ]
+        }
     },
     "campings": {
-        "residence":[
-            {
-                "by_tag_only": false,
-                "tag": "div",
-                "attr_key": "class",
-                "attr_value": "reviews__campings scroll-target open-reviews open-collapsible",
-                "target": "child",
-                "child": {
+        "residence": {
+            "scores": [
+                {
                     "by_tag_only": false,
-                    "tag": "span",
+                    "tag": "section",
                     "attr_key": "class",
-                    "attr_value": "review__value",
-                    "target": "text"
+                    "attr_value": "product__section product__reviews-content",
+                    "target": "child",
+                    "child": {
+                        "by_tag_only": false,
+                        "tag": "span",
+                        "attr_key": "class",
+                        "attr_value": "review__value",
+                        "target": "text"
+                    }
                 }
-            }
-        ]
+            ],
+            "quantity": [
+                {
+                    "by_tag_only": false,
+                    "tag": "section",
+                    "attr_key": "class",
+                    "attr_value": "product__section product__reviews-content",
+                    "target": "child",
+                    "child": {
+                        "by_tag_only": false,
+                        "tag": "span",
+                        "attr_key": "class",
+                        "attr_value": "summary__total",
+                        "target": "text"
+                    }
+                }
+            ]
+        }
     },
-    "expedia": {
-        "page":[
-            {
-                "by_tag_only": false,
-                "tag": "div",
-                "attr_key": "data-stid",
-                "attr_value": "content-hotel-reviewsummary",
-                "target": "child",
-                "child": {
+    "thefork": {
+        "page": {
+            "scores": [
+                {
                     "by_tag_only": false,
-                    "tag": "span",
-                    "attr_key": "class",
-                    "attr_value": "uitk-badge-base-text",
+                    "tag": "div",
+                    "attr_key": "data-test",
+                    "attr_value": "rating-value",
                     "target": "text"
                 }
-            }
-        ]
+            ],
+            "quantity": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "data-test",
+                    "attr_value": "restaurant-info-reviews-count",
+                    "target": "text"
+                }
+            ]
+        }
     },
-    "hotels.com": {
-        "page":[
-            {
-                "by_tag_only": false,
-                "tag": "div",
-                "attr_key": "data-stid",
-                "attr_value": "content-hotel-reviewsummary",
-                "target": "child",
-                "child": {
+    "trustpilot": {
+        "page": {
+            "scores": [
+                {
                     "by_tag_only": false,
-                    "tag": "span",
-                    "attr_key": "class",
-                    "attr_value": "uitk-badge-base-text",
-                    "target": "text"
+                    "tag": "div",
+                    "attr_key": "id",
+                    "attr_value": "business-unit-title",
+                    "target": "child",
+                    "child": {
+                        "by_tag_only": false,
+                        "tag": "p",
+                        "attr_key": "data-rating-typography",
+                        "attr_value": "true",
+                        "target": "text"
+                    }
                 }
-            }
-        ]
-    },
-    "opentable": {
-        "restaurant":[
-            {
-                "by_tag_only": false,
-                "tag": "div",
-                "attr_key": "id",
-                "attr_value": "ratingInfo",
-                "target": "child",
-                "child": {
+            ],
+            "quantity": [
+                {
                     "by_tag_only": false,
-                    "tag": "span",
-                    "attr_key": "class",
-                    "attr_value": "m1KNa9XKCHY- C7Tp-bANpE4-",
-                    "target": "text"
+                    "tag": "div",
+                    "attr_key": "id",
+                    "attr_value": "business-unit-title",
+                    "target": "child",
+                    "child": {
+                        "by_tag_only": false,
+                        "tag": "span",
+                        "attr_key": "class",
+                        "attr_value": "CDS_Typography_appearance-default__dd9b51 CDS_Typography_prettyStyle__dd9b51 CDS_Typography_body-l__dd9b51 styles_reviewsAndRating__OIRXy",
+                        "target": "text"
+                    }
                 }
-            }
-        ]
+            ]
+        }
     },
     "google": {
-        "search": [
-            {
-                "by_tag_only": false,
-                "tag": "li",
-                "attr_key": "data-hveid",
-                "attr_value": "CAQQCA",
-                "target": "child",
-                "child": {
+        "search": {
+            "scores": [
+                {
+                    "by_tag_only": false,
+                    "tag": "li",
+                    "attr_key": "data-hveid",
+                    "attr_value": "CAQQCA",
+                    "target": "child",
+                    "child": {
+                        "by_tag_only": false,
+                        "tag": "span",
+                        "attr_key": "class",
+                        "attr_value": "fzTgPe Aq14fc",
+                        "target": "text"
+                    }
+                },
+                {
                     "by_tag_only": false,
                     "tag": "span",
                     "attr_key": "class",
                     "attr_value": "fzTgPe Aq14fc",
                     "target": "text"
+                },
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "bBvbCc fUSQwd",
+                    "target": "text"
                 }
-            },
-            { 
-                "by_tag_only": false,
-                "tag": "span",
-                "attr_key": "class",
-                "attr_value": "fzTgPe Aq14fc",
-                "target": "text"
-            },
-            {
-                "by_tag_only": false,
-                "tag": "div",
-                "attr_key": "class",
-                "attr_value": "bBvbCc fUSQwd",
-                "target": "text"
-            }
-        ],
-        "travel": [
-            {
-                "by_tag_only": false,
-                "tag": "div",
-                "attr_key": "class",
-                "attr_value": "pDLIp",
-                "target": "child",
-                "child": {
+            ],
+            "quantity": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "data-attrid",
+                    "attr_value": "subtitle",
+                    "target": "child",
+                    "child": {
+                        "by_tag_only": true,
+                        "tag": "a",
+                        "target": "text"
+                    }
+                },
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "immersive-container",
+                    "target": "child",
+                    "child": {
+                        "by_tag_only": false,
+                        "tag": "span",
+                        "attr_key": "class",
+                        "attr_value": "z3HNkc",
+                        "target": "text"
+                    }
+                }
+            ]
+        },
+        "travel": {
+            "scores": [
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "class",
+                    "attr_value": "pDLIp",
+                    "target": "child",
+                    "child": {
                     "by_tag_only": false,
                     "tag": "div",
                     "attr_key": "class",
                     "attr_value": "FBsWCd",
                     "target": "text"
+                    }
                 }
-            }
-        ]
-    },
-    "yelp": {
-        "page":[
-            {
-                "by_tag_only": false,
-                "tag": "div",
-                "attr_key": "data-testid",
-                "attr_value": "BizHeaderReviewCount",
-                "target": "child",
-                "child": {
+            ],
+            "quantity": [
+                {
                     "by_tag_only": false,
                     "tag": "span",
                     "attr_key": "class",
-                    "attr_value": "y-css-1jz061g",
+                    "attr_value": "P2NYOe GFm7je sSHqwe",
                     "target": "text"
                 }
-            }
-        ]
-    },
-    "trustpilot": {
-        "page":[
-            {
-                "by_tag_only": false,
-                "tag": "div",
-                "attr_key": "id",
-                "attr_value": "business-unit-title",
-                "target": "child",
-                "child": {
-                    "by_tag_only": false,
-                    "tag": "p",
-                    "attr_key": "data-rating-typography",
-                    "attr_value": "true",
-                    "target": "text"
-                }
-            }
-        ]
-    },
-    "thefork": {
-        "page":[
-            {
-                "by_tag_only": false,
-                "tag": "div",
-                "attr_key": "data-test",
-                "attr_value": "rating-value",
-                "target": "text"
-            }
-        ]
+            ]
+        }
     }
 }
