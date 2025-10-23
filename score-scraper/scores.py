@@ -57,6 +57,8 @@ def get_page_type(origin:str,url:str) -> str:
                 return 'travel'
             else: #car si ce n'est pas travel vaut mieux tout de suite retourné le selecteur search
                 return 'search'
+        case "thefork":
+            return "page"
         case _: 
             return 'page'
 
@@ -70,6 +72,7 @@ class ScoreExtractor(object):
         self.source = self.settings.get('source').lower().split(' ')[0]
         self.data = data
         self.score = 0.0
+        self.quantity = 0
         self.env = self.data['env']
 
     def normalize_score(self) -> None:
@@ -83,7 +86,6 @@ class ScoreExtractor(object):
         except Exception as e:
             print(e)
 
-    #22 10 2025 ajout champ total review
     def clean_quantity(self) -> int|None:
         try:
             self.quantity = int(''.join(ch for ch in self.quantity if ch.isdigit()))
@@ -91,28 +93,21 @@ class ScoreExtractor(object):
         except Exception as e:
             print(e)
 
-    def get_clean_data(self) -> dict:
+    def clean_data(self) -> None:
         self.clean_score()
-        self.normalize_score()
-        
         self.clean_quantity()
+        self.normalize_score()
 
+    def get_clean_data(self) -> dict:
+        self.clean_data()
         self.cleaned_data['score'] = self.score 
         self.cleaned_data['source'] = self.source
         self.cleaned_data['establishment'] = f"/api/establishments/{self.settings.get('establishment_id')}"
         self.cleaned_data['scoreDate'] = datetime.now().strftime("%Y-%m-%d")
-
         self.cleaned_data['quantity'] = self.quantity
 
         return self.cleaned_data
 
-    # def extract(self):
-    #     score_source = bs4_ext.extract_element_by_locator(self.data.get('web_page'), self.data.get('selectors'))
-    #     print(score_source)
-    #     if score_source:
-    #         self.score = score_source
-    
-    #22 10 2025 for the quantitiy review
     def extract(self):
         score_source = bs4_ext.extract_element_by_locator(self.data.get('web_page'), self.data.get('selectors').get('scores'))
         quantity_source = bs4_ext.extract_element_by_locator(self.data.get('web_page'), self.data.get('selectors').get('quantity'))
@@ -128,6 +123,7 @@ class ScoreExtractor(object):
         ### Args:
             - `cleaned_data (list)`: data to be sent
         """
+        print('ON SAUVEGARDE')
         print(f'posting {self.cleaned_data}')
         try:
             post_instance = ERApi(
@@ -144,15 +140,6 @@ class ScoreExtractor(object):
         with open('score.json', '+a') as openfile:
             openfile.write(json.dumps(str(self.cleaned_data)))
 
-
-# def build_selectors(page_element:str, selectors:dict) -> dict | None:
-#     print('building selectors')
-#     for selector_item in selectors:
-#         if bool(bs4_ext.extract_element_by_locator(page_element, selector_item)):
-#             return selector_item
-#     return None
-
-#new build selectors for checking a total review 22 10 2025
 def build_selectors(page_element:str, selectors:dict) -> dict | None:
     print('building selectors ...')
     valide_selector = {}
@@ -170,6 +157,11 @@ def build_selectors(page_element:str, selectors:dict) -> dict | None:
             if key not in valide_selector.keys():
                 print(f'selector not found for {key}')
         return None
+    
+    # for selector_item in selectors:
+    #     if bool(bs4_ext.extract_element_by_locator(page_element, selector_item)):
+    #         return selector_item
+    # return None
 
 
 def load_selectors(selector_name:str) -> dict:
@@ -187,7 +179,7 @@ def load_selectors(selector_name:str) -> dict:
             return
 
 @browser(user_agent=UserAgent.RANDOM, 
-         headless=False,
+         headless=True,
          block_images=True,
         #  block_images_and_css=True,
         add_arguments=[
@@ -196,7 +188,7 @@ def load_selectors(selector_name:str) -> dict:
                 "--disable-gpu",
                 "--disable-fingerprinting"])
 def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
-    sites_with_captcha = [] #mettre dans cette liste les providers où il y a des captchas (différent en local et sur serveur)
+    sites_with_captcha = ["tripadvisor", "thefork"] #mettre dans cette liste les providers où il y a des captchas (différent en local et sur serveur)
     sites_needs_to_change_ip = ["thefork", "yelp"]
     if data['source'].lower().split(' ')[0] in sites_needs_to_change_ip:
         refresh_connection()
@@ -220,8 +212,8 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
     url_Restaurant_cafe_errone = "https://www.tripadvisor.fr/Restaurant_Review-g187265-d2278761-Reviews-Le_Beranger-Lyon_Rhone_Auvergne_Rhone_Alpes.html"
     url_google_travel_cafe_beranger = "https://www.google.com/travel/search?restaurant+café+comptoir+le+béranger+avis&sca_esv=581137776&sxsrf=AM9HkKkTxaU2EmD7HtSrp8Yn7nCXBlIrWA%3A1699604594342&ei=cuhNZYO_FJiKkdUP5eu3gAc&ved=0ahUKEwiDwOrAgLmCAxUYRaQEHeX1DXAQ4dUDCA8&uact=5&oq=restaurant+café+comptoir+le+béranger+avis&gs_lp=Egxnd3Mtd2l6LXNlcnAiK3Jlc3RhdXJhbnQgY2Fmw6kgY29tcHRvaXIgbGUgYsOpcmFuZ2VyIGF2aXMyBRAhGKABMgUQIRigAUi6C1DTAliyCnABeACQAQCYAXigAf8CqgEDNC4xuAEDyAEA-AEBwgIHECMYsAMYJ8ICBxAAGB4YsAPCAgQQIxgnwgIGEAAYFhgewgIFEAAYogTiAwQYASBBiAYBkAYC&sclient=gws-wiz-serp#ip=1"
     url_emulsion = "https://www.thefork.fr/restaurant/restaurant/l-emulsion-r692845"
-    url_la_plage_google_non_travel = "https://www.google.com/search?sca_esv=582576413&sxsrf=AM9HkKmXy0A81vuU5L0jRo1vlbEvdIkcZw:1700043302352&uds=H4sIAAAAAAAA_-PS5mJxLMssFlIsSi0uSSwtSswrUchJVCjISUxPVUjMrFDISS1WSErMzCs2YBbi4mIQYpBiUGLQYAAACFT5zzkAAAA&si=ALGXSla_WCGdkD9yT_jdHrUlk6LMkmNSL3U2mfjKFmuVN40wv5RcbCQ1ZF6KDdkvkTmZQXh9aRdXSh28wTPTeKgCA76uxIHLkAoAN-9UGXnNHKqD3GsUwp0%3D&q=Restaurant+LA+PLAGE+Avis&sa=X&ved=2ahUKEwjgoI7p4sWCAxXHVaQEHT3mAhQQ3PALegQIRxAF&biw=1920&bih=927&dpr=1"    
-    url_errone = [url_gourmand_false, url_lux_saint_giles_errone, url_Restaurant_cafe_errone, url_google_travel_cafe_beranger, url_emulsion]
+    url_la_plage_google_non_travel = "https://www.google.com/search?sca_esv=582576413&sxsrf=AM9HkKmXy0A81vuU5L0jRo1vlbEvdIkcZw:1700043302352&uds=H4sIAAAAAAAA_-PS5mJxLMssFlIsSi0uSSwtSswrUchJVCjISUxPVUjMrFDISS1WSErMzCs2YBbi4mIQYpBiUGLQYAAACFT5zzkAAAA&si=ALGXSla_WCGdkD9yT_jdHrUlk6LMkmNSL3U2mfjKFmuVN40wv5RcbCQ1ZF6KDdkvkTmZQXh9aRdXSh28wTPTeKgCA76uxIHLkAoAN-9UGXnNHKqD3GsUwp0%3D&q=Restaurant+LA+PLAGE+Avis&sa=X&ved=2ahUKEwjgoI7p4sWCAxXHVaQEHT3mAhQQ3PALegQIRxAF&biw=1920&bih=927&dpr=1"
+    url_errone = [url_gourmand_false, url_lux_saint_giles_errone, url_Restaurant_cafe_errone, url_google_travel_cafe_beranger, url_emulsion, url_la_plage_google_non_travel]
     #captcha for google non travel
     if "sorry" in driver.current_url:
         #for google not travel
@@ -236,7 +228,6 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
             enteer = input("ENTER 'm' AFTER SOLVING CAPTCHA: ")
             if enteer.lower() == 'm':
                 print("Captcha solved, continuing...")
-                
     if data['url'] not in url_errone:    
         provider = data['source'].lower().split(' ')[0]
         page_type = get_page_type(provider, driver.current_url)
@@ -280,89 +271,19 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
             selectors = load_selectors(provider)[page_type]
             valid_selector = build_selectors(soupify(driver.page_html), selectors)
             print(valid_selector)
-            score_container = driver.select(bs4_ext.create_selector(valid_selector))
-            score_container.scroll_into_view()
+            qt_container = driver.select(bs4_ext.create_selector(valid_selector.get('quantity')))
+            qt_container.scroll_into_view()
             if valid_selector:
                 s = ScoreExtractor(data={'selectors': valid_selector, 'settings': data,'env': env, 'web_page': soupify(driver.page_html)})
                 s.extract()
-                s.save()
+                # s.save()
             driver.close()
     #ajout temps d'attente avant reouverture driver
     driver.short_random_sleep()
 
-DATA_SOURCE = [
-    # {'id': 296, 'caption': '', 'section': 'REVIEWS', 'external_url': None, 'establishment_name': 'Salt of Palmar', 'establishment_id': 80, 'establishment_tag': '66a1373b0298b', 'idprovider': 18, 'category': 'Platform', 'source': 'Tripadvisor', 'url': 'https://www.tripadvisor.com/Hotel_Review-g1182872-d15125547-Reviews-Salt_Of_Palmar_Mauritius_A_Member_Of_Design_Hotels-Palmar.html', 'language': 'en', 'last_review_date': '08/01/2021', 'last_comment_date': None, 'last_post_date': None},
-    # {'id': 294, 'caption': '', 'section': '', 'external_url': None, 'establishment_name': 'LUX Saint Gilles', 'establishment_id': 79, 'establishment_tag': '66a0156222716', 'idprovider': 33, 'category': 'Platform', 'source': 'Booking', 'url': 'https://www.booking.com/reviews/re/hotel/lux-saint-gilles-resort.fr.html', 'language': 'en', 'last_review_date': '05/11/2024', 'last_comment_date': None, 'last_post_date': None},
-    # {'id': 296, 'caption': '', 'section': 'REVIEWS', 'external_url': None, 'establishment_name': 'Salt of Palmar', 'enable': True, 'establishment_id': 80, 'establishment_tag': '66a1373b0298b', 'idprovider': 18, 'category': 'Platform', 'source': 'Tripadvisor', 'url': 'https://www.tripadvisor.com/Hotel_Review-g1182872-d15125547-Reviews-Salt_Of_Palmar_Mauritius_A_Member_Of_Design_Hotels-Palmar.html', 'language': 'en', 'last_review_date': '18/11/2024', 'last_comment_date': None, 'last_post_date': None},
-    # {'id': 266, 'caption': '', 'section': 'REVIEWS', 'external_url': None, 'establishment_name': 'LUX South Ari Atoll', 'enable': True, 'establishment_id': 78, 'establishment_tag': '66a014696087d', 'idprovider': 18, 'category': 'Platform', 'source': 'Tripadvisor', 'url': 'https://www.tripadvisor.com/Hotel_Review-g6854954-d1053966-Reviews-LUX_South_Ari_Atoll-Dhidhoofinolhu_Island.html', 'language': 'en', 'last_review_date': '21/11/2024', 'last_comment_date': None, 'last_post_date': None},
-    # {'id': 181, 'caption': None, 'section': 'REVIEWS', 'external_url': None, 'establishment_name': 'MV Transport', 'enable': True, 'establishment_id': 8, 'establishment_tag': '653f8ebb35238', 'idprovider': 18, 'category': 'Platform', 'source': 'Tripadvisor', 'url': 'https://www.tripadvisor.com/Attraction_Review-g8309764-d15690584-Reviews-MV_Transport-Chambery_Savoie_Auvergne_Rhone_Alpes.html', 'language': 'fr', 'last_review_date': '19/12/2023', 'last_comment_date': None, 'last_post_date': None},
-    # {'id': 4, 'caption': None, 'section': None, 'establishment_name': "Résidence Les Balcons d'Aix - Vacancéole", 'establishment_id': 9, 'establishment_tag': '653fcf0dc46b5', 'idprovider': 6, 'category': 'Platform', 'source': 'Campings', 'url': 'https://www.campings.com/fr/camping/residence-les-balcons-d-aix-88189', 'last_review_date': '28/08/2023', 'language': 'fr'},
-    # # {'id': 13, 'caption': None, 'section': None, 'external_url': None, 'establishment_name': 'Les Chalets du Berger', 'enable': True, 'establishment_id': 2, 'establishment_tag': '653f8cd1a2afd', 'idprovider': 9, 'category': 'Platform', 'source': 'Maeva', 'url': 'https://www.maeva.com/fr-fr/residence-les-chalets-du-berger-_695474.html', 'language': 'fr', 'last_review_date': '11/11/2024', 'last_comment_date': None, 'last_post_date': None},
-    # {'id': 79, 'caption': None, 'section': None, 'external_url': None, 'establishment_name': 'Hotel Chamartín The One', 'enable': True, 'establishment_id': 28, 'establishment_tag': '65c36a97297d0', 'idprovider': 26, 'category': 'Platform', 'source': 'Booking ES', 'url': 'https://www.booking.com/reviews/es/hotel/chamartin.es.html?aid=356980&customer_type=total&order=completed_desc', 'language': 'es', 'last_review_date': '12/11/2024', 'last_comment_date': '13/11/2024', 'last_post_date': '02/11/2024'},
-    # {'id': 293, 'caption': '', 'section': '', 'external_url': None, 'establishment_name': 'LUX Le Morne', 'enable': True, 'establishment_id': 77, 'establishment_tag': '66a013b44b921', 'idprovider': 34, 'category': 'Platform', 'source': 'Expedia', 'url': 'https://www.expedia.com/en/Le-Morne-Hotels-LUX-Le-Morne-Resort.h2245801.Hotel-Information', 'language': 'en', 'last_review_date': None, 'last_comment_date': None, 'last_post_date': None},
-    # {'id': 84, 'caption': None, 'section': None, 'external_url': None, 'establishment_name': 'Hotel Chamartín The One', 'enable': True, 'establishment_id': 28, 'establishment_tag': '65c36a97297d0', 'idprovider': 24, 'category': 'Platform', 'source': 'Hotels.com ES', 'url': 'https://es.hotels.com/ho109553/hotel-chamartin-the-one-madrid-espana/?locale=es_US&pos=HCOM_US&siteid=300000001', 'language': 'es', 'last_review_date': '07/10/2024', 'last_comment_date': '13/11/2024', 'last_post_date': '02/11/2024'},
-    # {'id': 12, 'caption': None, 'section': None, 'external_url': None, 'establishment_name': '28-50 Marylebone Lane', 'enable': True, 'establishment_id': 6, 'establishment_tag': '653f8d61dd3f9', 'idprovider': 7, 'category': 'Platform', 'source': 'Opentable UK', 'url': 'https://www.opentable.co.uk/28-50-marylebone', 'language': 'fr', 'last_review_date': '15/10/2024', 'last_comment_date': None, 'last_post_date': None},
-    # {'id': 325, 'caption': '', 'section': '', 'external_url': None, 'establishment_name': 'La Cantine de Candie', 'enable': True, 'establishment_id': 99, 'establishment_tag': '672a4a29d9f52', 'idprovider': 21, 'category': 'Platform', 'source': 'Google', 'url': 'https://www.google.com/search?sa=X&sca_esv=e681ec4bfbfc45ae&tbm=lcl&sxsrf=ADLYWII9kVMtzIqwnI2Nm59hUiC17XALug:1730825416052&q=La+Cantine+de+Candie+Avis&rflfq=1&num=20&stick=H4sIAAAAAAAAAONgkxI2MTI0NDU0tzAxNDI2MDc2NTM02cDI-IpR0idRwTkxryQzL1UhJRXETMlMVXAsyyxexIpbDgAZvu5XUgAAAA&rldimm=4211517841230735614&hl=fr-FR&ved=2ahUKEwin792Q08WJAxVaQ6QEHYQRCxwQ9fQKegQINBAF&biw=1920&bih=927&dpr=1#lkt=LocalPoiReviews', 'language': 'fr', 'last_review_date': '17/11/2024', 'last_comment_date': None, 'last_post_date': None},
-    # {'id': 271, 'caption': '', 'section': 'REVIEWS', 'external_url': None, 'establishment_name': 'Salt of Palmar', 'enable': True, 'establishment_id': 80, 'establishment_tag': '66a1373b0298b', 'idprovider': 2, 'category': 'Platform', 'source': 'Google Travel', 'url': 'https://www.google.com/travel/search?https://www.google.com/travel/search?gsas=1&ts=EggKAggDCgIIAxocEhoSFAoHCOgPEAkYCxIHCOgPEAkYDBgBMgIQAA&qs=MhNDZ29Jc0ttSHdZWEZzcFp1RUFFOAI&ap=ugEHcmV2aWV3cw&client=firefox-b-d&hl=fr-FR', 'language': 'en', 'last_review_date': '15/11/2024', 'last_comment_date': None, 'last_post_date': None},
-    # {'id': 82, 'caption': None, 'section': None, 'external_url': None, 'establishment_name': 'Hotel Chamartín The One', 'enable': True, 'establishment_id': 28, 'establishment_tag': '65c36a97297d0', 'idprovider': 23, 'category': 'Platform', 'source': 'Tripadvisor ES', 'url': 'https://www.tripadvisor.es/Hotel_Review-g187514-d228623-Reviews-Hotel_Chamartin_The_One-Madrid.html', 'language': 'es', 'last_review_date': '10/11/2024', 'last_comment_date': '13/11/2024', 'last_post_date': '02/11/2024'},
-    # {'id': 20, 'caption': None, 'section': None, 'external_url': None, 'establishment_name': '28-50 Marylebone Lane', 'enable': True, 'establishment_id': 6, 'establishment_tag': '653f8d61dd3f9', 'idprovider': 11, 'category': 'Platform', 'source': 'Yelp', 'url': 'https://www.yelp.com/biz/28-50-wine-workshop-and-kitchen-london', 'language': 'fr', 'last_review_date': None, 'last_comment_date': None, 'last_post_date': None},
-    # {'id': 183, 'caption': None, 'section': 'REVIEWS', 'external_url': None, 'establishment_name': 'Sport2000 France', 'enable': True, 'establishment_id': 52, 'establishment_tag': '663df5f465c43', 'idprovider': 5, 'category': 'Platform', 'source': 'Trustpilot', 'url': 'https://fr.trustpilot.com/review/www.sport2000.fr', 'language': 'fr', 'last_review_date': '11/11/2024', 'last_comment_date': '25/06/2024', 'last_post_date': '30/08/2024'}
-    # {'id': 31, 'caption': None, 'section': None, 'external_url': None, 'establishment_name': 'MV Transport', 'enable': True, 'establishment_id': 47, 'establishment_tag': '653681b7dea2f', 'idprovider': 5, 'category': 'Platform', 'source': 'Trustpilot', 'url': 'https://fr.trustpilot.com/review/www.mvtransport.fr', 'language': 'EN', 'last_review_date': '14/01/2022', 'last_comment_date': None, 'last_post_date': None}
-#     {
-#     "id": 7,
-#     "caption": None,
-#     "section": None,
-#     "external_url": None,
-#     "establishment_name": "Résidence Les Balcons d'Aix - Vacancéole",
-#     "enable": True,
-#     "establishment_id": 9,
-#     "establishment_tag": "653fcf0dc46b5",
-#     "idprovider": 2,
-#     "category": "Platform",
-#     "source": "Google Travel",
-#     "url": "https://www.google.com/travel/search?gsas=1&ts=EggKAggDCgIIAxocEhoSFAoHCOgPEAYYGBIHCOgPEAYYGhgCMgIQAA&qs=MhRDZ3NJbzYtWnd1UE4xS3l5QVJBQjgC&ap=ugEHcmV2aWV3cw&hl=fr-FR&ved=0CAAQ5JsGahcKEwiYrNOJ2IyGAxUAAAAAHQAAAAAQBQ",
-#     "language": None,
-#     "last_review_date": None,
-#     "last_comment_date": None,
-#     "last_post_date": None
-#   },
-#   {
-#     "id": 5,
-#     "caption": None,
-#     "section": None,
-#     "external_url": None,
-#     "establishment_name": "Résidence Les Balcons d'Aix - Vacancéole",
-#     "enable": True,
-#     "establishment_id": 9,
-#     "establishment_tag": "653fcf0dc46b5",
-#     "idprovider": 1,
-#     "category": "Platform",
-#     "source": "Tripadvisor FR",
-#     "url": "https://www.tripadvisor.fr/Hotel_Review-g1067706-d1431734-Reviews-Vacanceole_Residence_Les_Balcons_d_Aix-Les_Deserts_Savoie_Auvergne_Rhone_Alpes.html",
-#     "language": None,
-#     "last_review_date": None,
-#     "last_comment_date": None,
-#     "last_post_date": None
-#   },
-#   {
-#     "id": 4,
-#     "caption": None,
-#     "section": None,
-#     "external_url": None,
-#     "establishment_name": "Résidence Les Balcons d'Aix - Vacancéole",
-#     "enable": True,
-#     "establishment_id": 9,
-#     "establishment_tag": "653fcf0dc46b5",
-#     "idprovider": 6,
-#     "category": "Platform",
-#     "source": "Campings",
-#     "url": "https://www.campings.com/fr/camping/residence-les-balcons-d-aix-88189",
-#     "language": None,
-#     "last_review_date": "28/08/2023",
-#     "last_comment_date": None,
-#     "last_post_date": None
-#   }
-]
+# DATA_SOURCE = [
+# {'id': 316, 'caption': None, 'settings_positioning': None, 'section': None, 'external_url': None, 'no_tracking': None, 'establishment_name': 'Comtes de Challes', 'enable': True, 'settings_language': None, 'establishment_id': 96, 'establishment_tag': '672653a091ee6', 'idprovider': 21, 'category': 'Platform', 'source': 'Google', 'url': 'https://www.google.com/search?sca_esv=6bf062aa074a1fec&hotel_occupancy=2&sxsrf=ADLYWIKfTFRuRn5_2G9mwiOT27RFd3hlTg:1730564878690&q=Comtes+de+Challes&uds=ADvngMgcma2krFDWAfXM9WWaYuEsJP7sYRLZXRKGNZH8JbiORDAsgngLv9VXY2Ieisztef0SoMY9tIO-TXBS04vCTHhhkCj7TBGxwC8EMKxDtkxlpmVGq-5KCPa14BOKbg4xCKQZTBdA&si=ACC90nwjPmqJHrCEt6ewASzksVFQDX8zco_7MgBaIawvaF4-7uLHuaLGrhRBJXK5sfBzKDSTRxOJ-Z0BjTGSZTfFBxFF-qlbnS-gwCOPSL9XvTBltVircXo%3D&sa=X&ved=2ahUKEwiRiOvGiL6JAxVvaqQEHa63Db4Q3PALegQIFxAE&biw=1920&bih=927&dpr=1', 'language': None, 'last_review_date': '20/10/2025', 'last_comment_date': None, 'last_post_date': None}
+# ]
 
 # providers = """Booking, Booking ES, 
 #                 Booking FR, Booking MU, 
