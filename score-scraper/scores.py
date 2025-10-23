@@ -261,7 +261,7 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
                             time.sleep(random.randint(3,4))
                         except Exception as e:
                             print(f"4eme selecteur accept cookie not found => {e}")
-                            input("manual click accept cookies")
+                            input("manual click accept cookies, click ENTER to continue...")
 
                 pass
         if page_type == 'unknown':

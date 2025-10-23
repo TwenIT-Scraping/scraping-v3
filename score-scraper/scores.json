@@ -265,18 +265,6 @@
                 {
                     "by_tag_only": false,
                     "tag": "div",
-                    "attr_key": "data-attrid",
-                    "attr_value": "subtitle",
-                    "target": "child",
-                    "child": {
-                        "by_tag_only": true,
-                        "tag": "a",
-                        "target": "text"
-                    }
-                },
-                {
-                    "by_tag_only": false,
-                    "tag": "div",
                     "attr_key": "class",
                     "attr_value": "immersive-container",
                     "target": "child",
@@ -284,7 +272,19 @@
                         "by_tag_only": false,
                         "tag": "span",
                         "attr_key": "class",
-                        "attr_value": "z3HNkc",
+                        "attr_value": "z5jxId",
+                        "target": "text"
+                    }
+                },
+                {
+                    "by_tag_only": false,
+                    "tag": "div",
+                    "attr_key": "data-attrid",
+                    "attr_value": "subtitle",
+                    "target": "child",
+                    "child": {
+                        "by_tag_only": true,
+                        "tag": "a",
                         "target": "text"
                     }
                 }
