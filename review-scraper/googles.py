@@ -84,15 +84,70 @@ class BaseGoogleScrap(Scraping):
 
     def load_reviews(self) -> None:
         if not self.is_travel():
-            #20 02 2025
+            #20 11 2025 : nouvelle affichage google pour certains, clique sur popup avis
             try:
-                WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="akp_tsuid_VgSRZ6DQLZqo0-kPreOHaQ_15"]/div/div[1]/div/g-sticky-content-container/div/block-component/div/div[1]/div/div/div/div[1]/div/div/div[5]/div[1]/g-sticky-content/div/div[1]/g-tabs/div/div/a[3]')))
-                avis = self.driver.find_elements(By.XPATH, '//*[@id="akp_tsuid_VgSRZ6DQLZqo0-kPreOHaQ_15"]/div/div[1]/div/g-sticky-content-container/div/block-component/div/div[1]/div/div/div/div[1]/div/div/div[5]/div[1]/g-sticky-content/div/div[1]/g-tabs/div/div/a[3]')
-                self.driver.execute_script("arguments[0].click();", avis)
-                time.sleep(1)
-            except Exception as e:
-                # input('Avis non cliqué')
+                time.sleep(random.uniform(0.8,0.9))
+                exist= self.driver.find_elements(By.CSS_SELECTOR, '#rcnt > div:nth-child(3) > div > div > div > div > div.HdbW6.MjUjnf.VM6qJ.Mefd0c > div.hHq9Z.m0pBqd > div')
+                if exist:
+                    print('new')
+                    check_view = 'new'
+                else:
+                    print('old')
+                    check_view = 'old'
+            except:
                 pass
+
+            if check_view == 'new':
+                #clique sur AVIS en serveur seulement:
+                try:
+                    print('Nouvel affichage de google')
+                    print('click popup avis')
+                    try:
+                        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="rcnt"]/div[2]/div/div/div/div/div[3]/div[1]/div/div/div[2]/div[2]/div[1]/div/span[3]/span/a')))
+                        popup_avis = self.driver.find_element(By.XPATH, '//*[@id="rcnt"]/div[2]/div/div/div/div/div[3]/div[1]/div/div/div[2]/div[2]/div[1]/div/span[3]/span/a')
+                    except:
+                        #21 11 2025: Comte de CHalle other view
+                        print('other selector for popup avis for new view BUT go to >>> old view <<<< ')
+                        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="kp-wp-tab-overview"]/div[2]/div/div/div/div[2]/div/div/div/div/div/div[2]/a')))
+                        popup_avis = self.driver.find_element(By.XPATH, '//*[@id="kp-wp-tab-overview"]/div[2]/div/div/div/div[2]/div/div/div/div/div/div[2]/a')
+                        check_view = 'old' #pour la suite du code
+
+                    time.sleep(random.uniform(0.5,1.2))
+                    if popup_avis:
+                        print('popup avis found')
+                        # print(f'popup avis found => {popup_avis.text}')
+                        self.driver.execute_script("arguments[0].click();", popup_avis)
+                        print('popup avis clicked')
+
+                    time.sleep(random.uniform(1.5,2.5)) #moins de 1 ça ne suffit pas
+                except Exception as e:
+                    input(f'popup avis click error => {e}')
+                #end 20 11 2025
+            else:
+                try:
+                    print('click tab avis')
+                    WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="akp_tsuid_VgSRZ6DQLZqo0-kPreOHaQ_15"]/div/div[1]/div/g-sticky-content-container/div/block-component/div/div[1]/div/div/div/div[1]/div/div/div[5]/div[1]/g-sticky-content/div/div[1]/g-tabs/div/div/a[3]')))
+                    avis = self.driver.find_elements(By.XPATH, '//*[@id="akp_tsuid_VgSRZ6DQLZqo0-kPreOHaQ_15"]/div/div[1]/div/g-sticky-content-container/div/block-component/div/div[1]/div/div/div/div[1]/div/div/div[5]/div[1]/g-sticky-content/div/div[1]/g-tabs/div/div/a[3]')
+                    self.driver.execute_script("arguments[0].click();", avis)
+                    time.sleep(1)
+                    print('tab avis clicked')
+                except Exception as e:
+                    try:
+                        #MAJ 21 11 2025 : nouveau selecteur pour tab avis car les affichages aussi changent avec d'autres etablissements
+                        print('tab avis not clicked')
+                        print('             ')
+                        print('other selector for tab avis')
+                        selector_tab_in_local = 'a[jsname="AznF2e"]'
+                        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector_tab_in_local)))
+                        avis_content = self.driver.find_elements(By.CSS_SELECTOR, selector_tab_in_local)[-1]
+                        # input('avis found ')
+                        self.driver.execute_script("arguments[0].click();", avis_content)
+                        time.sleep(1)
+                        print('tab avis clicked')
+                    except Exception as e:
+                        pass
+                    pass
+                #end 20 11 2025
             
             order_item = self.driver.find_elements(By.XPATH, "//div[@jsname='XPtOyb']")[1]
             self.driver.execute_script("arguments[0].click();", order_item)
@@ -131,14 +186,33 @@ class BaseGoogleScrap(Scraping):
         self.data_current_count = len(self.data)
         time.sleep(random.randint(1, 3))
         scroll_by_body = False
-        try:
-            center_element = self.driver.find_element(By.XPATH, '//div[@class="kp-header"]')
-            if center_element:
-                print('element found')
-                center_element.click()
-                scroll_by_body = True
-        except:
-            pass
+
+        #MAJ 20 11 2025 : check l'affichage google (ancien ou nouveau)
+        if check_view == "old":
+            try:
+                center_element = self.driver.find_element(By.XPATH, '//div[@class="kp-header"]')
+                if center_element:
+                    print('element found')
+                    center_element.click()
+                    scroll_by_body = True
+                print('old view google OK') #20 11 2025
+                print('             ')
+            except:
+                pass
+        else:
+            try:
+                print('new view google') #20 11 2025
+                print('             ')
+                center_element = self.driver.find_element(By.XPATH, '//*[@id="sZmt3b"]/div[2]/div[2]/c-wiz/div[3]/div/div[5]/div')
+                if center_element:
+                    print('element found')
+                    center_element.click()
+                    scroll_by_body = True
+            except:
+                input('aucun element trouvé, check le navigateur car sinon le scroll ne marchera pas')
+                pass
+        #end 20 11 2025
+
         while not self.data_loaded:
             if scroll_by_body:
                 for i in range(4):
@@ -221,6 +295,11 @@ class BaseGoogleScrap(Scraping):
                 refresh_connection()
             url = self.format_url(self.lang)
             self.set_url(url)
+            #21 11 2025 : sauter LA PLAGE car travel
+            if "PLAGE" in self.url:
+                print("url de LA PAGE , pas de données, on saute")
+                return
+            #end 21 11 2025
             self.scrap()
             try:
                 time.sleep(3)
@@ -248,10 +327,24 @@ class BaseGoogleScrap(Scraping):
                 print("!!!!!!!! Cette page n'existe pas !!!!!!!!")
             self.driver.quit()
         except Exception as e:
-            print('error execution')
-            print(e)
-            self.driver.quit()
-            sys.exit("Arret")
+            #MAJ 19 11 2025
+                print('error execution')
+                print("Check le naviguateru car il se peut que la page ne se soit pas chargé, actualissation et on reste")
+                try:
+                    if self.number_retry < 1:
+                        self.number_retry += 1
+                        self.execute()
+                    else:
+                        print('Trop de tentative échouée, on passe au prochain établissement')
+                        pass
+                except Exception as e:
+                    print('3nd error execution - On passe au prochain établissement')
+                    print(e)
+                    pass
+
+                    #code avant 22 09 2025 - ça bloque la continuation des autres provider
+                    # self.driver.quit()
+                    # sys.exit("Arret"
 
     def detect_date_lang(self, date:str) -> str:
         if date in ['minute','minutes','heure','heures','jour', 'jours', 'semaine', 'semaines', 'mois', 'an', 'ans']:
