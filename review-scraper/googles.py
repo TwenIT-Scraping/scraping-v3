@@ -112,6 +112,11 @@ class BaseGoogleScrap(Scraping):
                         popup_avis = self.driver.find_element(By.XPATH, '//*[@id="kp-wp-tab-overview"]/div[2]/div/div/div/div[2]/div/div/div/div/div/div[2]/a')
                         check_view = 'old' #pour la suite du code
 
+                        #for Comte de Challe 26 11 2025
+                        if "travel" in self.driver.current_url:
+                            print('GOOGLE TRAVEL DETECTé, on passe à la suite')
+                            return
+
                     time.sleep(random.uniform(0.5,1.2))
                     if popup_avis:
                         print('popup avis found')
