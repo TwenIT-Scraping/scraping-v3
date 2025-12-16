@@ -84,6 +84,38 @@ class BaseGoogleScrap(Scraping):
 
     def load_reviews(self) -> None:
         if not self.is_travel():
+             #16 12 2025 : nouvel afficahge encore apparu le 03 12 2025, test finalement achevé le 16 12 2025 , à suivre de près car la page est très dynamique en terme de structure html
+            try:
+                time.sleep(random.uniform(0.8,0.9))
+                exist = self.driver.find_element(By.CSS_SELECTOR, 'a[class="vwVdIc wzN8Ac rllt__link a-no-hover-decoration"]')
+                # exist = exists[0].find_elements(By.CSS_SELECTOR,'a')
+                #/html/body/div[3]/div/div[12]/div[1]/div[2]/div[2]/div/div/div[1]/div/div[3]/div/div[2]/div/div/div/a
+                # input(f'msy ve => {exist}')
+                if exist:
+                    print('click on link establishment avant de retrouver une view normal')
+                    # self.driver.execute_script("arguments[0].click();", exist)
+                    self.driver.execute_script("""
+                                            const el = arguments[0];
+                                            const r = el.getBoundingClientRect();
+                                            const cx = r.left + r.width/2;
+                                            const cy = r.top + r.height/2;
+
+                                            document.dispatchEvent(new MouseEvent('mousemove', {clientX: cx-30, clientY: cy-30, bubbles:true}));
+                                            document.dispatchEvent(new MouseEvent('mousemove', {clientX: cx, clientY: cy, bubbles:true}));
+
+                                            el.dispatchEvent(new MouseEvent('mousedown', {clientX: cx, clientY: cy, bubbles:true}));
+                                            el.dispatchEvent(new MouseEvent('mouseup', {clientX: cx, clientY: cy, bubbles:true}));
+                                            el.dispatchEvent(new MouseEvent('click', {clientX: cx, clientY: cy, bubbles:true}));
+                                            """, exist)
+                    time.sleep(random.uniform(0.5,1.2))
+                    print('clicked')
+                else:
+                    input('élément à cliquer non trouvable, check selecteur')
+            except Exception as e:
+                # input(f'{e} -> pas de nouveau affichage detecté le 03 12 2025')
+                print('pas de structure de page complexe')
+                pass
+            
             #20 11 2025 : nouvelle affichage google pour certains, clique sur popup avis
             try:
                 time.sleep(random.uniform(0.8,0.9))
