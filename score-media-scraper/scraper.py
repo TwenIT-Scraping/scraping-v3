@@ -65,7 +65,7 @@ class ListScraper:
         }
 
     def start(self):
-        refresh_connection()
+        # refresh_connection()
 
         counter = 0
         by_source = {}
