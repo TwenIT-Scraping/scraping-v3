@@ -100,8 +100,8 @@ class Scraping(object):
             #         "https": TOR_PROXY
             #     }
             # }
-            # self.driver = webdriver.Chrome(options=self.chrome_options, seleniumwire_options=seleniumwireoptions)
-        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=self.chrome_options)
+        self.driver = webdriver.Chrome(options=self.chrome_options)
+        # self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=self.chrome_options)
         # else:
         #     self.driver = webdriver.Firefox(options=self.firefox_options)
             # self.driver.install_addon(

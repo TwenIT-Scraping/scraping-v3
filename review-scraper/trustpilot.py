@@ -143,7 +143,7 @@ class Trustpilot(Scraping):
             soupe = BeautifulSoup(page, 'lxml')
             base_url = "https://fr.trustpilot.com"
 
-            review_container = soupe.find('div', {'class': 'styles_wrapper__Fi9KX'})
+            review_container = soupe.find('div', {'class': 'styles_wrapper__ie3f0'}) #21 01 2026
 
             review_cards = review_container.find_all('div', {'class': "styles_cardWrapper__g8amG styles_show__Z8n7u"})
             
