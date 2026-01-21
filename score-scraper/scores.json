@@ -213,17 +213,17 @@
             ],
             "quantity": [
                 {
-                    "by_tag_only": false,
-                    "tag": "div",
-                    "attr_key": "id",
-                    "attr_value": "business-unit-title",
+                    "by_tag_only":"false",
+                    "tag": "h1",
+                    "attr_key": "class",
+                    "attr_value": "CDS_Typography_appearance-default__8be6e7 CDS_Typography_prettyStyle__8be6e7 CDS_Typography_default__8be6e7 title_title__pKuza",
                     "target": "child",
-                    "child": {
-                        "by_tag_only": false,
+                    "child" : {
+                        "by_tag_only" : false,
                         "tag": "span",
-                        "attr_key": "class",
-                        "attr_value": "CDS_Typography_appearance-default__dd9b51 CDS_Typography_prettyStyle__dd9b51 CDS_Typography_body-l__dd9b51 styles_reviewsAndRating__OIRXy",
-                        "target": "text"
+                        "attr_key" : "class",
+                        "attr_value": "styles_clickable__CL1wd",
+                        "target":"text"
                     }
                 }
             ]

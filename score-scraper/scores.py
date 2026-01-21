@@ -110,7 +110,9 @@ class ScoreExtractor(object):
 
     def extract(self):
         score_source = bs4_ext.extract_element_by_locator(self.data.get('web_page'), self.data.get('selectors').get('scores'))
+        # input(f'SCORE EXTRAIT => {score_source}')
         quantity_source = bs4_ext.extract_element_by_locator(self.data.get('web_page'), self.data.get('selectors').get('quantity'))
+        # input(f'Quantity EXTRAIT => {quantity_source}')
         if score_source:
             self.score = score_source
         if quantity_source:
@@ -136,6 +138,7 @@ class ScoreExtractor(object):
         cleaned_data = self.get_clean_data()
         if cleaned_data:
             self.post_data()
+            pass
         print('saving ...')
         with open('score.json', '+a') as openfile:
             openfile.write(json.dumps(str(self.cleaned_data)))
@@ -179,7 +182,7 @@ def load_selectors(selector_name:str) -> dict:
             return
 
 @browser(user_agent=UserAgent.RANDOM, 
-         headless=True,
+         headless=False,
          block_images=True,
         #  block_images_and_css=True,
         add_arguments=[
