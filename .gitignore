@@ -174,5 +174,10 @@ poetry.toml
 pyrightconfig.json
 
 
+booking_test.json
+dates.json
+score.json
+output/
+
 error_logs/
 # End of https://www.toptal.com/developers/gitignore/api/python

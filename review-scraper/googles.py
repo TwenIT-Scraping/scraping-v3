@@ -58,6 +58,8 @@ class BaseGoogleScrap(Scraping):
         self.data_loaded = False
         self.data = []
 
+        self.number_retry = 0
+
     def detect_lang(self, text: str) -> str:
         if text:
             lang_code = {
@@ -224,8 +226,8 @@ class BaseGoogleScrap(Scraping):
         time.sleep(random.randint(1, 3))
         scroll_by_body = False
 
-        #MAJ 20 11 2025 : check l'affichage google (ancien ou nouveau)
-        if check_view == "old":
+        #26 01 2026 : pour bien prendre en compte les view de google NON TRAVEL
+        if not self.is_travel() and check_view == "old":
             try:
                 center_element = self.driver.find_element(By.XPATH, '//div[@class="kp-header"]')
                 if center_element:
@@ -236,7 +238,7 @@ class BaseGoogleScrap(Scraping):
                 print('             ')
             except:
                 pass
-        else:
+        elif not self.is_travel() and check_view == "new":
             try:
                 print('new view google') #20 11 2025
                 print('             ')
@@ -248,7 +250,6 @@ class BaseGoogleScrap(Scraping):
             except:
                 input('aucun element trouvé, check le navigateur car sinon le scroll ne marchera pas')
                 pass
-        #end 20 11 2025
 
         while not self.data_loaded:
             if scroll_by_body:
