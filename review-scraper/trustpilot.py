@@ -205,17 +205,39 @@ class Trustpilot(Scraping):
 
                 # input(f'on a {len(reviews)} reviews a faire entrés dans la base de données')
                 # input(f"date du dernier review appender => {reviews[-1]['date_review']} et date du dernier dans la base => {self.last_review_date}")
-                if not self.check_date(reviews[-1]['date_review'], self.last_review_date):
-                    print("                 ")
+            # input(f"date du dernier review appender => {reviews[-1]['date_review']} et date du dernier dans la base => {self.last_review_date}")
+            #26 01 2026 :ajustement condition pour condition si nouvel établissement
+            if self.last_review_date != None:
+                print('last review is NOT NONE')
+                if datetime.strptime(reviews[-1]['date_review'],'%d/%m/%Y') >= datetime.strptime(self.last_review_date,'%d/%m/%Y'):
+                    print('Review encore à prendre')
+                    break_transmetter = True
+                elif datetime.strptime(reviews[-1]['date_review'],'%d/%m/%Y') < datetime.strptime(self.last_review_date,'%d/%m/%Y'):
                     print(" Date review atteinte, break du for")
-                    print("                 ")
                     break_transmetter = False
                     # print(f"last review date => 05/01/2025 > {reviews[-1]['date_review']} DONC on ne clique plus au next reviews page" )
                     break
+            elif self.last_review_date == None: #nouvel établissement sans review encore
+                print('last review is NONE')
+                if datetime.strptime(reviews[-1]['date_review'],'%d/%m/%Y') >= (datetime.now() - timedelta(days=365)):
+                    print(f"date du dernier review sur la page => {reviews[-1]['date_review']} >>>> {datetime.now() - timedelta(days=365)}")
+                    break_transmetter = True
+                elif datetime.strptime(reviews[-1]['date_review'],'%d/%m/%Y') < (datetime.now() - timedelta(days=365)):
+                    print("Date atteinte, break")
+                    break_transmetter = False
+                    break
+
             #entre ici lorsque le date de review sur page est encore > last review date
             if break_transmetter:
-                print('Date review sur page > last date en base, page suivante')
                 # input(f'on a {len(reviews)} reviews a faire entrés dans la base de données et voici ce qu\'il contient => {reviews}')
+                #27 01 2026
+                clickable = self.driver.find_elements(By.NAME, 'pagination-button-2')
+                if clickable:
+                    input('NEX BUTTON CLICKABLE')
+                else:
+                    input('Pas de NEXT BUTTON CLICKABLE')
+                    break
+
                 try:
                     next_btn = self.driver.find_element(
                         By.NAME, 'pagination-button-next')
@@ -223,6 +245,7 @@ class Trustpilot(Scraping):
                         'aria-disabled') else False
 
                     if next_btn and not disabled_btn:
+                        print('Date review sur page > last date en base, page suivante')
                         self.driver.execute_script(
                             "arguments[0].click();", next_btn)
                         print("clique sur le next button")
@@ -231,7 +254,10 @@ class Trustpilot(Scraping):
                         input("clique next button non effectué")
 
                 except Exception as e:
-                    input(f'erreur clique button next for other reviews => {e}')
+                    input(f'erreur clique button next for other reviews => {e}, check navigator si besoin')
+                    pass
+            else:
+                break
 
         self.data = reviews
 
