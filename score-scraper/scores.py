@@ -185,11 +185,21 @@ def load_selectors(selector_name:str) -> dict:
          headless=False,
          block_images=True,
         #  block_images_and_css=True,
-        add_arguments=[
-                "---disable-translate",
-                "--disable-geolocation", 
+        # add_arguments=[
+        #         "---disable-translate",
+        #         "--disable-geolocation", 
+        #         "--disable-gpu",
+        #         "--disable-fingerprinting"])
+        chrome_options={
+            "binary_location": "/usr/bin/google-chrome",
+            "args": [
+                "--disable-translate",
+                "--disable-geolocation",
                 "--disable-gpu",
-                "--disable-fingerprinting"])
+                "--no-sandbox",
+                "--disable-dev-shm-usage"
+            ]
+        })
 def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
     sites_with_captcha = ["tripadvisor", "thefork"] #mettre dans cette liste les providers où il y a des captchas (différent en local et sur serveur)
     sites_needs_to_change_ip = ["thefork", "yelp"]
