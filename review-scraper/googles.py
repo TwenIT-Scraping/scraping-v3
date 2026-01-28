@@ -15,7 +15,7 @@ from selenium.webdriver.common.keys import Keys
 from lingua import Language, LanguageDetectorBuilder
 from changeip import refresh_connection
 
-from selenium.webdriver.common.actions_chains import ActionChains
+from selenium.webdriver.common.action_chains import ActionChains
 
 
 def format_date_fr(date_str:str) -> str:
