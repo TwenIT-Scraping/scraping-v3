@@ -126,7 +126,7 @@ class ScoreExtractor(object):
             - `cleaned_data (list)`: data to be sent
         """
         print('ON SAUVEGARDE')
-        print(f'posting {self.cleaned_data}')
+        print(f'posting en cours ... {self.cleaned_data}')
         try:
             post_instance = ERApi(
                 method="post", entity="scores", env=self.env, body=self.cleaned_data, params={})

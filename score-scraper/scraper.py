@@ -132,5 +132,6 @@ class ListScraperV2:
             #     #     refresh_connection()
 
             else:
-                print(
-                    f"!!!!!!!!! {item['source']} n'as dans la liste !!!!!!!!!!")
+                # print(
+                #     f"!!!!!!!!! {item['source']} n'as dans la liste !!!!!!!!!!")
+                pass
