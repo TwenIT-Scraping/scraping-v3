@@ -132,7 +132,7 @@ class ScoreExtractor(object):
                 method="post", entity="scores", env=self.env, body=self.cleaned_data, params={})
             post_instance.execute()
         except Exception as e:
-            print(e)
+            input(f'Erreur de sauvegarde des scores --> {e}')
 
     def save(self):
         cleaned_data = self.get_clean_data()
