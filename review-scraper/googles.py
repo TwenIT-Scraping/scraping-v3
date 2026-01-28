@@ -15,6 +15,8 @@ from selenium.webdriver.common.keys import Keys
 from lingua import Language, LanguageDetectorBuilder
 from changeip import refresh_connection
 
+from selenium.webdriver.common.actions_chains import ActionChains
+
 
 def format_date_fr(date_str:str) -> str:
     month_fr = {
@@ -266,6 +268,24 @@ class BaseGoogleScrap(Scraping):
                     By.TAG_NAME, 'body').send_keys(Keys.PAGE_UP)
                 self.extract()
                 self.save_data()
+
+                #28 01 2026 : POUR CEUX DONT LA PAGE MMONTRE UN BUTTON "Autres avis d'utilisateurs" (rencontrés sur le nouvel établissement Zoo de La Flèche)
+                try:
+                    more_review_button = self.driver.find_elements(By.CLASS_NAME, 'Ji6mjb')
+                    # input(f'exist more view button => {bool(more_review_button)}')
+                    if more_review_button:
+                        print('bouton autres avis utilisateurs trouvé')
+                        ActionChains(self.driver, 1).move_to_element(more_review_button[0]).perform()
+                        print('scroll to button more view')
+                        self.driver.execute_script("arguments[0].click();", more_review_button[0])
+                        print('bouton cliqué')
+                        time.sleep(random.randint(2,4))
+                except Exception as e:
+                    print(f'erreur click autres avis utilisateurs => {e}')
+                    input('Check navigateur pour voir si le bouton est là')
+                    pass
+                #fin 28 01 2026
+
                 self.new_data_count = len(self.data)
                 if self.new_data_count == self.data_current_count:
                     break

@@ -216,6 +216,22 @@ class Scraping(object):
     def scrap(self) -> None:
         # self.set_random_params()
         self.driver.get(self.url)
+        time.sleep(2)
+        #28 01 2026 pour le captcha de google (résolution manuelle à faire)
+        if "sorry" in self.driver.current_url and "PLAGE" in self.url:
+            pass
+        elif "sorry" in self.driver.current_url:
+            print("                 ")
+            print("******************")
+            print("remplis le captcha")
+            print("******************")
+            print("                 ")
+            enteer = input("ENTER 'm' AFTER SOLVING CAPTCHA")
+            while enteer.lower() != 'm':
+                print("Captcha not solved, please solve it and enter 'm' to continue.")
+                enteer = input("ENTER 'm' AFTER SOLVING CAPTCHA: ")
+            if enteer.lower() == 'm':
+                print("Captcha solved, continuing...")
        # input('enter yes: ')
 
     def refresh(self) -> None:

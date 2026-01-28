@@ -30,19 +30,21 @@ class Campings(Scraping):
             try:
                 #en local il y a un btn accept cookies, je ne sais pas sur serveur mais je laisse là:
                 #car des fois ça n'apparait pas d'un coup
-                accept_cookies = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="axeptio_btn_acceptAll"]')))
-                # accept_cookies = self.driver.find_element(By.XPATH, '//*[@id="axeptio_btn_acceptAll"]')
-                time.sleep(1)
-                accept_cookies.click()
-                time.sleep(.5)
-                review_toggle_btn = self.driver.find_element(By.ID, "toggle-reviews")
+                #MAJ 27 01 2026 : selecteur cookies , très fastidieux car l'ancienne méthode n'a plus fonctionner
+                with open("script_campings.js", "r") as file:
+                    js_code = file.read()
+                self.driver.execute_script(js_code)
+            
+
                 time.sleep(2)
-                review_toggle_btn.click()
-                # self.driver.execute_script("arguments[0].click();", review_toggle_btn)
+                review_toggle_btn = self.driver.find_element(By.XPATH, "//*[@id='toggle-reviews']")
+                time.sleep(2)
+                # review_toggle_btn.click()
+                self.driver.execute_script("arguments[0].click();", review_toggle_btn)
                 time.sleep(.5)
                 print('toggle cliqué avec succès')
             except Exception as e:
-                print(f"erreur clique toggle => {e}")
+                input(f"erreur clique toggle AVIS CLIENT=> {e}")
                 pass
 
             # review_sort_btn = Select(
