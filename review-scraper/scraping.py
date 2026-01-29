@@ -22,6 +22,7 @@ from lingua import Language, LanguageDetectorBuilder
 import requests
 
 TOR_PROXY = "socks5://127.0.0.1:9150"
+SYSTEM = os.getenv('SYSTEM')
 
 def get_ip(use_tor:bool) -> None:
     print("getting IP")
@@ -100,8 +101,10 @@ class Scraping(object):
             #         "https": TOR_PROXY
             #     }
             # }
-        self.driver = webdriver.Chrome(options=self.chrome_options)
-        # self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=self.chrome_options)
+        if SYSTEM == 'windows':
+            self.driver = webdriver.Chrome(options=self.chrome_options)
+        else:
+            self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=self.chrome_options)
         # else:
         #     self.driver = webdriver.Firefox(options=self.firefox_options)
             # self.driver.install_addon(
