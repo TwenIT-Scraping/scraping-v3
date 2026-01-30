@@ -27,25 +27,48 @@ class Campings(Scraping):
 
     def extract(self):
         try:
+            time.sleep(1.2)
+            #30 01 2026: ajout d'un recheck pour le btn cookies dans le shadow DOM
             try:
-                #en local il y a un btn accept cookies, je ne sais pas sur serveur mais je laisse là:
-                #car des fois ça n'apparait pas d'un coup
-                #MAJ 27 01 2026 : selecteur cookies , très fastidieux car l'ancienne méthode n'a plus fonctionner
-                with open("script_campings.js", "r") as file:
-                    js_code = file.read()
-                self.driver.execute_script(js_code)
-            
-
-                time.sleep(2)
-                review_toggle_btn = self.driver.find_element(By.XPATH, "//*[@id='toggle-reviews']")
-                time.sleep(2)
-                # review_toggle_btn.click()
-                self.driver.execute_script("arguments[0].click();", review_toggle_btn)
-                time.sleep(.5)
-                print('toggle cliqué avec succès')
+                print('check button accept cookies')
+                self.driver.execute_script("""
+                        const allElements = document.querySelectorAll('*');
+                        for (let el of allElements) {
+                            if (el.shadowRoot) {
+                                btn = el.shadowRoot.querySelector('#axeptio_btn_acceptAll');
+                                if (btn) {
+                                    console.log('btn rechercher dans tous les éléments contenan un shadow Root OK')
+                                    btn.click()
+                                }
+                            }
+                        }
+                        """)
+                time.sleep(2)         
             except Exception as e:
-                input(f"erreur clique toggle AVIS CLIENT=> {e}")
+                print(f'pas de btn cookies => {e} , RECHECK')
+                self.driver.execute_script("""
+                        const allElements = document.querySelectorAll('*');
+                        for (let el of allElements) {
+                            if (el.shadowRoot) {
+                                btn = el.shadowRoot.querySelector('#axeptio_btn_acceptAll');
+                                if (btn) {
+                                    console.log('btn rechercher dans tous les éléments contenan un shadow Root OK')
+                                    btn.click()
+                                }
+                            }
+                        }
+                        """)
+                time.sleep(2)
                 pass
+            try:
+                review_toggle_btn = self.driver.find_element(By.ID, "toggle-reviews")
+                time.sleep(2)
+                review_toggle_btn.click()
+                # self.driver.execute_script("arguments[0].click();", review_toggle_btn)
+                time.sleep(.5)
+                print('toggle REVIEW CONTAINER cliqué avec succès')
+            except Exception as e:
+                input(f"erreur clique toggle ou bien pas de toggle => {e}")
 
             # review_sort_btn = Select(
             #     self.driver.find_element(By.ID, "reviews_sort_sort"))
