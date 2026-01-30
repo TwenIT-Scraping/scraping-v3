@@ -22,6 +22,7 @@ from lingua import Language, LanguageDetectorBuilder
 import requests
 
 TOR_PROXY = "socks5://127.0.0.1:9150"
+dotenv.load_dotenv()
 SYSTEM = os.getenv('SYSTEM')
 
 def get_ip(use_tor:bool) -> None:
