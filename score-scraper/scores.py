@@ -86,20 +86,41 @@ class ScoreExtractor(object):
         except Exception as e:
             print(e)
 
-    def clean_quantity(self) -> int|None:
-        try:
-            self.quantity = int(''.join(ch for ch in self.quantity if ch.isdigit()))
-            print(f'cleaned quantity: {self.quantity}')
-        except Exception as e:
-            print(e)
+    def clean_quantity(self, site) -> int|None:
+        #04 02 2026 , pour Google score, ajout de ce traitement car j'ai vu que le 'k' n'est pas pris en compte (exemple 11 k , donne 11 uniquement)
+        if "https://www.google.com/search?" in site:
+            # input(f"avant traitement quantity => {self.quantity} de GOOGLE NON TRAVEL")
+            if 'k' in self.quantity.lower():
+                print('k détecté dans le nombre de reviews')
+                try:
+                    digit_part = int(''.join(chiffre for chiffre in self.quantity if chiffre.isdigit()))
+                    print(f'Avant clean > {self.quantity} | Après clean > {digit_part * 1000}')
+                    self.quantity = digit_part * 1000
+                except Exception as e:
+                    input(f'Erreur dans le clean du quantity avec k -> {e}')
+            else:
+                #code qui était là avant, je l'ai mis ici
+                try:
+                    self.quantity = int(''.join(ch for ch in self.quantity if ch.isdigit()))
+                    print(f'cleaned quantity: {self.quantity}')
+                except Exception as e:
+                    input(f'Erreur dans le clean du quantity -> {e}')
 
-    def clean_data(self) -> None:
+        else:
+            #code qui était là avant, je l'ai mis ici
+            try:
+                self.quantity = int(''.join(ch for ch in self.quantity if ch.isdigit()))
+                print(f'cleaned quantity: {self.quantity}')
+            except Exception as e:
+                input(f'Erreur dans le clean du quantity -> {e}')
+
+    def clean_data(self, site) -> None:
         self.clean_score()
-        self.clean_quantity()
+        self.clean_quantity(site) #04 02 2026 
         self.normalize_score()
 
-    def get_clean_data(self) -> dict:
-        self.clean_data()
+    def get_clean_data(self, site) -> dict:
+        self.clean_data(site)  #04 02 2026 parametre
         self.cleaned_data['score'] = self.score 
         self.cleaned_data['source'] = self.source
         self.cleaned_data['establishment'] = f"/api/establishments/{self.settings.get('establishment_id')}"
@@ -134,8 +155,8 @@ class ScoreExtractor(object):
         except Exception as e:
             input(f'Erreur de sauvegarde des scores --> {e}')
 
-    def save(self):
-        cleaned_data = self.get_clean_data()
+    def save(self, site):
+        cleaned_data = self.get_clean_data(site)
         if cleaned_data:
             self.post_data()
             pass
@@ -279,7 +300,7 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
             if valid_selector:
                 s = ScoreExtractor(data={'selectors': valid_selector, 'settings': data,'env': env, 'web_page': soupify(driver.page_html)})
                 s.extract()
-                s.save()
+                s.save(driver.current_url) #ajout parametre site 04 02 2026
             driver.close()
     #ajout temps d'attente avant reouverture driver
     driver.short_random_sleep()
