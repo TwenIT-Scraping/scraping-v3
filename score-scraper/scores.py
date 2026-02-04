@@ -202,27 +202,15 @@ def load_selectors(selector_name:str) -> dict:
         except KeyError:
             return
 
-# @browser(user_agent=UserAgent.RANDOM, AVANT 04 02 2026
-#          headless=True,
-#          block_images=True,
-#          block_images_and_css=True,
-#         add_arguments=[
-#                 "---disable-translate",
-#                 "--disable-geolocation", 
-#                 "--disable-gpu",
-#                 "--disable-fingerprinting"])
-@browser(user_agent=UserAgent.HASHED,  #04 02 2026, RANDOM ne fonctionne pas avec un profil , on n'a rien mais il faut coincider l'agent
-         headless=False,
+@browser(user_agent=UserAgent.RANDOM,
+         headless=True,
          block_images=True,
-         profile=os.getenv('PROFIL_CHROME_SCRAPING'),
-        #  Profiles=os.getenv('PROFIL_CHROME_SCRAPING'),
-        #  block_images_and_css=True,
+         block_images_and_css=True,
         add_arguments=[
                 "---disable-translate",
                 "--disable-geolocation", 
                 "--disable-gpu",
-                "--disable-fingerprinting"
-                ])
+                "--disable-fingerprinting"])
 def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
     sites_with_captcha = ["tripadvisor", "thefork"] #mettre dans cette liste les providers où il y a des captchas (différent en local et sur serveur)
     sites_needs_to_change_ip = ["thefork", "yelp"]
