@@ -33,11 +33,18 @@ def format_date_fr(date_str:str) -> str:
     "novembre": "11",  
     "décembre": "12" 
     }
-    date_str = date_str.lower().replace('visité en ', '')
-    if len(date_str.split(' ')) == 1:
-        return f"{datetime.now().day}/{month_fr[date_str]}/{datetime.now().year}"
-    if len(date_str.split(' ')) == 2 and int(date_str.split(' ')[-1]) > 31:
-        return f"{datetime.now().day}/{month_fr[date_str]}/{int(date_str.split(' ')[-1])}"
+    #04 02 2026 ajout check car parfois erreur dedans je ne sais pas encore pourquoi
+    try:
+        date_str = date_str.lower().replace('visité en ', '')
+        print(f'date visite fr => {date_str}')
+        if len(date_str.split(' ')) == 1:
+            print(f'date visite fr mois seul => {date_str}')
+            return f"{datetime.now().day}/{month_fr[date_str]}/{datetime.now().year}"
+        if len(date_str.split(' ')) == 2 and int(date_str.split(' ')[-1]) > 31:
+            print(f'date visite fr mois et année => {date_str}')
+            return f"{datetime.now().day}/{month_fr[date_str]}/{int(date_str.split(' ')[-1])}"
+    except Exception as e:
+        input(f'erreur dans format date fr => {e}')
 
 all_language = ['en','de','fe','es']
 class BaseGoogleScrap(Scraping):
