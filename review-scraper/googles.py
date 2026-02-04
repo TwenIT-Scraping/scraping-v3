@@ -680,6 +680,7 @@ class Google(BaseGoogleScrap):
 
                                 match lang:
                                     case 'fr':
+                                        print(f'date visite de {author} => {date_visit_content} (fr)') #04 02 2026 pour une visibilité car l'erreur sur serveur était ici
                                         date_visit = format_date_fr(date_visit_content) if date_visit_content else ""
                                 if two_comment:
                                     # print("                     ")
