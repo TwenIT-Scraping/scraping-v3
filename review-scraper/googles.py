@@ -199,6 +199,10 @@ class BaseGoogleScrap(Scraping):
                 time.sleep(2)
                 self.driver.find_element(
                     By.XPATH, f"//button[@jsname='b3VHJd']").click()
+                print("         ")
+                print("Select ... ") #pour visibilité, je ne sais pas ce que c'est 04 02 2026
+                print("         ") 
+
             except:
                 pass
             try:
@@ -207,13 +211,23 @@ class BaseGoogleScrap(Scraping):
                     By.XPATH, "//div[@jsname='wQNmvb']")
                 self.driver.execute_script(
                     "arguments[0].click();", order_dropdown)
+                
+                print("         ")
+                print("Select container order review") #pour visibilité 04 02 2026
+                print("         ")
+
                 time.sleep(2)
                 order_item = self.driver.find_elements(
                     By.XPATH, "//div[@jsname='V68bde']/div[@jsname='wQNmvb']")[1]
                 self.driver.execute_script("arguments[0].click();", order_item)
                 time.sleep(1)
+
+                print("         ")
+                print("Select view RECENT review OK") #pour visibilité 04 02 2026
+                print("         ")
+
             except:
-                print("pass review order ...")
+                print("pass review order (REVIEW DANS l'ORDRE PAR DEFAUT)...") #code origine, ce qui veut dire que si erreur le programme laisse passer, c'était le code d'origine , je laisse là
                 pass
 
             try:
