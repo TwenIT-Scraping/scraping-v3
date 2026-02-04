@@ -42,7 +42,7 @@ def format_date_fr(date_str:str) -> str:
             return f"{datetime.now().day}/{month_fr[date_str]}/{datetime.now().year}"
         if len(date_str.split(' ')) == 2 and int(date_str.split(' ')[-1]) > 31:
             print(f'date visite fr mois et année => {date_str}')
-            return f"{datetime.now().day}/{month_fr[date_str]}/{int(date_str.split(' ')[-1])}"
+            return f"{datetime.now().day}/{month_fr[date_str.split(' ')[0]]}/{int(date_str.split(' ')[-1])}" #04 03 2026 : MAJ
     except Exception as e:
         input(f'erreur dans format date fr => {e}')
 
