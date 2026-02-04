@@ -335,12 +335,12 @@ class BaseGoogleScrap(Scraping):
             else:
                 en_savoir_plus_bouton = self.driver.find_elements(By.CSS_SELECTOR, 'span[jsname="kDNJsb"]')
                 print(f'Sur cette section de page, il y a {len(en_savoir_plus_bouton)} review(s) non affiché complètement')
-                for plus in en_savoir_plus_bouton:
-                    #se souvenir de cette méthode de clique car rien n'a marché sauf celle-là
-                    WebDriverWait(self.driver,5).until(
-                                    EC.element_to_be_clickable(plus)
-                                )
-                    self.driver.execute_script("arguments[0].click();",plus)
+                #Npuvel méthode 04 02 2026, l'ancien proviquait des erreurs de DOM dynamique parfois
+                self.driver.execute_script("""
+                                            document
+                                            .querySelectorAll('span[jsname="kDNJsb"]')
+                                            .forEach(e => e.click());
+                                            """)
                 print('Tous les reviews doivent maintenant être affiché complètement')
                 time.sleep(random.randint(2,3))
         except Exception as e:
