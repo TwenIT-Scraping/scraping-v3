@@ -14,8 +14,8 @@ import json
 import os
 
 
-API_URL_PROD="https://api.nexties.fr/api/"
-API_TOKEN_PROD="Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTc1MjEzNDAsImV4cCI6MzI3MjcyMTM0MCwicm9sZXMiOlsiUk9MRV9FUkVQIiwiUk9MRV9DVVNUT01FUiIsIlJPTEVfQVBJIiwiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoic2NyYXBAbmV4dGllcy5sYW4ifQ.SOZZSGN2srNGnR79SIlYkxIoi6_4Ei-wLA6uh5tWmbkBDtnQX50uuLO2ZEX_yymEouvC97WQUzWo2-_ArBzXnkyHzHZnAtIbZ23FHN3UGkKoez_z6r6zS3iUQV66xywwiEnPUMGzHK8nfZIy5hLdYzFxG937U3nrQN7IJ2neLnzeIid8VIz-m9rulDkKRkDC_C8BEdg5E_N5KGlyZSb14KqTha0-3WTTBt6wFhQIKY70FsdWClCGB_WwSUaAT_aSCZNZxcbDa6z9IS7Tw_auwCuyJfj8_Pztpy9eHswE_Nw3niHJJQz5yZBZoonpHS7poIPxZCzbF1qGFAmAG_jk4A"
+API_URL_PROD=os.getenv("API_URL_PROD")
+API_TOKEN_PROD=os.getenv("API_TOKEN_PROD")
 
 
 def get_page_type(origin:str,url:str) -> str:
@@ -202,15 +202,27 @@ def load_selectors(selector_name:str) -> dict:
         except KeyError:
             return
 
-@browser(user_agent=UserAgent.RANDOM, 
-         headless=True,
+# @browser(user_agent=UserAgent.RANDOM, AVANT 04 02 2026
+#          headless=True,
+#          block_images=True,
+#          block_images_and_css=True,
+#         add_arguments=[
+#                 "---disable-translate",
+#                 "--disable-geolocation", 
+#                 "--disable-gpu",
+#                 "--disable-fingerprinting"])
+@browser(user_agent=UserAgent.HASHED,  #04 02 2026, RANDOM ne fonctionne pas avec un profil , on n'a rien mais il faut coincider l'agent
+         headless=False,
          block_images=True,
-         block_images_and_css=True,
+         profile=os.getenv('PROFIL_CHROME_SCRAPING'),
+        #  Profiles=os.getenv('PROFIL_CHROME_SCRAPING'),
+        #  block_images_and_css=True,
         add_arguments=[
                 "---disable-translate",
                 "--disable-geolocation", 
                 "--disable-gpu",
-                "--disable-fingerprinting"])
+                "--disable-fingerprinting"
+                ])
 def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
     sites_with_captcha = ["tripadvisor", "thefork"] #mettre dans cette liste les providers où il y a des captchas (différent en local et sur serveur)
     sites_needs_to_change_ip = ["thefork", "yelp"]
@@ -300,7 +312,7 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
             if valid_selector:
                 s = ScoreExtractor(data={'selectors': valid_selector, 'settings': data,'env': env, 'web_page': soupify(driver.page_html)})
                 s.extract()
-                s.save(driver.current_url) #ajout parametre site 04 02 2026
+                # s.save(driver.current_url) #ajout parametre site 04 02 2026
             driver.close()
     #ajout temps d'attente avant reouverture driver
     driver.short_random_sleep()
