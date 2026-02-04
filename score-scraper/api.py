@@ -91,10 +91,12 @@ class ERApi:
 
             response = requests.request(
                 "POST", url, headers=headers, data=json.dumps(self.body), verify=False)
+            
+            if response.status_code == 201 or response.status_code == 200: # 04 02 2026
+                print("ENVOYé AVEC SUCCESS DANS LA BASE!!!")
 
             if response:
                 print(response.json())
-
                 return response
 
         else:
