@@ -97,11 +97,43 @@ class TikTokProfileScraper(Scraping):
             'h1', {'data-e2e': 'user-title'}).text.strip())
         self.page_data['name'] = f"tiktok_{name}"
         #des int()
-        self.page_data['followers'] = int(soupify(header_element).find(
-            'strong', {'data-e2e': 'followers-count'}).text.strip())
-        
-        self.page_data['likes'] = int(soupify(header_element).find(
-            'strong', {'data-e2e': 'likes-count'}).text.strip())
+# 10 02 2026 : Followers : traitement des K ou M ainsi que les différents affichage de virgule
+        try:
+            followers_brut = soupify(header_element).find('strong', {'data-e2e': 'followers-count'}).text.strip()
+            if 'K' in followers_brut and '.' in followers_brut:
+                # input(f"follower_brut tsy nokitihana => {followers_brut} dia kitihana {followers_brut.replace('K','')} dia lasa {type(float(followers_brut.replace('K','').replace('.','.')))}")
+                followers = int(float(followers_brut.replace('K','')) * 1000) 
+                input(f'followers => {followers}')
+            elif 'K' in followers_brut and ',' in followers_brut:
+                followers = int(float(followers_brut.replace('K','').replace(',','.')) * 1000)
+            elif 'M' in followers_brut and '.' in followers_brut:
+                followers = int(float(followers_brut.replace('M','')) * 1000000) 
+            elif 'M' in followers_brut and ',' in followers_brut:
+                followers = int(float(followers_brut.replace('M','').replace(',','.')) * 1000000)
+        except Exception as e:
+            input(f'Probleme dans le traitement des followers => {e}')
+
+        self.page_data['followers'] = followers
+
+        # 10 02 2026 : Likes : traitement des K ou M ainsi que les différents affichage de virgule
+        try:
+            likes_brut = soupify(header_element).find('strong', {'data-e2e': 'likes-count'}).text.strip()
+            if 'K' in likes_brut and '.' in likes_brut:
+                likes = int(float(likes_brut.replace('K','')) * 1000) 
+            elif 'K' in likes_brut and ',' in likes_brut:
+                likes = int(float(likes_brut.replace('K','').replace(',','.')) * 1000)
+            elif 'M' in likes_brut and '.' in likes_brut:
+                likes = int(float(likes_brut.replace('M','')) * 1000000)
+            elif 'M' in likes_brut and ',' in likes_brut:
+                likes = int(float(likes_brut.replace('M','').replace(',','.')) * 1000000)
+            else:
+                likes = int(likes_brut)
+        except Exception as e:
+            input(f'Probleme dans le traitement des likes => {e}')
+
+        self.page_data['likes'] = likes
+
+        print(f'{self.page_data["name"]} | {self.page_data["followers"]} followers | {self.page_data["likes"]} likes ')
         
         self.page_data['establishment'] = f'api/establishments/{self.establishment}'
         self.page_data['source'] = 'tiktok'
