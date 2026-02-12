@@ -25,7 +25,7 @@ class YoutubeProfileScraper(Scraping):
 
         self.playwright = sync_playwright().start()
         self.browser = self.playwright.chromium.launch(
-            headless=False, args=['--start-maximized'])
+            headless=False, args=['--start-maximized'], channel='chrome')
         self.context = self.browser.new_context(no_viewport=True)
         self.page = self.context.new_page()
         self.post_index = 0
