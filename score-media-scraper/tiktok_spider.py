@@ -103,7 +103,7 @@ class TikTokProfileScraper(Scraping):
             if 'K' in followers_brut and '.' in followers_brut:
                 # input(f"follower_brut tsy nokitihana => {followers_brut} dia kitihana {followers_brut.replace('K','')} dia lasa {type(float(followers_brut.replace('K','').replace('.','.')))}")
                 followers = int(float(followers_brut.replace('K','')) * 1000) 
-                input(f'followers => {followers}')
+                # input(f'followers => {followers}')
             elif 'K' in followers_brut and ',' in followers_brut:
                 followers = int(float(followers_brut.replace('K','').replace(',','.')) * 1000)
             elif 'M' in followers_brut and '.' in followers_brut:
