@@ -438,7 +438,8 @@ class BaseGoogleScrap(Scraping):
 
 
     def formate_date(self, raw_date: str) -> str:
-        split_date = raw_date.split(' ')
+        #25 02 2026
+        split_date = raw_date.replace('edited ','').split(' ')
         # print(split_date)
         #formattage des dates où il y a inscrit "modifié" [02 07 2025]
         if "modifié" in split_date[0]:
