@@ -290,8 +290,8 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
                 pass
         #ajout de temps pour google
         if provider == "google":
-            time.sleep(random.randint(5,7))
-            
+            driver.long_random_sleep()
+
         if page_type == 'unknown':
             print("selector not define for this page")
             driver.prompt()
