@@ -203,7 +203,7 @@ def load_selectors(selector_name:str) -> dict:
             return
 
 @browser(user_agent=UserAgent.RANDOM,
-         headless=True,
+         headless=False,
          block_images=True,
          block_images_and_css=True,
         add_arguments=[
