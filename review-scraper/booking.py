@@ -62,6 +62,12 @@ class Booking(Scraping):
             return True
 
     def extract(self):
+        #03 04 2026
+        #sauter le nouvel affichage de booking non encore traité  pour ne pas pénaliser les autres booking qui fonctionnent bien
+        if "https://www.booking.com/hotel" in self.driver.current_url: 
+            print('nouvel affichage de booking, on saute cette url pour le moment en attendant de traiter le nouvel affichage')
+            return
+        
         print('extraction ...')
 
         reviews = []
