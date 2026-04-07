@@ -88,7 +88,10 @@ class ScoreExtractor(object):
 
     def clean_quantity(self, site) -> int|None:
         #04 02 2026 , pour Google score, ajout de ce traitement car j'ai vu que le 'k' n'est pas pris en compte (exemple 11 k , donne 11 uniquement)
+        # input(f'Site = {site}')
+        time.sleep(1)
         if "https://www.google.com/search?" in site:
+            print(f'Site google EN QUESTION')
             # input(f"avant traitement quantity => {self.quantity} de GOOGLE NON TRAVEL")
             if 'k' in self.quantity.lower():
                 print('k détecté dans le nombre de reviews')
@@ -96,18 +99,21 @@ class ScoreExtractor(object):
                     digit_part = int(''.join(chiffre for chiffre in self.quantity if chiffre.isdigit()))
                     print(f'Avant clean > {self.quantity} | Après clean > {digit_part * 1000}')
                     self.quantity = digit_part * 1000
+                    return #03 04 2026 pour ne pas faire le traitement normal après celui avec k
                 except Exception as e:
                     input(f'Erreur dans le clean du quantity avec k -> {e}')
             else:
                 #code qui était là avant, je l'ai mis ici
+                print('pas de k dans quantity, traitement normal')
                 try:
                     self.quantity = int(''.join(ch for ch in self.quantity if ch.isdigit()))
                     print(f'cleaned quantity: {self.quantity}')
                 except Exception as e:
                     input(f'Erreur dans le clean du quantity -> {e}')
 
-        else:
+        if "https://www.google.com/search?" not in site: #comme pas d'erreur MILA AVERINA REHEFA ITEST SCRAP AKOTRAN GOOGLE
             #code qui était là avant, je l'ai mis ici
+            print('Site non google, traitement normal du quantity')
             try:
                 self.quantity = int(''.join(ch for ch in self.quantity if ch.isdigit()))
                 print(f'cleaned quantity: {self.quantity}')
@@ -259,7 +265,7 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
         return
 
     #07 04 2026 : pour ne pas prendre en compte l'affichage en recherche simple de google
-    if '/travel' not in driver.current_url:
+    if '/travel' not in driver.current_url and data['source'].lower().split(' ')[0] == "google":
         # input('GOOGLE NON TRAVEL')
         try:
             exist = driver.select('div[class="Q3DXx Efnghe"]') #c'est ce qui différencie une recherche normal sur la page google , d'une affichage normal pour un établissement
