@@ -257,6 +257,20 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
     if data['source'].lower().split(' ')[0] == "booking" and "https://www.booking.com/hotel" in driver.current_url: 
         print('nouvel affichage de booking, on saute cette url pour le moment en attendant de traiter le nouvel affichage')
         return
+
+    #07 04 2026 : pour ne pas prendre en compte l'affichage en recherche simple de google
+    if '/travel' not in driver.current_url:
+        # input('GOOGLE NON TRAVEL')
+        try:
+            exist = driver.select('div[class="Q3DXx Efnghe"]') #c'est ce qui différencie une recherche normal sur la page google , d'une affichage normal pour un établissement
+            if exist:
+                print('page GOOGLE non recherche normal, on continue le scrap')
+            else:
+                print('PAGE DE RECHERCHE simple, pas de données scrapable, on saute l url pour le suivant')
+                return
+        except Exception as e:
+            print('PAGE DE RECHERCHE simple, pas de données scrapable, on saute l url pour le suivant')
+            return
     
     if data['url'] not in url_errone:    
         provider = data['source'].lower().split(' ')[0]
