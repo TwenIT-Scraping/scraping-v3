@@ -96,14 +96,17 @@ class BaseGoogleScrap(Scraping):
     def load_reviews(self) -> None:
         if not self.is_travel():
              #16 12 2025 : nouvel afficahge encore apparu le 03 12 2025, test finalement achevé le 16 12 2025 , à suivre de près car la page est très dynamique en terme de structure html
-            try:
-                time.sleep(random.uniform(0.8,0.9))
-                exist = self.driver.find_element(By.CSS_SELECTOR, 'a[class="vwVdIc wzN8Ac rllt__link a-no-hover-decoration"]')
-                # exist = exists[0].find_elements(By.CSS_SELECTOR,'a')
-                #/html/body/div[3]/div/div[12]/div[1]/div[2]/div[2]/div/div/div[1]/div/div[3]/div/div[2]/div/div/div/a
-                # input(f'msy ve => {exist}')
-                if exist:
-                    print('click on link establishment avant de retrouver une view normal')
+            # try:
+            time.sleep(random.uniform(0.8,0.9))
+            # exist = self.driver.find_element(By.CSS_SELECTOR, 'a[class="vwVdIc wzN8Ac rllt__link a-no-hover-decoration"]')
+            #new selector 13 05 2026 pour le lien du nouvel affichage
+            exist = self.driver.find_elements(By.CSS_SELECTOR, 'span[class="uDyWh OSrXXb btbrud"]')
+            # exist = exists[0].find_elements(By.CSS_SELECTOR,'a')
+            #/html/body/div[3]/div/div[12]/div[1]/div[2]/div[2]/div/div/div[1]/div/div[3]/div/div[2]/div/div/div/a
+            # input(f'msy ve => {exist}')
+            if exist:
+                print('click on link establishment avant de retrouver une view normal')
+                try:
                     # self.driver.execute_script("arguments[0].click();", exist)
                     self.driver.execute_script("""
                                             const el = arguments[0];
@@ -117,15 +120,29 @@ class BaseGoogleScrap(Scraping):
                                             el.dispatchEvent(new MouseEvent('mousedown', {clientX: cx, clientY: cy, bubbles:true}));
                                             el.dispatchEvent(new MouseEvent('mouseup', {clientX: cx, clientY: cy, bubbles:true}));
                                             el.dispatchEvent(new MouseEvent('click', {clientX: cx, clientY: cy, bubbles:true}));
-                                            """, exist)
+                                            """, exist[0])
                     time.sleep(random.uniform(0.5,1.2))
                     print('clicked')
-                else:
-                    input('élément à cliquer non trouvable, check selecteur')
-            except Exception as e:
-                # input(f'{e} -> pas de nouveau affichage detecté le 03 12 2025')
-                print('pas de structure de page complexe')
-                pass
+
+                    #un autre clique est nécéssaire 13 05 2026
+                    time.sleep(random.uniform(0.5,1.2))
+                    avis_link = self.driver.find_elements(By.CSS_SELECTOR, '#qnqHob\/g\/11syf95xdb > div > span')
+                    if avis_link:
+                        print('click on link avis for new view')
+                        print(avis_link)
+                        self.driver.execute_script("arguments[0].click();", avis_link[0])
+                        time.sleep(random.uniform(1.5,2.5)) #moins de 1 ça ne suffit pas
+                        print('clicked tab link content avis')
+                    else:
+                        input('élément à cliquer pour accéder aux avis non trouvable, check selecteur et navigateur')
+                except Exception as e:
+                    input(f'élément à cliquer non trouvable, check selecteur et navigateur => {e}')
+            else:
+                input('pas de structure de page complexe, TAPEZ ENTRER pour CONTINUER') #input ici pour mieux vérifier car 3 types de view pour google (13 05 2026)
+            # except Exception as e:
+            #     # input(f'{e} -> pas de nouveau affichage detecté le 03 12 2025')
+            #     input('pas de structure de page complexe, TAPEZ ENTRER pour CONTINUER') #input ici pour mieux vérifier car 3 types de view pour google (13 05 2026)
+            #     pass
             
             #20 11 2025 : nouvelle affichage google pour certains, clique sur popup avis
             try:
