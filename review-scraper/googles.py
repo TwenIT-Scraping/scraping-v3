@@ -100,7 +100,8 @@ class BaseGoogleScrap(Scraping):
             time.sleep(random.uniform(0.8,0.9))
             # exist = self.driver.find_element(By.CSS_SELECTOR, 'a[class="vwVdIc wzN8Ac rllt__link a-no-hover-decoration"]')
             #new selector 13 05 2026 pour le lien du nouvel affichage
-            exist = self.driver.find_elements(By.CSS_SELECTOR, 'span[class="uDyWh OSrXXb btbrud"]')
+            # exist = self.driver.find_elements(By.CSS_SELECTOR, 'span[class="uDyWh OSrXXb btbrud"]')
+            exist = self.driver.find_elements(By.CSS_SELECTOR, 'div[class="rllt__details"]')
             # exist = exists[0].find_elements(By.CSS_SELECTOR,'a')
             #/html/body/div[3]/div/div[12]/div[1]/div[2]/div[2]/div/div/div[1]/div/div[3]/div/div[2]/div/div/div/a
             # input(f'msy ve => {exist}')
@@ -125,13 +126,16 @@ class BaseGoogleScrap(Scraping):
                     print('clicked')
 
                     #un autre clique est nécéssaire 13 05 2026
-                    time.sleep(random.uniform(0.5,1.2))
-                    avis_link = self.driver.find_elements(By.CSS_SELECTOR, '#qnqHob\/g\/11syf95xdb > div > span')
+                    time.sleep(random.uniform(1,1.5))
+                    # avis_link = self.driver.find_elements(By.CSS_SELECTOR, 'div[class="aep93e zlzEbc"]')
+                    avis_link = self.driver.find_elements(By.XPATH, "//*[text()='Avis']") #15 05 2026 clique sur exactement la balise contenant Avis
+                    
+
                     if avis_link:
                         print('click on link avis for new view')
                         print(avis_link)
-                        self.driver.execute_script("arguments[0].click();", avis_link[0])
-                        time.sleep(random.uniform(1.5,2.5)) #moins de 1 ça ne suffit pas
+                        self.driver.execute_script("arguments[0].click();", avis_link[0]) #ity indraindray 1 , 2 na 3 , Groupama izao dia efa 1, ny sasant 2, aleo izay misy Avis no cliquena
+                        time.sleep(random.uniform(1.5,1.9)) #moins de 1 ça ne suffit pas
                         print('clicked tab link content avis')
                     else:
                         input('élément à cliquer pour accéder aux avis non trouvable, check selecteur et navigateur')
