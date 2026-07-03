@@ -60,12 +60,190 @@ class Booking(Scraping):
             return False if page_404 else True
         except:
             return True
+    #16 06 2026 : extract nouvel vue
+    def extract_new_view(self):
+        reviews = []
+        print('nouvel affichage de booking, on saute cette url pour le moment en attendant de traiter le nouvel affichage')
+        #Ajout paramètre en url #tab-reviews pour ne pas cliquer , #tab-main est automatiquement là , on le change par #tab-reviews 
+        # input(f'url = {self.driver.current_url}')
+        if "#tab-main" in self.driver.current_url:
+            url_new = self.driver.current_url.replace("#tab-main", "#tab-reviews")
+            self.driver.get(url_new)
+            time.sleep(5)
+        else:
+            url_new = self.driver.current_url + "#tab-reviews"
+            self.driver.get(url_new)
+            time.sleep(5)
+        print("         ")
+        print('extraction sur la nouvelle view ...')
+        print('         ')
+
+        try:
+            #selection d'affichage des reviews pour all languages 05 08 2025, tout est ALL déja sur la nouvelle view
+            print('All languages sort OK')
+            review_order = Select(self.driver.find_element(By.XPATH, "//select[@id='reviewListSorters']"))
+            review_order.select_by_value('NEWEST_FIRST')
+            time.sleep(0.8)
+            # view_list_btn = self.driver.find_element(By.XPATH, "//div[@class='review_list_nav_wrapper clearfix']/form/input[@type='submit']")
+            # self.driver.execute_script("arguments[0].click();", view_list_btn)
+            print('Ordre des avis (les plus récents) sélectionné avec succès')
+        except Exception as e:
+            input(f"Erreur lors de la sélection de l'ordre des avis : {e}")
+        
+        #Sur cette nouvelle view, on peut voir un button voir la traduction, donc on va tous les cliqués pour traduire en français les reviews
+        container_all_buttons_translations = self.driver.find_elements(By.CSS_SELECTOR, "div[data-testid='review-translation-handle']")
+        # print(container_all_buttons_translations)
+        for container_btn in container_all_buttons_translations:
+            btn = container_btn.find_element(By.TAG_NAME, 'button')
+            try:
+                self.driver.execute_script("arguments[0].click();", btn)
+            except Exception as e:
+                input(f"Erreur lors du clic sur le bouton de traduction : {e}, checker le selecteur et relancer")
+                self.driver.quit()
+            time.sleep(1)
+ 
+        print('         ')
+        print(' Tous les boutons de traductions cliqués')
+        print('         ')
+
+        try:
+            break_transmetter = True
+            while True:
+                time.sleep(5)
+
+                page = self.driver.page_source
+                # input('pause pour changement de langue manuel avant de donner à BS')
+                soupe = BeautifulSoup(page, 'html.parser')
+
+                review_cards = soupe.find_all('div', {'data-testid': 'review'}) 
+                count = len(review_cards)
+
+                print(f"====> {count} cards trouvés !")
+                for card in review_cards:
+                    try:
+                        title = card.find('h4', {'data-testid': 'review_item_header_content'}).text.strip(
+                        ) if card.find('h4', {'data-testid': 'review_item_header_content'}) else ""
+                        
+                        negative = card.find('div', {'data-testid': 'review-negative-text'}).text.strip(
+                        ) if card.find('div', {'data-testid': 'review-negative-text'}) else ""
+                        
+                        positive = card.find('div', {'data-testid': 'review-positive-text'}).text.strip(
+                        ) if card.find('div', {'data-testid': 'review-positive-text'}) else ""
+                        
+                        detail = f'{positive} | {negative}' if positive and negative else (
+                            positive if positive else negative)
+                        
+                        comment = f"{title}{': ' if title and detail else ''}{detail}"
+
+                        # input(f'Commentaire extrait : {comment}')
+
+                        review_posted_date = card.find('span', {'data-testid': 'review-date'}).text.strip(
+                        ) if card.find('span', {'data-testid': 'review-date'}) else ""
+                        dates = review_posted_date.split()
+                        # input(f'dates splittés: {dates}')
+
+                        date_review = ""
+                        
+                        #A demander confirmation avec Nicolas pour voir si la langue de l'établissement est ES par exemple, est ce qu'on ne traduit pas les commentaires en ES maisn on laisse?
+                        if self.lang == "es":
+                            try:
+                                #sur serveur c'est la date_review suivante:
+                                date_review = f"{dates[-5]}/{month_number(dates[-3], 'es')}/{dates[-1]}"
+                                #si dans mon local c'est la date review suivante (question d'affichage en langue de mon pc)
+                                # date_review = f"{dates[-3]}/{month_number(dates[-2], 'fr')}/{dates[-1]}"
+                            except Exception as e:
+                                input(f"Erreur date_review formattage => {e}")
+                        else:
+                            try:
+                                date_review = f"{dates[-3]}/{month_number(dates[-2], 'fr')}/{dates[-1]}"
+                            except Exception as e:
+                                date_review = f"{dates[-3]}/{month_number(dates[-2], 'en')}/{dates[-1]}"
+
+                        if card.find('span', {'data-testid': 'review-stay-date'}):
+                            date_séjour_brute = card.find('span', {'data-testid': 'review-stay-date'}).text.strip().split()[-2:]
+                            #Normalement la lang est toujours fr car on n'est pas dans booking es, l'affichage de la page est en fr mais les reviews seulement puvent être en langue différents selon les clients
+                            date_visit = f"{(datetime.now().day-1)}/{month_number(date_séjour_brute[0], 'fr')}/{date_séjour_brute[-1]}"
+                        else:
+                            date_visit = date_review
+
+                        try:
+                            # if self.lang and lang == self.lang:
+                            try:
+                                author_container = card.find('div', {'data-testid': 'review-avatar'}) if card.find('div', {'data-testid': 'review-avatar'}) else ""
+                                author = author_container.find('div', {'class':'b08850ce41 f546354b44'}).text.strip() if author_container.find('div', {'class':'b08850ce41 f546354b44'}) else ""
+                                rating_container = card.find('div', {'data-testid': 'review-score'}) if card.find('div', {'data-testid': 'review-score'}) else "0"
+                                rating = rating_container.find('div',{'class', 'f63b14ab7a dff2e52086'}).text.strip() if rating_container.find('div',{'class', 'f63b14ab7a dff2e52086'}) else "0"
+                            except Exception as e:
+                                input(f"Erreur lors de l'extraction de l'auteur ou de la note => {e}")
+                            
+                            lang_source = {'Belgique':'be', 'France': 'fr', 'Italie': 'it', 'Pays-Bas' : 'nl', 'Brésil':'br', 'Portugal': 'pt','Autriche' : 'at', 'Suisse' : 'ch', 'Allemagne' : 'de', 'Australie' : 'au', 'Royaume-Uni' : 'uk', 'Estonie' : 'ee', 'Serbie' : 'sr', 'Suède' : 'se', 'Israël' : 'il', 'Bulgarie' : 'bg', 'Lituanie' : 'lt', 'Slovaquie' : 'sk', 'Irlande' : 'ie', 'Espagne' : 'es', 'Panama' : 'pa', 'Norvège' : 'no', 'Slovénie' : 'si', 'République tchèque' : 'cz'}
+                            lang = author_container.find('span', {'class': 'd838fb5f41 aea5eccb71'}).text.strip()
+                            if lang:
+                                try:
+                                    lang = lang_source[lang]
+                                    
+                                except Exception as e:
+                                    print(e)
+                                    lang = self.lang
+                            
+                            print('         ')
+                            print(f'auteur => {author}, rating => {rating}, lang => {lang}, review => {comment}, date_review => {date_review}, date_visit => {date_visit}')
+                            print('         ')
+                            
+                            if self.check_date(date_review, self.last_review_date):
+                                print("             ")
+                                print("On ajoute car la date du review est encore supérieur à celle dans la base")
+                                print("             ")
+                                reviews.append({
+                                    'comment': comment,
+                                    'rating': rating,
+                                    'date_review': date_review,
+                                    'language': lang,
+                                    'url':self.driver.current_url,
+                                    'source': urlparse(self.url).netloc.split('.')[1],
+                                    'author': author,
+                                    'establishment': f'/api/establishments/{self.establishment}',
+                                    'settings': f'/api/settings/{self.settings}',
+                                    'date_visit': date_review,
+                                    'novisitday': "0"
+                                })
+                            else:
+                                break_transmetter = False
+                                break
+
+                        except Exception as e:
+                            input('pause')
+                            print(e)
+                            continue
+
+                    except Exception as e:
+                        print(e)
+                #ajout condition pour self.last_review_date
+                print(f"la valeur du check date => {self.check_date(reviews[-1]['date_review'], self.last_review_date)}")
+                if not break_transmetter:
+                    break
+                try:
+
+                    next_btn = self.driver.find_element(By.CSS_SELECTOR, 'button[aria-label="Page suivante"]')
+
+                    if next_btn:
+                        self.driver.execute_script("arguments[0].click();", next_btn)
+                        time.sleep(4)
+
+                except Exception as e:
+                    input(f"Erreur lors de la recherche du bouton suivant : {e}")
+                    break
+
+        except Exception as e:
+            print(f"erreur du while dans extract de booking => {e}")
+            pass
+
+        self.data = reviews
 
     def extract(self):
-        #03 04 2026
-        #sauter le nouvel affichage de booking non encore traité  pour ne pas pénaliser les autres booking qui fonctionnent bien
+        
         if "https://www.booking.com/hotel" in self.driver.current_url: 
-            print('nouvel affichage de booking, on saute cette url pour le moment en attendant de traiter le nouvel affichage')
+            self.extract_new_view() #16 06 2026
             return
         
         print('extraction ...')
