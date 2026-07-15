@@ -49,7 +49,8 @@ class Trustpilot(Scraping):
 
         reviews = []
 
-        time.sleep(2)
+        #15 07 2026 Ajout de plus de temps avant d'extraire car il ya une vérification de connexion soudain apparu le 14 07 2026 remarqué par Ravaka en monitoring
+        time.sleep(7)
         sort_btn = self.driver.find_element(
             By.XPATH, "//button[@name='sort' and @data-sort-button='true']")
 
