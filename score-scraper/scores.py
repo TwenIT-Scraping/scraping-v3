@@ -335,7 +335,7 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
                 s.save(driver.current_url) #ajout parametre site 04 02 2026
             driver.close()
     #ajout temps d'attente avant reouverture driver
-    driver.short_random_sleep(),,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,!
+    driver.short_random_sleep()
 
 # DATA_SOURCE = [
 # {'id': 316, 'caption': None, 'settings_positioning': None, 'section': None, 'external_url': None, 'no_tracking': None, 'establishment_name': 'Comtes de Challes', 'enable': True, 'settings_language': None, 'establishment_id': 96, 'establishment_tag': '672653a091ee6', 'idprovider': 21, 'category': 'Platform', 'source': 'Google', 'url': 'https://www.google.com/search?sca_esv=6bf062aa074a1fec&hotel_occupancy=2&sxsrf=ADLYWIKfTFRuRn5_2G9mwiOT27RFd3hlTg:1730564878690&q=Comtes+de+Challes&uds=ADvngMgcma2krFDWAfXM9WWaYuEsJP7sYRLZXRKGNZH8JbiORDAsgngLv9VXY2Ieisztef0SoMY9tIO-TXBS04vCTHhhkCj7TBGxwC8EMKxDtkxlpmVGq-5KCPa14BOKbg4xCKQZTBdA&si=ACC90nwjPmqJHrCEt6ewASzksVFQDX8zco_7MgBaIawvaF4-7uLHuaLGrhRBJXK5sfBzKDSTRxOJ-Z0BjTGSZTfFBxFF-qlbnS-gwCOPSL9XvTBltVircXo%3D&sa=X&ved=2ahUKEwiRiOvGiL6JAxVvaqQEHa63Db4Q3PALegQIFxAE&biw=1920&bih=927&dpr=1', 'language': None, 'last_review_date': '20/10/2025', 'last_comment_date': None, 'last_post_date': None}
