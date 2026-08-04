@@ -189,6 +189,11 @@ class Booking(Scraping):
                             print('         ')
                             print(f'auteur => {author}, rating => {rating}, lang => {lang}, review => {comment}, date_review => {date_review}, date_visit => {date_visit}')
                             print('         ')
+
+                            #04 08 2026 :remarque depuis monitoring , des dates ont des 'er' comme 1er, on les enlève car bloque le check
+                            if 'er' in date_review:
+                                date_review = date_review.replace('er', '')
+                                print(f"date_review modifiée => {date_review}")
                             
                             if self.check_date(date_review, self.last_review_date):
                                 print("             ")
@@ -212,8 +217,7 @@ class Booking(Scraping):
                                 break
 
                         except Exception as e:
-                            input('pause')
-                            print(e)
+                            input(f'pause , ERREUR == {e}')
                             continue
 
                     except Exception as e:
