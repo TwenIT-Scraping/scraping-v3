@@ -177,11 +177,13 @@ class Booking(Scraping):
                                 input(f"Erreur lors de l'extraction de l'auteur ou de la note => {e}")
                             
                             lang_source = {'Belgique':'be', 'France': 'fr', 'Italie': 'it', 'Pays-Bas' : 'nl', 'Brésil':'br', 'Portugal': 'pt','Autriche' : 'at', 'Suisse' : 'ch', 'Allemagne' : 'de', 'Australie' : 'au', 'Royaume-Uni' : 'uk', 'Estonie' : 'ee', 'Serbie' : 'sr', 'Suède' : 'se', 'Israël' : 'il', 'Bulgarie' : 'bg', 'Lituanie' : 'lt', 'Slovaquie' : 'sk', 'Irlande' : 'ie', 'Espagne' : 'es', 'Panama' : 'pa', 'Norvège' : 'no', 'Slovénie' : 'si', 'République tchèque' : 'cz'}
+
                             #Ajout check lang car MAJ booking repéré le 31 08 2026
                             try:
                                 lang = author_container.find('span', {'class': 'ed66f1a97a bd7cb4abab'}).text.strip() #MAJ 31 08 2026
                             except Exception as e:
                                 input(f"Erreur lors de l'extraction de la langue LANG => {e}")
+
                             if lang:
                                 try:
                                     lang = lang_source[lang]
