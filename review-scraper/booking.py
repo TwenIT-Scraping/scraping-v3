@@ -158,7 +158,7 @@ class Booking(Scraping):
                                 date_review = f"{dates[-3]}/{month_number(dates[-2], 'fr')}/{dates[-1]}"
                             except Exception as e:
                                 date_review = f"{dates[-3]}/{month_number(dates[-2], 'en')}/{dates[-1]}"
-                        input(f'Date review = {date_review}')
+                        # input(f'Date review = {date_review}')
 
                         if card.find('span', {'data-testid': 'review-stay-date'}):
                             date_séjour_brute = card.find('span', {'data-testid': 'review-stay-date'}).text.strip().split()[-2:]
@@ -167,7 +167,7 @@ class Booking(Scraping):
                         else:
                             date_visit = date_review
 
-                        input(f'Date visit = {date_visit}')
+                        # input(f'Date visit = {date_visit}')
 
                         try:
                             # if self.lang and lang == self.lang:
@@ -192,7 +192,7 @@ class Booking(Scraping):
                                     lang = lang_source[lang]
                                     
                                 except Exception as e:
-                                    input(f"Except dans le try de if lang ---- {e}")
+                                    print(f"Except dans le try de if lang ---- {e}")
                                     lang = self.lang
                             
                             print('         ')
