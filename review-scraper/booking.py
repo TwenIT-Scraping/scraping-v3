@@ -167,6 +167,8 @@ class Booking(Scraping):
                         else:
                             date_visit = date_review
 
+                        input(f'Date visit = {date_visit}')
+
                         try:
                             # if self.lang and lang == self.lang:
                             try:
