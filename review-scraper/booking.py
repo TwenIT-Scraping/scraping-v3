@@ -189,7 +189,7 @@ class Booking(Scraping):
                                     lang = lang_source[lang]
                                     
                                 except Exception as e:
-                                    print(e)
+                                    input(f"Except dans le try de if lang ---- {e}")
                                     lang = self.lang
                             
                             print('         ')
