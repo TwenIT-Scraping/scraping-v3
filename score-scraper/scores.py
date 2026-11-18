@@ -156,7 +156,7 @@ class ScoreExtractor(object):
         print(f'posting en cours ... {self.cleaned_data}')
         try:
             post_instance = ERApi(
-                method="post", entity="scores", env=self.env, body=self.cleaned_data, params={})
+                method="post", entity="scores/upload", env=self.env, body=self.cleaned_data, params={})
             post_instance.execute()
         except Exception as e:
             input(f'Erreur de sauvegarde des scores --> {e}')
