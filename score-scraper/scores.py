@@ -129,8 +129,8 @@ class ScoreExtractor(object):
         self.clean_data(site)  #04 02 2026 parametre
         self.cleaned_data['score'] = self.score 
         self.cleaned_data['source'] = self.source
-        self.cleaned_data['establishment'] = f"/api/establishments/{self.settings.get('establishment_id')}"
-        self.cleaned_data['scoreDate'] = datetime.now().strftime("%Y-%m-%d")
+        self.cleaned_data['establishment'] = f"{self.settings.get('establishment_id')}"
+        self.cleaned_data['score_date'] = datetime.now().strftime("%d-%m-%Y")
         self.cleaned_data['quantity'] = self.quantity
 
         return self.cleaned_data
