@@ -79,7 +79,15 @@
                         "attr_value": "review-score-badge",
                         "target": "text"
                     }
+                },
+                {
+                    "by_tag_only" : false,
+                    "tag" : "div",
+                    "attr_key" : "class",
+                    "attr_value" : "f63b14ab7a dff2e52086",
+                    "target" : "text"
                 }
+
             ],
             "quantity": [
                 {
@@ -94,6 +102,20 @@
                         "attr_key": "class",
                         "attr_value": "review_list_score_count",
                         "target": "text"
+                    }
+                },
+                {
+                    "by_tag_only":false,
+                    "tag": "div",
+                    "attr_key" : "data-testid",
+                    "attr_value" : "review-score-component",
+                    "target" :"child",
+                    "child": {
+                        "by_tag_only":false,
+                        "tag":"span",
+                        "attr_key":"class",
+                        "attr_value":"f63b14ab7a fb14de7f14 eaa8455879",
+                        "target":"text"
                     }
                 }
             ]
