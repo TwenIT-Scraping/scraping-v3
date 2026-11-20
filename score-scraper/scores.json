@@ -189,6 +189,18 @@
                         "attr_value": "summary__total",
                         "target": "text"
                     }
+                },
+                {
+                    "by_tag_only":false,
+                    "tag":"div",
+                    "attr_key":"class",
+                    "attr_value":"summary__text",
+                    "target":"child",
+                    "child":{
+                        "by_tag_only":true,
+                        "tag":"strong",
+                        "target":"text"
+                    }
                 }
             ]
         }
