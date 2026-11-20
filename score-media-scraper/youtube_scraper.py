@@ -156,12 +156,8 @@ class YoutubeProfileScraper(Scraping):
 
         try:
             soupe = BeautifulSoup(self.page.content(), 'lxml')
-            """name = soupe.find('yt-formatted-string', {'class': "ytd-channel-name"}).text.strip() \
-                if soupe.find('yt-formatted-string', {'class': "ytd-channel-name"}) else ''"""
-            name = self.page.locator('xpath=//*[@id="page-header"]/yt-page-header-renderer/yt-page-header-view-model/div/div[1]/div/yt-dynamic-text-view-model/h1/span').inner_text().strip()
-            """followers = soupe.find('yt-formatted-string', {'id': "subscriber-count"}).text.strip() \
-                if soupe.find('yt-formatted-string', {'id': "subscriber-count"}) else ''"""
-            followers = self.page.locator('xpath=//*[@id="page-header"]/yt-page-header-renderer/yt-page-header-view-model/div/div[1]/div/yt-content-metadata-view-model/div[2]/span[1]').inner_text().strip()
+            name = self.page.locator("h1.dynamicTextViewModelH1").inner_text().strip()
+            followers = self.page.locator('xpath=//*[@id="page-header"]/yt-page-header-renderer/yt-page-header-view-model/div/div/div[1]/div/yt-content-metadata-view-model/div[2]/span[1]').inner_text().strip()
 
             self.page_data = {
                 'followers': self.format_number(followers),
