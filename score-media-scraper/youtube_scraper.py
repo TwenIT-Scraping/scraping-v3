@@ -169,8 +169,7 @@ class YoutubeProfileScraper(Scraping):
             self.source = self.page_data['source']
 
         except Exception as e:
-            print(e)
-            pass
+            input(f"Selecteur name ou followers non trouvé, erreur dans le bloc extract_page_data() - {e}")
 
     def extract_post_data(self, date) -> None:
         def format_date(string_date):
