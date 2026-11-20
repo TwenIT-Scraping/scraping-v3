@@ -259,11 +259,6 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
             if enteer.lower() == 'm':
                 print("Captcha solved, continuing...")
 
-    #03 04 2026 --sauter le nouvel affichage de booking non encore traité  pour ne pas pénaliser les autres booking qui fonctionnent bien
-    if data['source'].lower().split(' ')[0] == "booking" and "https://www.booking.com/hotel" in driver.current_url: 
-        print('nouvel affichage de booking, on saute cette url pour le moment en attendant de traiter le nouvel affichage')
-        return
-
     #07 04 2026 : pour ne pas prendre en compte l'affichage en recherche simple de google
     if '/travel' not in driver.current_url and data['source'].lower().split(' ')[0] == "google":
         # input('GOOGLE NON TRAVEL')
