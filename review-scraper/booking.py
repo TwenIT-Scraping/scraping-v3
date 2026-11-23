@@ -121,25 +121,33 @@ class Booking(Scraping):
                 print(f"====> {count} cards trouvés !")
                 for card in review_cards:
                     try:
-                        title = card.find('h4', {'data-testid': 'review_item_header_content'}).text.strip(
-                        ) if card.find('h4', {'data-testid': 'review_item_header_content'}) else ""
-                        
-                        negative = card.find('div', {'data-testid': 'review-negative-text'}).text.strip(
-                        ) if card.find('div', {'data-testid': 'review-negative-text'}) else ""
-                        
-                        positive = card.find('div', {'data-testid': 'review-positive-text'}).text.strip(
-                        ) if card.find('div', {'data-testid': 'review-positive-text'}) else ""
-                        
-                        detail = f'{positive} | {negative}' if positive and negative else (
-                            positive if positive else negative)
-                        
-                        comment = f"{title}{': ' if title and detail else ''}{detail}"
+                        try:
+                            title = card.find('h4', {'data-testid': 'review-title'}).text.strip()
+                        except:
+                            input('Selecteur title non trouvé, à mettre à jour')
+                        if card.find('span', string=re.compile('pas laissé de commentaire')):
+                            comment = f'{title}'
+                        else: #23 11 2026
+                            try:
+                                negative = card.find('div', {'data-testid': 'review-negative-text'}).text.strip()
+                            except:
+                                print('Pas de selecteur négative, à vérifier sur le site de temps en temps car il se peut que le selecteur a changé mais aussi le client peut aussi ne pas avoir mis de commentaire négative')
+                                positive = ""                        
+                            try:
+                                positive = card.find('div', {'data-testid': 'review-positive-text'}).text.strip()
+                            except:
+                                print('Pas de selecteur positive, à vérifier sur le site de temps en temps car il se peut que le selecteur a changé mais aussi le client peut aussi ne pas avoir mis de commentaire négative')
+                                positive = ""
+
+                            detail = f'{positive} | {negative}' if positive and negative else (positive if positive else negative)
+                            comment = f"{title}{': ' if title and detail else ''}{detail}"
 
                         # input(f'Commentaire extrait : {comment}')
 
-                        review_posted_date = card.find('span', {'data-testid': 'review-date'}).text.strip(
-                        ) if card.find('span', {'data-testid': 'review-date'}) else ""
-                        dates = review_posted_date.split()
+                        try:
+                            review_posted_date = card.find('span', {'data-testid': 'review-date'}).text.strip()
+                        except:
+                            input('Selecteur date review non trouvé, à mettre à jour')
                         # input(f'dates splittés: {dates}')
 
                         date_review = ""
