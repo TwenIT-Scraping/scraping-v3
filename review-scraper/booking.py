@@ -172,10 +172,10 @@ class Booking(Scraping):
                         try:
                             # if self.lang and lang == self.lang:
                             try:
-                                author_container = card.find('div', {'data-testid': 'review-avatar'}) if card.find('div', {'data-testid': 'review-avatar'}) else ""
-                                author = author_container.find('div', {'class':'b08850ce41 f546354b44'}).text.strip() if author_container.find('div', {'class':'b08850ce41 f546354b44'}) else ""
-                                rating_container = card.find('div', {'data-testid': 'review-score'}) if card.find('div', {'data-testid': 'review-score'}) else "0"
-                                rating = rating_container.find('div',{'class', 'f63b14ab7a dff2e52086'}).text.strip() if rating_container.find('div',{'class', 'f63b14ab7a dff2e52086'}) else "0"
+                                author_container = card.find('div', {'data-testid': 'review-avatar'})
+                                author = author_container.find('div', {'class':'b08850ce41 f546354b44'}).text.strip()
+                                rating_container = card.find('div', {'data-testid': 'review-score'}) 
+                                rating = rating_container.find('div',{'class', 'f63b14ab7a dff2e52086'}).text.strip()
                             except Exception as e:
                                 input(f"Erreur lors de l'extraction de l'auteur ou de la note => {e}")
                             
