@@ -52,7 +52,8 @@ __class_name_v2__ = {
     'Expedia': Expedia,
     'Expedia FR': Expedia,
     'Expedia ES': Expedia,
-    'Booking FR': Booking
+    'Booking FR': Booking,
+    'Booking hotel':Booking
 }
 #ajout de Booking FR le 26 05 2025, il n'y en avait pas pour Booking  FR avant cela
 
