@@ -168,7 +168,6 @@ class Booking(Scraping):
                         #A demander confirmation avec Nicolas pour voir si la langue de l'établissement est ES par exemple, est ce qu'on ne traduit pas les commentaires en ES maisn on laisse?
                         if self.lang == "es":
                             try:
-                                input('dans le SELF.LANG = es')
                                 #sur serveur c'est la date_review suivante:
                                 date_review = f"{dates[-5]}/{month_number(dates[-3], 'es')}/{dates[-1]}"
                                 #si dans mon local c'est la date review suivante (question d'affichage en langue de mon pc)
@@ -185,12 +184,15 @@ class Booking(Scraping):
                                     input(f'Erreur dans formattage date_review')
                         # input(f'Date review = {date_review}')
 
-                        if card.find('span', {'data-testid': 'review-stay-date'}):
-                            date_séjour_brute = card.find('span', {'data-testid': 'review-stay-date'}).text.strip().split()[-2:]
-                            #Normalement la lang est toujours fr car on n'est pas dans booking es, l'affichage de la page est en fr mais les reviews seulement puvent être en langue différents selon les clients
-                            date_visit = f"{(datetime.now().day-1)}/{month_number(date_séjour_brute[0], 'fr')}/{date_séjour_brute[-1]}"
-                        else:
-                            date_visit = date_review
+                        try:
+                            if card.find('span', {'data-testid': 'review-stay-date'}):
+                                date_séjour_brute = card.find('span', {'data-testid': 'review-stay-date'}).text.strip().split()[-2:]
+                                #Normalement la lang est toujours fr car on n'est pas dans booking es, l'affichage de la page est en fr mais les reviews seulement puvent être en langue différents selon les clients
+                                date_visit = f"{(datetime.now().day-1)}/{month_number(date_séjour_brute[0], 'fr')}/{date_séjour_brute[-1]}"
+                            else:
+                                date_visit = date_review
+                        except Exception as e:
+                            input(f'Erreur extraction de date_visit -- {e}')
 
                         # input(f'Date visit = {date_visit}')
 
