@@ -80,7 +80,7 @@ class Booking(Scraping):
 
         try:
             #selection d'affichage des reviews pour all languages 05 08 2025, tout est ALL déja sur la nouvelle view
-            print('All languages sort OK')
+            time.sleep(1.5)
             review_order = Select(self.driver.find_element(By.XPATH, "//select[@id='reviewListSorters']"))
             review_order.select_by_value('NEWEST_FIRST')
             time.sleep(0.8)
