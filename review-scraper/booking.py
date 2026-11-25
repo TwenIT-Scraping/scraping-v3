@@ -186,7 +186,7 @@ class Booking(Scraping):
 
                         try:
                             if card.find('span', {'data-testid': 'review-stay-date'}):
-                                input(f'la date visit = {card.find('span', {'data-testid': 'review-stay-date'}).text.strip().split()[-2:]}')
+                                input(f"la date visit = {card.find('span', {'data-testid': 'review-stay-date'}).text.strip().split()[-2:]}")
                                 date_séjour_brute = card.find('span', {'data-testid': 'review-stay-date'}).text.strip().split()[-2:]
                                 #Normalement la lang est toujours fr car on n'est pas dans booking es, l'affichage de la page est en fr mais les reviews seulement puvent être en langue différents selon les clients
                                 date_visit = f"{(datetime.now().day-1)}/{month_number(date_séjour_brute[0], 'fr')}/{date_séjour_brute[-1]}"
