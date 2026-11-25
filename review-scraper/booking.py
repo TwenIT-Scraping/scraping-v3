@@ -256,7 +256,7 @@ class Booking(Scraping):
                     break
 
         except Exception as e:
-            print(f"erreur du while dans extract de booking => {e}")
+            input(f"erreur du while dans extract de booking extract new view => {e}")
             pass
 
         self.data = reviews
