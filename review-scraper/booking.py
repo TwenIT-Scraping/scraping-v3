@@ -96,7 +96,8 @@ class Booking(Scraping):
             # self.driver.execute_script("arguments[0].click();", view_list_btn)
             print('Ordre des avis (les plus récents) sélectionné avec succès')
         except Exception as e:
-            input(f"Erreur lors de la sélection de l'ordre des avis : {e}")
+            input(f"Erreur lors de la sélection de l'ordre des avis : {e}, verifier le navigateur et cliquer à la main puis taper sur entrer pour poursuivre")
+            pass
         
         #19 06 2026 : Sur cette nouvelle view, on peut voir un button voir la traduction, donc on va tous les cliqués pour traduire en français les reviews
         # container_all_buttons_translations = self.driver.find_elements(By.CSS_SELECTOR, "div[data-testid='review-translation-handle']")
