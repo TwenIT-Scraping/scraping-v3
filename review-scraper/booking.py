@@ -63,7 +63,6 @@ class Booking(Scraping):
     #16 06 2026 : extract nouvel vue
     def extract_new_view(self):
         reviews = []
-        print('nouvel affichage de booking, on saute cette url pour le moment en attendant de traiter le nouvel affichage')
         #Ajout paramètre en url #tab-reviews pour ne pas cliquer , #tab-main est automatiquement là , on le change par #tab-reviews 
         # input(f'url = {self.driver.current_url}')
         if "#tab-main" in self.driver.current_url:
@@ -149,6 +148,7 @@ class Booking(Scraping):
                         except:
                             input('Selecteur date review non trouvé, à mettre à jour')
                         # input(f'dates splittés: {dates}')
+                        dates = review_posted_date.split()
 
                         date_review = ""
                         
