@@ -168,6 +168,7 @@ class Booking(Scraping):
                         #A demander confirmation avec Nicolas pour voir si la langue de l'établissement est ES par exemple, est ce qu'on ne traduit pas les commentaires en ES maisn on laisse?
                         if self.lang == "es":
                             try:
+                                input('dans le SELF.LANG = es')
                                 #sur serveur c'est la date_review suivante:
                                 date_review = f"{dates[-5]}/{month_number(dates[-3], 'es')}/{dates[-1]}"
                                 #si dans mon local c'est la date review suivante (question d'affichage en langue de mon pc)
