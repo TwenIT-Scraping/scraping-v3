@@ -150,6 +150,8 @@ class Booking(Scraping):
                         # input(f'dates splittés: {dates}')
                         dates = review_posted_date.split()
 
+                        input('arriver ici ligne 153')
+
                         date_review = ""
                         
                         #A demander confirmation avec Nicolas pour voir si la langue de l'établissement est ES par exemple, est ce qu'on ne traduit pas les commentaires en ES maisn on laisse?
