@@ -22,7 +22,10 @@ from selenium.webdriver.support.select import Select
 from models import Settings
 from requests.models import PreparedRequest
 import re
+import os
+import dotenv
 
+dotenv.load_dotenv()
 
 class Booking(Scraping):
     def __init__(self, url: str, establishment: str, settings: str, env: str, last_review_date:str):
@@ -267,6 +270,9 @@ class Booking(Scraping):
 
         except Exception as e:
             print(f"erreur du while dans extract de booking extract new view => {e}")
+            rep_error = f'{os.environ.get("Erreur_repertoire")}/erreur-{urlparse(self.url).netloc.split(".")[1]}.txt'
+            with open(rep_error, "a", encoding="utf-8") as file :
+                file.write(f" -- Erreur extraction sur {self.url}")
             pass
 
         self.data = reviews
