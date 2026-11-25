@@ -21,6 +21,7 @@ from tools import month_number
 from selenium.webdriver.support.select import Select
 from models import Settings
 from requests.models import PreparedRequest
+import re
 
 
 class Booking(Scraping):
@@ -149,8 +150,6 @@ class Booking(Scraping):
                             input('Selecteur date review non trouvé, à mettre à jour')
                         # input(f'dates splittés: {dates}')
                         dates = review_posted_date.split()
-
-                        input('arriver ici ligne 153')
 
                         date_review = ""
                         
