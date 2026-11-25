@@ -193,7 +193,17 @@ class Booking(Scraping):
                             else:
                                 date_visit = date_review
                         except Exception as e:
-                            input(f'Erreur extraction de date_visit -- {e}')
+                            try:
+                                if self.lang == "es":
+                                    print('Date répéré en ES avec probable "de"')
+                                    if card.find('span', {'data-testid': 'review-stay-date'}):
+                                        date_séjour_brute = card.find('span', {'data-testid': 'review-stay-date'}).text.strip().split()[-3:]
+                                        #Normalement la lang est toujours fr car on n'est pas dans booking es, l'affichage de la page est en fr mais les reviews seulement puvent être en langue différents selon les clients
+                                        date_visit = f"{(datetime.now().day-1)}/{month_number(date_séjour_brute[0], 'fr')}/{date_séjour_brute[-1]}"
+                                    else:
+                                        date_visit = date_review
+                            except Exception as e:
+                                input(f'Erreur extraction de date_visit -- {e}')
 
                         # input(f'Date visit = {date_visit}')
 
