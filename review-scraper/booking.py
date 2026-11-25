@@ -66,14 +66,22 @@ class Booking(Scraping):
         reviews = []
         #Ajout paramètre en url #tab-reviews pour ne pas cliquer , #tab-main est automatiquement là , on le change par #tab-reviews 
         # input(f'url = {self.driver.current_url}')
-        if "#tab-main" in self.driver.current_url:
-            url_new = self.driver.current_url.replace("#tab-main", "#tab-reviews")
-            self.driver.get(url_new)
-            time.sleep(5)
-        else:
-            url_new = self.driver.current_url + "#tab-reviews"
-            self.driver.get(url_new)
-            time.sleep(5)
+        # if "#tab-main" in self.driver.current_url:
+        #     url_new = self.driver.current_url.replace("#tab-main", "#tab-reviews")
+        #     self.driver.get(url_new)
+        #     time.sleep(5)
+        # else:
+        #     url_new = self.driver.current_url + "#tab-reviews"
+        #     self.driver.get(url_new)
+        #     time.sleep(5)
+        #autre façon 24 11 2026 : clique
+        try:
+            time.sleep(1.2)
+            tab_review = self.driver.find_element(By.ID, "reviews-tab-trigger")
+            tab_review.click()
+            print('tab_review clicked')
+        except:
+            input('selecteur de selection du popup des review non trouvé, mettre à jour')
         print("         ")
         print('extraction sur la nouvelle view ...')
         print('         ')
