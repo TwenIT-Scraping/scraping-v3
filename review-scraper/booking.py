@@ -90,21 +90,21 @@ class Booking(Scraping):
         except Exception as e:
             input(f"Erreur lors de la sélection de l'ordre des avis : {e}")
         
-        #Sur cette nouvelle view, on peut voir un button voir la traduction, donc on va tous les cliqués pour traduire en français les reviews
-        container_all_buttons_translations = self.driver.find_elements(By.CSS_SELECTOR, "div[data-testid='review-translation-handle']")
-        # print(container_all_buttons_translations)
-        for container_btn in container_all_buttons_translations:
-            btn = container_btn.find_element(By.TAG_NAME, 'button')
-            try:
-                self.driver.execute_script("arguments[0].click();", btn)
-            except Exception as e:
-                input(f"Erreur lors du clic sur le bouton de traduction : {e}, checker le selecteur et relancer")
-                self.driver.quit()
-            time.sleep(1)
+        #19 06 2026 : Sur cette nouvelle view, on peut voir un button voir la traduction, donc on va tous les cliqués pour traduire en français les reviews
+        # container_all_buttons_translations = self.driver.find_elements(By.CSS_SELECTOR, "div[data-testid='review-translation-handle']")
+        # # print(container_all_buttons_translations)
+        # for container_btn in container_all_buttons_translations:
+        #     btn = container_btn.find_element(By.TAG_NAME, 'button')
+        #     try:
+        #         self.driver.execute_script("arguments[0].click();", btn)
+        #     except Exception as e:
+        #         input(f"Erreur lors du clic sur le bouton de traduction : {e}, checker le selecteur et relancer")
+        #         self.driver.quit()
+        #     time.sleep(1)
  
-        print('         ')
-        print(' Tous les boutons de traductions cliqués')
-        print('         ')
+        # print('         ')
+        # print(' Tous les boutons de traductions cliqués')
+        # print('         ')
 
         try:
             break_transmetter = True
