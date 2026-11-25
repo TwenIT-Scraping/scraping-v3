@@ -132,7 +132,7 @@ class Booking(Scraping):
                                 negative = card.find('div', {'data-testid': 'review-negative-text'}).text.strip()
                             except:
                                 print('Pas de selecteur négative, à vérifier sur le site de temps en temps car il se peut que le selecteur a changé mais aussi le client peut aussi ne pas avoir mis de commentaire négative')
-                                positive = ""                        
+                                negative = ""                        
                             try:
                                 positive = card.find('div', {'data-testid': 'review-positive-text'}).text.strip()
                             except:
@@ -239,7 +239,7 @@ class Booking(Scraping):
                             continue
 
                     except Exception as e:
-                        print(e)
+                        print(f'Erreur dans le for card in cards dnans extract new view ---- {e}')
                 #ajout condition pour self.last_review_date
                 print(f"la valeur du check date => {self.check_date(reviews[-1]['date_review'], self.last_review_date)}")
                 if not break_transmetter:
@@ -257,7 +257,7 @@ class Booking(Scraping):
                     break
 
         except Exception as e:
-            input(f"erreur du while dans extract de booking extract new view => {e}")
+            print(f"erreur du while dans extract de booking extract new view => {e}")
             pass
 
         self.data = reviews
