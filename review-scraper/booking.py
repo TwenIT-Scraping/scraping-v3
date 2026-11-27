@@ -284,11 +284,11 @@ class Booking(Scraping):
                         break
                 except NoSuchElementException: #27 11 2026
                     break
-                # except Exception as e:
-                #     print('         ')
-                #     print(f"Erreur lors de la recherche du bouton suivant : {e}")
-                #     print('         ')
-                #     break
+                except Exception as e:
+                    print('         ')
+                    print(f"Erreur lors de la recherche du bouton suivant : {e}")
+                    print('         ')
+                    break
 
         except Exception as e:
             print(f"erreur du while dans extract de booking extract new view => {e}")
