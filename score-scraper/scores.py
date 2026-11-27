@@ -277,7 +277,7 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
         provider = data['source'].lower().split(' ')[0]
         page_type = get_page_type(provider, driver.current_url)
         print(page_type)
-        """if provider == "google": #vpn monapco du 12 , plus de cookies
+        if provider == "google": 
             print('Accept all cookies')
             try:
                 time.sleep(3)
@@ -308,7 +308,7 @@ def score_scraping_task(driver: Driver, data:list, env:str='PROD'):
                             print(f"4eme selecteur accept cookie not found => {e}")
                             input("manual click accept cookies, click ENTER to continue...")
 
-                pass"""
+                pass
         #ajout de temps pour google
         if provider == "google":
             driver.long_random_sleep()
