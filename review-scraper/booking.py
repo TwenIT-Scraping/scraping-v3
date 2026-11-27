@@ -25,6 +25,7 @@ import re
 import os
 import dotenv
 from random import uniform
+from selenium.common.exceptions import NoSuchElementException
 
 dotenv.load_dotenv()
 
@@ -281,6 +282,8 @@ class Booking(Scraping):
                     else:
                         print('PAS DE NEXT BUTTON')
                         break
+                except NoSuchElementException: #27 11 2026
+                    break
                 except Exception as e:
                     print('         ')
                     print(f"Erreur lors de la recherche du bouton suivant : {e}")
