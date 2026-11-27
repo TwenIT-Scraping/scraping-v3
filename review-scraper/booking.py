@@ -270,7 +270,6 @@ class Booking(Scraping):
                     except Exception as e:
                         print(f'Erreur dans le for card in cards dnans extract new view ---- {e}')
                 #ajout condition pour self.last_review_date
-                print(f"la valeur du check date => {self.check_date(reviews[-1]['date_review'], self.last_review_date)}")
                 if not break_transmetter:
                     break
                 next_btn = self.driver.find_elements(By.CSS_SELECTOR, 'button[aria-label="Page suivante"]') #1 seul mais là ça retourne un False si non existante
