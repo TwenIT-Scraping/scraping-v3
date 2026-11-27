@@ -274,21 +274,21 @@ class Booking(Scraping):
                 if not break_transmetter:
                     break
                 try:
-                    if self.driver.find_element(By.CSS_SELECTOR, 'button[aria-label="Page suivante"]'):
-                        next_btn = self.driver.find_element(By.CSS_SELECTOR, 'button[aria-label="Page suivante"]')
-                        if next_btn:
-                            self.driver.execute_script("arguments[0].click();", next_btn)
-                            time.sleep(uniform(5.1,8.5))
+                    
+                    next_btn = self.driver.find_element(By.CSS_SELECTOR, 'button[aria-label="Page suivante"]')
+                    if next_btn:
+                        self.driver.execute_script("arguments[0].click();", next_btn)
+                        time.sleep(uniform(5.1,8.5))
                     else:
                         print('PAS DE NEXT BUTTON')
                         break
                 except NoSuchElementException: #27 11 2026
                     break
-                except Exception as e:
-                    print('         ')
-                    print(f"Erreur lors de la recherche du bouton suivant : {e}")
-                    print('         ')
-                    break
+                # except Exception as e:
+                #     print('         ')
+                #     print(f"Erreur lors de la recherche du bouton suivant : {e}")
+                #     print('         ')
+                #     break
 
         except Exception as e:
             print(f"erreur du while dans extract de booking extract new view => {e}")
