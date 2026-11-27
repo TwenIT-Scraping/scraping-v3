@@ -273,16 +273,12 @@ class Booking(Scraping):
                 print(f"la valeur du check date => {self.check_date(reviews[-1]['date_review'], self.last_review_date)}")
                 if not break_transmetter:
                     break
-                try:
-                    
-                    next_btn = self.driver.find_element(By.CSS_SELECTOR, 'button[aria-label="Page suivante"]')
-                    if next_btn:
-                        self.driver.execute_script("arguments[0].click();", next_btn)
-                        time.sleep(uniform(5.1,8.5))
-                    else:
-                        print('PAS DE NEXT BUTTON')
-                        break
-                except NoSuchElementException: #27 11 2026
+                next_btn = self.driver.find_elements(By.CSS_SELECTOR, 'button[aria-label="Page suivante"]') #1 seul mais là ça retourne un False si non existante
+                if next_btn:
+                    self.driver.execute_script("arguments[0].click();", next_btn[0])
+                    time.sleep(uniform(5.4,8.5))
+                else:
+                    print('PAS DE NEXT BUTTON')
                     break
                 # except Exception as e:
                 #     print('         ')
