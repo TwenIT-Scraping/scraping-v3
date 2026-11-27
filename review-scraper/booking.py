@@ -24,6 +24,7 @@ from requests.models import PreparedRequest
 import re
 import os
 import dotenv
+from random import uniform
 
 dotenv.load_dotenv()
 
@@ -272,15 +273,18 @@ class Booking(Scraping):
                 if not break_transmetter:
                     break
                 try:
-
-                    next_btn = self.driver.find_element(By.CSS_SELECTOR, 'button[aria-label="Page suivante"]')
-
-                    if next_btn:
-                        self.driver.execute_script("arguments[0].click();", next_btn)
-                        time.sleep(4)
-
+                    if self.driver.find_element(By.CSS_SELECTOR, 'button[aria-label="Page suivante"]'):
+                        next_btn = self.driver.find_element(By.CSS_SELECTOR, 'button[aria-label="Page suivante"]')
+                        if next_btn:
+                            self.driver.execute_script("arguments[0].click();", next_btn)
+                            time.sleep(uniform(5.1,8.5))
+                    else:
+                        print('PAS DE NEXT BUTTON')
+                        break
                 except Exception as e:
-                    input(f"Erreur lors de la recherche du bouton suivant : {e}")
+                    print('         ')
+                    print(f"Erreur lors de la recherche du bouton suivant : {e}")
+                    print('         ')
                     break
 
         except Exception as e:
