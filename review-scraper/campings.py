@@ -106,16 +106,17 @@ class Campings(Scraping):
             # self.driver.execute_script("arguments[0].setAttribute('class', 'choices__list choices__list--dropdown')", choises_list)
             # self.driver.execute_script("arguments[0].setAttribute('aria-expanded', 'false')", choises_list)
 
-            try:
-                #clique sur le tri par Date (testé et ajouté le 15 07 2025)
-                container_choice = self.driver.find_element(By.XPATH,'//*[@id="campings-reviews"]/div[3]/form/div[1]/div/div[1]/div')
-                time.sleep(0.5)
-                self.driver.execute_script("arguments[0].click();", container_choice)
-                time.sleep(0.5)
-                container_choice.send_keys(Keys.ENTER)
-                print('review trié par date avec succès')
-            except (ElementNotVisibleException, ElementNotSelectableException):
-                input(f"erreur de clique pour les review affiché par date => {e}")
+            # try: #déja trié par date d'origine
+            #     #clique sur le tri par Date (testé et ajouté le 15 07 2025)
+            #     container_choice = self.driver.find_element(By.XPATH,'//*[@id="campings-reviews"]/div[3]/form/div[1]/div/div[1]/div')
+            #     time.sleep(0.5)
+            #     self.driver.execute_script("arguments[0].click();", container_choice)
+            #     time.sleep(0.5)
+            #     container_choice.send_keys(Keys.ENTER)
+            #     time.sleep(1)
+            #     print('review trié par date avec succès')
+            # except (ElementNotVisibleException, ElementNotSelectableException):
+            #     input(f"erreur de clique pour les review affiché par date => {e}")
 
             time.sleep(2)
         except Exception as error:
